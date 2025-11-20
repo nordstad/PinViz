@@ -28,26 +28,6 @@ diagrams.
 - **GPIO Pin Reference**: Optional GPIO pinout diagram for easy reference
 - **SVG Output**: Scalable, high-quality vector graphics
 
-## Example Diagrams
-
-### LED with Resistor
-
-Simple LED circuit with inline current-limiting resistor:
-
-![LED with Resistor](images/led_with_resistor.svg)
-
-### Multi-Device Setup
-
-BH1750 light sensor + IR LED ring with custom wire colors:
-
-![BH1750 + IR LED Ring](images/bh1750_ir_led.svg)
-
-### Traffic Light
-
-Three LEDs with individual resistors:
-
-![Traffic Light](images/traffic_light.svg)
-
 ## Installation
 
 Using `uv` (recommended):
@@ -169,6 +149,26 @@ pinviz my-diagram.yaml -o output.svg
 # Short form (output defaults to <config>.svg)
 pinviz my-diagram.yaml
 ```
+
+## Example Diagrams
+
+### LED with Resistor
+
+Simple LED circuit with inline current-limiting resistor:
+
+![LED with Resistor](images/led_with_resistor.svg)
+
+### Multi-Device Setup
+
+BH1750 light sensor + IR LED ring with custom wire colors:
+
+![BH1750 + IR LED Ring](images/bh1750_ir_led.svg)
+
+### Traffic Light
+
+Three LEDs with individual resistors:
+
+![Traffic Light](images/traffic_light.svg)
 
 ### Generate Built-in Examples
 
