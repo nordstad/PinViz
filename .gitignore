@@ -29,8 +29,8 @@ htmlcov/
 # Claude Code local settings
 .claude/
 
-# Generated outputs (examples should be regenerated)
-out/
+# Generated outputs (temporary/local builds only)
+# Note: images/ is NOT ignored - example diagrams should be committed
 
 # Development tools
 .ruff_cache/

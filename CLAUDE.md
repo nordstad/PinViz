@@ -40,9 +40,9 @@ pinviz render examples/bh1750.yaml -o output.svg
 pinviz examples/bh1750.yaml -o output.svg
 
 # Generate built-in examples
-pinviz example bh1750 -o out/bh1750.svg
-pinviz example ir_led -o out/ir_led.svg
-pinviz example i2c_spi -o out/i2c_spi.svg
+pinviz example bh1750 -o images/bh1750.svg
+pinviz example ir_led -o images/ir_led.svg
+pinviz example i2c_spi -o images/i2c_spi.svg
 
 # List available templates
 pinviz list

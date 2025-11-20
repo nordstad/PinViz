@@ -28,19 +28,19 @@ diagrams.
 
 Simple LED circuit with inline current-limiting resistor:
 
-![LED with Resistor](out/led_with_resistor.svg)
+![LED with Resistor](images/led_with_resistor.svg)
 
 ### Multi-Device Setup
 
 BH1750 light sensor + IR LED ring with custom wire colors:
 
-![BH1750 + IR LED Ring](out/bh1750_ir_led.svg)
+![BH1750 + IR LED Ring](images/bh1750_ir_led.svg)
 
 ### Traffic Light
 
 Three LEDs with individual resistors:
 
-![Traffic Light](out/traffic_light.svg)
+![Traffic Light](images/traffic_light.svg)
 
 ## Installation
 
@@ -333,7 +333,7 @@ The `examples/` directory contains:
   resistor
 - `traffic_light.yaml` - Traffic light with 3 LEDs and resistors
 
-All generated diagrams are in the `out/` directory.
+All generated diagrams are in the `images/` directory.
 
 ## License
 
