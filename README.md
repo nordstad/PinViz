@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/nordstad/PinViz/actions/workflows/ci.yml/badge.svg)](https://github.com/nordstad/PinViz/actions/workflows/ci.yml)
 [![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://nordstad.github.io/PinViz/)
-[![codecov](https://codecov.io/gh/nordstad/PinViz/branch/main/graph/badge.svg)](https://codecov.io/gh/nordstad/PinViz)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://img.shields.io/pypi/v/pinviz.svg)](https://pypi.org/project/pinviz/)
