@@ -50,14 +50,6 @@ Changelog = "https://gitlab.com/borkempire/pinviz/-/blob/main/CHANGELOG.md"
 [project.scripts]
 pinviz = "pinviz.cli:main"
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "ruff>=0.1.0",
-    "twine>=4.0.0",
-]
-
 [tool.ruff]
 target-version = "py313"
 line-length = 100
@@ -87,5 +79,8 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
     "ruff>=0.14.5",
+    "twine>=4.0.0",
 ]
