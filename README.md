@@ -156,19 +156,19 @@ pinviz my-diagram.yaml
 
 Simple LED circuit with inline current-limiting resistor:
 
-![LED with Resistor](images/led_with_resistor.svg)
+![LED with Resistor](https://raw.githubusercontent.com/nordstad/PinViz/main/images/led_with_resistor.svg)
 
 ### Multi-Device Setup
 
 BH1750 light sensor + IR LED ring with custom wire colors:
 
-![BH1750 + IR LED Ring](images/bh1750_ir_led.svg)
+![BH1750 + IR LED Ring](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750_ir_led.svg)
 
 ### Traffic Light
 
 Three LEDs with individual resistors:
 
-![Traffic Light](images/traffic_light.svg)
+![Traffic Light](https://raw.githubusercontent.com/nordstad/PinViz/main/images/traffic_light.svg)
 
 ### Generate Built-in Examples
 

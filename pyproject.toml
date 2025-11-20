@@ -1,6 +1,6 @@
 [project]
 name = "pinviz"
-version = "0.1.1"
+version = "0.1.2"
 description = "Programmatically generate Raspberry Pi GPIO connection diagrams"
 readme = "README.md"
 license = {text = "MIT"}
