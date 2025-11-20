@@ -41,11 +41,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://gitlab.com/borkempire/pinviz"
-Repository = "https://gitlab.com/borkempire/pinviz"
-Documentation = "https://gitlab.com/borkempire/pinviz#readme"
-"Bug Tracker" = "https://gitlab.com/borkempire/pinviz/-/issues"
-Changelog = "https://gitlab.com/borkempire/pinviz/-/blob/main/CHANGELOG.md"
+Homepage = "https://nordstad.github.io/PinViz/"
+Repository = "https://github.com/nordstad/PinViz"
+Documentation = "https://nordstad.github.io/PinViz/"
+"Bug Tracker" = "https://github.com/nordstad/PinViz/issues"
+Changelog = "https://github.com/nordstad/PinViz/blob/main/CHANGELOG.md"
 
 [project.scripts]
 pinviz = "pinviz.cli:main"
@@ -83,4 +83,10 @@ dev = [
     "pytest-cov>=4.1.0",
     "ruff>=0.14.5",
     "twine>=4.0.0",
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings>=0.24.0",
+    "mkdocstrings-python>=1.8.0",
 ]

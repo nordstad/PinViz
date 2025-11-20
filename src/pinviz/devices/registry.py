@@ -59,7 +59,7 @@ class DeviceRegistry:
         """Get a device template by type ID."""
         return self._templates.get(type_id.lower())
 
-    def create(self, type_id: str, **kwargs) -> Device:
+    def create(self, type_id: str, **kwargs: Any) -> Device:
         """
         Create a device instance from a template.
 
