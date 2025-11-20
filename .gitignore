@@ -36,3 +36,7 @@ out/
 .ruff_cache/
 .mypy_cache/
 *.log
+
+# GitHub Actions documentation (not for commit)
+.github/workflows/SECURITY_EXPLANATION.md
+.github/workflows/WORKFLOWS_TO_CREATE.md
