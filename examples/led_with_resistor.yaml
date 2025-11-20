@@ -1,0 +1,24 @@
+title: "LED with Current-Limiting Resistor"
+board: "raspberry_pi_5"
+devices:
+  - type: "led"
+    color: "Red"
+    name: "Red LED"
+connections:
+  # LED Anode to GPIO17 via 220Ω resistor
+  - board_pin: 11  # GPIO17
+    device: "Red LED"
+    device_pin: "+"
+    color: "#FF0000"  # Red wire
+    components:
+      - type: "resistor"
+        value: "220Ω"
+        # position: 0.55 is default (55% along wire, toward LED side)
+
+  # LED Cathode to Ground
+  - board_pin: 9  # GND
+    device: "Red LED"
+    device_pin: "-"
+    color: "#000000"  # Black wire
+
+show_legend: true

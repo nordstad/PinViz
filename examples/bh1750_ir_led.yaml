@@ -1,0 +1,41 @@
+title: "BH1750 Light Sensor + IR LED Ring"
+board: "raspberry_pi_5"
+devices:
+  - type: "bh1750"
+    name: "BH1750 Light Sensor"
+  - type: "ir_led_ring"
+    name: "IR LED Ring"
+connections:
+  # BH1750 Light Sensor
+  - board_pin: 1
+    device: "BH1750 Light Sensor"
+    device_pin: "VCC"
+    color: "#FF9800"  # Orange
+  - board_pin: 9
+    device: "BH1750 Light Sensor"
+    device_pin: "GND"
+    color: "#FFEB3B"  # Yellow
+  - board_pin: 3
+    device: "BH1750 Light Sensor"
+    device_pin: "SDA"
+    color: "#4CAF50"  # Green
+  - board_pin: 5
+    device: "BH1750 Light Sensor"
+    device_pin: "SCL"
+    color: "#2196F3"  # Blue
+
+  # IR LED Ring
+  - board_pin: 2
+    device: "IR LED Ring"
+    device_pin: "VCC"
+    color: "#F44336"  # Red
+  - board_pin: 6
+    device: "IR LED Ring"
+    device_pin: "GND"
+    color: "#000000"  # Black
+  - board_pin: 11
+    device: "IR LED Ring"
+    device_pin: "CTRL"
+    color: "#F44336"  # Red
+
+show_legend: true

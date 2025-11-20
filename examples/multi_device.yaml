@@ -1,0 +1,56 @@
+title: "Multi-Device Wiring: I2C OLED + SPI Accelerometer"
+
+board: "raspberry_pi_5"
+
+devices:
+  - type: "i2c"
+    name: "OLED_Display"
+    has_int_pin: false
+
+  - type: "spi"
+    name: "Accel_SPI"
+
+connections:
+  # I2C OLED Display connections
+  - board_pin: 1    # 3V3
+    device: "OLED_Display"
+    device_pin: "VCC"
+
+  - board_pin: 6    # GND
+    device: "OLED_Display"
+    device_pin: "GND"
+
+  - board_pin: 5    # GPIO3 (I2C SCL)
+    device: "OLED_Display"
+    device_pin: "SCL"
+
+  - board_pin: 3    # GPIO2 (I2C SDA)
+    device: "OLED_Display"
+    device_pin: "SDA"
+
+  # SPI Accelerometer connections
+  - board_pin: 17   # 3V3
+    device: "Accel_SPI"
+    device_pin: "VCC"
+
+  - board_pin: 20   # GND
+    device: "Accel_SPI"
+    device_pin: "GND"
+
+  - board_pin: 23   # GPIO11 (SPI SCLK)
+    device: "Accel_SPI"
+    device_pin: "SCLK"
+
+  - board_pin: 19   # GPIO10 (SPI MOSI)
+    device: "Accel_SPI"
+    device_pin: "MOSI"
+
+  - board_pin: 21   # GPIO9 (SPI MISO)
+    device: "Accel_SPI"
+    device_pin: "MISO"
+
+  - board_pin: 24   # GPIO8 (SPI CE0)
+    device: "Accel_SPI"
+    device_pin: "CS"
+
+show_legend: true

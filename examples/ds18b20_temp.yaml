@@ -1,0 +1,29 @@
+title: "DS18B20 Waterproof Temperature Sensor"
+board: "raspberry_pi_5"
+devices:
+  - type: "ds18b20"
+    name: "DS18B20"
+connections:
+  # VCC to 3.3V
+  - board_pin: 1  # 3.3V
+    device: "DS18B20"
+    device_pin: "VCC"
+    color: "#FF0000"  # Red wire
+
+  # DATA to GPIO4 (default 1-Wire pin)
+  - board_pin: 7  # GPIO4
+    device: "DS18B20"
+    device_pin: "DATA"
+    color: "#FFFF00"  # Yellow wire
+    components:
+      - type: "resistor"
+        value: "4.7kΩ"
+        position: 0.3  # Pull-up resistor near Pi side
+
+  # GND to Ground
+  - board_pin: 9  # GND
+    device: "DS18B20"
+    device_pin: "GND"
+    color: "#000000"  # Black wire
+
+show_legend: true

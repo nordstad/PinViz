@@ -1,0 +1,23 @@
+title: "12-LED IR Ring Module Wiring"
+
+board: "raspberry_pi_5"
+
+devices:
+  - type: "ir_led_ring"
+    name: "IR_LED_Ring"
+    num_leds: 12
+
+connections:
+  - board_pin: 2    # 5V
+    device: "IR_LED_Ring"
+    device_pin: "VCC"
+
+  - board_pin: 9    # GND
+    device: "IR_LED_Ring"
+    device_pin: "GND"
+
+  - board_pin: 11   # GPIO17
+    device: "IR_LED_Ring"
+    device_pin: "CTRL"
+
+show_legend: true
