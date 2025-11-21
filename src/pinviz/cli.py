@@ -18,15 +18,15 @@ def main() -> int:
         epilog="""
 Examples:
   # Generate diagram from YAML config
-  pi-diagram diagram.yaml
+  pinviz diagram.yaml
 
   # Specify output path
-  pi-diagram diagram.yaml -o output/wiring.svg
+  pinviz diagram.yaml -o output/wiring.svg
 
   # Use a built-in example
-  pi-diagram example bh1750
+  pinviz example bh1750
 
-For more information, visit: https://github.com/yourusername/pinviz
+For more information, visit: https://github.com/nordstad/PinViz
         """,
     )
 

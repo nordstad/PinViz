@@ -58,24 +58,27 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
+      - name: Create virtual environment
+        run: uv venv .venv
+
       - name: Install published package
         env:
           PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
-        run: uv pip install --system pinviz==$PACKAGE_VERSION
+        run: uv pip install pinviz==$PACKAGE_VERSION
 
       - name: Verify CLI installation
         run: |
-          pinviz --version
-          pinviz list
+          uv run pinviz --version
+          uv run pinviz list
 
       - name: Test basic functionality
         run: |
           # Test that we can import the package
-          python -c "from pinviz import boards, devices, Connection, Diagram, SVGRenderer"
-          python -c "from pinviz import WireColor, ComponentType, Component"
+          uv run python -c "from pinviz import boards, devices, Connection, Diagram, SVGRenderer"
+          uv run python -c "from pinviz import WireColor, ComponentType, Component"
 
           # Test that we can create a simple diagram
-          python -c "
+          uv run python -c "
           from pinviz import boards, devices, Connection, Diagram, SVGRenderer
 
           board = boards.raspberry_pi_5()
@@ -92,8 +95,8 @@ jobs:
 
       - name: Test built-in examples
         run: |
-          pinviz example bh1750 -o bh1750_test.svg
-          pinviz example ir_led -o ir_led_test.svg
+          uv run pinviz example bh1750 -o bh1750_test.svg
+          uv run pinviz example ir_led -o ir_led_test.svg
           if [ -f bh1750_test.svg ] && [ -f ir_led_test.svg ]; then
             echo "✓ Example generation works"
           else
