@@ -10,15 +10,9 @@ permissions:
   id-token: write  # Required for trusted publishing to PyPI
 
 jobs:
-  publish:
-    name: Publish to PyPI
+  build:
+    name: Build and validate package
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/pinviz
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Checkout
@@ -33,11 +27,64 @@ jobs:
       - name: Build package
         run: uv build
 
+      - name: Validate package metadata
+        run: uv run twine check dist/*
+
+      - name: Run local smoke tests
+        run: |
+          # Create a clean virtual environment
+          uv venv .venv
+
+          # Install the built wheel
+          uv pip install dist/*.whl
+
+          # Test CLI installation and basic commands
+          uv run pinviz --version
+          uv run pinviz list
+
+          # Test example generation
+          uv run pinviz example bh1750 -o bh1750_ci.svg
+
+          # Verify the SVG file was created
+          test -f bh1750_ci.svg || (echo "Failed to generate example SVG" && exit 1)
+
+          echo "✓ Local smoke tests passed"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pinviz
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
       - name: Publish to PyPI
-        run: uv publish
+        run: uv publish --no-build dist/*
 
   test-published:
-    name: Test Published Package
+    name: Test Published Package (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     needs: publish
     strategy:
@@ -45,9 +92,6 @@ jobs:
         python-version: ["3.12", "3.13"]
 
     steps:
-      - name: Wait for PyPI propagation
-        run: sleep 60  # Wait for package to be available on PyPI
-
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
@@ -61,10 +105,29 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Install published package
+      - name: Install published package with retry
         env:
           PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
-        run: uv pip install pinviz==$PACKAGE_VERSION
+        run: |
+          echo "Installing pinviz==${PACKAGE_VERSION} from PyPI..."
+
+          # Retry loop to handle PyPI propagation delay
+          for i in 1 2 3 4 5; do
+            echo "Attempt $i/5..."
+
+            if uv pip install "pinviz==${PACKAGE_VERSION}" && uv run pinviz --version; then
+              echo "✓ Successfully installed pinviz from PyPI"
+              exit 0
+            fi
+
+            if [ $i -lt 5 ]; then
+              echo "PyPI not ready yet, retrying in 30s..."
+              sleep 30
+            fi
+          done
+
+          echo "✗ Failed to install package after 5 attempts"
+          exit 1
 
       - name: Verify CLI installation
         run: |
