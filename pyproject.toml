@@ -38,6 +38,7 @@ classifiers = [
 dependencies = [
     "svgwrite>=1.4.3",
     "pyyaml>=6.0.1",
+    "rich-argparse>=1.5.0",
 ]
 
 [project.urls]

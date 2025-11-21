@@ -5,16 +5,26 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from rich_argparse import RichHelpFormatter
+
 from .config_loader import load_diagram
 from .model import Diagram
 from .render_svg import SVGRenderer
+
+# Get version from package metadata
+try:
+    from importlib.metadata import version
+
+    __version__ = version("pinviz")
+except Exception:
+    __version__ = "unknown"
 
 
 def main() -> int:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
         description="Generate Raspberry Pi GPIO connection diagrams",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        formatter_class=RichHelpFormatter,
         epilog="""
 Examples:
   # Generate diagram from YAML config
@@ -28,6 +38,13 @@ Examples:
 
 For more information, visit: https://github.com/nordstad/PinViz
         """,
+    )
+
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
