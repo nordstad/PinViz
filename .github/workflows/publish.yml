@@ -82,7 +82,7 @@ jobs:
           from pinviz import boards, devices, Connection, Diagram, SVGRenderer
 
           board = boards.raspberry_pi_5()
-          led = devices.led('Red LED')
+          led = devices.simple_led('Red')
           connections = [
               Connection(11, 'Red LED', '+'),
               Connection(6, 'Red LED', '-'),
