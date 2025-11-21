@@ -1,10 +1,16 @@
 # PinViz
 
-[![CI](https://github.com/nordstad/PinViz/actions/workflows/ci.yml/badge.svg)](https://github.com/nordstad/PinViz/actions/workflows/ci.yml)
-[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://nordstad.github.io/PinViz/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![PyPI version](https://img.shields.io/pypi/v/pinviz.svg)](https://pypi.org/project/pinviz/)
+<p align="center">
+  <img src="assets/logo_512.png" alt="PinViz Logo" width="120">
+</p>
+
+<p align="center">
+  <a href="https://github.com/nordstad/PinViz/actions/workflows/ci.yml"><img src="https://github.com/nordstad/PinViz/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://nordstad.github.io/PinViz/"><img src="https://img.shields.io/badge/docs-mkdocs-blue" alt="Documentation"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.12+-blue.svg" alt="Python 3.12+"></a>
+  <a href="https://pypi.org/project/pinviz/"><img src="https://img.shields.io/pypi/v/pinviz.svg" alt="PyPI version"></a>
+</p>
 
 Programmatically generate beautiful Raspberry Pi GPIO connection diagrams in
 SVG format.
