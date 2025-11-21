@@ -41,3 +41,5 @@ htmlcov/
 .github/workflows/SECURITY_EXPLANATION.md
 .github/workflows/WORKFLOWS_TO_CREATE.md
 site/
+pinviz-ci-cd-plan.md
+IMPROVEMENT_PLAN.md
