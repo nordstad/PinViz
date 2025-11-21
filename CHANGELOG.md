@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2025-01-21
+
+### Changed
+- Improved installation instructions in README and documentation
+  - Recommend `uv tool install pinviz` as primary method for CLI usage
+  - Clearly explain difference between `uv tool install` and `uv add`
+  - Add note about `uv run` prefix requirement for `uv add` installations
+- Restructured Quick Start guide with progressive learning path
+  - Step 1: Try built-in examples (immediate success)
+  - Step 2: Create custom YAML diagrams
+  - Step 3: Use Python API for programmatic control
+- Updated GitHub Pages documentation (docs/getting-started/) to match README improvements
+
+### Fixed
+- Installation confusion where users couldn't find `pinviz` command after `uv add`
+
 ## [0.1.2] - 2025-01-21
 
 ### Fixed

@@ -1,14 +1,48 @@
 # Quick Start
 
-This guide will walk you through creating your first PinViz diagram.
+This guide will walk you through using PinViz, from generating built-in examples to creating your own custom diagrams.
 
-## Creating Your First Diagram
+## Step 1: Try a Built-in Example
 
-Let's create a simple diagram showing how to wire a BH1750 light sensor to a Raspberry Pi.
+The fastest way to get started is to generate one of the built-in examples:
 
-### Step 1: Create a Configuration File
+```bash
+# Generate a BH1750 light sensor wiring diagram
+pinviz example bh1750 -o bh1750.svg
 
-Create a file named `light-sensor.yaml`:
+# See all available examples
+pinviz list
+```
+
+This creates an SVG file you can open in any web browser or vector graphics editor.
+
+!!! tip "Using uv add"
+    If you installed with `uv add` instead of `uv tool install`, prefix commands with `uv run`:
+    ```bash
+    uv run pinviz example bh1750 -o bh1750.svg
+    ```
+
+### Explore Available Examples
+
+PinViz includes several built-in examples:
+
+```bash
+# List all available examples
+pinviz list
+
+# BH1750 light sensor
+pinviz example bh1750 -o bh1750.svg
+
+# IR LED ring
+pinviz example ir_led -o ir_led.svg
+
+# Multiple I2C and SPI devices
+pinviz example i2c_spi -o i2c_spi.svg
+```
+
+## Step 2: Create Your Own Diagram
+
+Once you've seen what PinViz can do, create your own configuration file `light-sensor.yaml`:
 
 ```yaml
 title: "BH1750 Light Sensor Wiring"
@@ -36,7 +70,7 @@ connections:
     device_pin: "SDA"
 ```
 
-### Step 2: Generate the Diagram
+### Generate Your Diagram
 
 Run the following command:
 
@@ -46,7 +80,7 @@ pinviz light-sensor.yaml -o light-sensor.svg
 
 This creates `light-sensor.svg` in the current directory.
 
-### Step 3: View the Diagram
+### View Your Diagram
 
 Open the SVG file in your web browser or image viewer. You'll see a professionally formatted wiring diagram with:
 
@@ -55,9 +89,9 @@ Open the SVG file in your web browser or image viewer. You'll see a professional
 - Color-coded wires connecting the pins
 - A legend showing what each wire color represents
 
-## Using the Python API
+## Step 3: Using the Python API
 
-You can also create diagrams programmatically with Python:
+For programmatic diagram generation in your Python projects:
 
 ```python
 from pinviz import boards, devices, Connection, Diagram, SVGRenderer
@@ -127,24 +161,6 @@ connections:
     components:
       - type: "resistor"
         value: "220Ω"
-```
-
-## Exploring Built-in Examples
-
-PinViz includes several built-in examples you can generate:
-
-```bash
-# List available examples
-pinviz list
-
-# Generate BH1750 example
-pinviz example bh1750 -o bh1750.svg
-
-# Generate IR LED ring example
-pinviz example ir_led -o ir_led.svg
-
-# Generate multi-device example
-pinviz example i2c_spi -o i2c_spi.svg
 ```
 
 ## Next Steps
