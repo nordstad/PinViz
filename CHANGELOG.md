@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2025-01-21
+
+### Added
+- Modern CLI with rich-argparse for beautiful, colorful help formatting
+- `--version` / `-v` flag to display package version
+- Automatic version detection from package metadata using importlib.metadata
+
+### Changed
+- CLI help output now uses RichHelpFormatter for improved readability and visual appeal
+- Enhanced user experience with color-coded help text and better formatting
+
 ## [0.1.3] - 2025-01-21
 
 ### Changed
@@ -77,7 +88,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md for AI assistant context
 - Example configurations and diagrams
 
-[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/nordstad/PinViz/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/nordstad/PinViz/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/nordstad/PinViz/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/nordstad/PinViz/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/nordstad/PinViz/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/nordstad/PinViz/releases/tag/v0.1.0
