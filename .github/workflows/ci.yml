@@ -64,6 +64,8 @@ jobs:
   package-test:
     name: Test package build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: test
 
     steps:
