@@ -20,7 +20,7 @@ Please be respectful and constructive in all interactions. We aim to create a we
 
 2. **Clone your fork**:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/PinViz.git
+   git clone https://github.com/nordstad/PinViz.git
    cd PinViz
    ```
 
