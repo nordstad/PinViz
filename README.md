@@ -30,23 +30,54 @@ diagrams.
 
 ## Installation
 
-Using `uv` (recommended):
+### For CLI Usage (Recommended)
+
+Install as a standalone tool with global access to the CLI:
 
 ```bash
-uv add pinviz
+uv tool install pinviz
 ```
 
-Using `pip`:
+After installation, `pinviz` will be available globally in your terminal. See [Quick Start](#quick-start) below to generate your first diagram.
+
+### As a Project Dependency
+
+If you want to use PinViz as a library in your Python project:
 
 ```bash
+# Using uv
+uv add pinviz
+
+# Using pip
 pip install pinviz
 ```
 
+**Note**: If you install with `uv add`, the CLI tool will only be available via `uv run pinviz`. For direct CLI access, use `uv tool install` instead.
+
 ## Quick Start
 
-### Using YAML Configuration
+### 1. Try a Built-in Example
 
-Create a configuration file `my-diagram.yaml`:
+The fastest way to get started is to generate one of the built-in examples:
+
+```bash
+# Generate a BH1750 light sensor wiring diagram
+pinviz example bh1750 -o bh1750.svg
+
+# See all available examples
+pinviz list
+```
+
+This creates an SVG file you can open in any web browser or vector graphics editor.
+
+> **Note**: If you installed with `uv add` instead of `uv tool install`, prefix commands with `uv run`:
+> ```bash
+> uv run pinviz example bh1750 -o bh1750.svg
+> ```
+
+### 2. Create Your Own Diagram
+
+Once you've seen what PinViz can do, create your own configuration file `my-diagram.yaml`:
 
 ```yaml
 title: "BH1750 Light Sensor Wiring"
@@ -76,13 +107,15 @@ connections:
 show_gpio_diagram: true  # Optional: include GPIO pin reference
 ```
 
-Generate the diagram:
+Generate your diagram:
 
 ```bash
 pinviz my-diagram.yaml -o output.svg
 ```
 
-### Using Python API
+### 3. Using Python API
+
+For programmatic diagram generation in your Python projects:
 
 ```python
 from pinviz import boards, devices, Connection, Diagram, SVGRenderer
@@ -140,14 +173,28 @@ GRAY, BROWN, PINK, CYAN, MAGENTA, LIME, TURQUOISE
 
 ## CLI Commands
 
-### Render a Diagram
+See the [Quick Start](#quick-start) section for basic usage. All examples below assume you installed with `uv tool install pinviz` or `pip install pinviz`. If you installed with `uv add`, prefix all commands with `uv run`.
+
+### Rendering Custom Diagrams
 
 ```bash
-# From YAML/JSON file
+# From YAML/JSON file with specified output
 pinviz my-diagram.yaml -o output.svg
 
-# Short form (output defaults to <config>.svg)
+# Short form (output defaults to <config-name>.svg)
 pinviz my-diagram.yaml
+```
+
+### Working with Built-in Examples
+
+```bash
+# List all available built-in examples
+pinviz list
+
+# Generate a specific example
+pinviz example bh1750 -o bh1750.svg
+pinviz example ir_led -o ir_led.svg
+pinviz example i2c_spi -o i2c_spi.svg
 ```
 
 ## Example Diagrams
@@ -169,25 +216,6 @@ BH1750 light sensor + IR LED ring with custom wire colors:
 Three LEDs with individual resistors:
 
 ![Traffic Light](https://raw.githubusercontent.com/nordstad/PinViz/main/images/traffic_light.svg)
-
-### Generate Built-in Examples
-
-```bash
-# BH1750 light sensor
-pinviz example bh1750 -o bh1750.svg
-
-# IR LED ring
-pinviz example ir_led -o ir_led.svg
-
-# Multiple I2C and SPI devices
-pinviz example i2c_spi -o i2c_spi.svg
-```
-
-### List Available Templates
-
-```bash
-pinviz list
-```
 
 ## Configuration Reference
 
