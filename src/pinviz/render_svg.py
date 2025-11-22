@@ -53,6 +53,21 @@ class SVGRenderer:
         """
         self.layout_config = layout_config or LayoutConfig()
         self.layout_engine = LayoutEngine(self.layout_config)
+        self._init_svg_handlers()
+
+    def _init_svg_handlers(self) -> None:
+        """Initialize SVG element handlers."""
+        self._svg_handlers = {
+            "rect": self._handle_rect,
+            "circle": self._handle_circle,
+            "ellipse": self._handle_ellipse,
+            "line": self._handle_line,
+            "polyline": self._handle_polyline,
+            "polygon": self._handle_polygon,
+            "path": self._handle_path,
+            "text": self._handle_text,
+            "g": self._handle_group,
+        }
 
     def render(self, diagram: Diagram, output_path: str | Path) -> None:
         """
@@ -296,7 +311,6 @@ class SVGRenderer:
         tag = element.tag.replace(svg_ns, "") if svg_ns in element.tag else element.tag
 
         # Filter attributes: only keep SVG namespace attributes and non-namespaced attributes
-        # Skip attributes from other namespaces (XML, Sodipodi, Inkscape, etc.)
         attribs = {}
         for k, v in element.attrib.items():
             # Keep non-namespaced attributes (no braces)
@@ -305,97 +319,96 @@ class SVGRenderer:
             # Keep SVG namespace attributes (remove namespace prefix)
             elif k.startswith(svg_ns):
                 attribs[k.replace(svg_ns, "")] = v
-            # Skip all other namespace attributes (xml:, sodipodi:, inkscape:, etc.)
 
-        # Create appropriate svgwrite element
-        svg_element = None
-        if tag == "rect":
-            # Convert SVG rect attributes to svgwrite parameters
-            params = {}
-            if "x" in attribs and "y" in attribs:
-                params["insert"] = (attribs.pop("x"), attribs.pop("y"))
-            if "width" in attribs and "height" in attribs:
-                params["size"] = (attribs.pop("width"), attribs.pop("height"))
-            params.update(attribs)
-            svg_element = dwg.rect(**params)
-        elif tag == "circle":
-            # Convert SVG circle attributes to svgwrite parameters
-            params = {}
-            if "cx" in attribs and "cy" in attribs:
-                params["center"] = (attribs.pop("cx"), attribs.pop("cy"))
-            if "r" in attribs:
-                params["r"] = attribs.pop("r")
-            params.update(attribs)
-            svg_element = dwg.circle(**params)
-        elif tag == "ellipse":
-            # Convert SVG ellipse attributes to svgwrite parameters
-            params = {}
-            if "cx" in attribs and "cy" in attribs:
-                params["center"] = (attribs.pop("cx"), attribs.pop("cy"))
-            if "rx" in attribs:
-                params["r"] = (attribs.pop("rx"), attribs.pop("ry", attribs.get("rx")))
-            params.update(attribs)
-            svg_element = dwg.ellipse(**params)
-        elif tag == "line":
-            # Convert SVG line attributes to svgwrite parameters
-            params = {}
-            if "x1" in attribs and "y1" in attribs:
-                params["start"] = (attribs.pop("x1"), attribs.pop("y1"))
-            if "x2" in attribs and "y2" in attribs:
-                params["end"] = (attribs.pop("x2"), attribs.pop("y2"))
-            params.update(attribs)
-            svg_element = dwg.line(**params)
-        elif tag == "polyline":
-            # Convert SVG polyline attributes to svgwrite parameters
-            params = {}
-            if "points" in attribs:
-                # Parse points string "x1,y1 x2,y2 ..." to list of tuples
-                points_str = attribs.pop("points")
-                points = []
-                for point in points_str.split():
-                    coords = point.split(",")
-                    if len(coords) == 2:
-                        points.append((float(coords[0]), float(coords[1])))
-                params["points"] = points
-            params.update(attribs)
-            svg_element = dwg.polyline(**params)
-        elif tag == "polygon":
-            # Convert SVG polygon attributes to svgwrite parameters
-            params = {}
-            if "points" in attribs:
-                # Parse points string "x1,y1 x2,y2 ..." to list of tuples
-                points_str = attribs.pop("points")
-                points = []
-                for point in points_str.split():
-                    coords = point.split(",")
-                    if len(coords) == 2:
-                        points.append((float(coords[0]), float(coords[1])))
-                params["points"] = points
-            params.update(attribs)
-            svg_element = dwg.polygon(**params)
-        elif tag == "path":
-            # Convert SVG path attributes to svgwrite parameters
-            params = {}
-            if "d" in attribs:
-                params["d"] = attribs.pop("d")
-            params.update(attribs)
-            svg_element = dwg.path(**params)
-        elif tag == "text":
-            # Convert SVG text attributes to svgwrite parameters
-            text_content = element.text or ""
-            params = {}
-            if "x" in attribs and "y" in attribs:
-                params["insert"] = (attribs.pop("x"), attribs.pop("y"))
-            params.update(attribs)
-            svg_element = dwg.text(text_content, **params)
-        elif tag == "g":
-            svg_element = dwg.g(**attribs)
-            # Recursively add children
-            for child in element:
-                self._add_svg_element(svg_element, child, dwg, svg_ns)
+        # Dispatch to appropriate handler
+        handler = self._svg_handlers.get(tag)
+        if handler:
+            svg_element = handler(element, attribs, dwg, svg_ns)
+            if svg_element:
+                parent.add(svg_element)
 
-        if svg_element is not None:
-            parent.add(svg_element)
+    def _handle_rect(self, element, attribs, dwg, svg_ns):
+        params = {}
+        if "x" in attribs and "y" in attribs:
+            params["insert"] = (attribs.pop("x"), attribs.pop("y"))
+        if "width" in attribs and "height" in attribs:
+            params["size"] = (attribs.pop("width"), attribs.pop("height"))
+        params.update(attribs)
+        return dwg.rect(**params)
+
+    def _handle_circle(self, element, attribs, dwg, svg_ns):
+        params = {}
+        if "cx" in attribs and "cy" in attribs:
+            params["center"] = (attribs.pop("cx"), attribs.pop("cy"))
+        if "r" in attribs:
+            params["r"] = attribs.pop("r")
+        params.update(attribs)
+        return dwg.circle(**params)
+
+    def _handle_ellipse(self, element, attribs, dwg, svg_ns):
+        params = {}
+        if "cx" in attribs and "cy" in attribs:
+            params["center"] = (attribs.pop("cx"), attribs.pop("cy"))
+        if "rx" in attribs:
+            params["r"] = (attribs.pop("rx"), attribs.pop("ry", attribs.get("rx")))
+        params.update(attribs)
+        return dwg.ellipse(**params)
+
+    def _handle_line(self, element, attribs, dwg, svg_ns):
+        params = {}
+        if "x1" in attribs and "y1" in attribs:
+            params["start"] = (attribs.pop("x1"), attribs.pop("y1"))
+        if "x2" in attribs and "y2" in attribs:
+            params["end"] = (attribs.pop("x2"), attribs.pop("y2"))
+        params.update(attribs)
+        return dwg.line(**params)
+
+    def _handle_polyline(self, element, attribs, dwg, svg_ns):
+        params = {}
+        if "points" in attribs:
+            points_str = attribs.pop("points")
+            points = []
+            for point in points_str.split():
+                coords = point.split(",")
+                if len(coords) == 2:
+                    points.append((float(coords[0]), float(coords[1])))
+            params["points"] = points
+        params.update(attribs)
+        return dwg.polyline(**params)
+
+    def _handle_polygon(self, element, attribs, dwg, svg_ns):
+        params = {}
+        if "points" in attribs:
+            points_str = attribs.pop("points")
+            points = []
+            for point in points_str.split():
+                coords = point.split(",")
+                if len(coords) == 2:
+                    points.append((float(coords[0]), float(coords[1])))
+            params["points"] = points
+        params.update(attribs)
+        return dwg.polygon(**params)
+
+    def _handle_path(self, element, attribs, dwg, svg_ns):
+        params = {}
+        if "d" in attribs:
+            params["d"] = attribs.pop("d")
+        params.update(attribs)
+        return dwg.path(**params)
+
+    def _handle_text(self, element, attribs, dwg, svg_ns):
+        text_content = element.text or ""
+        params = {}
+        if "x" in attribs and "y" in attribs:
+            params["insert"] = (attribs.pop("x"), attribs.pop("y"))
+        params.update(attribs)
+        return dwg.text(text_content, **params)
+
+    def _handle_group(self, element, attribs, dwg, svg_ns):
+        g = dwg.g(**attribs)
+        for child in element:
+            self._add_svg_element(g, child, dwg, svg_ns)
+        return g
 
     def _parse_stop_attributes(self, stop_element) -> dict:
         """Parse gradient stop attributes, handling inline styles."""
@@ -675,155 +688,37 @@ class SVGRenderer:
         wire has inline components (resistors, capacitors, diodes), breaks the wire
         into segments and draws component symbols at specified positions.
 
-        Wire rendering features:
-            - White halo around colored wire for better visibility
-            - Rounded corners for professional appearance
-            - Endpoint dots at connection points
-            - Support for inline component symbols
-
         Args:
             dwg: The SVG drawing object
             wire: The routed wire with path and color information
         """
-        # If no components, draw simple wire
         if not wire.connection.components:
-            # Create path with rounded corners
-            path_d = create_bezier_path(wire.path_points, self.layout_config.corner_radius)
+            self._draw_simple_wire(dwg, wire)
+        else:
+            self._draw_wire_with_components(dwg, wire)
 
-            # Draw white halo first (wider stroke)
-            dwg.add(
-                dwg.path(
-                    d=path_d,
-                    stroke="white",
-                    stroke_width=7,
-                    fill="none",
-                    stroke_linecap="round",
-                    stroke_linejoin="round",
-                    opacity=1.0,
-                )
-            )
+        self._draw_wire_endpoints(dwg, wire)
 
-            # Draw the colored wire on top
-            dwg.add(
-                dwg.path(
-                    d=path_d,
-                    stroke=wire.color,
-                    stroke_width=3,
-                    fill="none",
-                    stroke_linecap="round",
-                    stroke_linejoin="round",
-                    opacity=0.8,
-                )
-            )
+    def _draw_simple_wire(self, dwg: svgwrite.Drawing, wire: RoutedWire) -> None:
+        """Draw a simple wire without components."""
+        path_d = create_bezier_path(wire.path_points, self.layout_config.corner_radius)
+        self._draw_wire_halo(dwg, path_d)
+        self._draw_wire_core(dwg, path_d, wire.color)
 
-            # Draw endpoint dots with white halos
-            dwg.add(
-                dwg.circle(center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=4, fill="white")
-            )
-            dwg.add(
-                dwg.circle(center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=3, fill=wire.color)
-            )
-            dwg.add(dwg.circle(center=(wire.to_pin_pos.x, wire.to_pin_pos.y), r=4, fill="white"))
-            dwg.add(dwg.circle(center=(wire.to_pin_pos.x, wire.to_pin_pos.y), r=3, fill=wire.color))
-            return
-
-        # Draw wire with components - break into segments using bezier curves
+    def _draw_wire_with_components(self, dwg: svgwrite.Drawing, wire: RoutedWire) -> None:
+        """Draw a wire broken into segments by inline components."""
         component_positions = sorted(
             [(comp, comp.position) for comp in wire.connection.components], key=lambda x: x[1]
         )
 
-        # Extract path segment points between positions
-        def get_path_segment(start_pos: float, end_pos: float) -> list[Point]:
-            """Extract points from path between start_pos and end_pos."""
-            if start_pos >= end_pos:
-                return []
-
-            segment_points = []
-
-            # Add start point
-            if start_pos > 0.0:
-                start_pt, _ = self._point_along_path(wire.path_points, start_pos)
-                segment_points.append(start_pt)
-
-            # Add all intermediate path points that fall within range
-            total_len = 0.0
-            segment_lengths = []
-            for i in range(len(wire.path_points) - 1):
-                dx = wire.path_points[i + 1].x - wire.path_points[i].x
-                dy = wire.path_points[i + 1].y - wire.path_points[i].y
-                seg_len = math.sqrt(dx * dx + dy * dy)
-                segment_lengths.append(seg_len)
-                total_len += seg_len
-
-            cumulative = 0.0
-            for i, seg_len in enumerate(segment_lengths):
-                pos_at_start = cumulative / total_len
-                pos_at_end = (cumulative + seg_len) / total_len
-
-                # Include point if it's within our range
-                if start_pos <= pos_at_start <= end_pos:
-                    segment_points.append(wire.path_points[i])
-                if start_pos <= pos_at_end <= end_pos:
-                    segment_points.append(wire.path_points[i + 1])
-
-                cumulative += seg_len
-
-            # Add end point
-            if end_pos < 1.0:
-                end_pt, _ = self._point_along_path(wire.path_points, end_pos)
-                segment_points.append(end_pt)
-
-            # Remove duplicates while preserving order
-            seen = set()
-            unique_points = []
-            for pt in segment_points:
-                key = (round(pt.x, 2), round(pt.y, 2))
-                if key not in seen:
-                    seen.add(key)
-                    unique_points.append(pt)
-
-            return unique_points if len(unique_points) >= 2 else segment_points
-
-        # Draw wire segments
         prev_pos = 0.0
         for comp, comp_pos in component_positions:
             # Draw wire segment from prev_pos to comp_pos
             if comp_pos > prev_pos + 0.01:
-                segment_points = get_path_segment(prev_pos, comp_pos)
-
-                if len(segment_points) >= 2:
-                    # Use bezier path for smooth curves
-                    path_d = create_bezier_path(segment_points, self.layout_config.corner_radius)
-
-                    # Draw white halo first
-                    dwg.add(
-                        dwg.path(
-                            d=path_d,
-                            stroke="white",
-                            stroke_width=7,
-                            fill="none",
-                            stroke_linecap="round",
-                            stroke_linejoin="round",
-                            opacity=1.0,
-                        )
-                    )
-
-                    # Draw colored wire on top
-                    dwg.add(
-                        dwg.path(
-                            d=path_d,
-                            stroke=wire.color,
-                            stroke_width=3,
-                            fill="none",
-                            stroke_linecap="round",
-                            stroke_linejoin="round",
-                            opacity=0.8,
-                        )
-                    )
+                self._draw_wire_segment(dwg, wire, prev_pos, comp_pos)
 
             # Draw component symbol
             comp_pt, angle = self._point_along_path(wire.path_points, comp_pos)
-
             if comp.type == ComponentType.RESISTOR:
                 self._draw_resistor_symbol(dwg, comp_pt, angle, wire.color, comp.value)
 
@@ -831,40 +726,105 @@ class SVGRenderer:
 
         # Draw final segment from last component to end
         if prev_pos < 0.99:
-            segment_points = get_path_segment(prev_pos, 1.0)
+            self._draw_wire_segment(dwg, wire, prev_pos, 1.0)
 
-            if len(segment_points) >= 2:
-                path_d = create_bezier_path(segment_points, self.layout_config.corner_radius)
+    def _draw_wire_segment(
+        self, dwg: svgwrite.Drawing, wire: RoutedWire, start_pos: float, end_pos: float
+    ) -> None:
+        """Draw a segment of a wire between two positions (0.0-1.0)."""
+        segment_points = self._get_path_segment(wire.path_points, start_pos, end_pos)
+        if len(segment_points) >= 2:
+            path_d = create_bezier_path(segment_points, self.layout_config.corner_radius)
+            self._draw_wire_halo(dwg, path_d)
+            self._draw_wire_core(dwg, path_d, wire.color)
 
-                # Draw white halo first
-                dwg.add(
-                    dwg.path(
-                        d=path_d,
-                        stroke="white",
-                        stroke_width=7,
-                        fill="none",
-                        stroke_linecap="round",
-                        stroke_linejoin="round",
-                        opacity=1.0,
-                    )
-                )
+    def _get_path_segment(
+        self, path_points: list[Point], start_pos: float, end_pos: float
+    ) -> list[Point]:
+        """Extract points from path between start_pos and end_pos."""
+        if start_pos >= end_pos:
+            return []
 
-                # Draw colored wire on top
-                dwg.add(
-                    dwg.path(
-                        d=path_d,
-                        stroke=wire.color,
-                        stroke_width=3,
-                        fill="none",
-                        stroke_linecap="round",
-                        stroke_linejoin="round",
-                        opacity=0.8,
-                    )
-                )
+        segment_points = []
 
-        # Draw endpoint dots with white halos
+        # Add start point
+        if start_pos > 0.0:
+            start_pt, _ = self._point_along_path(path_points, start_pos)
+            segment_points.append(start_pt)
+
+        # Add all intermediate path points that fall within range
+        total_length = 0.0
+        segment_lengths = []
+        for i in range(len(path_points) - 1):
+            dx = path_points[i + 1].x - path_points[i].x
+            dy = path_points[i + 1].y - path_points[i].y
+            seg_len = math.sqrt(dx * dx + dy * dy)
+            segment_lengths.append(seg_len)
+            total_length += seg_len
+
+        cumulative = 0.0
+        for i, seg_len in enumerate(segment_lengths):
+            pos_at_start = cumulative / total_length
+            pos_at_end = (cumulative + seg_len) / total_length
+
+            # Include point if it's within our range
+            if start_pos <= pos_at_start <= end_pos:
+                segment_points.append(path_points[i])
+            if start_pos <= pos_at_end <= end_pos:
+                segment_points.append(path_points[i + 1])
+
+            cumulative += seg_len
+
+        # Add end point
+        if end_pos < 1.0:
+            end_pt, _ = self._point_along_path(path_points, end_pos)
+            segment_points.append(end_pt)
+
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_points = []
+        for pt in segment_points:
+            key = (round(pt.x, 2), round(pt.y, 2))
+            if key not in seen:
+                seen.add(key)
+                unique_points.append(pt)
+
+        return unique_points if len(unique_points) >= 2 else segment_points
+
+    def _draw_wire_halo(self, dwg: svgwrite.Drawing, path_d: str) -> None:
+        """Draw the white halo around a wire for visibility."""
+        dwg.add(
+            dwg.path(
+                d=path_d,
+                stroke="white",
+                stroke_width=7,
+                fill="none",
+                stroke_linecap="round",
+                stroke_linejoin="round",
+                opacity=1.0,
+            )
+        )
+
+    def _draw_wire_core(self, dwg: svgwrite.Drawing, path_d: str, color: str) -> None:
+        """Draw the colored core of a wire."""
+        dwg.add(
+            dwg.path(
+                d=path_d,
+                stroke=color,
+                stroke_width=3,
+                fill="none",
+                stroke_linecap="round",
+                stroke_linejoin="round",
+                opacity=0.8,
+            )
+        )
+
+    def _draw_wire_endpoints(self, dwg: svgwrite.Drawing, wire: RoutedWire) -> None:
+        """Draw the start and end connection dots."""
+        # Start point
         dwg.add(dwg.circle(center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=4, fill="white"))
         dwg.add(dwg.circle(center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=3, fill=wire.color))
+        # End point
         dwg.add(dwg.circle(center=(wire.to_pin_pos.x, wire.to_pin_pos.y), r=4, fill="white"))
         dwg.add(dwg.circle(center=(wire.to_pin_pos.x, wire.to_pin_pos.y), r=3, fill=wire.color))
 
