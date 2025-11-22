@@ -822,19 +822,11 @@ class SVGRenderer:
     def _draw_wire_endpoints(self, dwg: svgwrite.Drawing, wire: RoutedWire) -> None:
         """Draw the start and end connection dots."""
         # Start point
-        dwg.add(
-            dwg.circle(center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=4, fill="white")
-        )
-        dwg.add(
-            dwg.circle(
-                center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=3, fill=wire.color
-            )
-        )
+        dwg.add(dwg.circle(center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=4, fill="white"))
+        dwg.add(dwg.circle(center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=3, fill=wire.color))
         # End point
         dwg.add(dwg.circle(center=(wire.to_pin_pos.x, wire.to_pin_pos.y), r=4, fill="white"))
-        dwg.add(
-            dwg.circle(center=(wire.to_pin_pos.x, wire.to_pin_pos.y), r=3, fill=wire.color)
-        )
+        dwg.add(dwg.circle(center=(wire.to_pin_pos.x, wire.to_pin_pos.y), r=3, fill=wire.color))
 
     def _draw_legend(
         self,
