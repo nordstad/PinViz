@@ -65,6 +65,8 @@ jobs:
     name: Verify Examples
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
     needs: test
     steps:
       - uses: actions/checkout@v4
