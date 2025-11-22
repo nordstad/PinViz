@@ -39,6 +39,7 @@ dependencies = [
     "svgwrite>=1.4.3",
     "pyyaml>=6.0.1",
     "rich-argparse>=1.5.0",
+    "mcp>=1.22.0",
 ]
 
 [project.urls]
@@ -50,6 +51,7 @@ Changelog = "https://github.com/nordstad/PinViz/blob/main/CHANGELOG.md"
 
 [project.scripts]
 pinviz = "pinviz.cli:main"
+pinviz-mcp = "pinviz_mcp.server:main"
 
 [tool.ruff]
 target-version = "py313"
