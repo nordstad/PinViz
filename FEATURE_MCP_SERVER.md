@@ -47,43 +47,43 @@
 
 ---
 
-## Phase 2: Natural Language Parsing + Pin Assignment (Weeks 2-3)
+## Phase 2: Natural Language Parsing + Pin Assignment ✅ COMPLETED
 
 ### Hybrid Prompt Parser
-- [ ] Create `src/pinviz_mcp/parser.py`
-- [ ] Implement regex patterns for common prompts
-  - [ ] Pattern: "connect {device1} and {device2}"
-  - [ ] Pattern: "wire {device} to my pi"
-  - [ ] Pattern: "{device1}, {device2}, and {device3}"
-- [ ] Implement Claude API integration for fallback
-- [ ] Extract device list from prompt
-- [ ] Extract board type (default: Raspberry Pi 5)
-- [ ] Extract special requirements (pull-ups, shared buses)
-- [ ] Write unit tests for parser
-- [ ] Test with 20+ example prompts
+- [x] Create `src/pinviz_mcp/parser.py`
+- [x] Implement regex patterns for common prompts
+  - [x] Pattern: "connect {device1} and {device2}"
+  - [x] Pattern: "wire {device} to my pi"
+  - [x] Pattern: "{device1}, {device2}, and {device3}"
+- [x] Implement Claude API integration for fallback
+- [x] Extract device list from prompt
+- [x] Extract board type (default: Raspberry Pi 5)
+- [x] Extract special requirements (pull-ups, shared buses)
+- [x] Write unit tests for parser
+- [x] Test with 20+ example prompts (29 unit tests)
 
 ### Intelligent Pin Assigner
-- [ ] Create `src/pinviz_mcp/pin_assignment.py`
-- [ ] Implement GPIO availability tracker
-- [ ] Implement I2C bus sharing algorithm
-- [ ] Implement SPI chip select allocation
-- [ ] Implement power rail distribution (3.3V vs 5V)
-- [ ] Implement constraint solver for pin conflicts
-- [ ] Add conflict detection and resolution
-- [ ] Handle edge cases (address conflicts, voltage mismatches)
-- [ ] Write unit tests for pin assignment
-- [ ] Test with complex multi-device scenarios
+- [x] Create `src/pinviz_mcp/pin_assignment.py`
+- [x] Implement GPIO availability tracker
+- [x] Implement I2C bus sharing algorithm
+- [x] Implement SPI chip select allocation
+- [x] Implement power rail distribution (3.3V vs 5V)
+- [x] Implement constraint solver for pin conflicts
+- [x] Add conflict detection and resolution
+- [x] Handle edge cases (address conflicts, voltage mismatches)
+- [x] Write unit tests for pin assignment (18 unit tests)
+- [x] Test with complex multi-device scenarios
 
 ### Connection Generator
-- [ ] Create `src/pinviz_mcp/connection_builder.py`
-- [ ] Convert pin assignments to PinViz `Connection` objects
-- [ ] Auto-insert pull-up resistors for I2C connections
-- [ ] Auto-assign wire colors based on pin roles
-- [ ] Generate complete `Diagram` object
-- [ ] Support YAML output format
-- [ ] Support direct SVG rendering
-- [ ] Write unit tests for connection builder
-- [ ] Integration test: prompt → Diagram → SVG
+- [x] Create `src/pinviz_mcp/connection_builder.py`
+- [x] Convert pin assignments to PinViz `Connection` objects
+- [x] Auto-insert pull-up resistors for I2C connections
+- [x] Auto-assign wire colors based on pin roles
+- [x] Generate complete `Diagram` object
+- [x] Support YAML output format
+- [x] Support direct SVG rendering
+- [x] Write unit tests for connection builder (16 unit tests)
+- [x] Integration test: prompt → Diagram → SVG (9 integration tests)
 
 ---
 

@@ -128,31 +128,147 @@ def get_database_summary() -> str:
 
 
 @mcp.tool()
-def generate_diagram(prompt: str, output_format: str = "yaml") -> str:
+def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None = None) -> str:
     """Generate a GPIO wiring diagram from a natural language prompt.
 
-    NOTE: This is a Phase 1 placeholder. Full implementation comes in Phase 2.
+    This tool uses Phase 2 implementation with:
+    - Natural language parsing (regex + LLM fallback)
+    - Intelligent pin assignment (I2C sharing, SPI chip selects, power distribution)
+    - Automatic wire color assignment
+    - Conflict detection and warnings
 
     Args:
-        prompt: Natural language description of the wiring (e.g., "connect BH1750 sensor")
-        output_format: Output format - 'yaml' or 'svg' (default: yaml)
+        prompt: Natural language description (e.g., "connect BME280 and LED")
+        output_format: Output format - 'yaml', 'json', or 'summary' (default: yaml)
+        title: Optional diagram title (auto-generated if not provided)
 
     Returns:
-        YAML configuration or SVG diagram as string
+        JSON response with diagram data or error information
     """
-    return json.dumps(
-        {
-            "status": "not_implemented",
-            "message": "Diagram generation will be implemented in Phase 2",
-            "prompt": prompt,
-            "output_format": output_format,
-            "note": (
-                "Phase 2 will implement natural language parsing, "
-                "pin assignment, and diagram generation"
-            ),
-        },
-        indent=2,
-    )
+    from .parser import PromptParser
+    from .pin_assignment import PinAssigner
+
+    try:
+        # Step 1: Parse natural language prompt
+        parser = PromptParser(use_llm=False)
+        parsed = parser.parse(prompt)
+
+        if not parsed.devices:
+            return json.dumps(
+                {
+                    "status": "error",
+                    "error": "No devices found in prompt",
+                    "prompt": prompt,
+                    "suggestion": "Try: 'connect BME280' or 'BME280 and LED'",
+                },
+                indent=2,
+            )
+
+        # Step 2: Look up devices in database
+        devices_data = []
+        not_found = []
+
+        for device_name in parsed.devices:
+            # Try fuzzy matching
+            device = device_manager.get_device_by_name(device_name, fuzzy=True)
+            if device:
+                devices_data.append(device.to_dict())
+            else:
+                not_found.append(device_name)
+
+        if not devices_data:
+            return json.dumps(
+                {
+                    "status": "error",
+                    "error": "No matching devices found in database",
+                    "requested": parsed.devices,
+                    "suggestion": "Use list_devices tool to see available devices",
+                },
+                indent=2,
+            )
+
+        # Step 3: Assign pins intelligently
+        pin_assigner = PinAssigner()
+        assignments, warnings = pin_assigner.assign_pins(devices_data)
+
+        # Step 4: Generate diagram output
+        diagram_title = title or (
+            f"{', '.join([d['name'] for d in devices_data])} Wiring"
+            if len(devices_data) <= 3
+            else "Multi-Device Wiring Diagram"
+        )
+
+        # Generate connections list for output
+        connections = [
+            {
+                "board_pin": a.board_pin_number,
+                "device": a.device_name,
+                "device_pin": a.device_pin_name,
+                "role": a.pin_role.value,
+            }
+            for a in assignments
+        ]
+
+        # Prepare result based on format
+        result = {
+            "status": "success",
+            "title": diagram_title,
+            "board": parsed.board,
+            "devices": [d["name"] for d in devices_data],
+            "connections": len(assignments),
+            "parsing_method": parsed.parsing_method,
+            "confidence": parsed.confidence,
+        }
+
+        if warnings:
+            result["warnings"] = warnings
+
+        if not_found:
+            result["not_found"] = not_found
+
+        if output_format == "yaml":
+            # Generate YAML-style output
+            yaml_output = f"""title: "{diagram_title}"
+board: "{parsed.board}"
+devices:
+"""
+            for device_data in devices_data:
+                yaml_output += f'  - name: "{device_data["name"]}"\n'
+                yaml_output += f'    category: "{device_data["category"]}"\n'
+
+            yaml_output += "\nconnections:\n"
+            for conn in connections:
+                yaml_output += f"  - board_pin: {conn['board_pin']}\n"
+                yaml_output += f'    device: "{conn["device"]}"\n'
+                yaml_output += f'    device_pin: "{conn["device_pin"]}"\n'
+                yaml_output += f'    role: "{conn["role"]}"\n'
+
+            result["output"] = yaml_output
+
+        elif output_format == "json":
+            result["details"] = {
+                "devices": devices_data,
+                "connections": connections,
+            }
+
+        else:  # summary format
+            result["summary"] = (
+                f"Generated diagram with {len(devices_data)} device(s) "
+                f"and {len(assignments)} connection(s)"
+            )
+
+        return json.dumps(result, indent=2)
+
+    except Exception as e:
+        return json.dumps(
+            {
+                "status": "error",
+                "error": str(e),
+                "error_type": type(e).__name__,
+                "prompt": prompt,
+            },
+            indent=2,
+        )
 
 
 @mcp.resource("device://database")
