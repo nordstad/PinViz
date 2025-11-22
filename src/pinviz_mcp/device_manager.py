@@ -90,25 +90,38 @@ class Device:
 class DeviceManager:
     """Manages the device database with query and validation capabilities."""
 
-    def __init__(self, database_path: Path | None = None, schema_path: Path | None = None):
+    def __init__(
+        self,
+        database_path: Path | None = None,
+        user_database_path: Path | None = None,
+        schema_path: Path | None = None,
+    ):
         """Initialize the device manager.
 
         Args:
-            database_path: Path to the device database JSON file
+            database_path: Path to the main device database JSON file
+            user_database_path: Path to the user devices JSON file
             schema_path: Path to the JSON schema file
         """
         self.devices_dir = Path(__file__).parent / "devices"
 
         if database_path is None:
             database_path = self.devices_dir / "database.json"
+        if user_database_path is None:
+            user_database_path = self.devices_dir / "user_devices.json"
         if schema_path is None:
             schema_path = self.devices_dir / "schema.json"
 
         self.database_path = database_path
+        self.user_database_path = user_database_path
         self.schema_path = schema_path
 
         self.schema = self._load_schema()
-        self.devices = self._load_database()
+        # Load both main and user devices
+        self.devices = self._load_database(self.database_path)
+        self.user_devices = self._load_database(self.user_database_path)
+        # Combine both lists (user devices override main devices if ID conflicts)
+        self._merge_devices()
         self._device_index = {device.id: device for device in self.devices}
 
     def _load_schema(self) -> dict:
@@ -116,9 +129,32 @@ class DeviceManager:
         with open(self.schema_path) as f:
             return json.load(f)
 
-    def _load_database(self) -> list[Device]:
-        """Load and parse the device database."""
-        with open(self.database_path) as f:
+    def _merge_devices(self) -> None:
+        """Merge main and user devices, with user devices taking precedence."""
+        # Create a dict of device IDs to devices from main database
+        device_dict = {device.id: device for device in self.devices}
+
+        # Add/override with user devices
+        for user_device in self.user_devices:
+            device_dict[user_device.id] = user_device
+
+        # Update the devices list
+        self.devices = list(device_dict.values())
+
+    def _load_database(self, database_path: Path) -> list[Device]:
+        """Load and parse a device database file.
+
+        Args:
+            database_path: Path to the database JSON file
+
+        Returns:
+            List of Device objects
+        """
+        # Skip if file doesn't exist (for user_devices.json)
+        if not database_path.exists():
+            return []
+
+        with open(database_path) as f:
             data = json.load(f)
 
         # Validate against schema
@@ -329,9 +365,73 @@ class DeviceManager:
         """
         return {
             "total_devices": len(self.devices),
+            "user_devices": len(self.user_devices),
+            "main_devices": len(self.devices) - len(self.user_devices),
             "categories": {
                 category: len(self.get_devices_by_category(category))
                 for category in self.list_categories()
             },
             "protocols": self.list_protocols(),
         }
+
+    def add_user_device(self, device: Device) -> None:
+        """Add a device to the user devices database.
+
+        Args:
+            device: Device to add to user database
+        """
+        # Add to user devices list
+        self.user_devices.append(device)
+
+        # Update merged devices list and index
+        self._device_index[device.id] = device
+        self.devices = list(self._device_index.values())
+
+        # Save to file
+        self._save_user_devices()
+
+    def remove_user_device(self, device_id: str) -> bool:
+        """Remove a device from the user devices database.
+
+        Args:
+            device_id: ID of the device to remove
+
+        Returns:
+            True if device was removed, False if not found
+        """
+        # Find and remove from user devices list
+        original_len = len(self.user_devices)
+        self.user_devices = [d for d in self.user_devices if d.id != device_id]
+
+        if len(self.user_devices) == original_len:
+            return False  # Device not found
+
+        # Rebuild merged devices
+        self.devices = self._load_database(self.database_path)
+        self._merge_devices()
+        self._device_index = {device.id: device for device in self.devices}
+
+        # Save to file
+        self._save_user_devices()
+        return True
+
+    def _save_user_devices(self) -> None:
+        """Save user devices to the user_devices.json file."""
+        data = {
+            "$schema": "./schema.json",
+            "devices": [device.to_dict() for device in self.user_devices],
+        }
+
+        with open(self.user_database_path, "w") as f:
+            json.dump(data, f, indent=2)
+
+    def is_user_device(self, device_id: str) -> bool:
+        """Check if a device is from the user database.
+
+        Args:
+            device_id: Device ID to check
+
+        Returns:
+            True if device is in user database, False otherwise
+        """
+        return any(d.id == device_id for d in self.user_devices)

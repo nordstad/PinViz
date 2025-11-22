@@ -4,6 +4,8 @@ This MCP server provides tools to:
 - List available devices in the database
 - Get detailed device information
 - Generate wiring diagrams from natural language prompts (Phase 2)
+- Parse device specifications from documentation URLs (Phase 3)
+- Add user devices to the database (Phase 3)
 
 Resources:
 - device_database: Access to the full device catalog
@@ -14,7 +16,7 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-from .device_manager import DeviceManager
+from .device_manager import Device, DeviceManager, DevicePin
 
 # Initialize FastMCP server
 mcp = FastMCP("PinViz Diagram Generator")
@@ -315,6 +317,265 @@ def get_protocols() -> str:
     """
     protocols = device_manager.list_protocols()
     return json.dumps({"protocols": protocols}, indent=2)
+
+
+@mcp.tool()
+def parse_device_from_url(url: str, save_to_user_db: bool = False) -> str:
+    """Parse device specifications from a documentation URL (Phase 3).
+
+    This tool fetches documentation from URLs (datasheets, product pages) and
+    uses Claude API to automatically extract device specifications.
+
+    Supported domains:
+    - adafruit.com
+    - sparkfun.com
+    - waveshare.com
+    - pimoroni.com
+    - raspberrypi.com
+    - seeedstudio.com
+
+    Args:
+        url: URL to device documentation (datasheet or product page)
+        save_to_user_db: If True, automatically save to user devices database
+
+    Returns:
+        JSON string with extracted device specifications and validation results
+    """
+    from .doc_parser import DocumentationParser
+
+    try:
+        # Parse the URL
+        parser = DocumentationParser()
+        extracted = parser.parse_url_sync(url)
+
+        # Convert to device entry
+        device_entry = parser.to_device_entry(extracted)
+
+        # Validate the entry
+        is_valid, errors = parser.validate_device_entry(device_entry)
+
+        result = {
+            "status": "success" if is_valid else "warning",
+            "device": device_entry,
+            "extraction": {
+                "confidence": extracted.confidence,
+                "method": extracted.extraction_method,
+                "missing_fields": extracted.missing_fields,
+            },
+            "validation": {
+                "is_valid": is_valid,
+                "errors": errors,
+            },
+        }
+
+        # Save to user database if requested and valid
+        if save_to_user_db and is_valid:
+            # Convert to Device object
+            pins = [
+                DevicePin(
+                    name=pin["name"],
+                    role=pin["role"],
+                    position=pin["position"],
+                    description=pin.get("description"),
+                    optional=pin.get("optional", False),
+                )
+                for pin in device_entry["pins"]
+            ]
+
+            device = Device(
+                id=device_entry["id"],
+                name=device_entry["name"],
+                category=device_entry["category"],
+                description=device_entry["description"],
+                pins=pins,
+                protocols=device_entry["protocols"],
+                voltage=device_entry["voltage"],
+                manufacturer=device_entry.get("manufacturer"),
+                datasheet_url=device_entry.get("datasheet_url"),
+                i2c_address=device_entry.get("i2c_address"),
+                i2c_addresses=device_entry.get("i2c_addresses"),
+                current_draw=device_entry.get("current_draw"),
+                dimensions=device_entry.get("dimensions"),
+                tags=device_entry.get("tags"),
+                notes=device_entry.get("notes"),
+                requires_pullup=device_entry.get("requires_pullup", False),
+            )
+
+            device_manager.add_user_device(device)
+            result["saved_to_user_db"] = True
+            result["message"] = (
+                f"Device '{device.name}' saved to user database with ID '{device.id}'"
+            )
+
+        elif save_to_user_db and not is_valid:
+            result["saved_to_user_db"] = False
+            result["message"] = (
+                "Device not saved due to validation errors. Fix errors and try again."
+            )
+
+        return json.dumps(result, indent=2)
+
+    except ValueError as e:
+        return json.dumps(
+            {
+                "status": "error",
+                "error": str(e),
+                "error_type": "ValueError",
+                "url": url,
+            },
+            indent=2,
+        )
+    except Exception as e:
+        return json.dumps(
+            {
+                "status": "error",
+                "error": str(e),
+                "error_type": type(e).__name__,
+                "url": url,
+            },
+            indent=2,
+        )
+
+
+@mcp.tool()
+def add_user_device(device_data: dict) -> str:
+    """Manually add a device to the user devices database.
+
+    Use this tool to add custom devices that aren't available from URL parsing,
+    or to manually correct/supplement extracted device specifications.
+
+    Args:
+        device_data: Device specification dictionary following the schema
+
+    Returns:
+        JSON string with result of adding the device
+    """
+    try:
+        # Validate the device data
+        from .doc_parser import DocumentationParser
+
+        parser = DocumentationParser()
+        is_valid, errors = parser.validate_device_entry(device_data)
+
+        if not is_valid:
+            return json.dumps(
+                {
+                    "status": "error",
+                    "error": "Device validation failed",
+                    "validation_errors": errors,
+                },
+                indent=2,
+            )
+
+        # Convert to Device object
+        pins = [
+            DevicePin(
+                name=pin["name"],
+                role=pin["role"],
+                position=pin["position"],
+                description=pin.get("description"),
+                optional=pin.get("optional", False),
+            )
+            for pin in device_data["pins"]
+        ]
+
+        device = Device(
+            id=device_data["id"],
+            name=device_data["name"],
+            category=device_data["category"],
+            description=device_data["description"],
+            pins=pins,
+            protocols=device_data["protocols"],
+            voltage=device_data["voltage"],
+            manufacturer=device_data.get("manufacturer"),
+            datasheet_url=device_data.get("datasheet_url"),
+            i2c_address=device_data.get("i2c_address"),
+            i2c_addresses=device_data.get("i2c_addresses"),
+            current_draw=device_data.get("current_draw"),
+            dimensions=device_data.get("dimensions"),
+            tags=device_data.get("tags"),
+            notes=device_data.get("notes"),
+            requires_pullup=device_data.get("requires_pullup", False),
+        )
+
+        # Add to user database
+        device_manager.add_user_device(device)
+
+        return json.dumps(
+            {
+                "status": "success",
+                "message": f"Device '{device.name}' added to user database with ID '{device.id}'",
+                "device_id": device.id,
+            },
+            indent=2,
+        )
+
+    except Exception as e:
+        return json.dumps(
+            {
+                "status": "error",
+                "error": str(e),
+                "error_type": type(e).__name__,
+            },
+            indent=2,
+        )
+
+
+@mcp.tool()
+def list_user_devices() -> str:
+    """List all devices in the user devices database.
+
+    Returns:
+        JSON string with list of user devices
+    """
+    user_devices = device_manager.user_devices
+
+    result = {
+        "total": len(user_devices),
+        "devices": [
+            {
+                "id": device.id,
+                "name": device.name,
+                "category": device.category,
+                "description": device.description,
+                "protocols": device.protocols,
+                "voltage": device.voltage,
+            }
+            for device in user_devices
+        ],
+    }
+
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def remove_user_device(device_id: str) -> str:
+    """Remove a device from the user devices database.
+
+    Args:
+        device_id: The unique device identifier to remove
+
+    Returns:
+        JSON string with result of removal
+    """
+    success = device_manager.remove_user_device(device_id)
+
+    if success:
+        return json.dumps(
+            {
+                "status": "success",
+                "message": f"Device '{device_id}' removed from user database",
+            },
+            indent=2,
+        )
+    else:
+        return json.dumps(
+            {
+                "status": "error",
+                "error": f"Device '{device_id}' not found in user database",
+            },
+            indent=2,
+        )
 
 
 def main():
