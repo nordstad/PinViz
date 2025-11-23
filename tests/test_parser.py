@@ -1,6 +1,7 @@
 """Unit tests for the prompt parser module."""
 
 import pytest
+
 from pinviz_mcp.parser import ParsedPrompt, PromptParser, parse_prompt
 
 
@@ -131,8 +132,16 @@ class TestPromptParser:
 
         # Compare case-insensitively
         assert len(result1.devices) == len(result2.devices) == len(result3.devices)
-        assert result1.devices[0].lower() == result2.devices[0].lower() == result3.devices[0].lower()
-        assert result1.devices[1].lower() == result2.devices[1].lower() == result3.devices[1].lower()
+        assert (
+            result1.devices[0].lower()
+            == result2.devices[0].lower()
+            == result3.devices[0].lower()
+        )
+        assert (
+            result1.devices[1].lower()
+            == result2.devices[1].lower()
+            == result3.devices[1].lower()
+        )
 
     def test_no_match_without_llm(self):
         """Test that unrecognized prompts return empty result without LLM."""

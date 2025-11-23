@@ -1,7 +1,6 @@
 """Unit tests for the connection builder module."""
 
-import pytest
-from pinviz.model import Connection, Device, Diagram, PinRole
+from pinviz.model import Diagram, PinRole
 from pinviz_mcp.connection_builder import (
     ConnectionBuilder,
     build_diagram_from_assignments,

@@ -1,6 +1,5 @@
 """Integration tests for Phase 2: Full pipeline from prompt to diagram."""
 
-import pytest
 from pinviz.model import Diagram
 from pinviz.render_svg import SVGRenderer
 from pinviz_mcp.connection_builder import ConnectionBuilder
@@ -155,9 +154,6 @@ class TestPhase2Integration:
     def test_diagram_can_be_rendered(self):
         """Test that generated diagram can be rendered to SVG."""
         # Parse and build a simple diagram
-        prompt = "LED"
-        parsed = self.parser.parse(prompt)
-
         device = self.device_manager.get_device_by_name("LED")
         device_data = device.to_dict()
         assignments, warnings = self.pin_assigner.assign_pins([device_data])
