@@ -42,7 +42,7 @@ diagrams.
 - **🔗 URL-Based Device Discovery**: Add new devices by parsing datasheets from manufacturer websites
 - **AI Assistant Integration**: Works with Claude Desktop, GitHub Copilot, and other MCP-compatible clients
 
-## Installation
+## 📥 Installation
 
 ### For CLI Usage (Recommended)
 
@@ -68,7 +68,7 @@ pip install pinviz
 
 **Note**: If you install with `uv add`, the CLI tool will only be available via `uv run pinviz`. For direct CLI access, use `uv tool install` instead.
 
-## Quick Start
+## 🚀 Quick Start
 
 ### 1. Try a Built-in Example
 
@@ -185,7 +185,7 @@ connections = [
 **Available colors**: RED, BLACK, WHITE, GREEN, BLUE, YELLOW, ORANGE, PURPLE,
 GRAY, BROWN, PINK, CYAN, MAGENTA, LIME, TURQUOISE
 
-## CLI Commands
+## 💻 CLI Commands
 
 See the [Quick Start](#quick-start) section for basic usage. All examples below assume you installed with `uv tool install pinviz` or `pip install pinviz`. If you installed with `uv add`, prefix all commands with `uv run`.
 
@@ -330,7 +330,7 @@ See the [Installation Guide](src/pinviz_mcp/docs/INSTALLATION.md#github-copilot-
 - Categories: sensor, display, hat, component, actuator, breakout
 - Protocols: I2C, SPI, UART, GPIO, 1-Wire, PWM
 
-## Example Diagrams
+## 🖼️ Example Diagrams
 
 ### LED with Resistor
 
@@ -350,7 +350,7 @@ Three LEDs with individual resistors:
 
 ![Traffic Light](https://raw.githubusercontent.com/nordstad/PinViz/main/images/traffic_light.svg)
 
-## Configuration Reference
+## ⚙️ Configuration Reference
 
 ### Diagram Options
 
@@ -466,7 +466,7 @@ Supported pin roles (for automatic color assignment):
 - `UART_TX`, `UART_RX` - UART serial
 - `PWM` - PWM output
 
-## Development
+## 🔧 Development
 
 ### Setup
 
@@ -490,7 +490,7 @@ uv run ruff format .
 uv run pytest
 ```
 
-## Examples
+## 📝 Examples
 
 The `examples/` directory contains:
 
@@ -502,18 +502,18 @@ The `examples/` directory contains:
 
 All generated diagrams are in the `images/` directory.
 
-## License
+## 📄 License
 
 MIT License - See LICENSE file for details
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Credits
+## 🙏 Credits
 
 Board and GPIO pin SVG assets courtesy of [FreeSVG.org](https://freesvg.org/)
 
-## Author
+## 👤 Author
 
 Even Nordstad
