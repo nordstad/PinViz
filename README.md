@@ -260,6 +260,28 @@ claude mcp add pinviz pinviz-mcp
 "Connect a BME280 temperature sensor to my Raspberry Pi 5"
 ```
 
+### GitHub Copilot (VS Code)
+
+To use PinViz with GitHub Copilot in VS Code, add to your `settings.json`:
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "pinviz": {
+      "command": "pinviz-mcp"
+    }
+  }
+}
+```
+
+Then reload VS Code and use `@pinviz` in Copilot Chat:
+
+```
+@pinviz Connect BME280 and LED to Raspberry Pi 5
+```
+
+See the [Installation Guide](src/pinviz_mcp/docs/INSTALLATION.md#github-copilot-vs-code) for detailed setup instructions.
+
 ### Example MCP Prompts
 
 - **Simple sensor**: `"Wire a BH1750 light sensor to my pi"`

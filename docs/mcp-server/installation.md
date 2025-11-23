@@ -204,9 +204,99 @@ Add the following to your `claude_desktop_config.json`:
 
 3. **Restart Claude Desktop**
 
+### GitHub Copilot (VS Code)
+
+GitHub Copilot supports MCP servers through VS Code's Multi-Provider Chat feature.
+
+#### Prerequisites
+
+- VS Code version 1.90 or later
+- GitHub Copilot extension installed and activated
+- Python 3.10+ installed and available in PATH
+
+#### Configuration
+
+1. **Install PinViz** (if not already installed):
+
+```bash
+pip install pinviz
+```
+
+2. **Open VS Code Settings**:
+
+   - Press `Cmd+,` (macOS) or `Ctrl+,` (Windows/Linux)
+   - Search for "mcp"
+   - Or edit your `settings.json` directly: `Cmd+Shift+P` → "Preferences: Open User Settings (JSON)"
+
+3. **Add MCP Server Configuration**:
+
+   Add the following to your VS Code `settings.json`:
+
+**For pip installation:**
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "pinviz": {
+      "command": "pinviz-mcp"
+    }
+  }
+}
+```
+
+**For uv installation:**
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "pinviz": {
+      "command": "uv",
+      "args": ["run", "pinviz-mcp"]
+    }
+  }
+}
+```
+
+**For project-specific configuration (workspace settings):**
+
+Create `.vscode/settings.json` in your project root:
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "pinviz": {
+      "command": "uv",
+      "args": ["run", "--directory", "${workspaceFolder}", "pinviz-mcp"]
+    }
+  }
+}
+```
+
+4. **Reload VS Code Window**:
+
+   - Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Windows/Linux)
+   - Type "Developer: Reload Window"
+   - Press Enter
+
+5. **Verify in Copilot Chat**:
+
+   Open Copilot Chat (click the chat icon in the sidebar) and try:
+   ```
+   @pinviz List available Raspberry Pi devices
+   ```
+
+#### Using PinViz with GitHub Copilot
+
+Once configured, you can interact with PinViz in VS Code's Copilot Chat:
+
+- **Generate diagrams**: `@pinviz Connect BME280 and LED to Raspberry Pi 5`
+- **Search devices**: `@pinviz What I2C sensors are available?`
+- **Get device info**: `@pinviz Show me the BME280 pinout`
+- **Device discovery**: `@pinviz Parse device specs from this URL: [datasheet URL]`
+
 ### Other MCP Clients
 
-For other MCP-compatible clients (e.g., Cline, custom implementations), refer to their documentation for configuring MCP servers. The general pattern is:
+For other MCP-compatible clients (e.g., Cline, Zed, custom implementations), refer to their documentation for configuring MCP servers. The general pattern is:
 
 - **Command:** `pinviz-mcp` (or `uv run pinviz-mcp`)
 - **Transport:** stdio (standard input/output)
