@@ -23,11 +23,17 @@ diagrams.
 
 ## Features
 
-- **🤖 AI-Powered Diagram Generation**: MCP server integration with Claude Desktop and GitHub Copilot - generate diagrams from natural language prompts like "Connect BME280 and LED to my Raspberry Pi"
-- **🧠 Intelligent Pin Assignment**: Automatic I2C bus sharing, SPI chip select allocation, and conflict detection
-- **📚 Device Database**: 25+ pre-configured devices (sensors, displays, HATs) with automatic pin mapping
-- **🔗 URL-Based Device Discovery**: Add new devices by parsing datasheets from URLs
-- **Declarative Configuration**: Define diagrams using YAML or JSON
+### MCP Server (AI-Powered)
+
+- **Natural Language Diagram Generation**: Generate diagrams from conversational prompts like "Connect BME280 and LED to my Raspberry Pi"
+- **Intelligent Pin Assignment**: Automatic I2C bus sharing, SPI chip select allocation, and conflict detection
+- **Device Database**: 25+ pre-configured devices (sensors, displays, HATs, components) with automatic pin mapping
+- **URL-Based Device Discovery**: Add new devices by parsing datasheets from manufacturer websites
+- **AI Assistant Integration**: Works with Claude Desktop, GitHub Copilot, and other MCP-compatible clients
+
+### PinViz Package (Python Library & CLI)
+
+- **Declarative Configuration**: Define diagrams using YAML or JSON files
 - **Programmatic API**: Create diagrams with Python code
 - **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
