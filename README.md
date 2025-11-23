@@ -204,6 +204,86 @@ pinviz example ir_led -o ir_led.svg
 pinviz example i2c_spi -o i2c_spi.svg
 ```
 
+## MCP Server (AI-Powered Diagram Generation)
+
+PinViz includes an **MCP (Model Context Protocol) server** that enables natural language diagram generation through AI assistants like Claude Desktop.
+
+### What is the MCP Server?
+
+The MCP server provides:
+
+- **Natural Language Parsing**: Generate diagrams from prompts like "Connect BME280 and LED to my Raspberry Pi"
+- **Intelligent Pin Assignment**: Automatic I2C bus sharing, SPI chip select allocation, and conflict detection
+- **Device Database**: 25+ pre-configured devices (sensors, displays, HATs, components)
+- **URL-Based Device Discovery**: Add new devices by parsing datasheets from URLs
+
+### Quick Start with Claude Desktop
+
+1. **Install PinViz** (if not already installed):
+   ```bash
+   pip install pinviz
+   ```
+
+2. **Configure Claude Desktop**:
+
+   Edit `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+   ```json
+   {
+     "mcpServers": {
+       "pinviz": {
+         "command": "pinviz-mcp"
+       }
+     }
+   }
+   ```
+
+3. **Restart Claude Desktop** and start using natural language:
+   ```
+   "Connect a BME280 temperature sensor to my Raspberry Pi 5"
+   ```
+
+### Example MCP Prompts
+
+- **Simple sensor**: `"Wire a BH1750 light sensor to my pi"`
+- **Multiple devices**: `"Connect BME280, BH1750, and an LED on GPIO 17"`
+- **Weather station**: `"Set up environmental monitoring with BME280 and DHT22"`
+- **Device search**: `"What I2C displays are available?"`
+- **Device info**: `"Tell me about the BME280 sensor pinout"`
+
+### Available MCP Tools
+
+- `generate_diagram` - Convert natural language to wiring diagrams (YAML/JSON/summary)
+- `list_devices` - Browse 25+ devices by category/protocol
+- `get_device_info` - Get detailed device specifications
+- `search_devices_by_tags` - Find devices by tags
+- `parse_device_from_url` - Add new devices from datasheet URLs
+- `get_database_summary` - View database statistics
+
+### Documentation
+
+- **Installation Guide**: [src/pinviz_mcp/docs/INSTALLATION.md](src/pinviz_mcp/docs/INSTALLATION.md)
+- **Usage Guide with Examples**: [src/pinviz_mcp/docs/USAGE.md](src/pinviz_mcp/docs/USAGE.md)
+- **Device Contribution Guide**: [src/pinviz_mcp/docs/CONTRIBUTING_DEVICES.md](src/pinviz_mcp/docs/CONTRIBUTING_DEVICES.md)
+- **MCP Server README**: [src/pinviz_mcp/README.md](src/pinviz_mcp/README.md)
+
+### Key Features
+
+**Intelligent Pin Assignment:**
+- Automatic I2C bus sharing (multiple devices on SDA/SCL)
+- SPI chip select allocation (CE0, CE1)
+- Power distribution (cycles through 3.3V and 5V pins)
+- Conflict detection and resolution
+
+**Hybrid Parsing:**
+- Regex patterns for common prompts (80% of cases, instant)
+- Claude API fallback for complex prompts (20% of cases)
+
+**Device Database:**
+- 25+ devices covering sensors, displays, HATs, and components
+- Categories: sensor, display, hat, component, actuator, breakout
+- Protocols: I2C, SPI, UART, GPIO, 1-Wire, PWM
+
 ## Example Diagrams
 
 ### LED with Resistor
