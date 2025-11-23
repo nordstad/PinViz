@@ -932,7 +932,7 @@ class SVGRenderer:
             canvas_width: Total canvas width for positioning
         """
         # Path to the GPIO diagram SVG
-        gpio_svg_path = Path(__file__).parent.parent.parent / "assets" / "gpio_pins.svg"
+        gpio_svg_path = Path(__file__).parent / "assets" / "gpio_pins.svg"
 
         if not gpio_svg_path.exists():
             print(f"Warning: GPIO diagram not found at {gpio_svg_path}")
