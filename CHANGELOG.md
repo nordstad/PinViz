@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-01-23
+
+### Added
+- **MCP Server Integration**: AI-powered GPIO diagram generation via Model Context Protocol
+  - Natural language parsing: Generate diagrams from prompts like "connect BME280 sensor"
+  - Intelligent pin assignment: Automatic I2C bus sharing, SPI chip selects, power distribution
+  - URL-based device discovery: Parse device specs directly from documentation URLs
+  - 25-device database with I2C, SPI, GPIO, and UART devices
+  - User device database for custom devices
+  - MCP tools: `generate_diagram`, `parse_device_from_url`, `list_devices`, `get_device_info`
+- Supported domains for URL parsing: Adafruit, SparkFun, Waveshare, Pimoroni, Raspberry Pi, Seeed Studio, peppe8o.com
+- `pinviz-mcp` command line entry point for MCP server
+- Comprehensive test suite with 325+ tests (71% code coverage)
+
+### Changed
+- Restructured package as namespace package for better MCP server integration
+- Moved assets into `src/pinviz/` for proper packaging with `uv build`
+- Enhanced YAML generation with explicit `yaml_content` field for Claude Desktop
+- Improved MCP tool documentation with clear usage instructions
+
+### Fixed
+- YAML reconstruction errors when using MCP server through Claude Desktop
+- Asset packaging issues with `uv_build` backend
+
 ## [0.1.5] - 2025-01-21
 
 ### Added

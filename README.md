@@ -23,19 +23,26 @@ diagrams.
 
 ## Features
 
-- **Declarative Configuration**: Define diagrams using YAML or JSON
+### 📦 PinViz Package (Python Library & CLI)
+
+- **Declarative Configuration**: Define diagrams using YAML or JSON files
 - **Programmatic API**: Create diagrams with Python code
-- **Automatic Wire Routing**: Smart wire routing with configurable styles
-  (orthogonal, curved, mixed)
+- **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
-- **Color-Coded Wires**: Automatic color assignment based on pin function
-  (I2C, SPI, power, ground, etc.)
-- **Built-in Templates**: Pre-configured boards (Raspberry Pi 5) and common
-  devices (BH1750, IR LED rings, etc.)
+- **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
+- **Built-in Templates**: Pre-configured boards (Raspberry Pi 5) and common devices (BH1750, IR LED rings, etc.)
 - **GPIO Pin Reference**: Optional GPIO pinout diagram for easy reference
 - **SVG Output**: Scalable, high-quality vector graphics
 
-## Installation
+### 🤖 MCP Server (AI-Powered)
+
+- **Natural Language Diagram Generation**: Generate diagrams from conversational prompts like "Connect BME280 and LED to my Raspberry Pi"
+- **Intelligent Pin Assignment**: Automatic I2C bus sharing, SPI chip select allocation, and conflict detection
+- **📚 Device Database**: 25+ pre-configured devices (sensors, displays, HATs, components) with automatic pin mapping
+- **🔗 URL-Based Device Discovery**: Add new devices by parsing datasheets from manufacturer websites
+- **AI Assistant Integration**: Works with Claude Desktop, GitHub Copilot, and other MCP-compatible clients
+
+## 📥 Installation
 
 ### For CLI Usage (Recommended)
 
@@ -61,7 +68,7 @@ pip install pinviz
 
 **Note**: If you install with `uv add`, the CLI tool will only be available via `uv run pinviz`. For direct CLI access, use `uv tool install` instead.
 
-## Quick Start
+## 🚀 Quick Start
 
 ### 1. Try a Built-in Example
 
@@ -178,7 +185,7 @@ connections = [
 **Available colors**: RED, BLACK, WHITE, GREEN, BLUE, YELLOW, ORANGE, PURPLE,
 GRAY, BROWN, PINK, CYAN, MAGENTA, LIME, TURQUOISE
 
-## CLI Commands
+## 💻 CLI Commands
 
 See the [Quick Start](#quick-start) section for basic usage. All examples below assume you installed with `uv tool install pinviz` or `pip install pinviz`. If you installed with `uv add`, prefix all commands with `uv run`.
 
@@ -204,7 +211,126 @@ pinviz example ir_led -o ir_led.svg
 pinviz example i2c_spi -o i2c_spi.svg
 ```
 
-## Example Diagrams
+## MCP Server (AI-Powered Diagram Generation)
+
+PinViz includes an **MCP (Model Context Protocol) server** that enables natural language diagram generation through AI assistants like Claude Desktop.
+
+### What is the MCP Server?
+
+The MCP server provides:
+
+- **Natural Language Parsing**: Generate diagrams from prompts like "Connect BME280 and LED to my Raspberry Pi"
+- **Intelligent Pin Assignment**: Automatic I2C bus sharing, SPI chip select allocation, and conflict detection
+- **Device Database**: 25+ pre-configured devices (sensors, displays, HATs, components)
+- **URL-Based Device Discovery**: Add new devices by parsing datasheets from URLs
+
+### Quick Start with Claude Desktop
+
+**Easiest Method (using Claude CLI):**
+
+```bash
+# Install PinViz
+pip install pinviz
+
+# Add to Claude Desktop automatically
+claude mcp add pinviz pinviz-mcp
+
+# Restart Claude Desktop
+```
+
+**Manual Method (edit config file):**
+
+1. **Install PinViz**:
+   ```bash
+   pip install pinviz
+   ```
+
+2. **Configure Claude Desktop**:
+
+   Edit `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+   ```json
+   {
+     "mcpServers": {
+       "pinviz": {
+         "command": "pinviz-mcp"
+       }
+     }
+   }
+   ```
+
+3. **Restart Claude Desktop**
+
+**Start generating diagrams with natural language:**
+
+```
+"Connect a BME280 temperature sensor to my Raspberry Pi 5"
+```
+
+### GitHub Copilot (VS Code)
+
+To use PinViz with GitHub Copilot in VS Code, add to your `settings.json`:
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "pinviz": {
+      "command": "pinviz-mcp"
+    }
+  }
+}
+```
+
+Then reload VS Code and use `@pinviz` in Copilot Chat:
+
+```
+@pinviz Connect BME280 and LED to Raspberry Pi 5
+```
+
+See the [Installation Guide](src/pinviz_mcp/docs/INSTALLATION.md#github-copilot-vs-code) for detailed setup instructions.
+
+### Example MCP Prompts
+
+- **Simple sensor**: `"Wire a BH1750 light sensor to my pi"`
+- **Multiple devices**: `"Connect BME280, BH1750, and an LED on GPIO 17"`
+- **Weather station**: `"Set up environmental monitoring with BME280 and DHT22"`
+- **Device search**: `"What I2C displays are available?"`
+- **Device info**: `"Tell me about the BME280 sensor pinout"`
+
+### Available MCP Tools
+
+- `generate_diagram` - Convert natural language to wiring diagrams (YAML/JSON/summary)
+- `list_devices` - Browse 25+ devices by category/protocol
+- `get_device_info` - Get detailed device specifications
+- `search_devices_by_tags` - Find devices by tags
+- `parse_device_from_url` - Add new devices from datasheet URLs
+- `get_database_summary` - View database statistics
+
+### Documentation
+
+- **Installation Guide**: [src/pinviz_mcp/docs/INSTALLATION.md](src/pinviz_mcp/docs/INSTALLATION.md)
+- **Usage Guide with Examples**: [src/pinviz_mcp/docs/USAGE.md](src/pinviz_mcp/docs/USAGE.md)
+- **Device Contribution Guide**: [src/pinviz_mcp/docs/CONTRIBUTING_DEVICES.md](src/pinviz_mcp/docs/CONTRIBUTING_DEVICES.md)
+- **MCP Server README**: [src/pinviz_mcp/README.md](src/pinviz_mcp/README.md)
+
+### Key Features
+
+**Intelligent Pin Assignment:**
+- Automatic I2C bus sharing (multiple devices on SDA/SCL)
+- SPI chip select allocation (CE0, CE1)
+- Power distribution (cycles through 3.3V and 5V pins)
+- Conflict detection and resolution
+
+**Hybrid Parsing:**
+- Regex patterns for common prompts (80% of cases, instant)
+- Claude API fallback for complex prompts (20% of cases)
+
+**Device Database:**
+- 25+ devices covering sensors, displays, HATs, and components
+- Categories: sensor, display, hat, component, actuator, breakout
+- Protocols: I2C, SPI, UART, GPIO, 1-Wire, PWM
+
+## 🖼️ Example Diagrams
 
 ### LED with Resistor
 
@@ -224,16 +350,61 @@ Three LEDs with individual resistors:
 
 ![Traffic Light](https://raw.githubusercontent.com/nordstad/PinViz/main/images/traffic_light.svg)
 
-## Configuration Reference
+### GPIO Details: With vs Without
+
+You can control whether to show the GPIO pin reference diagram. Here's a comparison:
+
+**With GPIO Details** (`--gpio` or `show_gpio_diagram: true`):
+
+Shows complete GPIO pinout reference for easy wiring verification.
+
+```bash
+pinviz example bh1750 --gpio -o diagram.svg
+```
+
+![BH1750 with GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_with_gpio.svg)
+
+**Without GPIO Details** (`--no-gpio` or default):
+
+Cleaner, more compact diagram - 35% smaller file size.
+
+```bash
+pinviz example bh1750 --no-gpio -o diagram.svg
+```
+
+![BH1750 without GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_without_gpio.svg)
+
+## ⚙️ Configuration Reference
 
 ### Diagram Options
+
+#### GPIO Pin Reference
+
+Control whether to show the GPIO pin reference diagram on the right side. This displays all 40 GPIO pins with their functions and color-coded roles.
+
+**In YAML config:**
 
 ```yaml
 show_gpio_diagram: true  # Include GPIO pin reference (default: false)
 ```
 
-The GPIO pin reference diagram displays all 40 GPIO pins with their functions,
-providing a helpful reference when wiring your project.
+**Via CLI:**
+
+```bash
+# Show GPIO details (larger file, more complete reference)
+pinviz example bh1750 --gpio -o diagram.svg
+
+# Hide GPIO details (smaller file, cleaner look)
+pinviz example bh1750 --no-gpio -o diagram.svg
+
+# For config files (CLI flag overrides config value)
+pinviz diagram.yaml --gpio -o output.svg
+```
+
+**Comparison:**
+
+- **With GPIO** (`--gpio`): ~130KB SVG, includes full pinout reference
+- **Without GPIO** (`--no-gpio`): ~85KB SVG, 35% smaller, cleaner diagram
 
 ### Board Selection
 
@@ -340,7 +511,7 @@ Supported pin roles (for automatic color assignment):
 - `UART_TX`, `UART_RX` - UART serial
 - `PWM` - PWM output
 
-## Development
+## 🔧 Development
 
 ### Setup
 
@@ -364,7 +535,7 @@ uv run ruff format .
 uv run pytest
 ```
 
-## Examples
+## 📝 Examples
 
 The `examples/` directory contains:
 
@@ -376,18 +547,18 @@ The `examples/` directory contains:
 
 All generated diagrams are in the `images/` directory.
 
-## License
+## 📄 License
 
 MIT License - See LICENSE file for details
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Credits
+## 🙏 Credits
 
 Board and GPIO pin SVG assets courtesy of [FreeSVG.org](https://freesvg.org/)
 
-## Author
+## 👤 Author
 
 Even Nordstad

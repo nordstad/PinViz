@@ -31,6 +31,8 @@ htmlcov/
 
 # Generated outputs (temporary/local builds only)
 # Note: images/ is NOT ignored - example diagrams should be committed
+out/
+test_*.svg
 
 # Development tools
 .ruff_cache/

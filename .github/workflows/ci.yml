@@ -45,7 +45,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Run tests with coverage
-        run: uv run pytest --cov=pinviz --cov-report=xml --cov-report=term --junit-xml=junit.xml
+        run: uv run pytest --cov=pinviz --cov=pinviz_mcp --cov-report=xml --cov-report=term --junit-xml=junit.xml
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -88,6 +88,49 @@ jobs:
             echo "Running $file..."
             uv run "$file"
           done
+
+  test-mcp:
+    name: Test MCP Server Functionality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Run MCP server tests
+        run: uv run python test_mcp_local.py
+
+      - name: Verify SVG output
+        run: |
+          if [ -f test_mcp_output.svg ]; then
+            echo "✓ SVG diagram generated successfully"
+            ls -lh test_mcp_output.svg
+          else
+            echo "✗ SVG diagram not found"
+            exit 1
+          fi
+
+      - name: Upload SVG artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mcp-test-output
+          path: test_mcp_output.svg
+          retention-days: 7
 
   package-test:
     name: Test package build

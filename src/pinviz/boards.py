@@ -22,7 +22,7 @@ def _get_asset_path(filename: str) -> str:
         This is an internal function. Users typically don't need to call this directly.
     """
     module_dir = Path(__file__).parent
-    asset_path = module_dir.parent.parent / "assets" / filename
+    asset_path = module_dir / "assets" / filename
     return str(asset_path)
 
 

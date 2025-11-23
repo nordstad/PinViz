@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PinViz Device Database Schema",
+  "description": "JSON schema for device entries in the PinViz MCP device database",
+  "type": "object",
+  "properties": {
+    "devices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/device"
+      }
+    }
+  },
+  "required": ["devices"],
+  "definitions": {
+    "device": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique device identifier (lowercase, hyphenated)",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the device"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["display", "sensor", "hat", "component", "actuator", "breakout"],
+          "description": "Device category for organization"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of the device and its purpose"
+        },
+        "manufacturer": {
+          "type": "string",
+          "description": "Device manufacturer name"
+        },
+        "datasheet_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to device datasheet or documentation"
+        },
+        "pins": {
+          "type": "array",
+          "description": "Array of device pin definitions. Can be empty for HATs that plug directly onto GPIO header.",
+          "items": {
+            "$ref": "#/definitions/pin"
+          }
+        },
+        "protocols": {
+          "type": "array",
+          "description": "Communication protocols supported by the device",
+          "items": {
+            "type": "string",
+            "enum": ["I2C", "SPI", "UART", "GPIO", "1-Wire", "PWM"]
+          },
+          "minItems": 1
+        },
+        "i2c_address": {
+          "type": "string",
+          "description": "Default I2C address in hex format (e.g., 0x23)",
+          "pattern": "^0x[0-9A-Fa-f]{2}$"
+        },
+        "i2c_addresses": {
+          "type": "array",
+          "description": "Multiple possible I2C addresses if configurable",
+          "items": {
+            "type": "string",
+            "pattern": "^0x[0-9A-Fa-f]{2}$"
+          }
+        },
+        "voltage": {
+          "type": "string",
+          "enum": ["3.3V", "5V", "3.3V-5V"],
+          "description": "Operating voltage requirement"
+        },
+        "current_draw": {
+          "type": "string",
+          "description": "Typical current draw (e.g., '50mA', '3.5mA')"
+        },
+        "dimensions": {
+          "type": "object",
+          "properties": {
+            "width": {"type": "number"},
+            "height": {"type": "number"},
+            "unit": {"type": "string", "enum": ["mm", "in"]}
+          },
+          "description": "Physical dimensions of the device"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Search tags for device discovery",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes, requirements, or warnings"
+        },
+        "requires_pullup": {
+          "type": "boolean",
+          "description": "Whether the device requires pull-up resistors (typically I2C)",
+          "default": false
+        }
+      },
+      "required": ["id", "name", "category", "description", "pins", "protocols", "voltage"],
+      "additionalProperties": false
+    },
+    "pin": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Pin name/label (e.g., VCC, GND, SDA, SCL)"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "3V3", "5V", "GND",
+            "I2C_SDA", "I2C_SCL",
+            "SPI_MOSI", "SPI_MISO", "SPI_SCLK", "SPI_CE0", "SPI_CE1",
+            "UART_TX", "UART_RX",
+            "GPIO", "PWM",
+            "PCM_CLK", "PCM_FS", "PCM_DIN", "PCM_DOUT",
+            "I2C_EEPROM"
+          ],
+          "description": "Pin function/role for automatic color assignment (matches PinRole enum from pinviz.model)"
+        },
+        "position": {
+          "type": "integer",
+          "description": "Relative position on device for layout (0-based index)",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional pin information"
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Whether this pin is optional for operation",
+          "default": false
+        }
+      },
+      "required": ["name", "role", "position"],
+      "additionalProperties": false
+    }
+  }
+}

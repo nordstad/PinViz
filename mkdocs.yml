@@ -83,6 +83,11 @@ nav:
       - YAML Configuration: guide/yaml-config.md
       - Python API: guide/python-api.md
       - Examples: guide/examples.md
+  - MCP Server:
+      - Overview: mcp-server/index.md
+      - Installation: mcp-server/installation.md
+      - Usage Guide: mcp-server/usage.md
+      - Contributing Devices: mcp-server/contributing.md
   - API Reference:
       - Overview: api/index.md
       - Model: api/model.md

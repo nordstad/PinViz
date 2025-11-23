@@ -136,5 +136,5 @@ renderer.render(diagram, "output.svg")
 - Pin numbers in connections are physical pin numbers (1-40), not BCM GPIO numbers
 - Wire routing uses a "rail" system: horizontal from pin → vertical along rail → horizontal to device
 - The layout engine mutates device positions but connections reference devices by name
-- Board SVG assets are expected in `assets/` directory relative to the module
+- Board SVG assets are packaged in `src/pinviz/assets/` directory with the module
 - All measurements are in SVG units (typically pixels)

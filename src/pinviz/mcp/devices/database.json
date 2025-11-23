@@ -1,0 +1,1015 @@
+{
+  "devices": [
+    {
+      "id": "ssd1306-oled",
+      "name": "SSD1306 OLED Display",
+      "category": "display",
+      "description": "128x64 or 128x32 monochrome OLED display module with I2C interface",
+      "manufacturer": "Various",
+      "datasheet_url": "https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "SCL",
+          "role": "I2C_SCL",
+          "position": 2
+        },
+        {
+          "name": "SDA",
+          "role": "I2C_SDA",
+          "position": 3
+        }
+      ],
+      "protocols": [
+        "I2C"
+      ],
+      "i2c_addresses": [
+        "0x3C",
+        "0x3D"
+      ],
+      "i2c_address": "0x3C",
+      "voltage": "3.3V-5V",
+      "current_draw": "20mA",
+      "tags": [
+        "oled",
+        "display",
+        "i2c",
+        "128x64",
+        "monochrome"
+      ],
+      "requires_pullup": true
+    },
+    {
+      "id": "sh1106-oled",
+      "name": "SH1106 OLED Display",
+      "category": "display",
+      "description": "1.3 inch 128x64 OLED display with I2C or SPI interface",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "SCL",
+          "role": "I2C_SCL",
+          "position": 2
+        },
+        {
+          "name": "SDA",
+          "role": "I2C_SDA",
+          "position": 3
+        }
+      ],
+      "protocols": [
+        "I2C"
+      ],
+      "i2c_address": "0x3C",
+      "voltage": "3.3V-5V",
+      "current_draw": "25mA",
+      "tags": [
+        "oled",
+        "display",
+        "i2c",
+        "sh1106"
+      ],
+      "requires_pullup": true
+    },
+    {
+      "id": "lcd-1602",
+      "name": "LCD 16x2 with I2C",
+      "category": "display",
+      "description": "16x2 character LCD display with I2C backpack adapter",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "5V",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "SDA",
+          "role": "I2C_SDA",
+          "position": 2
+        },
+        {
+          "name": "SCL",
+          "role": "I2C_SCL",
+          "position": 3
+        }
+      ],
+      "protocols": [
+        "I2C"
+      ],
+      "i2c_addresses": [
+        "0x27",
+        "0x3F"
+      ],
+      "i2c_address": "0x27",
+      "voltage": "5V",
+      "current_draw": "120mA",
+      "tags": [
+        "lcd",
+        "character",
+        "display",
+        "i2c",
+        "16x2"
+      ],
+      "requires_pullup": true
+    },
+    {
+      "id": "epaper-2-13",
+      "name": "2.13\" E-Paper Display",
+      "category": "display",
+      "description": "2.13 inch e-paper/e-ink display module with SPI interface",
+      "manufacturer": "Waveshare",
+      "datasheet_url": "https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "DIN",
+          "role": "SPI_MOSI",
+          "position": 2
+        },
+        {
+          "name": "CLK",
+          "role": "SPI_SCLK",
+          "position": 3
+        },
+        {
+          "name": "CS",
+          "role": "SPI_CE0",
+          "position": 4
+        },
+        {
+          "name": "DC",
+          "role": "GPIO",
+          "position": 5
+        },
+        {
+          "name": "RST",
+          "role": "GPIO",
+          "position": 6
+        },
+        {
+          "name": "BUSY",
+          "role": "GPIO",
+          "position": 7
+        }
+      ],
+      "protocols": [
+        "SPI"
+      ],
+      "voltage": "3.3V",
+      "current_draw": "26mA",
+      "tags": [
+        "epaper",
+        "eink",
+        "display",
+        "spi",
+        "low-power"
+      ],
+      "notes": "Ultra-low power consumption when not updating"
+    },
+    {
+      "id": "st7735-tft",
+      "name": "ST7735 TFT Display",
+      "category": "display",
+      "description": "1.8 inch 128x160 color TFT display with SPI interface",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "SCL",
+          "role": "SPI_SCLK",
+          "position": 2
+        },
+        {
+          "name": "SDA",
+          "role": "SPI_MOSI",
+          "position": 3
+        },
+        {
+          "name": "CS",
+          "role": "SPI_CE0",
+          "position": 4
+        },
+        {
+          "name": "DC",
+          "role": "GPIO",
+          "position": 5
+        },
+        {
+          "name": "RST",
+          "role": "GPIO",
+          "position": 6
+        },
+        {
+          "name": "BL",
+          "role": "PWM",
+          "position": 7,
+          "optional": true
+        }
+      ],
+      "protocols": [
+        "SPI"
+      ],
+      "voltage": "3.3V",
+      "current_draw": "100mA",
+      "tags": [
+        "tft",
+        "color",
+        "display",
+        "spi",
+        "st7735"
+      ]
+    },
+    {
+      "id": "bme280",
+      "name": "BME280 Temperature/Humidity/Pressure Sensor",
+      "category": "sensor",
+      "description": "Combined temperature, humidity, and barometric pressure sensor",
+      "manufacturer": "Bosch",
+      "datasheet_url": "https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "SCL",
+          "role": "I2C_SCL",
+          "position": 2
+        },
+        {
+          "name": "SDA",
+          "role": "I2C_SDA",
+          "position": 3
+        }
+      ],
+      "protocols": [
+        "I2C",
+        "SPI"
+      ],
+      "i2c_addresses": [
+        "0x76",
+        "0x77"
+      ],
+      "i2c_address": "0x76",
+      "voltage": "3.3V",
+      "current_draw": "3.6\u00b5A",
+      "tags": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "environmental",
+        "i2c"
+      ],
+      "requires_pullup": true
+    },
+    {
+      "id": "dht22",
+      "name": "DHT22 Temperature/Humidity Sensor",
+      "category": "sensor",
+      "description": "Digital temperature and humidity sensor with single-wire protocol",
+      "manufacturer": "Aosong",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "DATA",
+          "role": "GPIO",
+          "position": 1
+        },
+        {
+          "name": "NC",
+          "role": "GND",
+          "position": 2,
+          "optional": true
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 3
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "3.3V-5V",
+      "current_draw": "2.5mA",
+      "tags": [
+        "temperature",
+        "humidity",
+        "dht",
+        "1-wire"
+      ],
+      "notes": "Requires 10K pull-up resistor on DATA pin"
+    },
+    {
+      "id": "bh1750",
+      "name": "BH1750 Light Sensor",
+      "category": "sensor",
+      "description": "Digital ambient light intensity sensor with I2C interface",
+      "manufacturer": "ROHM",
+      "datasheet_url": "https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "SCL",
+          "role": "I2C_SCL",
+          "position": 2
+        },
+        {
+          "name": "SDA",
+          "role": "I2C_SDA",
+          "position": 3
+        },
+        {
+          "name": "ADDR",
+          "role": "GPIO",
+          "position": 4,
+          "optional": true
+        }
+      ],
+      "protocols": [
+        "I2C"
+      ],
+      "i2c_addresses": [
+        "0x23",
+        "0x5C"
+      ],
+      "i2c_address": "0x23",
+      "voltage": "3.3V",
+      "current_draw": "120\u00b5A",
+      "tags": [
+        "light",
+        "ambient",
+        "lux",
+        "i2c"
+      ],
+      "requires_pullup": true
+    },
+    {
+      "id": "ds18b20",
+      "name": "DS18B20 Temperature Sensor",
+      "category": "sensor",
+      "description": "Waterproof digital temperature sensor with 1-Wire interface",
+      "manufacturer": "Maxim",
+      "datasheet_url": "https://www.analog.com/media/en/technical-documentation/data-sheets/ds18b20.pdf",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "DATA",
+          "role": "GPIO",
+          "position": 1
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 2
+        }
+      ],
+      "protocols": [
+        "1-Wire"
+      ],
+      "voltage": "3.3V-5V",
+      "current_draw": "1.5mA",
+      "tags": [
+        "temperature",
+        "waterproof",
+        "1-wire",
+        "ds18b20"
+      ],
+      "notes": "Requires 4.7K pull-up resistor on DATA pin"
+    },
+    {
+      "id": "hc-sr501",
+      "name": "HC-SR501 PIR Motion Sensor",
+      "category": "sensor",
+      "description": "Passive infrared motion detector module",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "5V",
+          "position": 0
+        },
+        {
+          "name": "OUT",
+          "role": "GPIO",
+          "position": 1
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 2
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "5V",
+      "current_draw": "65mA",
+      "tags": [
+        "motion",
+        "pir",
+        "infrared",
+        "detection"
+      ]
+    },
+    {
+      "id": "hc-sr04",
+      "name": "HC-SR04 Ultrasonic Sensor",
+      "category": "sensor",
+      "description": "Ultrasonic distance measurement sensor (2cm to 400cm range)",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "5V",
+          "position": 0
+        },
+        {
+          "name": "TRIG",
+          "role": "GPIO",
+          "position": 1
+        },
+        {
+          "name": "ECHO",
+          "role": "GPIO",
+          "position": 2
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 3
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "5V",
+      "current_draw": "15mA",
+      "tags": [
+        "ultrasonic",
+        "distance",
+        "ranging",
+        "hc-sr04"
+      ]
+    },
+    {
+      "id": "photoresistor",
+      "name": "Photoresistor (LDR) Module",
+      "category": "sensor",
+      "description": "Light-dependent resistor module with digital output",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "DO",
+          "role": "GPIO",
+          "position": 1
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 2
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "3.3V-5V",
+      "current_draw": "5mA",
+      "tags": [
+        "light",
+        "photoresistor",
+        "ldr",
+        "analog"
+      ]
+    },
+    {
+      "id": "mq-2",
+      "name": "MQ-2 Gas Sensor",
+      "category": "sensor",
+      "description": "Smoke and combustible gas sensor (LPG, propane, hydrogen)",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "5V",
+          "position": 0
+        },
+        {
+          "name": "DO",
+          "role": "GPIO",
+          "position": 1
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 2
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "5V",
+      "current_draw": "150mA",
+      "tags": [
+        "gas",
+        "smoke",
+        "mq-2",
+        "combustible"
+      ],
+      "notes": "Requires 24-48 hour burn-in period for accuracy"
+    },
+    {
+      "id": "mpu6050",
+      "name": "MPU6050 Accelerometer/Gyroscope",
+      "category": "sensor",
+      "description": "6-axis motion tracking sensor with I2C interface",
+      "manufacturer": "InvenSense",
+      "datasheet_url": "https://invensense.tdk.com/products/motion-tracking/6-axis/mpu-6050/",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "SCL",
+          "role": "I2C_SCL",
+          "position": 2
+        },
+        {
+          "name": "SDA",
+          "role": "I2C_SDA",
+          "position": 3
+        },
+        {
+          "name": "INT",
+          "role": "GPIO",
+          "position": 4,
+          "optional": true
+        }
+      ],
+      "protocols": [
+        "I2C"
+      ],
+      "i2c_addresses": [
+        "0x68",
+        "0x69"
+      ],
+      "i2c_address": "0x68",
+      "voltage": "3.3V",
+      "current_draw": "3.8mA",
+      "tags": [
+        "accelerometer",
+        "gyroscope",
+        "motion",
+        "imu",
+        "i2c"
+      ],
+      "requires_pullup": true
+    },
+    {
+      "id": "tcs34725",
+      "name": "TCS34725 RGB Color Sensor",
+      "category": "sensor",
+      "description": "Digital RGB color light-to-digital converter with IR filter",
+      "manufacturer": "AMS",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "3V3",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "SDA",
+          "role": "I2C_SDA",
+          "position": 2
+        },
+        {
+          "name": "SCL",
+          "role": "I2C_SCL",
+          "position": 3
+        },
+        {
+          "name": "INT",
+          "role": "GPIO",
+          "position": 4,
+          "optional": true
+        }
+      ],
+      "protocols": [
+        "I2C"
+      ],
+      "i2c_address": "0x29",
+      "voltage": "3.3V",
+      "current_draw": "65\u00b5A",
+      "tags": [
+        "color",
+        "rgb",
+        "light",
+        "i2c"
+      ],
+      "requires_pullup": true
+    },
+    {
+      "id": "terminal-block",
+      "name": "Terminal Block HAT",
+      "category": "hat",
+      "description": "40-pin GPIO breakout with screw terminals for easy connections",
+      "manufacturer": "Various",
+      "pins": [],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "3.3V-5V",
+      "tags": [
+        "breakout",
+        "terminal",
+        "screw",
+        "gpio"
+      ],
+      "notes": "Direct GPIO passthrough with screw terminal convenience"
+    },
+    {
+      "id": "sense-hat",
+      "name": "Raspberry Pi Sense HAT",
+      "category": "hat",
+      "description": "Multi-sensor board with LED matrix, accelerometer, gyroscope, magnetometer, temperature, humidity, and pressure sensors",
+      "manufacturer": "Raspberry Pi Foundation",
+      "datasheet_url": "https://www.raspberrypi.com/documentation/accessories/sense-hat.html",
+      "pins": [],
+      "protocols": [
+        "I2C"
+      ],
+      "i2c_addresses": [
+        "0x1C",
+        "0x46",
+        "0x5C",
+        "0x5F",
+        "0x6A"
+      ],
+      "voltage": "3.3V",
+      "current_draw": "200mA",
+      "tags": [
+        "sense-hat",
+        "led-matrix",
+        "multi-sensor",
+        "official"
+      ],
+      "notes": "Uses all I2C addresses: 0x1C, 0x46, 0x5C, 0x5F, 0x6A"
+    },
+    {
+      "id": "motor-hat",
+      "name": "Adafruit DC/Stepper Motor HAT",
+      "category": "hat",
+      "description": "DC and stepper motor driver with I2C control for up to 4 DC or 2 stepper motors",
+      "manufacturer": "Adafruit",
+      "datasheet_url": "https://learn.adafruit.com/adafruit-dc-and-stepper-motor-hat-for-raspberry-pi",
+      "pins": [],
+      "protocols": [
+        "I2C"
+      ],
+      "i2c_addresses": [
+        "0x60",
+        "0x61",
+        "0x62",
+        "0x63"
+      ],
+      "i2c_address": "0x60",
+      "voltage": "5V",
+      "tags": [
+        "motor",
+        "stepper",
+        "dc-motor",
+        "driver",
+        "pwm"
+      ],
+      "requires_pullup": true,
+      "notes": "Requires external 5-12V power supply for motors"
+    },
+    {
+      "id": "servo-hat",
+      "name": "Adafruit 16-Channel PWM/Servo HAT",
+      "category": "hat",
+      "description": "16-channel PWM driver for servos and LEDs with I2C interface",
+      "manufacturer": "Adafruit",
+      "datasheet_url": "https://learn.adafruit.com/adafruit-16-channel-pwm-servo-hat-for-raspberry-pi",
+      "pins": [],
+      "protocols": [
+        "I2C"
+      ],
+      "i2c_addresses": [
+        "0x40",
+        "0x41",
+        "0x42",
+        "0x43"
+      ],
+      "i2c_address": "0x40",
+      "voltage": "3.3V",
+      "tags": [
+        "servo",
+        "pwm",
+        "pca9685",
+        "driver"
+      ],
+      "requires_pullup": true,
+      "notes": "Requires external 5-6V power supply for servos"
+    },
+    {
+      "id": "relay-board",
+      "name": "4-Channel Relay Module",
+      "category": "breakout",
+      "description": "4-channel relay board for controlling high-voltage/current devices",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "5V",
+          "position": 0
+        },
+        {
+          "name": "IN1",
+          "role": "GPIO",
+          "position": 1
+        },
+        {
+          "name": "IN2",
+          "role": "GPIO",
+          "position": 2
+        },
+        {
+          "name": "IN3",
+          "role": "GPIO",
+          "position": 3
+        },
+        {
+          "name": "IN4",
+          "role": "GPIO",
+          "position": 4
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 5
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "5V",
+      "current_draw": "70mA",
+      "tags": [
+        "relay",
+        "switch",
+        "high-voltage",
+        "actuator"
+      ],
+      "notes": "Can switch up to 250VAC/30VDC at 10A"
+    },
+    {
+      "id": "led-single",
+      "name": "Single LED",
+      "category": "component",
+      "description": "Basic LED with current-limiting resistor",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "ANODE",
+          "role": "GPIO",
+          "position": 0
+        },
+        {
+          "name": "CATHODE",
+          "role": "GND",
+          "position": 1
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "3.3V",
+      "current_draw": "20mA",
+      "tags": [
+        "led",
+        "indicator",
+        "basic"
+      ],
+      "notes": "Typically requires 220\u03a9-330\u03a9 resistor"
+    },
+    {
+      "id": "rgb-led",
+      "name": "RGB LED (Common Cathode)",
+      "category": "component",
+      "description": "RGB LED with separate red, green, and blue channels",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "RED",
+          "role": "PWM",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        },
+        {
+          "name": "GREEN",
+          "role": "PWM",
+          "position": 2
+        },
+        {
+          "name": "BLUE",
+          "role": "PWM",
+          "position": 3
+        }
+      ],
+      "protocols": [
+        "PWM"
+      ],
+      "voltage": "3.3V",
+      "current_draw": "60mA",
+      "tags": [
+        "led",
+        "rgb",
+        "color",
+        "pwm"
+      ],
+      "notes": "Requires current-limiting resistors on each channel"
+    },
+    {
+      "id": "button",
+      "name": "Push Button",
+      "category": "component",
+      "description": "Momentary tactile push button switch",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "PIN1",
+          "role": "GPIO",
+          "position": 0
+        },
+        {
+          "name": "PIN2",
+          "role": "GND",
+          "position": 1
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "3.3V",
+      "tags": [
+        "button",
+        "switch",
+        "input"
+      ],
+      "notes": "Configure GPIO with internal pull-up resistor"
+    },
+    {
+      "id": "relay-module",
+      "name": "Single Relay Module",
+      "category": "actuator",
+      "description": "Single-channel relay module for switching high-power devices",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "5V",
+          "position": 0
+        },
+        {
+          "name": "IN",
+          "role": "GPIO",
+          "position": 1
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 2
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "5V",
+      "current_draw": "70mA",
+      "tags": [
+        "relay",
+        "switch",
+        "actuator"
+      ],
+      "notes": "Can switch up to 250VAC/30VDC"
+    },
+    {
+      "id": "buzzer",
+      "name": "Active Buzzer",
+      "category": "actuator",
+      "description": "Active piezo buzzer for audio alerts",
+      "manufacturer": "Various",
+      "pins": [
+        {
+          "name": "VCC",
+          "role": "GPIO",
+          "position": 0
+        },
+        {
+          "name": "GND",
+          "role": "GND",
+          "position": 1
+        }
+      ],
+      "protocols": [
+        "GPIO"
+      ],
+      "voltage": "3.3V-5V",
+      "current_draw": "30mA",
+      "tags": [
+        "buzzer",
+        "audio",
+        "alarm",
+        "sound"
+      ]
+    }
+  ]
+}
