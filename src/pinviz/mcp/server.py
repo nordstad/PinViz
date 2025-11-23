@@ -145,7 +145,14 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
         title: Optional diagram title (auto-generated if not provided)
 
     Returns:
-        JSON response with diagram data or error information
+        JSON response with diagram data or error information.
+
+        When output_format is 'yaml':
+        - The response contains a 'yaml_content' field with the complete PinViz YAML configuration
+        - This YAML should be saved to a file (e.g., diagram.yaml) and rendered with:
+          pinviz diagram.yaml -o output.svg
+        - DO NOT modify or reconstruct the YAML - use the 'yaml_content' field exactly as provided
+        - The YAML includes full device pin definitions required by the pinviz CLI
     """
     from .parser import PromptParser
     from .pin_assignment import PinAssigner
@@ -229,23 +236,33 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
             result["not_found"] = not_found
 
         if output_format == "yaml":
-            # Generate YAML-style output
+            # Generate YAML-style output with full device definitions
             yaml_output = f"""title: "{diagram_title}"
 board: "{parsed.board}"
 devices:
 """
             for device_data in devices_data:
                 yaml_output += f'  - name: "{device_data["name"]}"\n'
-                yaml_output += f'    category: "{device_data["category"]}"\n'
+                # Add pins array with full pin definitions
+                if "pins" in device_data and device_data["pins"]:
+                    yaml_output += "    pins:\n"
+                    for pin in device_data["pins"]:
+                        yaml_output += f'      - name: "{pin["name"]}"\n'
+                        yaml_output += f'        role: "{pin["role"]}"\n'
 
             yaml_output += "\nconnections:\n"
             for conn in connections:
                 yaml_output += f"  - board_pin: {conn['board_pin']}\n"
                 yaml_output += f'    device: "{conn["device"]}"\n'
                 yaml_output += f'    device_pin: "{conn["device_pin"]}"\n'
-                yaml_output += f'    role: "{conn["role"]}"\n'
 
-            result["output"] = yaml_output
+            result["yaml_content"] = yaml_output
+            result["output"] = yaml_output  # Keep for backward compatibility
+            result["message"] = (
+                "Complete PinViz YAML configuration generated. "
+                "Save the 'yaml_content' field to a file and render with: "
+                "pinviz <file>.yaml -o output.svg"
+            )
 
         elif output_format == "json":
             result["details"] = {
