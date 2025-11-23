@@ -10,7 +10,39 @@ This guide walks you through installing and configuring the PinViz MCP Server fo
 
 ## Installation Methods
 
-### Method 1: Using pip (Recommended for most users)
+### Method 1: Using Claude Desktop CLI (Easiest)
+
+If you have Claude Desktop installed with the CLI tools, this is the quickest way to get started:
+
+1. **Install PinViz:**
+
+```bash
+pip install pinviz
+```
+
+2. **Add to Claude Desktop:**
+
+```bash
+claude mcp add pinviz pinviz-mcp
+```
+
+This automatically configures the MCP server in your Claude Desktop settings.
+
+3. **Restart Claude Desktop**
+
+Close and reopen Claude Desktop, and you're ready to use PinViz!
+
+**For uv users:**
+
+```bash
+# Install
+uv pip install pinviz
+
+# Add to Claude Desktop with uv runner
+claude mcp add pinviz uv -- run pinviz-mcp
+```
+
+### Method 2: Using pip (Manual configuration)
 
 1. **Install PinViz with MCP server support:**
 
@@ -26,7 +58,9 @@ pinviz-mcp --help
 
 You should see the MCP server help message.
 
-### Method 2: Using uv (Recommended for developers)
+Then follow the [Claude Desktop manual configuration](#claude-desktop) steps below.
+
+### Method 3: Using uv (Recommended for developers)
 
 1. **Install uv if you haven't already:**
 
@@ -46,7 +80,7 @@ uv pip install pinviz
 uv run pinviz-mcp --help
 ```
 
-### Method 3: From source (For contributors)
+### Method 4: From source (For contributors)
 
 1. **Clone the repository:**
 

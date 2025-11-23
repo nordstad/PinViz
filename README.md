@@ -219,7 +219,21 @@ The MCP server provides:
 
 ### Quick Start with Claude Desktop
 
-1. **Install PinViz** (if not already installed):
+**Easiest Method (using Claude CLI):**
+
+```bash
+# Install PinViz
+pip install pinviz
+
+# Add to Claude Desktop automatically
+claude mcp add pinviz pinviz-mcp
+
+# Restart Claude Desktop
+```
+
+**Manual Method (edit config file):**
+
+1. **Install PinViz**:
    ```bash
    pip install pinviz
    ```
@@ -238,10 +252,13 @@ The MCP server provides:
    }
    ```
 
-3. **Restart Claude Desktop** and start using natural language:
-   ```
-   "Connect a BME280 temperature sensor to my Raspberry Pi 5"
-   ```
+3. **Restart Claude Desktop**
+
+**Start generating diagrams with natural language:**
+
+```
+"Connect a BME280 temperature sensor to my Raspberry Pi 5"
+```
 
 ### Example MCP Prompts
 
