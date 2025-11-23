@@ -7,14 +7,14 @@ This script tests the MCP server tools without needing Claude Desktop.
 import sys
 from pathlib import Path
 
-# Add src to path so we can import pinviz_mcp
+# Add src to path so we can import pinviz.mcp
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from pinviz.render_svg import SVGRenderer
-from pinviz_mcp.connection_builder import ConnectionBuilder
-from pinviz_mcp.device_manager import DeviceManager
-from pinviz_mcp.parser import PromptParser
-from pinviz_mcp.pin_assignment import PinAssigner
+from pinviz.mcp.connection_builder import ConnectionBuilder
+from pinviz.mcp.device_manager import DeviceManager
+from pinviz.mcp.parser import PromptParser
+from pinviz.mcp.pin_assignment import PinAssigner
 
 
 def test_device_manager():

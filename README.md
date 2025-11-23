@@ -350,16 +350,61 @@ Three LEDs with individual resistors:
 
 ![Traffic Light](https://raw.githubusercontent.com/nordstad/PinViz/main/images/traffic_light.svg)
 
+### GPIO Details: With vs Without
+
+You can control whether to show the GPIO pin reference diagram. Here's a comparison:
+
+**With GPIO Details** (`--gpio` or `show_gpio_diagram: true`):
+
+Shows complete GPIO pinout reference for easy wiring verification.
+
+```bash
+pinviz example bh1750 --gpio -o diagram.svg
+```
+
+![BH1750 with GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_with_gpio.svg)
+
+**Without GPIO Details** (`--no-gpio` or default):
+
+Cleaner, more compact diagram - 35% smaller file size.
+
+```bash
+pinviz example bh1750 --no-gpio -o diagram.svg
+```
+
+![BH1750 without GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_without_gpio.svg)
+
 ## ⚙️ Configuration Reference
 
 ### Diagram Options
+
+#### GPIO Pin Reference
+
+Control whether to show the GPIO pin reference diagram on the right side. This displays all 40 GPIO pins with their functions and color-coded roles.
+
+**In YAML config:**
 
 ```yaml
 show_gpio_diagram: true  # Include GPIO pin reference (default: false)
 ```
 
-The GPIO pin reference diagram displays all 40 GPIO pins with their functions,
-providing a helpful reference when wiring your project.
+**Via CLI:**
+
+```bash
+# Show GPIO details (larger file, more complete reference)
+pinviz example bh1750 --gpio -o diagram.svg
+
+# Hide GPIO details (smaller file, cleaner look)
+pinviz example bh1750 --no-gpio -o diagram.svg
+
+# For config files (CLI flag overrides config value)
+pinviz diagram.yaml --gpio -o output.svg
+```
+
+**Comparison:**
+
+- **With GPIO** (`--gpio`): ~130KB SVG, includes full pinout reference
+- **Without GPIO** (`--no-gpio`): ~85KB SVG, 35% smaller, cleaner diagram
 
 ### Board Selection
 

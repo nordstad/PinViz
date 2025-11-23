@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from pinviz_mcp.device_manager import DeviceManager, DevicePin
+from pinviz.mcp.device_manager import DeviceManager, DevicePin
 
 
 class TestDeviceManager:
@@ -226,21 +226,21 @@ class TestDeviceManager:
     def test_database_file_exists(self):
         """Test that the database file exists."""
         database_path = (
-            Path(__file__).parent.parent / "src" / "pinviz_mcp" / "devices" / "database.json"
+            Path(__file__).parent.parent / "src" / "pinviz" / "mcp" / "devices" / "database.json"
         )
         assert database_path.exists()
 
     def test_schema_file_exists(self):
         """Test that the schema file exists."""
         schema_path = (
-            Path(__file__).parent.parent / "src" / "pinviz_mcp" / "devices" / "schema.json"
+            Path(__file__).parent.parent / "src" / "pinviz" / "mcp" / "devices" / "schema.json"
         )
         assert schema_path.exists()
 
     def test_database_is_valid_json(self):
         """Test that the database is valid JSON."""
         database_path = (
-            Path(__file__).parent.parent / "src" / "pinviz_mcp" / "devices" / "database.json"
+            Path(__file__).parent.parent / "src" / "pinviz" / "mcp" / "devices" / "database.json"
         )
         with open(database_path) as f:
             data = json.load(f)

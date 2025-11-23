@@ -6,8 +6,8 @@ complete Diagram objects ready for rendering.
 """
 
 from pinviz import boards
+from pinviz.mcp.pin_assignment import PinAssignment
 from pinviz.model import DEFAULT_COLORS, Connection, Device, DevicePin, Diagram, Point
-from pinviz_mcp.pin_assignment import PinAssignment
 
 
 class ConnectionBuilder:

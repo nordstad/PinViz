@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from pinviz_mcp.doc_parser import DocumentationParser, ExtractedDevice
+from pinviz.mcp.doc_parser import DocumentationParser, ExtractedDevice
 
 
 @pytest.fixture

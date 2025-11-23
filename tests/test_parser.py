@@ -2,7 +2,7 @@
 
 import pytest
 
-from pinviz_mcp.parser import ParsedPrompt, PromptParser, parse_prompt
+from pinviz.mcp.parser import ParsedPrompt, PromptParser, parse_prompt
 
 
 class TestPromptParser:

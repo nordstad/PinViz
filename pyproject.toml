@@ -54,7 +54,7 @@ Changelog = "https://github.com/nordstad/PinViz/blob/main/CHANGELOG.md"
 
 [project.scripts]
 pinviz = "pinviz.cli:main"
-pinviz-mcp = "pinviz_mcp.server:main"
+pinviz-mcp = "pinviz.mcp.server:main"
 
 [tool.ruff]
 target-version = "py313"
@@ -80,7 +80,7 @@ python_files = "test_*.py"
 python_functions = "test_*"
 
 [build-system]
-requires = ["uv_build>=0.8.20,<0.9.0"]
+requires = ["uv_build>=0.8.20,<0.10.0"]
 build-backend = "uv_build"
 
 [dependency-groups]

@@ -146,7 +146,7 @@ uv run pytest tests/test_device_manager.py::test_user_devices_loading -v
 Or validate in Python:
 
 ```python
-from pinviz_mcp.device_manager import DeviceManager
+from pinviz.mcp.device_manager import DeviceManager
 
 dm = DeviceManager()
 device = dm.get_device_by_id("my-device-id")
@@ -195,7 +195,7 @@ uv run pytest tests/test_device_manager.py -v
 
 # Validate all pin roles
 uv run python -c "
-from pinviz_mcp.device_manager import DeviceManager
+from pinviz.mcp.device_manager import DeviceManager
 from pinviz.model import PinRole
 
 dm = DeviceManager()
@@ -470,7 +470,7 @@ Number pins from 0 in the order they appear on the device:
 ### Test 1: Device Loads Successfully
 
 ```python
-from pinviz_mcp.device_manager import DeviceManager
+from pinviz.mcp.device_manager import DeviceManager
 
 dm = DeviceManager()
 device = dm.get_device_by_id("your-device-id")

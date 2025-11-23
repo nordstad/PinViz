@@ -57,6 +57,19 @@ For more information, visit: https://github.com/nordstad/PinViz
     render_parser.add_argument(
         "-o", "--output", help="Output SVG file path (default: <config>.svg)"
     )
+    render_parser.add_argument(
+        "--gpio",
+        action="store_true",
+        dest="show_gpio",
+        help="Show GPIO pin reference diagram on the right side",
+    )
+    render_parser.add_argument(
+        "--no-gpio",
+        action="store_false",
+        dest="show_gpio",
+        help="Hide GPIO pin reference diagram",
+    )
+    render_parser.set_defaults(show_gpio=None)  # None means use config file value
 
     # Example command
     example_parser = subparsers.add_parser("example", help="Generate a built-in example diagram")
@@ -70,6 +83,19 @@ For more information, visit: https://github.com/nordstad/PinViz
         "--output",
         help="Output SVG file path (default: ./out/<example>.svg)",
     )
+    example_parser.add_argument(
+        "--gpio",
+        action="store_true",
+        dest="show_gpio",
+        help="Show GPIO pin reference diagram on the right side",
+    )
+    example_parser.add_argument(
+        "--no-gpio",
+        action="store_false",
+        dest="show_gpio",
+        help="Hide GPIO pin reference diagram",
+    )
+    example_parser.set_defaults(show_gpio=True)  # Examples default to showing GPIO
 
     # List command
     subparsers.add_parser("list", help="List available board and device templates")
@@ -115,6 +141,12 @@ def render_command(args: Any) -> int:
         print(f"Loading configuration from {config_path}...")
         diagram = load_diagram(config_path)
 
+        # Override show_gpio_diagram if CLI flag is specified
+        if hasattr(args, "show_gpio") and args.show_gpio is not None:
+            from dataclasses import replace
+
+            diagram = replace(diagram, show_gpio_diagram=args.show_gpio)
+
         print(f"Rendering diagram to {output_path}...")
         renderer = SVGRenderer()
         renderer.render(diagram, output_path)
@@ -155,6 +187,12 @@ def example_command(args: Any) -> int:
         else:
             print(f"Error: Unknown example: {args.name}", file=sys.stderr)
             return 1
+
+        # Override show_gpio_diagram if CLI flag is explicitly specified
+        if hasattr(args, "show_gpio"):
+            from dataclasses import replace
+
+            diagram = replace(diagram, show_gpio_diagram=args.show_gpio)
 
         print(f"Rendering diagram to {output_path}...")
         renderer = SVGRenderer()

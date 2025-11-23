@@ -262,7 +262,7 @@ uv sync
 **Solution:** Check that the device database is accessible:
 
 ```bash
-python -c "from pinviz_mcp.device_manager import DeviceManager; dm = DeviceManager(); print(f'Loaded {len(dm.devices)} devices')"
+python -c "from pinviz.mcp.device_manager import DeviceManager; dm = DeviceManager(); print(f'Loaded {len(dm.devices)} devices')"
 ```
 
 You should see "Loaded 25 devices" (or more if you've added custom devices).
