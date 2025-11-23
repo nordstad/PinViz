@@ -1,7 +1,7 @@
 """Unit tests for the pin assignment module."""
 
-from pinviz.model import PinRole
 from pinviz.mcp.pin_assignment import PinAllocationState, PinAssigner, PinAssignment
+from pinviz.model import PinRole
 
 
 class TestPinAllocationState:

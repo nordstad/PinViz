@@ -1,11 +1,11 @@
 """Unit tests for the connection builder module."""
 
-from pinviz.model import Diagram, PinRole
 from pinviz.mcp.connection_builder import (
     ConnectionBuilder,
     build_diagram_from_assignments,
 )
 from pinviz.mcp.pin_assignment import PinAssignment
+from pinviz.model import Diagram, PinRole
 
 
 class TestConnectionBuilder:

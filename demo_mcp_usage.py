@@ -74,7 +74,7 @@ def demo_correct_usage():
 
     if Path(svg_output).exists():
         size = Path(svg_output).stat().st_size
-        print(f"   ✓ SVG rendered successfully!")
+        print("   ✓ SVG rendered successfully!")
         print(f"   - Input: {output_file}")
         print(f"   - Output: {svg_output} ({size:,} bytes)")
     else:

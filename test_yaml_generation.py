@@ -59,7 +59,7 @@ def test_yaml_generation():
     try:
         # Load diagram using pinviz config_loader
         diagram = load_diagram(yaml_file)
-        print(f"   ✓ Diagram loaded successfully")
+        print("   ✓ Diagram loaded successfully")
         print(f"   - Title: {diagram.title}")
         print(f"   - Devices: {len(diagram.devices)}")
         print(f"   - Connections: {len(diagram.connections)}")
@@ -78,7 +78,7 @@ def test_yaml_generation():
 
         if Path(svg_file).exists():
             size = Path(svg_file).stat().st_size
-            print(f"   ✓ SVG rendered successfully")
+            print("   ✓ SVG rendered successfully")
             print(f"   - File: {svg_file}")
             print(f"   - Size: {size:,} bytes")
         else:
