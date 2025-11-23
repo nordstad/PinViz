@@ -112,7 +112,7 @@ jobs:
         run: uv sync --dev
 
       - name: Run MCP server tests
-        run: uv run python test_mcp_local.py
+        run: uv run python tests/test_mcp_local.py
 
       - name: Verify SVG output
         run: |
