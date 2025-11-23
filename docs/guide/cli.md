@@ -29,10 +29,10 @@ pinviz CONFIG_FILE [-o OUTPUT_FILE]
 
 ```bash
 # Generate diagram (output defaults to my-diagram.svg)
-pinviz my-diagram.yaml
+pinviz render my-diagram.yaml
 
 # Specify custom output path
-pinviz my-diagram.yaml -o output/wiring.svg
+pinviz render my-diagram.yaml -o output/wiring.svg
 
 # Works with JSON too
 pinviz my-diagram.json -o output.svg

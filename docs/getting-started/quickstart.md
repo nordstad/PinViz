@@ -75,7 +75,7 @@ connections:
 Run the following command:
 
 ```bash
-pinviz light-sensor.yaml -o light-sensor.svg
+pinviz render light-sensor.yaml -o light-sensor.svg
 ```
 
 This creates `light-sensor.svg` in the current directory.

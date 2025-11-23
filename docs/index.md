@@ -97,7 +97,7 @@ connections:
 Generate the diagram:
 
 ```bash
-pinviz my-diagram.yaml -o output.svg
+pinviz render my-diagram.yaml -o output.svg
 ```
 
 ## Next Steps

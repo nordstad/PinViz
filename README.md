@@ -124,7 +124,7 @@ show_gpio_diagram: true  # Optional: include GPIO pin reference
 Generate your diagram:
 
 ```bash
-pinviz my-diagram.yaml -o output.svg
+pinviz render my-diagram.yaml -o output.svg
 ```
 
 ### 3. Using Python API
@@ -193,10 +193,10 @@ See the [Quick Start](#quick-start) section for basic usage. All examples below 
 
 ```bash
 # From YAML/JSON file with specified output
-pinviz my-diagram.yaml -o output.svg
+pinviz render my-diagram.yaml -o output.svg
 
 # Short form (output defaults to <config-name>.svg)
-pinviz my-diagram.yaml
+pinviz render my-diagram.yaml
 ```
 
 ### Working with Built-in Examples
@@ -398,7 +398,7 @@ pinviz example bh1750 --gpio -o diagram.svg
 pinviz example bh1750 --no-gpio -o diagram.svg
 
 # For config files (CLI flag overrides config value)
-pinviz diagram.yaml --gpio -o output.svg
+pinviz render diagram.yaml --gpio -o output.svg
 ```
 
 **Comparison:**

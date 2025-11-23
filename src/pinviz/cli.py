@@ -28,10 +28,10 @@ def main() -> int:
         epilog="""
 Examples:
   # Generate diagram from YAML config
-  pinviz diagram.yaml
+  pinviz render diagram.yaml
 
   # Specify output path
-  pinviz diagram.yaml -o output/wiring.svg
+  pinviz render diagram.yaml -o output/wiring.svg
 
   # Use a built-in example
   pinviz example bh1750
@@ -47,11 +47,11 @@ For more information, visit: https://github.com/nordstad/PinViz
         version=f"%(prog)s {__version__}",
     )
 
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands", required=True)
 
-    # Main render command (also default when no subcommand is given)
+    # Main render command
     render_parser = subparsers.add_parser(
-        "render", help="Render a diagram from a configuration file (default)"
+        "render", help="Render a diagram from a configuration file"
     )
     render_parser.add_argument("config", help="Path to YAML or JSON configuration file")
     render_parser.add_argument(
@@ -100,19 +100,10 @@ For more information, visit: https://github.com/nordstad/PinViz
     # List command
     subparsers.add_parser("list", help="List available board and device templates")
 
-    # Allow config file as first argument without subcommand
-    if (
-        len(sys.argv) > 1
-        and not sys.argv[1].startswith("-")
-        and sys.argv[1] not in ["render", "example", "list"]
-    ):
-        # Treat first argument as config file
-        sys.argv.insert(1, "render")
-
     args = parser.parse_args()
 
     # Handle commands
-    if args.command == "render" or (hasattr(args, "config")):
+    if args.command == "render":
         return render_command(args)
     elif args.command == "example":
         return example_command(args)

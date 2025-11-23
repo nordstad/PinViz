@@ -36,8 +36,6 @@ The main CLI entry point is `pinviz`:
 ```bash
 # Generate diagram from YAML config
 pinviz render examples/bh1750.yaml -o output.svg
-# Or simply:
-pinviz examples/bh1750.yaml -o output.svg
 
 # Generate built-in examples
 pinviz example bh1750 -o images/bh1750.svg

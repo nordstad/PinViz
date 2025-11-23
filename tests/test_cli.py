@@ -7,12 +7,15 @@ from pinviz import cli
 
 
 def test_main_with_no_args_shows_help(capsys):
-    """Test that main with no arguments shows help."""
+    """Test that main with no arguments shows error (subcommand required)."""
+    import pytest
+
     with patch.object(sys, "argv", ["pinviz"]):
-        result = cli.main()
-        assert result == 1
+        with pytest.raises(SystemExit) as exc_info:
+            cli.main()
+        assert exc_info.value.code == 2  # argparse error exit code
         captured = capsys.readouterr()
-        assert "usage:" in captured.out.lower()
+        assert "error" in captured.err.lower()
 
 
 def test_main_with_render_command(sample_yaml_config, temp_output_dir):
@@ -24,19 +27,6 @@ def test_main_with_render_command(sample_yaml_config, temp_output_dir):
             "argv",
             ["pinviz", "render", str(sample_yaml_config), "-o", str(output_file)],
         ),
-        patch("pinviz.cli.SVGRenderer") as mock_renderer,
-    ):
-        mock_instance = Mock()
-        mock_renderer.return_value = mock_instance
-        result = cli.main()
-        assert result == 0
-        mock_instance.render.assert_called_once()
-
-
-def test_main_with_config_file_directly(sample_yaml_config, temp_output_dir):
-    """Test main with config file as first argument (no 'render' subcommand)."""
-    with (
-        patch.object(sys, "argv", ["pinviz", str(sample_yaml_config)]),
         patch("pinviz.cli.SVGRenderer") as mock_renderer,
     ):
         mock_instance = Mock()
@@ -297,7 +287,7 @@ def test_full_render_workflow(sample_yaml_config, temp_output_dir):
         patch.object(
             sys,
             "argv",
-            ["pinviz", str(sample_yaml_config), "-o", str(output_file)],
+            ["pinviz", "render", str(sample_yaml_config), "-o", str(output_file)],
         ),
     ):
         mock_instance = Mock()
