@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-01-23
+
+### Changed
+- **BREAKING**: CLI now requires explicit command for rendering diagrams
+  - Old: `pinviz diagram.yaml -o output.svg`
+  - New: `pinviz render diagram.yaml -o output.svg`
+  - Reason: Improved clarity and consistency with modern CLI tools (AWS, kubectl, etc.)
+- Improved CLI help formatting with professional output
+  - Removed confusing `{render,example,list}` syntax from help
+  - Added properly formatted examples section with line breaks
+  - Added default values to all options (`--gpio`/`--no-gpio`)
+  - Made `--gpio`/`--no-gpio` mutually exclusive groups
+  - Better metavar names: `CONFIG_FILE`, `PATH`, `NAME`
+- Enhanced CLI structure
+  - Changed "Positional Arguments" to "Commands:" section
+  - Added descriptions to each subcommand
+  - Custom help formatter preserves examples formatting
+
+### Fixed
+- CLI help examples now display on separate lines (no wrapping)
+- MCP server documentation updated with correct CLI commands
+- All documentation updated to use new CLI format
+
+### Documentation
+- Updated `docs/guide/cli.md` to show only new format
+- Updated MCP server docstrings with correct command syntax
+- All examples in documentation now use `pinviz render` format
+
 ## [0.2.1] - 2025-01-23
 
 ### Fixed
