@@ -334,9 +334,7 @@ class TestPinAssigner:
         assert len(bme_assignments) == 4
 
         # Check SPI device has correct pins
-        display_assignments = [
-            a for a in assignments if a.device_name == "ST7735 Display"
-        ]
+        display_assignments = [a for a in assignments if a.device_name == "ST7735 Display"]
         assert len(display_assignments) == 5
 
         # Check GPIO device has correct pins

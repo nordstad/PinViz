@@ -133,14 +133,10 @@ class TestPromptParser:
         # Compare case-insensitively
         assert len(result1.devices) == len(result2.devices) == len(result3.devices)
         assert (
-            result1.devices[0].lower()
-            == result2.devices[0].lower()
-            == result3.devices[0].lower()
+            result1.devices[0].lower() == result2.devices[0].lower() == result3.devices[0].lower()
         )
         assert (
-            result1.devices[1].lower()
-            == result2.devices[1].lower()
-            == result3.devices[1].lower()
+            result1.devices[1].lower() == result2.devices[1].lower() == result3.devices[1].lower()
         )
 
     def test_no_match_without_llm(self):
@@ -219,9 +215,9 @@ class TestPromptParser:
         result = parser.parse(prompt)
 
         for device in expected_devices:
-            assert any(
-                device.lower() in d.lower() for d in result.devices
-            ), f"Expected {device} in {result.devices}"
+            assert any(device.lower() in d.lower() for d in result.devices), (
+                f"Expected {device} in {result.devices}"
+            )
 
 
 class TestParsedPrompt:

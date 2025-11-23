@@ -174,6 +174,7 @@ class TestPhase2Integration:
         except AttributeError:
             # _render_to_string might not exist, try render to temp file
             import tempfile
+
             with tempfile.NamedTemporaryFile(suffix=".svg", delete=True) as tmp:
                 renderer.render(diagram, tmp.name)
                 assert tmp.name

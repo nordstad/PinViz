@@ -110,9 +110,7 @@ class TestDeviceManager:
         """Test searching devices by tags."""
         results = device_manager.search_devices(tags=["i2c"])
         assert len(results) > 0
-        assert all(
-            d.tags and any("i2c" in tag.lower() for tag in d.tags) for d in results
-        )
+        assert all(d.tags and any("i2c" in tag.lower() for tag in d.tags) for d in results)
 
     def test_search_devices_multiple_filters(self, device_manager):
         """Test searching with multiple filters combined."""
