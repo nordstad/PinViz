@@ -24,7 +24,7 @@ def device_manager():
 @pytest.fixture
 def parser():
     """Shared prompt parser."""
-    return PromptParser(use_llm=False)
+    return PromptParser()
 
 
 @pytest.fixture

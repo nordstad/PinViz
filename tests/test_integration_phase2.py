@@ -14,7 +14,7 @@ class TestPhase2Integration:
     def setup_method(self):
         """Set up test fixtures."""
         self.device_manager = DeviceManager()
-        self.parser = PromptParser(use_llm=False)
+        self.parser = PromptParser()
         self.pin_assigner = PinAssigner()
         self.connection_builder = ConnectionBuilder()
 
@@ -185,7 +185,7 @@ class TestPhase2Integration:
         def generate_diagram_from_prompt(prompt: str, title: str | None = None) -> Diagram:
             """Generate a complete diagram from a natural language prompt."""
             # Parse
-            parser = PromptParser(use_llm=False)
+            parser = PromptParser()
             parsed = parser.parse(prompt)
 
             # Look up devices
@@ -221,7 +221,7 @@ class TestPhase2Integration:
 
     def test_error_handling_unknown_device(self):
         """Test error handling when device is not found."""
-        parser = PromptParser(use_llm=False)
+        parser = PromptParser()
         parsed = parser.parse("connect UnknownDevice123")
 
         device_manager = DeviceManager()
@@ -256,7 +256,7 @@ class TestPhase2PerformanceBaseline:
         start = time.time()
 
         # Full pipeline
-        parser = PromptParser(use_llm=False)
+        parser = PromptParser()
         parsed = parser.parse(prompt)
 
         device_manager = DeviceManager()

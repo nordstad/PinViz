@@ -2,12 +2,12 @@
 Natural Language Prompt Parser for PinViz MCP Server.
 
 This module parses natural language prompts to extract structured data needed for
-generating wiring diagrams. It uses a hybrid approach:
-- Regex patterns for common, simple prompts (fast, no API calls)
-- Claude API as fallback for complex/ambiguous prompts
+generating wiring diagrams using regex patterns for common prompt formats.
+
+The client's LLM handles complex interpretation - this parser just extracts
+device names and board types from structured prompts.
 """
 
-import os
 import re
 from dataclasses import dataclass
 from typing import Any
@@ -111,19 +111,9 @@ class PromptParser:
         "pi5": "raspberry_pi_5",
     }
 
-    def __init__(self, use_llm: bool = True, api_key: str | None = None):
-        """
-        Initialize the parser.
-
-        Args:
-            use_llm: Whether to use Claude API for fallback (default: True)
-            api_key: Anthropic API key (if None, uses ANTHROPIC_API_KEY env var)
-        """
-        self.use_llm = use_llm
-        self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
-
-        if self.use_llm and not self.api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable must be set when use_llm=True")
+    def __init__(self):
+        """Initialize the parser with regex patterns only."""
+        pass
 
     def parse(self, prompt: str) -> ParsedPrompt:
         """
@@ -138,21 +128,18 @@ class PromptParser:
         # Clean the prompt
         prompt = prompt.strip()
 
-        # Try regex patterns first
+        # Try regex patterns
         for pattern, pattern_type in self.PATTERNS:
             match = pattern.match(prompt)
             if match:
                 return self._parse_with_regex(match, pattern_type)
 
-        # Fall back to LLM if enabled
-        if self.use_llm:
-            return self._parse_with_llm(prompt)
-
-        # If no LLM and no regex match, return empty result
+        # If no regex match, return empty result
+        # The client's LLM can handle interpretation if needed
         return ParsedPrompt(
             devices=[],
             confidence=0.0,
-            parsing_method="failed",
+            parsing_method="no_match",
         )
 
     def _parse_with_regex(self, match: re.Match, pattern_type: str) -> ParsedPrompt:
@@ -185,66 +172,6 @@ class PromptParser:
             parsing_method="regex",
         )
 
-    def _parse_with_llm(self, prompt: str) -> ParsedPrompt:
-        """Parse prompt using Claude API for complex cases."""
-        try:
-            from anthropic import Anthropic
-
-            client = Anthropic(api_key=self.api_key)
-
-            # Create a structured prompt for Claude
-            system_prompt = """You are a parser for Raspberry Pi wiring diagram prompts.
-Extract the following information from the user's prompt:
-1. List of device names (e.g., "BME280", "LED", "button")
-2. Board type (default: "raspberry_pi_5")
-3. Special requirements (e.g., "needs pull-up resistors", "share I2C bus")
-
-Respond in JSON format:
-{
-  "devices": ["device1", "device2"],
-  "board": "raspberry_pi_5",
-  "requirements": {"pull_ups": true, "shared_bus": "i2c"}
-}"""
-
-            response = client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=500,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"Parse this wiring prompt:\n\n{prompt}",
-                    }
-                ],
-                system=system_prompt,
-            )
-
-            # Extract text content from response
-            content_text = ""
-            for block in response.content:
-                if hasattr(block, "text"):
-                    content_text += block.text
-
-            # Parse JSON response
-            import json
-
-            parsed = json.loads(content_text)
-
-            return ParsedPrompt(
-                devices=parsed.get("devices", []),
-                board=parsed.get("board", "raspberry_pi_5"),
-                requirements=parsed.get("requirements"),
-                confidence=0.85,  # Slightly lower confidence for LLM
-                parsing_method="llm",
-            )
-
-        except Exception as e:
-            # If LLM parsing fails, return low-confidence result
-            return ParsedPrompt(
-                devices=[],
-                confidence=0.0,
-                parsing_method=f"llm_failed: {e!s}",
-            )
-
     def _clean_device_name(self, name: str) -> str:
         """Clean and normalize device name."""
         # Remove articles
@@ -265,16 +192,15 @@ Respond in JSON format:
         return "raspberry_pi_5"  # Default
 
 
-def parse_prompt(prompt: str, use_llm: bool = True) -> ParsedPrompt:
+def parse_prompt(prompt: str) -> ParsedPrompt:
     """
-    Convenience function to parse a prompt.
+    Convenience function to parse a prompt using regex patterns.
 
     Args:
         prompt: Natural language prompt
-        use_llm: Whether to use Claude API for fallback
 
     Returns:
         ParsedPrompt object
     """
-    parser = PromptParser(use_llm=use_llm)
+    parser = PromptParser()
     return parser.parse(prompt)

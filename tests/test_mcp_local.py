@@ -57,7 +57,7 @@ def test_prompt_parser():
     print("TEST 2: Natural Language Parser")
     print("=" * 70)
 
-    parser = PromptParser(use_llm=False)
+    parser = PromptParser()
 
     test_prompts = [
         "Connect BME280 and BH1750",
@@ -131,7 +131,7 @@ def test_diagram_generation():
 
     # Initialize components
     dm = DeviceManager()
-    parser = PromptParser(use_llm=False)
+    parser = PromptParser()
     assigner = PinAssigner()
     builder = ConnectionBuilder()
     renderer = SVGRenderer()

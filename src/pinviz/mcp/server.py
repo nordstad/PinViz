@@ -337,130 +337,11 @@ def get_protocols() -> str:
 
 
 @mcp.tool()
-def parse_device_from_url(url: str, save_to_user_db: bool = False) -> str:
-    """Parse device specifications from a documentation URL (Phase 3).
-
-    This tool fetches documentation from URLs (datasheets, product pages) and
-    uses Claude API to automatically extract device specifications.
-
-    Supported domains:
-    - adafruit.com
-    - sparkfun.com
-    - waveshare.com
-    - pimoroni.com
-    - raspberrypi.com
-    - seeedstudio.com
-    - peppe8o.com
-
-    Args:
-        url: URL to device documentation (datasheet or product page)
-        save_to_user_db: If True, automatically save to user devices database
-
-    Returns:
-        JSON string with extracted device specifications and validation results
-    """
-    from .doc_parser import DocumentationParser
-
-    try:
-        # Parse the URL
-        parser = DocumentationParser()
-        extracted = parser.parse_url_sync(url)
-
-        # Convert to device entry
-        device_entry = parser.to_device_entry(extracted)
-
-        # Validate the entry
-        is_valid, errors = parser.validate_device_entry(device_entry)
-
-        result = {
-            "status": "success" if is_valid else "warning",
-            "device": device_entry,
-            "extraction": {
-                "confidence": extracted.confidence,
-                "method": extracted.extraction_method,
-                "missing_fields": extracted.missing_fields,
-            },
-            "validation": {
-                "is_valid": is_valid,
-                "errors": errors,
-            },
-        }
-
-        # Save to user database if requested and valid
-        if save_to_user_db and is_valid:
-            # Convert to Device object
-            pins = [
-                DevicePin(
-                    name=pin["name"],
-                    role=pin["role"],
-                    position=pin["position"],
-                    description=pin.get("description"),
-                    optional=pin.get("optional", False),
-                )
-                for pin in device_entry["pins"]
-            ]
-
-            device = Device(
-                id=device_entry["id"],
-                name=device_entry["name"],
-                category=device_entry["category"],
-                description=device_entry["description"],
-                pins=pins,
-                protocols=device_entry["protocols"],
-                voltage=device_entry["voltage"],
-                manufacturer=device_entry.get("manufacturer"),
-                datasheet_url=device_entry.get("datasheet_url"),
-                i2c_address=device_entry.get("i2c_address"),
-                i2c_addresses=device_entry.get("i2c_addresses"),
-                current_draw=device_entry.get("current_draw"),
-                dimensions=device_entry.get("dimensions"),
-                tags=device_entry.get("tags"),
-                notes=device_entry.get("notes"),
-                requires_pullup=device_entry.get("requires_pullup", False),
-            )
-
-            device_manager.add_user_device(device)
-            result["saved_to_user_db"] = True
-            result["message"] = (
-                f"Device '{device.name}' saved to user database with ID '{device.id}'"
-            )
-
-        elif save_to_user_db and not is_valid:
-            result["saved_to_user_db"] = False
-            result["message"] = (
-                "Device not saved due to validation errors. Fix errors and try again."
-            )
-
-        return json.dumps(result, indent=2)
-
-    except ValueError as e:
-        return json.dumps(
-            {
-                "status": "error",
-                "error": str(e),
-                "error_type": "ValueError",
-                "url": url,
-            },
-            indent=2,
-        )
-    except Exception as e:
-        return json.dumps(
-            {
-                "status": "error",
-                "error": str(e),
-                "error_type": type(e).__name__,
-                "url": url,
-            },
-            indent=2,
-        )
-
-
-@mcp.tool()
 def add_user_device(device_data: dict) -> str:
     """Manually add a device to the user devices database.
 
-    Use this tool to add custom devices that aren't available from URL parsing,
-    or to manually correct/supplement extracted device specifications.
+    Use this tool to add custom devices. You can ask your LLM to help you
+    create the device specification by analyzing datasheets or product pages.
 
     Args:
         device_data: Device specification dictionary following the schema
@@ -470,10 +351,9 @@ def add_user_device(device_data: dict) -> str:
     """
     try:
         # Validate the device data
-        from .doc_parser import DocumentationParser
+        from .device_validator import validate_device_entry
 
-        parser = DocumentationParser()
-        is_valid, errors = parser.validate_device_entry(device_data)
+        is_valid, errors = validate_device_entry(device_data)
 
         if not is_valid:
             return json.dumps(
