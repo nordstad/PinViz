@@ -23,15 +23,16 @@ diagrams.
 
 ## Features
 
+- **🤖 AI-Powered Diagram Generation**: MCP server integration with Claude Desktop and GitHub Copilot - generate diagrams from natural language prompts like "Connect BME280 and LED to my Raspberry Pi"
+- **🧠 Intelligent Pin Assignment**: Automatic I2C bus sharing, SPI chip select allocation, and conflict detection
+- **📚 Device Database**: 25+ pre-configured devices (sensors, displays, HATs) with automatic pin mapping
+- **🔗 URL-Based Device Discovery**: Add new devices by parsing datasheets from URLs
 - **Declarative Configuration**: Define diagrams using YAML or JSON
 - **Programmatic API**: Create diagrams with Python code
-- **Automatic Wire Routing**: Smart wire routing with configurable styles
-  (orthogonal, curved, mixed)
+- **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
-- **Color-Coded Wires**: Automatic color assignment based on pin function
-  (I2C, SPI, power, ground, etc.)
-- **Built-in Templates**: Pre-configured boards (Raspberry Pi 5) and common
-  devices (BH1750, IR LED rings, etc.)
+- **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
+- **Built-in Templates**: Pre-configured boards (Raspberry Pi 5) and common devices (BH1750, IR LED rings, etc.)
 - **GPIO Pin Reference**: Optional GPIO pinout diagram for easy reference
 - **SVG Output**: Scalable, high-quality vector graphics
 
