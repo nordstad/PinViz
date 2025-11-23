@@ -11,6 +11,29 @@ from .config_loader import load_diagram
 from .model import Diagram
 from .render_svg import SVGRenderer
 
+
+class CustomHelpFormatter(RichHelpFormatter):
+    """Custom formatter that preserves epilog formatting."""
+
+    # Class variable to store the original epilog
+    original_epilog = None
+
+    def format_help(self):
+        """Override to handle epilog separately."""
+        # Get the normal formatted help
+        help_text = super().format_help()
+
+        # If there's an epilog that got wrapped, replace it with the original
+        if CustomHelpFormatter.original_epilog and "Examples:" in help_text:
+            # Split at "Examples:" and replace everything after
+            parts = help_text.split("Examples:", 1)
+            if len(parts) == 2:
+                # Add back our properly formatted epilog
+                help_text = parts[0] + CustomHelpFormatter.original_epilog
+
+        return help_text
+
+
 # Get version from package metadata
 try:
     from importlib.metadata import version
@@ -22,22 +45,29 @@ except Exception:
 
 def main() -> int:
     """Main CLI entry point."""
+
+    # Define custom epilog with examples
+    # Using a more compact format that works better with formatters
+    epilog = "\n".join(
+        [
+            "Examples:",
+            "  pinviz render diagram.yaml                     # Generate diagram from YAML config",
+            "  pinviz render diagram.yaml -o out/wiring.svg   # Specify output path",
+            "  pinviz example bh1750                          # Use a built-in example",
+            "  pinviz list                                     # List available templates",
+            "",
+            "For more information, visit: https://github.com/nordstad/PinViz",
+        ]
+    )
+
+    # Store epilog in formatter class for later use
+    CustomHelpFormatter.original_epilog = epilog
+
     parser = argparse.ArgumentParser(
+        prog="pinviz",
         description="Generate Raspberry Pi GPIO connection diagrams",
-        formatter_class=RichHelpFormatter,
-        epilog="""
-Examples:
-  # Generate diagram from YAML config
-  pinviz render diagram.yaml
-
-  # Specify output path
-  pinviz render diagram.yaml -o output/wiring.svg
-
-  # Use a built-in example
-  pinviz example bh1750
-
-For more information, visit: https://github.com/nordstad/PinViz
-        """,
+        formatter_class=CustomHelpFormatter,
+        epilog=epilog,
     )
 
     parser.add_argument(
@@ -47,58 +77,84 @@ For more information, visit: https://github.com/nordstad/PinViz
         version=f"%(prog)s {__version__}",
     )
 
-    subparsers = parser.add_subparsers(dest="command", help="Available commands", required=True)
+    subparsers = parser.add_subparsers(
+        dest="command",
+        title="Commands",
+        metavar="COMMAND",
+        required=True,
+    )
 
     # Main render command
     render_parser = subparsers.add_parser(
-        "render", help="Render a diagram from a configuration file"
-    )
-    render_parser.add_argument("config", help="Path to YAML or JSON configuration file")
-    render_parser.add_argument(
-        "-o", "--output", help="Output SVG file path (default: <config>.svg)"
+        "render",
+        help="Render a diagram from a configuration file",
+        description="Render a diagram from a YAML or JSON configuration file",
     )
     render_parser.add_argument(
+        "config",
+        metavar="CONFIG_FILE",
+        help="Path to YAML or JSON configuration file",
+    )
+    render_parser.add_argument(
+        "-o",
+        "--output",
+        metavar="PATH",
+        help="Output SVG file path (default: <config>.svg)",
+    )
+    gpio_group = render_parser.add_mutually_exclusive_group()
+    gpio_group.add_argument(
         "--gpio",
         action="store_true",
         dest="show_gpio",
-        help="Show GPIO pin reference diagram on the right side",
+        help="Show GPIO pin reference diagram",
     )
-    render_parser.add_argument(
+    gpio_group.add_argument(
         "--no-gpio",
         action="store_false",
         dest="show_gpio",
-        help="Hide GPIO pin reference diagram",
+        help="Hide GPIO pin reference diagram (default: use config file setting)",
     )
     render_parser.set_defaults(show_gpio=None)  # None means use config file value
 
     # Example command
-    example_parser = subparsers.add_parser("example", help="Generate a built-in example diagram")
+    example_parser = subparsers.add_parser(
+        "example",
+        help="Generate a built-in example diagram",
+        description="Generate one of the built-in example diagrams",
+    )
     example_parser.add_argument(
         "name",
+        metavar="NAME",
         choices=["bh1750", "ir_led", "i2c_spi"],
-        help="Example diagram name",
+        help="Example name: bh1750, ir_led, i2c_spi",
     )
     example_parser.add_argument(
         "-o",
         "--output",
-        help="Output SVG file path (default: ./out/<example>.svg)",
+        metavar="PATH",
+        help="Output SVG file path (default: ./out/<name>.svg)",
     )
-    example_parser.add_argument(
+    gpio_group = example_parser.add_mutually_exclusive_group()
+    gpio_group.add_argument(
         "--gpio",
         action="store_true",
         dest="show_gpio",
-        help="Show GPIO pin reference diagram on the right side",
+        help="Show GPIO pin reference diagram",
     )
-    example_parser.add_argument(
+    gpio_group.add_argument(
         "--no-gpio",
         action="store_false",
         dest="show_gpio",
-        help="Hide GPIO pin reference diagram",
+        help="Hide GPIO pin reference diagram (default: show)",
     )
     example_parser.set_defaults(show_gpio=True)  # Examples default to showing GPIO
 
     # List command
-    subparsers.add_parser("list", help="List available board and device templates")
+    subparsers.add_parser(
+        "list",
+        help="List available board and device templates",
+        description="List all available board models, device templates, and examples",
+    )
 
     args = parser.parse_args()
 

@@ -16,8 +16,6 @@ Generate a diagram from a YAML or JSON configuration file:
 
 ```bash
 pinviz render CONFIG_FILE [-o OUTPUT_FILE]
-# Or simply:
-pinviz CONFIG_FILE [-o OUTPUT_FILE]
 ```
 
 **Arguments:**
@@ -35,7 +33,7 @@ pinviz render my-diagram.yaml
 pinviz render my-diagram.yaml -o output/wiring.svg
 
 # Works with JSON too
-pinviz my-diagram.json -o output.svg
+pinviz render my-diagram.json -o output.svg
 ```
 
 ### Generate Built-in Examples

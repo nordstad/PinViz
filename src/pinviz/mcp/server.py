@@ -150,7 +150,7 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
         When output_format is 'yaml':
         - The response contains a 'yaml_content' field with the complete PinViz YAML configuration
         - This YAML should be saved to a file (e.g., diagram.yaml) and rendered with:
-          pinviz diagram.yaml -o output.svg
+          pinviz render diagram.yaml -o output.svg
         - DO NOT modify or reconstruct the YAML - use the 'yaml_content' field exactly as provided
         - The YAML includes full device pin definitions required by the pinviz CLI
     """
@@ -261,7 +261,7 @@ devices:
             result["message"] = (
                 "Complete PinViz YAML configuration generated. "
                 "Save the 'yaml_content' field to a file and render with: "
-                "pinviz <file>.yaml -o output.svg"
+                "pinviz render <file>.yaml -o output.svg"
             )
 
         elif output_format == "json":
