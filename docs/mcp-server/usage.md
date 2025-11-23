@@ -680,10 +680,10 @@ System will extract specs and add to user database.
 
 ## Next Steps
 
-- Learn how to [contribute devices](CONTRIBUTING_DEVICES.md)
-- Check the [installation guide](INSTALLATION.md) for setup
-- Explore the [device database](../devices/database.json)
-- Read the [device schema](../devices/schema.json)
+- Learn how to [contribute devices](contributing.md)
+- Check the [installation guide](installation.md) for setup
+- Explore the [device database](https://github.com/nordstad/PinViz/blob/main/src/pinviz/mcp/devices/database.json)
+- Read the [device schema](https://github.com/nordstad/PinViz/blob/main/src/pinviz/mcp/devices/schema.json)
 
 ## Support
 

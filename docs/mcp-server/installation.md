@@ -444,9 +444,9 @@ uv sync
 
 ## Next Steps
 
-- Read the [Usage Guide](USAGE.md) for examples
-- Learn how to [contribute devices](CONTRIBUTING_DEVICES.md)
-- Explore the [device database](../devices/database.json)
+- Read the [Usage Guide](usage.md) for examples
+- Learn how to [contribute devices](contributing.md)
+- Explore the [device database](https://github.com/nordstad/PinViz/blob/main/src/pinviz/mcp/devices/database.json)
 
 ## Support
 
