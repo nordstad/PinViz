@@ -122,13 +122,13 @@
           "enum": [
             "3V3", "5V", "GND",
             "I2C_SDA", "I2C_SCL",
-            "SPI_MOSI", "SPI_MISO", "SPI_SCLK", "SPI_CS",
+            "SPI_MOSI", "SPI_MISO", "SPI_SCLK", "SPI_CE0", "SPI_CE1",
             "UART_TX", "UART_RX",
             "GPIO", "PWM",
-            "1-Wire",
-            "SIGNAL", "DATA"
+            "PCM_CLK", "PCM_FS", "PCM_DIN", "PCM_DOUT",
+            "I2C_EEPROM"
           ],
-          "description": "Pin function/role for automatic color assignment"
+          "description": "Pin function/role for automatic color assignment (matches PinRole enum from pinviz.model)"
         },
         "position": {
           "type": "integer",
