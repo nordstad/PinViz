@@ -4,18 +4,17 @@
 This script tests the MCP server tools without needing Claude Desktop.
 """
 
-import json
 import sys
 from pathlib import Path
 
 # Add src to path so we can import pinviz_mcp
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
+from pinviz.render_svg import SVGRenderer
 from pinviz_mcp.connection_builder import ConnectionBuilder
 from pinviz_mcp.device_manager import DeviceManager
 from pinviz_mcp.parser import PromptParser
 from pinviz_mcp.pin_assignment import PinAssigner
-from pinviz.render_svg import SVGRenderer
 
 
 def test_device_manager():
@@ -108,7 +107,7 @@ def test_pin_assignment():
             i2c_scl_pins.add(assignment.board_pin_number)
 
     if len(i2c_sda_pins) == 1 and len(i2c_scl_pins) == 1:
-        print(f"✓ I2C bus shared correctly:")
+        print("✓ I2C bus shared correctly:")
         print(f"  - SDA on pin {list(i2c_sda_pins)[0]}")
         print(f"  - SCL on pin {list(i2c_scl_pins)[0]}")
     else:
@@ -139,7 +138,7 @@ def test_diagram_generation():
 
     # Step 1: Parse prompt
     parsed = parser.parse(prompt)
-    print(f"\n1. Parse prompt:")
+    print("\n1. Parse prompt:")
     print(f"   Devices: {parsed.devices}")
 
     # Step 2: Get device specs
@@ -158,7 +157,7 @@ def test_diagram_generation():
 
     # Step 3: Assign pins
     assignments, warnings = assigner.assign_pins(device_specs)
-    print(f"\n2. Assign pins:")
+    print("\n2. Assign pins:")
     print(f"   Assignments: {len(assignments)} devices")
     if warnings:
         print(f"   Warnings: {warnings}")
@@ -170,7 +169,7 @@ def test_diagram_generation():
         title=prompt,
         board_name=parsed.board,
     )
-    print(f"\n3. Build diagram:")
+    print("\n3. Build diagram:")
     print(f"   Title: {diagram.title}")
     print(f"   Board: {diagram.board.name}")
     print(f"   Devices: {len(diagram.devices)}")
@@ -181,7 +180,7 @@ def test_diagram_generation():
 
     if Path(output_file).exists():
         size = Path(output_file).stat().st_size
-        print(f"\n4. Render SVG:")
+        print("\n4. Render SVG:")
         print(f"   ✓ File created: {output_file}")
         print(f"   ✓ Size: {size:,} bytes")
         return True
@@ -242,6 +241,7 @@ def main():
         except Exception as e:
             print(f"\n✗ ERROR in {test_name}: {e}")
             import traceback
+
             traceback.print_exc()
             results.append((test_name, False))
 
