@@ -1,7 +1,7 @@
 # PinViz
 
 <p align="center">
-  <img src="assets/logo_512.png" alt="PinViz Logo" width="120">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/assets/logo_512.png" alt="PinViz Logo" width="120">
 </p>
 
 <p align="center">

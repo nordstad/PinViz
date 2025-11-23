@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-01-23
+
+### Fixed
+- Logo display on PyPI by using absolute GitHub URL instead of relative path
+
 ## [0.2.0] - 2025-01-23
 
 ### Added
