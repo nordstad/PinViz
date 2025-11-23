@@ -267,6 +267,22 @@ Coverage: 71% overall
   - All MCP tools have comprehensive docstrings
   - README.md has complete usage examples
 
+### GitHub Actions & CI/CD ✅
+
+- [x] Update CI workflow to test pinviz_mcp coverage
+  - Added `--cov=pinviz_mcp` to pytest coverage
+  - Ensures MCP server code is tracked in coverage reports
+- [x] Update publish workflow with MCP server smoke tests
+  - Added `pinviz-mcp --version` verification in local smoke tests
+  - Added MCP server verification in published package tests
+  - Ensures MCP server is functional after PyPI deployment
+- [x] Integrate MCP documentation into mkdocs site
+  - Created `docs/mcp-server/` directory structure
+  - Copied INSTALLATION.md, USAGE.md, CONTRIBUTING_DEVICES.md
+  - Created comprehensive overview page (index.md)
+  - Added "MCP Server" section to mkdocs.yml navigation
+  - MCP docs now discoverable on documentation website
+
 ---
 
 ## Project Structure

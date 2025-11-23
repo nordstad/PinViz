@@ -48,6 +48,9 @@ jobs:
           # Verify the SVG file was created
           test -f bh1750_ci.svg || (echo "Failed to generate example SVG" && exit 1)
 
+          # Test MCP server installation
+          uv run pinviz-mcp --version || (echo "Failed to run MCP server" && exit 1)
+
           echo "✓ Local smoke tests passed"
 
       - name: Upload build artifacts
@@ -149,6 +152,7 @@ jobs:
         run: |
           uv run pinviz --version
           uv run pinviz list
+          uv run pinviz-mcp --version
 
       - name: Test basic functionality
         run: |
