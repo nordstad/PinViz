@@ -350,6 +350,7 @@ def parse_device_from_url(url: str, save_to_user_db: bool = False) -> str:
     - pimoroni.com
     - raspberrypi.com
     - seeedstudio.com
+    - peppe8o.com
 
     Args:
         url: URL to device documentation (datasheet or product page)

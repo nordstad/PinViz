@@ -61,6 +61,7 @@ class DocumentationParser:
         "pimoroni.com",
         "raspberrypi.com",
         "seeedstudio.com",
+        "peppe8o.com",  # Tutorial site with good Raspberry Pi content
     ]
 
     # Default timeout for HTTP requests (seconds)
