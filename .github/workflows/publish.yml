@@ -84,7 +84,7 @@ jobs:
           path: dist/
 
       - name: Publish to PyPI
-        run: uv publish --no-build dist/*
+        run: uv publish dist/*
 
       - name: Create GitHub Release
         uses: actions/github-script@v7
