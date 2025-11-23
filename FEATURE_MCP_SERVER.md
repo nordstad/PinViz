@@ -282,6 +282,13 @@ Coverage: 71% overall
   - Created comprehensive overview page (index.md)
   - Added "MCP Server" section to mkdocs.yml navigation
   - MCP docs now discoverable on documentation website
+- [x] Create MCP functionality test workflow
+  - Added dedicated `test-mcp` job to CI workflow
+  - Runs comprehensive MCP server test script (test_mcp_local.py)
+  - Tests all 5 core components: device manager, parser, pin assignment, diagram generation, database
+  - Verifies SVG output generation
+  - Uploads generated SVG as CI artifact for inspection
+  - Runs on every PR and main branch push
 
 ---
 
