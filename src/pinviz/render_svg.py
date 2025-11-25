@@ -217,20 +217,25 @@ class SVGRenderer:
             PinRole.PCM_DOUT: "#00FF00",  # Green
         }
 
+        # Use larger pins for Pi Zero boards (smaller board, needs bigger pins)
+        is_pi_zero = "Zero" in board.name
+        pin_radius = 7.5 if is_pi_zero else 4.5
+        pin_font_size = "6px" if is_pi_zero else "4.5px"
+
         for pin in board.pins:
             pin_x = x + pin.position.x
             pin_y = y + pin.position.y + pin_number_y_offset
 
             # Draw circle background for pin number
             # Match the size of connector circles in pi2.svg (r=2.088)
-            # Use larger size for better visibility: r=4.5
+            # Use larger size for better visibility: r=4.5 (Pi 5) or r=7.5 (Pi Zero)
             # Use color based on pin role
             bg_color = role_colors.get(pin.role, "#FFFFFF")  # Default to white if role not found
 
             dwg.add(
                 dwg.circle(
                     center=(pin_x, pin_y),
-                    r=4.5,
+                    r=pin_radius,
                     fill=bg_color,
                     stroke="#333",
                     stroke_width=0.5,
@@ -239,7 +244,7 @@ class SVGRenderer:
             )
 
             # Draw pin number - scaled to fit in circle
-            font_size = "4.5px"  # Scaled to fit in r=4.5 circle
+            font_size = pin_font_size  # Scaled to fit in circle
             # Use white text on blue backgrounds for better readability
             text_color = "#FFFFFF" if bg_color == "#0000FF" else "#000000"
             dwg.add(

@@ -24,7 +24,7 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
 - **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
-- **Built-in Templates**: Pre-configured boards (Raspberry Pi 5) and common devices (BH1750, IR LED rings, etc.)
+- **Built-in Templates**: Pre-configured boards (Raspberry Pi 5 and Pi Zero 2 W) and common devices (BH1750, IR LED rings, etc.)
 - **GPIO Pin Reference**: Optional GPIO pinout diagram for easy reference
 - **SVG Output**: Scalable, high-quality vector graphics
 
@@ -70,7 +70,7 @@ Create a configuration file `my-diagram.yaml`:
 
 ```yaml
 title: "BH1750 Light Sensor Wiring"
-board: "raspberry_pi_5"
+board: "raspberry_pi_5"  # or "raspberry_pi_zero_2w"
 
 devices:
   - type: "bh1750"

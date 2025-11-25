@@ -103,17 +103,36 @@ class PromptParser:
 
     # Board aliases mapping
     BOARD_ALIASES = {
+        # Raspberry Pi 5
         "rpi5": "raspberry_pi_5",
         "rpi 5": "raspberry_pi_5",
         "raspberry pi 5": "raspberry_pi_5",
         "raspberry_pi_5": "raspberry_pi_5",
         "pi 5": "raspberry_pi_5",
         "pi5": "raspberry_pi_5",
+        # Raspberry Pi Zero / Zero 2 W
+        "raspberry_pi_zero_2w": "raspberry_pi_zero_2w",
+        "raspberry_pi_zero": "raspberry_pi_zero_2w",
+        "raspberry pi zero": "raspberry_pi_zero_2w",
+        "raspberry pi zero 2": "raspberry_pi_zero_2w",
+        "raspberry pi zero 2w": "raspberry_pi_zero_2w",
+        "pizero": "raspberry_pi_zero_2w",
+        "pi zero": "raspberry_pi_zero_2w",
+        "zero2w": "raspberry_pi_zero_2w",
+        "zero 2w": "raspberry_pi_zero_2w",
+        "zero": "raspberry_pi_zero_2w",
+        "rpizero": "raspberry_pi_zero_2w",
+        "rpi zero": "raspberry_pi_zero_2w",
     }
 
-    def __init__(self):
-        """Initialize the parser with regex patterns only."""
-        pass
+    def __init__(self, use_llm: bool = False):
+        """
+        Initialize the parser.
+
+        Args:
+            use_llm: Whether to use LLM fallback for complex prompts (not yet implemented)
+        """
+        self.use_llm = use_llm
 
     def parse(self, prompt: str) -> ParsedPrompt:
         """

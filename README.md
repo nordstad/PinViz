@@ -95,7 +95,7 @@ Once you've seen what PinViz can do, create your own configuration file `my-diag
 
 ```yaml
 title: "BH1750 Light Sensor Wiring"
-board: "raspberry_pi_5"
+board: "raspberry_pi_5"  # or "raspberry_pi_zero_2w" for Pi Zero
 
 devices:
   - type: "bh1750"
@@ -135,7 +135,7 @@ For programmatic diagram generation in your Python projects:
 from pinviz import boards, devices, Connection, Diagram, SVGRenderer
 
 # Create board and device
-board = boards.raspberry_pi_5()
+board = boards.raspberry_pi_5()  # or boards.raspberry_pi_zero_2w()
 sensor = devices.bh1750_light_sensor()
 
 # Define connections
@@ -410,7 +410,8 @@ pinviz render diagram.yaml --gpio -o output.svg
 
 Currently supported boards:
 
-- `raspberry_pi_5` (aliases: `rpi5`, `rpi`)
+- `raspberry_pi_5` (aliases: `rpi5`, `rpi`) - Raspberry Pi 5 with 40-pin GPIO header
+- `raspberry_pi_zero_2w` (aliases: `raspberry_pi_zero`, `pizero`, `zero2w`, `zero`, `rpizero`) - Raspberry Pi Zero / Zero 2 W with 40-pin GPIO header
 
 ### Built-in Device Types
 
@@ -544,6 +545,7 @@ The `examples/` directory contains:
 - `led_with_resistor.yaml` / `led_with_resistor_python.py` - LED with inline
   resistor
 - `traffic_light.yaml` - Traffic light with 3 LEDs and resistors
+- `pi_zero_bh1750.yaml` - BH1750 light sensor for Raspberry Pi Zero 2 W
 
 All generated diagrams are in the `images/` directory.
 

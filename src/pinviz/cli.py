@@ -261,8 +261,8 @@ def list_command() -> int:
     from .devices import get_registry
 
     print("Available Boards:")
-    print("  - raspberry_pi_5 (alias: rpi5)")
-    print("  - raspberry_pi (alias: rpi)")
+    print("  - raspberry_pi_5 (aliases: rpi5, rpi)")
+    print("  - raspberry_pi_zero_2w (aliases: raspberry_pi_zero, pizero, zero2w, zero, rpizero)")
     print()
 
     # List devices by category
