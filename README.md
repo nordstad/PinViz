@@ -336,11 +336,19 @@ See the [Installation Guide](src/pinviz_mcp/docs/INSTALLATION.md#github-copilot-
 
 Simple LED circuit with inline current-limiting resistor:
 
+```bash
+pinviz render examples/led_with_resistor.yaml -o led_with_resistor.svg
+```
+
 ![LED with Resistor](https://raw.githubusercontent.com/nordstad/PinViz/main/images/led_with_resistor.svg)
 
 ### Multi-Device Setup
 
 BH1750 light sensor + IR LED ring with custom wire colors:
+
+```bash
+pinviz render examples/bh1750_ir_led.yaml -o bh1750_ir_led.svg
+```
 
 ![BH1750 + IR LED Ring](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750_ir_led.svg)
 
@@ -348,7 +356,21 @@ BH1750 light sensor + IR LED ring with custom wire colors:
 
 Three LEDs with individual resistors:
 
+```bash
+pinviz render examples/traffic_light.yaml -o traffic_light.svg
+```
+
 ![Traffic Light](https://raw.githubusercontent.com/nordstad/PinViz/main/images/traffic_light.svg)
+
+### Raspberry Pi Zero 2 W
+
+BH1750 light sensor wiring for the compact Pi Zero board:
+
+```bash
+pinviz render examples/pi_zero_bh1750.yaml --no-gpio -o pi_zero_bh1750.svg
+```
+
+![Pi Zero BH1750](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/pi_zero_bh1750_without_gpio.svg)
 
 ### GPIO Details: With vs Without
 
