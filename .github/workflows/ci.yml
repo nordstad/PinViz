@@ -82,6 +82,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
 
+      - name: Create output directory
+        run: mkdir -p out
+
       - name: Run examples
         run: |
           for file in examples/*_python.py; do

@@ -545,6 +545,7 @@ The `examples/` directory contains:
 - `led_with_resistor.yaml` / `led_with_resistor_python.py` - LED with inline
   resistor
 - `traffic_light.yaml` - Traffic light with 3 LEDs and resistors
+- `pi_zero_bh1750.yaml` - BH1750 light sensor for Raspberry Pi Zero 2 W
 
 All generated diagrams are in the `images/` directory.
 
