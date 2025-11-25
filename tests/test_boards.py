@@ -269,11 +269,11 @@ def test_raspberry_pi_zero_2w_pin_positions_alternating_columns():
     """
     Test that odd pins are in left column, even pins in right column.
 
-    Uses scaled values (1.6x native SVG coords) to match Pi 5 pin spacing.
+    Uses manually tweaked values for optimal GPIO pin alignment.
     """
     board = boards.raspberry_pi_zero_2w()
-    left_col_x = 214.56  # Scaled for better visibility
-    right_col_x = 227.52  # Scaled for better visibility
+    left_col_x = 230.00  # Manually tweaked for alignment
+    right_col_x = 253.00  # Manually tweaked for alignment
 
     for pin in board.pins:
         if pin.number % 2 == 1:  # Odd pins (left column)
@@ -284,9 +284,9 @@ def test_raspberry_pi_zero_2w_pin_positions_alternating_columns():
 
 def test_raspberry_pi_zero_2w_pin_spacing():
     """
-    Test that Pi Zero pin spacing matches Pi 5 (after scaling).
+    Test that Pi Zero has appropriate pin spacing for visibility.
 
-    Pi Zero row spacing: 12.0 (scaled 1.6x from native 7.50)
+    Pi Zero row spacing: 21.13 (manually tweaked for optimal visibility)
     Pi 5 row spacing: 12.0 (standard)
     """
     pi_zero = boards.raspberry_pi_zero_2w()
@@ -296,15 +296,15 @@ def test_raspberry_pi_zero_2w_pin_spacing():
     pin3 = pi_zero.get_pin_by_number(3)
     row_spacing = pin3.position.y - pin1.position.y
 
-    # Pi Zero should have 12.0 spacing (scaled to match Pi 5)
-    assert row_spacing == pytest.approx(12.00, abs=0.1)
+    # Pi Zero should have larger spacing for better visibility
+    assert row_spacing == pytest.approx(21.13, abs=0.2)
 
-    # Verify this matches Pi 5
+    # Verify Pi Zero has larger spacing than Pi 5
     pi5 = boards.raspberry_pi_5()
     pi5_pin1 = pi5.get_pin_by_number(1)
     pi5_pin3 = pi5.get_pin_by_number(3)
     pi5_row_spacing = pi5_pin3.position.y - pi5_pin1.position.y
-    assert row_spacing == pytest.approx(pi5_row_spacing, abs=0.1)  # Same spacing as Pi 5
+    assert row_spacing > pi5_row_spacing  # Pi Zero spacing should be larger
 
 
 def test_raspberry_pi_zero_2w_board_dimensions():

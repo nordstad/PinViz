@@ -7,7 +7,10 @@ Programmatic usage of PinViz.
 ```python
 from pinviz import boards, devices, Connection, Diagram, SVGRenderer
 
-board = boards.raspberry_pi_5()
+# Create board - choose one:
+board = boards.raspberry_pi_5()      # Raspberry Pi 5
+# board = boards.raspberry_pi_zero_2w()  # Raspberry Pi Zero 2 W
+
 sensor = devices.bh1750_light_sensor()
 
 connections = [

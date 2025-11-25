@@ -18,7 +18,11 @@ def parse_transform(transform_str):
     # Extract matrix values: matrix(a, b, c, d, e, f)
     # Transforms point (x,y) to (ax + cy + e, bx + dy + f)
     import re
-    match = re.search(r'matrix\(([-\d.]+),([-\d.]+),([-\d.]+),([-\d.]+),([-\d.]+),([-\d.]+)\)', transform_str)
+
+    match = re.search(
+        r"matrix\(([-\d.]+),([-\d.]+),([-\d.]+),([-\d.]+),([-\d.]+),([-\d.]+)\)",
+        transform_str,
+    )
     if match:
         a, b, c, d, e, f = map(float, match.groups())
         return (a, b, c, d, e, f)
@@ -51,11 +55,8 @@ def analyze_svg():
     tree = ET.parse(svg_path)
     root = tree.getroot()
 
-    # SVG namespace
-    ns = {'svg': 'http://www.w3.org/2000/svg'}
-
     # Find viewBox
-    viewbox = root.get('viewBox')
+    viewbox = root.get("viewBox")
     print(f"📐 ViewBox: {viewbox}")
     print()
 
@@ -65,15 +66,15 @@ def analyze_svg():
     # Look for ellipses with copper color stroke (GPIO pins)
     copper_color = "rgb(170,137,100)"
 
-    for g in root.iter('{http://www.w3.org/2000/svg}g'):
+    for g in root.iter("{http://www.w3.org/2000/svg}g"):
         # Get transform from parent group
-        transform = g.get('transform', '')
+        transform = g.get("transform", "")
         matrix = parse_transform(transform)
 
-        for ellipse in g.findall('{http://www.w3.org/2000/svg}ellipse'):
-            style = ellipse.get('style', '')
-            cx = float(ellipse.get('cx', 0))
-            cy = float(ellipse.get('cy', 0))
+        for ellipse in g.findall("{http://www.w3.org/2000/svg}ellipse"):
+            style = ellipse.get("style", "")
+            cx = float(ellipse.get("cx", 0))
+            cy = float(ellipse.get("cy", 0))
 
             # Check if this is a GPIO pin (copper colored)
             if copper_color in style:
@@ -87,21 +88,20 @@ def analyze_svg():
     if not ellipses:
         print("⚠️  No GPIO pins found. Analyzing all ellipses...")
         # Fallback: show all ellipses
-        for g in root.iter('{http://www.w3.org/2000/svg}g'):
-            transform = g.get('transform', '')
+        for g in root.iter("{http://www.w3.org/2000/svg}g"):
+            transform = g.get("transform", "")
             matrix = parse_transform(transform)
 
-            for ellipse in g.findall('{http://www.w3.org/2000/svg}ellipse'):
-                cx = float(ellipse.get('cx', 0))
-                cy = float(ellipse.get('cy', 0))
+            for ellipse in g.findall("{http://www.w3.org/2000/svg}ellipse"):
+                cx = float(ellipse.get("cx", 0))
+                cy = float(ellipse.get("cy", 0))
                 final_x, final_y = apply_transform(cx, cy, matrix)
-                style = ellipse.get('style', '')[:100]
+                style = ellipse.get("style", "")[:100]
                 print(f"  Ellipse at ({final_x:.2f}, {final_y:.2f}) - style: {style}...")
         return
 
     # Sort by Y position first, then X (to identify rows and columns)
     sorted_by_y = sorted(ellipses, key=lambda p: (p[1], p[0]))
-    sorted_by_x = sorted(ellipses, key=lambda p: (p[0], p[1]))
 
     print("📍 GPIO Pin Positions (sorted by Y, then X):")
     print()
@@ -115,11 +115,11 @@ def analyze_svg():
     print()
 
     # Find unique X positions (should be 2 columns)
-    x_positions = sorted(set(round(x, 1) for x, y in ellipses))
+    x_positions = sorted({round(x, 1) for x, y in ellipses})
     print(f"  Column X positions: {x_positions}")
 
     # Find unique Y positions (should be 20 rows)
-    y_positions = sorted(set(round(y, 1) for x, y in ellipses))
+    y_positions = sorted({round(y, 1) for x, y in ellipses})
     print(f"  Row Y positions ({len(y_positions)} rows)")
 
     if len(y_positions) >= 2:
@@ -133,10 +133,19 @@ def analyze_svg():
     print()
     print("🎯 Recommended Pin Position Values:")
     print()
-    print(f"  left_col_x = {x_positions[0]:.2f}" if len(x_positions) > 0 else "  left_col_x = ???")
-    print(f"  right_col_x = {x_positions[1]:.2f}" if len(x_positions) > 1 else "  right_col_x = ???")
-    print(f"  start_y = {y_positions[0]:.2f}" if len(y_positions) > 0 else "  start_y = ???")
-    print(f"  row_spacing = {y_spacing:.2f}" if len(y_positions) >= 2 else "  row_spacing = ???")
+    left_x = (
+        f"  left_col_x = {x_positions[0]:.2f}" if len(x_positions) > 0 else "  left_col_x = ???"
+    )
+    right_x = (
+        f"  right_col_x = {x_positions[1]:.2f}" if len(x_positions) > 1 else "  right_col_x = ???"
+    )
+    start = f"  start_y = {y_positions[0]:.2f}" if len(y_positions) > 0 else "  start_y = ???"
+    spacing = f"  row_spacing = {y_spacing:.2f}" if len(y_positions) >= 2 else "  row_spacing = ???"
+
+    print(left_x)
+    print(right_x)
+    print(start)
+    print(spacing)
 
     print()
     print("💡 Note: These values should be used in _create_40_pin_header_pi_zero()")

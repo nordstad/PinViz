@@ -70,9 +70,14 @@ pinviz list
 
 This displays:
 
-- Available board templates
+- Available board templates (Raspberry Pi 5 and Pi Zero 2 W)
 - Available device templates
 - Available example diagrams
+
+**Supported Boards:**
+
+- `raspberry_pi_5` (aliases: `rpi5`, `rpi`) - Raspberry Pi 5 with 40-pin GPIO header
+- `raspberry_pi_zero_2w` (aliases: `raspberry_pi_zero`, `pizero`, `zero2w`, `zero`, `rpizero`) - Raspberry Pi Zero / Zero 2 W with 40-pin GPIO header
 
 ## Global Options
 
