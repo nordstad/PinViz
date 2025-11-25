@@ -184,3 +184,143 @@ def test_raspberry_pi_alias():
     assert len(board1.pins) == len(board2.pins)
     assert board1.width == board2.width
     assert board1.height == board2.height
+
+
+# Raspberry Pi Zero / Zero 2 W Tests
+
+
+def test_raspberry_pi_zero_2w_board_creation():
+    """Test creating a Raspberry Pi Zero 2 W board."""
+    board = boards.raspberry_pi_zero_2w()
+    assert board is not None
+    assert board.name == "Raspberry Pi Zero 2 W"
+
+
+def test_raspberry_pi_zero_2w_has_40_pins():
+    """Test that Raspberry Pi Zero 2 W has 40 GPIO pins."""
+    board = boards.raspberry_pi_zero_2w()
+    assert len(board.pins) == 40
+
+
+def test_raspberry_pi_zero_2w_pin_numbers():
+    """Test that all pin numbers 1-40 are present."""
+    board = boards.raspberry_pi_zero_2w()
+    pin_numbers = {pin.number for pin in board.pins}
+    assert pin_numbers == set(range(1, 41))
+
+
+def test_raspberry_pi_zero_2w_pinout_matches_pi5():
+    """
+    Test that Pi Zero pinout is identical to Pi 5.
+
+    Pi Zero and Pi 5 share the same 40-pin GPIO header pinout,
+    only the physical spacing differs.
+    """
+    pi5 = boards.raspberry_pi_5()
+    pi_zero = boards.raspberry_pi_zero_2w()
+
+    for pi5_pin in pi5.pins:
+        zero_pin = pi_zero.get_pin_by_number(pi5_pin.number)
+        assert zero_pin.name == pi5_pin.name
+        assert zero_pin.role == pi5_pin.role
+        assert zero_pin.gpio_bcm == pi5_pin.gpio_bcm
+
+
+def test_raspberry_pi_zero_2w_power_pins():
+    """Test power pin roles."""
+    board = boards.raspberry_pi_zero_2w()
+    # Check 3V3 pins (1, 17)
+    pin1 = board.get_pin_by_number(1)
+    pin17 = board.get_pin_by_number(17)
+    assert pin1.role == PinRole.POWER_3V3
+    assert pin17.role == PinRole.POWER_3V3
+
+    # Check 5V pins (2, 4)
+    pin2 = board.get_pin_by_number(2)
+    pin4 = board.get_pin_by_number(4)
+    assert pin2.role == PinRole.POWER_5V
+    assert pin4.role == PinRole.POWER_5V
+
+
+def test_raspberry_pi_zero_2w_i2c_pins():
+    """Test I2C pin roles and BCM numbers."""
+    board = boards.raspberry_pi_zero_2w()
+    # SDA on GPIO2 (pin 3)
+    sda_pin = board.get_pin_by_number(3)
+    assert sda_pin.role == PinRole.I2C_SDA
+    assert sda_pin.gpio_bcm == 2
+
+    # SCL on GPIO3 (pin 5)
+    scl_pin = board.get_pin_by_number(5)
+    assert scl_pin.role == PinRole.I2C_SCL
+    assert scl_pin.gpio_bcm == 3
+
+
+def test_raspberry_pi_zero_2w_all_pins_have_positions():
+    """Test that all pins have position information."""
+    board = boards.raspberry_pi_zero_2w()
+    for pin in board.pins:
+        assert pin.position is not None
+        assert pin.position.x > 0
+        assert pin.position.y >= 0
+
+
+def test_raspberry_pi_zero_2w_pin_positions_alternating_columns():
+    """
+    Test that odd pins are in left column, even pins in right column.
+
+    Uses scaled values (1.6x native SVG coords) to match Pi 5 pin spacing.
+    """
+    board = boards.raspberry_pi_zero_2w()
+    left_col_x = 214.56  # Scaled for better visibility
+    right_col_x = 227.52  # Scaled for better visibility
+
+    for pin in board.pins:
+        if pin.number % 2 == 1:  # Odd pins (left column)
+            assert pin.position.x == pytest.approx(left_col_x, abs=0.1)
+        else:  # Even pins (right column)
+            assert pin.position.x == pytest.approx(right_col_x, abs=0.1)
+
+
+def test_raspberry_pi_zero_2w_pin_spacing():
+    """
+    Test that Pi Zero pin spacing matches Pi 5 (after scaling).
+
+    Pi Zero row spacing: 12.0 (scaled 1.6x from native 7.50)
+    Pi 5 row spacing: 12.0 (standard)
+    """
+    pi_zero = boards.raspberry_pi_zero_2w()
+
+    # Check row spacing between consecutive rows
+    pin1 = pi_zero.get_pin_by_number(1)
+    pin3 = pi_zero.get_pin_by_number(3)
+    row_spacing = pin3.position.y - pin1.position.y
+
+    # Pi Zero should have 12.0 spacing (scaled to match Pi 5)
+    assert row_spacing == pytest.approx(12.00, abs=0.1)
+
+    # Verify this matches Pi 5
+    pi5 = boards.raspberry_pi_5()
+    pi5_pin1 = pi5.get_pin_by_number(1)
+    pi5_pin3 = pi5.get_pin_by_number(3)
+    pi5_row_spacing = pi5_pin3.position.y - pi5_pin1.position.y
+    assert row_spacing == pytest.approx(pi5_row_spacing, abs=0.1)  # Same spacing as Pi 5
+
+
+def test_raspberry_pi_zero_2w_board_dimensions():
+    """
+    Test board dimensions are scaled for better GPIO pin visibility.
+
+    Pi Zero: 465.60 x 931.20 (SVG viewBox 291x582 scaled by 1.6x)
+    Scaling matches Pi 5 pin spacing (12.0) for consistent pin size
+    """
+    board = boards.raspberry_pi_zero_2w()
+    assert board.width == pytest.approx(465.60, abs=0.1)
+    assert board.height == pytest.approx(931.20, abs=0.1)
+
+
+def test_raspberry_pi_zero_2w_svg_asset_path():
+    """Test that SVG asset path points to pi_zero.svg."""
+    board = boards.raspberry_pi_zero_2w()
+    assert board.svg_asset_path is not None
+    assert "pi_zero.svg" in board.svg_asset_path
