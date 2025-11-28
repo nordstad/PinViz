@@ -169,6 +169,6 @@ uv sync --dev
 ## References
 
 - [uv Documentation](https://docs.astral.sh/uv/)
-- [Dependabot Configuration](../.github/dependabot.yml)
-- [Pre-commit Configuration](../.pre-commit-config.yaml)
-- [CI Workflow](../.github/workflows/ci.yml)
+- [Dependabot Configuration](https://github.com/nordstad/PinViz/blob/main/.github/dependabot.yml)
+- [Pre-commit Configuration](https://github.com/nordstad/PinViz/blob/main/.pre-commit-config.yaml)
+- [CI Workflow](https://github.com/nordstad/PinViz/blob/main/.github/workflows/ci.yml)
