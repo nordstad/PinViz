@@ -75,6 +75,53 @@ def example_function(name: str, count: int) -> list[str]:
     return [name] * count
 ```
 
+### Dependency Management
+
+PinViz uses `uv.lock` to ensure reproducible builds. GitHub Dependabot monitors this file for security updates.
+
+**Important**: Always commit the updated `uv.lock` file when modifying dependencies in `pyproject.toml`.
+
+#### Adding/Updating Dependencies
+
+When you modify dependencies in `pyproject.toml`:
+
+```bash
+# Update the lock file
+uv lock
+
+# Sync your environment
+uv sync --dev
+
+# Verify the lock file is in sync
+uv lock --check
+```
+
+#### Pre-commit Hooks (Recommended)
+
+Set up pre-commit hooks to automatically validate `uv.lock`:
+
+```bash
+# Install pre-commit hooks
+uvx pre-commit install
+
+# Test the hooks
+uvx pre-commit run --all-files
+```
+
+The pre-commit hooks will:
+
+- Automatically update `uv.lock` if out of sync
+- Run ruff linting and formatting
+- Check for common issues
+
+#### CI Validation
+
+The CI pipeline automatically checks that `uv.lock` is in sync with `pyproject.toml`. If you get a CI failure about the lock file:
+
+1. Run `uv lock` locally
+2. Commit the updated `uv.lock`
+3. Push the changes
+
 ## Contribution Guidelines
 
 ### What We're Looking For

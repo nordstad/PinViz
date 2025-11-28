@@ -1,0 +1,30 @@
+# Pre-commit hooks configuration
+# Install: uvx pre-commit install
+# Run manually: uvx pre-commit run --all-files
+
+repos:
+  # Check that uv.lock is in sync with pyproject.toml
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.5.11
+    hooks:
+      - id: uv-lock
+        name: Check uv.lock is up to date
+        # This will fail if uv.lock is out of sync and update it
+        # The updated lock file will be staged automatically
+
+  # Additional code quality hooks
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.6
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
