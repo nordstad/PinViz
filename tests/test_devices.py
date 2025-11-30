@@ -1,5 +1,7 @@
 """Tests for device factory functions."""
 
+from urllib.parse import urlparse
+
 import pytest
 
 from pinviz import devices
@@ -266,7 +268,8 @@ def test_registry_template_url_for_bh1750():
     registry = devices.get_registry()
     template = registry.get("bh1750")
     assert template.url is not None
-    assert "mouser.com" in template.url or "datasheet" in template.url.lower()
+    parsed = urlparse(template.url)
+    assert parsed.netloc == "www.mouser.com" or "datasheet" in parsed.path.lower()
 
 
 def test_registry_template_url_for_ds18b20():
@@ -274,7 +277,8 @@ def test_registry_template_url_for_ds18b20():
     registry = devices.get_registry()
     template = registry.get("ds18b20")
     assert template.url is not None
-    assert "analog.com" in template.url or "DS18B20" in template.url
+    parsed = urlparse(template.url)
+    assert parsed.netloc == "www.analog.com" or "DS18B20" in parsed.path
 
 
 def test_registry_template_url_for_ir_led_ring():
@@ -282,7 +286,8 @@ def test_registry_template_url_for_ir_led_ring():
     registry = devices.get_registry()
     template = registry.get("ir_led_ring")
     assert template.url is not None
-    assert "electrokit.com" in template.url
+    parsed = urlparse(template.url)
+    assert parsed.netloc == "www.electrokit.com"
 
 
 def test_registry_template_url_for_generic_devices():
@@ -291,11 +296,13 @@ def test_registry_template_url_for_generic_devices():
 
     i2c_template = registry.get("i2c_device")
     assert i2c_template.url is not None
-    assert "raspberrypi.com" in i2c_template.url
+    parsed_i2c = urlparse(i2c_template.url)
+    assert parsed_i2c.netloc == "www.raspberrypi.com"
 
     spi_template = registry.get("spi_device")
     assert spi_template.url is not None
-    assert "raspberrypi.com" in spi_template.url
+    parsed_spi = urlparse(spi_template.url)
+    assert parsed_spi.netloc == "www.raspberrypi.com"
 
 
 def test_registry_all_devices_have_urls():
