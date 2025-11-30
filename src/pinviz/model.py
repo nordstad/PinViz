@@ -214,7 +214,7 @@ class Board:
         Returns:
             HeaderPin if found, None otherwise
 
-        Example:
+        Examples:
             >>> board = boards.raspberry_pi_5()
             >>> pin = board.get_pin_by_number(1)
             >>> print(pin.name)
@@ -234,7 +234,7 @@ class Board:
         Returns:
             HeaderPin if found, None otherwise
 
-        Example:
+        Examples:
             >>> board = boards.raspberry_pi_5()
             >>> pin = board.get_pin_by_bcm(2)
             >>> print(f"{pin.name} is on physical pin {pin.number}")
@@ -252,7 +252,7 @@ class Board:
         Returns:
             HeaderPin if found, None otherwise
 
-        Example:
+        Examples:
             >>> board = boards.raspberry_pi_5()
             >>> pin = board.get_pin_by_name("GPIO2")
             >>> print(f"Pin {pin.number} - {pin.name}")
@@ -315,7 +315,7 @@ class Device:
         Returns:
             DevicePin if found, None otherwise
 
-        Example:
+        Examples:
             >>> sensor = devices.bh1750_light_sensor()
             >>> vcc_pin = sensor.get_pin_by_name("VCC")
             >>> print(vcc_pin.role)
@@ -397,7 +397,7 @@ class Connection:
         style: Wire routing style (orthogonal, curved, or mixed)
         components: List of inline components on this wire (resistors, capacitors, etc.)
 
-    Example:
+    Examples:
         >>> # Simple connection with auto-assigned color
         >>> conn = Connection(1, "Sensor", "VCC")
         >>>
@@ -439,7 +439,7 @@ class Diagram:
         canvas_width: Canvas width in SVG units (auto-calculated by layout engine)
         canvas_height: Canvas height in SVG units (auto-calculated by layout engine)
 
-    Example:
+    Examples:
         >>> from pinviz import boards, devices, Connection, Diagram, SVGRenderer
         >>>
         >>> # Create diagram

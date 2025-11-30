@@ -154,7 +154,7 @@ def raspberry_pi_zero_2w() -> Board:
     Returns:
         Board: Configured Raspberry Pi Zero 2 W board
 
-    Example:
+    Examples:
         >>> from pinviz import boards
         >>> board = boards.raspberry_pi_zero_2w()
         >>> print(board.name)
@@ -267,7 +267,7 @@ def raspberry_pi() -> Board:
     Returns:
         Board: Configured Raspberry Pi board
 
-    Example:
+    Examples:
         >>> from pinviz import boards
         >>> board = boards.raspberry_pi()
         >>> print(board.name)

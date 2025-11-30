@@ -29,7 +29,7 @@ class ConfigLoader:
     Handles predefined device types from the device registry and custom
     device definitions with automatic wire color assignment.
 
-    Example:
+    Examples:
         >>> loader = ConfigLoader()
         >>> diagram = loader.load_from_file("config.yaml")
         >>> print(diagram.title)
@@ -192,7 +192,7 @@ class ConfigLoader:
         Raises:
             ValueError: If device configuration is invalid or incomplete
 
-        Example:
+        Examples:
             >>> # Predefined device
             >>> config = {"type": "bh1750", "name": "Light Sensor"}
             >>> device = loader._load_device(config)
@@ -263,7 +263,7 @@ class ConfigLoader:
         Returns:
             Device object
 
-        Example:
+        Examples:
             >>> config = {
             ...     "name": "Custom Module",
             ...     "width": 100.0,
@@ -333,7 +333,7 @@ class ConfigLoader:
         Returns:
             Connection object
 
-        Example:
+        Examples:
             >>> config = {
             ...     "board_pin": 11,
             ...     "device": "LED",

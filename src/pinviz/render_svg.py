@@ -26,7 +26,7 @@ class SVGRenderer:
         - Optional GPIO reference diagram
         - Automatic layout via LayoutEngine
 
-    Example:
+    Examples:
         >>> from pinviz import boards, devices, Connection, Diagram, SVGRenderer
         >>>
         >>> diagram = Diagram(
