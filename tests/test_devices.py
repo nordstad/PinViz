@@ -306,4 +306,6 @@ def test_registry_all_devices_have_urls():
     for template in all_templates:
         assert template.url is not None, f"Device {template.type_id} missing URL"
         assert len(template.url) > 0, f"Device {template.type_id} has empty URL"
-        assert template.url.startswith("http"), f"Device {template.type_id} URL should start with http"
+        assert template.url.startswith("http"), (
+            f"Device {template.type_id} URL should start with http"
+        )
