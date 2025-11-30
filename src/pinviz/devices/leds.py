@@ -77,6 +77,7 @@ def _register_leds():
         category="leds",
         factory=simple_led,
         parameters={"color_name": "Red"},
+        url="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header",
     )
 
     registry.register(
@@ -86,6 +87,7 @@ def _register_leds():
         category="leds",
         factory=ir_led_ring,
         parameters={"num_leds": 12},
+        url="https://www.electrokit.com/led-ring-for-raspberry-pi-kamera-ir-leds",
     )
 
 

@@ -52,6 +52,7 @@ def _register_io():
         category="io",
         factory=button_switch,
         parameters={"pull_up": True},
+        url="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header",
     )
 
 

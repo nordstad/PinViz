@@ -17,6 +17,7 @@ class DeviceTemplate:
     category: str
     factory: Callable[..., Device]
     parameters: dict[str, Any] | None = None
+    url: str | None = None
 
 
 class DeviceRegistry:
@@ -33,6 +34,7 @@ class DeviceRegistry:
         category: str,
         factory: Callable[..., Device],
         parameters: dict[str, Any] | None = None,
+        url: str | None = None,
     ) -> None:
         """
         Register a device template.
@@ -44,6 +46,7 @@ class DeviceRegistry:
             category: Device category (sensors, displays, leds, io, etc.)
             factory: Factory function that creates the device
             parameters: Optional dict describing factory parameters
+            url: Optional URL to device documentation or datasheet
         """
         template = DeviceTemplate(
             type_id=type_id,
@@ -52,6 +55,7 @@ class DeviceRegistry:
             category=category,
             factory=factory,
             parameters=parameters,
+            url=url,
         )
         self._templates[type_id.lower()] = template
 

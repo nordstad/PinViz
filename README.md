@@ -517,12 +517,22 @@ Currently supported boards:
 <details>
 <summary><b>🔌 Built-in Device Types</b></summary>
 
-- `bh1750` - BH1750 I2C light sensor
-- `ir_led_ring` - IR LED ring module
-- `i2c_device` - Generic I2C device
-- `spi_device` - Generic SPI device
-- `led` - Simple LED
-- `button` - Push button/switch
+**Sensors:**
+- `bh1750` - BH1750 I2C ambient light sensor ([datasheet](https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf))
+- `ds18b20` - DS18B20 waterproof 1-Wire temperature sensor ([datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/DS18B20.pdf))
+
+**LEDs:**
+- `led` - Simple LED with anode/cathode pins ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header))
+- `ir_led_ring` - IR LED ring module with control pin ([product page](https://www.electrokit.com/led-ring-for-raspberry-pi-kamera-ir-leds))
+
+**I/O:**
+- `button` - Push button or switch with pull-up/pull-down configuration ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header))
+
+**Generic:**
+- `i2c_device` - Generic I2C device with standard pinout ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#i2c))
+- `spi_device` - Generic SPI device with standard pinout ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#spi))
+
+Run `pinviz list` to see all available devices with their documentation links.
 
 </details>
 

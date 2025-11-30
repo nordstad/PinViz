@@ -274,7 +274,11 @@ def list_command() -> int:
         devices = registry.list_by_category(category)
         print(f"\n  {category.title()}:")
         for device in devices:
-            print(f"    - {device.type_id}: {device.description}")
+            if device.url:
+                print(f"    - {device.type_id}: {device.description}")
+                print(f"      📖 {device.url}")
+            else:
+                print(f"    - {device.type_id}: {device.description}")
 
     print()
     print("Available Examples:")
