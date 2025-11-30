@@ -10,77 +10,62 @@ This guide walks you through installing and configuring the PinViz MCP Server fo
 
 ## Installation Methods
 
-### Method 1: Using Claude Desktop CLI (Easiest)
+### Method 1: Quick Install with Claude Desktop CLI
 
-If you have Claude Desktop installed with the CLI tools, this is the quickest way to get started:
+The fastest way to get started with Claude Desktop:
+
+```bash
+# Using uv (recommended)
+uv tool install pinviz
+claude mcp add pinviz pinviz-mcp
+
+# OR using pip
+pip install pinviz
+claude mcp add pinviz pinviz-mcp
+
+# Restart Claude Desktop
+```
+
+The `claude mcp add` command automatically configures the MCP server in your Claude Desktop settings.
+
+### Method 2: Manual Installation
+
+#### Using uv (Recommended)
+
+1. **Install uv** (if not already installed):
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+2. **Install PinViz:**
+   ```bash
+   uv tool install pinviz
+   ```
+
+3. **Verify the installation:**
+   ```bash
+   pinviz-mcp --help
+   ```
+
+Then follow the [Claude Desktop manual configuration](#claude-desktop) steps below.
+
+#### Using pip
 
 1. **Install PinViz:**
-
-```bash
-pip install pinviz
-```
-
-2. **Add to Claude Desktop:**
-
-```bash
-claude mcp add pinviz pinviz-mcp
-```
-
-This automatically configures the MCP server in your Claude Desktop settings.
-
-3. **Restart Claude Desktop**
-
-Close and reopen Claude Desktop, and you're ready to use PinViz!
-
-**For uv users:**
-
-```bash
-# Install
-uv pip install pinviz
-
-# Add to Claude Desktop with uv runner
-claude mcp add pinviz uv -- run pinviz-mcp
-```
-
-### Method 2: Using pip (Manual configuration)
-
-1. **Install PinViz with MCP server support:**
-
-```bash
-pip install pinviz
-```
+   ```bash
+   pip install pinviz
+   ```
 
 2. **Verify the installation:**
-
-```bash
-pinviz-mcp --help
-```
+   ```bash
+   pinviz-mcp --help
+   ```
 
 You should see the MCP server help message.
 
 Then follow the [Claude Desktop manual configuration](#claude-desktop) steps below.
 
-### Method 3: Using uv (Recommended for developers)
-
-1. **Install uv if you haven't already:**
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-2. **Install PinViz:**
-
-```bash
-uv pip install pinviz
-```
-
-3. **Verify the installation:**
-
-```bash
-uv run pinviz-mcp --help
-```
-
-### Method 4: From source (For contributors)
+### Method 3: From source (For contributors)
 
 1. **Clone the repository:**
 
@@ -218,9 +203,13 @@ GitHub Copilot supports MCP servers through VS Code's Multi-Provider Chat featur
 
 1. **Install PinViz** (if not already installed):
 
-```bash
-pip install pinviz
-```
+   ```bash
+   # Using uv (recommended)
+   uv tool install pinviz
+
+   # OR using pip
+   pip install pinviz
+   ```
 
 2. **Open VS Code Settings**:
 
@@ -422,19 +411,17 @@ For Claude Desktop, add to your config:
 
 ## Updating
 
-### pip installation:
+To update PinViz to the latest version:
 
 ```bash
+# Using uv (recommended)
+uv tool install --upgrade pinviz
+
+# OR using pip
 pip install --upgrade pinviz
 ```
 
-### uv installation:
-
-```bash
-uv pip install --upgrade pinviz
-```
-
-### Source installation:
+### From source installation:
 
 ```bash
 cd PinViz/pi-diagrammer

@@ -280,10 +280,12 @@ PinViz includes an **MCP (Model Context Protocol) server** that enables natural 
 **Easiest Method (using Claude CLI):**
 
 ```bash
-# Install PinViz
-pip install pinviz
+# Using uv (recommended)
+uv tool install pinviz
+claude mcp add pinviz pinviz-mcp
 
-# Add to Claude Desktop automatically
+# OR using pip
+pip install pinviz
 claude mcp add pinviz pinviz-mcp
 
 # Restart Claude Desktop
@@ -293,6 +295,10 @@ claude mcp add pinviz pinviz-mcp
 
 1. **Install PinViz**:
    ```bash
+   # Using uv (recommended)
+   uv tool install pinviz
+
+   # OR using pip
    pip install pinviz
    ```
 
@@ -323,23 +329,30 @@ claude mcp add pinviz pinviz-mcp
 <details>
 <summary><b>🔧 GitHub Copilot (VS Code)</b></summary>
 
-To use PinViz with GitHub Copilot in VS Code, add to your `settings.json`:
+1. **Install PinViz**:
+   ```bash
+   # Using uv (recommended)
+   uv tool install pinviz
 
-```json
-{
-  "github.copilot.chat.mcp.servers": {
-    "pinviz": {
-      "command": "pinviz-mcp"
-    }
-  }
-}
-```
+   # OR using pip
+   pip install pinviz
+   ```
 
-Then reload VS Code and use `@pinviz` in Copilot Chat:
+2. **Add to your VS Code `settings.json`**:
+   ```json
+   {
+     "github.copilot.chat.mcp.servers": {
+       "pinviz": {
+         "command": "pinviz-mcp"
+       }
+     }
+   }
+   ```
 
-```
-@pinviz Connect BME280 and LED to Raspberry Pi 5
-```
+3. **Reload VS Code** and use `@pinviz` in Copilot Chat:
+   ```
+   @pinviz Connect BME280 and LED to Raspberry Pi 5
+   ```
 
 </details>
 

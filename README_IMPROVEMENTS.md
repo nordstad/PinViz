@@ -45,10 +45,12 @@ PinViz includes an **MCP (Model Context Protocol) server** that enables natural 
 **Easiest Method (using Claude CLI):**
 
 ```bash
-# Install PinViz
-pip install pinviz
+# Using uv (recommended)
+uv tool install pinviz
+claude mcp add pinviz pinviz-mcp
 
-# Add to Claude Desktop automatically
+# OR using pip
+pip install pinviz
 claude mcp add pinviz pinviz-mcp
 
 # Restart Claude Desktop
@@ -56,7 +58,7 @@ claude mcp add pinviz pinviz-mcp
 
 **Manual Method:**
 
-1. Install PinViz: `pip install pinviz`
+1. Install PinViz: `uv tool install pinviz` (or `pip install pinviz`)
 2. Edit `~/.config/claude/claude_desktop_config.json`:
    ```json
    {
