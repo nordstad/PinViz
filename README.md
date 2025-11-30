@@ -13,34 +13,82 @@
   <a href="https://pepy.tech/projects/pinviz"><img src="https://static.pepy.tech/personalized-badge/pinviz?period=total&units=international_system&left_color=black&right_color=green&left_text=downloads" alt="PyPI Downloads"></a>
 </p>
 
-Programmatically generate beautiful Raspberry Pi GPIO connection diagrams in
-SVG format.
+Programmatically generate beautiful Raspberry Pi GPIO connection diagrams in SVG format.
 
-PinViz makes it easy to create clear, professional wiring diagrams for
-your Raspberry Pi projects. Define your connections using simple YAML/JSON
-files or Python code, and automatically generate publication-ready SVG
-diagrams.
+PinViz makes it easy to create clear, professional wiring diagrams for your Raspberry Pi projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
 
-## Features
+## 📚 Table of Contents
 
-### 📦 PinViz Package (Python Library & CLI)
+- [Features](#-features)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [CLI Commands](#-cli-commands)
+- [MCP Server (AI-Powered)](#-mcp-server-ai-powered)
+- [Example Diagrams](#️-example-diagrams)
+- [Configuration Reference](#️-configuration-reference)
+- [Documentation](#-documentation)
+- [Development](#-development)
+- [Contributing](#-contributing)
+
+---
+
+## ✨ Features
+
+### 📦 PinViz Package
+
+**Core capabilities for creating wiring diagrams:**
 
 - **Declarative Configuration**: Define diagrams using YAML or JSON files
 - **Programmatic API**: Create diagrams with Python code
 - **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
 - **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
-- **Built-in Templates**: Pre-configured boards (Raspberry Pi 5) and common devices (BH1750, IR LED rings, etc.)
+- **Built-in Templates**: Pre-configured boards (Raspberry Pi 5, Pi Zero) and common devices
 - **GPIO Pin Reference**: Optional GPIO pinout diagram for easy reference
 - **SVG Output**: Scalable, high-quality vector graphics
 
+<details>
+<summary><b>View Python API example</b></summary>
+
+```python
+from pinviz import boards, devices, Connection, Diagram, SVGRenderer
+
+board = boards.raspberry_pi_5()
+sensor = devices.bh1750_light_sensor()
+
+connections = [
+    Connection(1, "BH1750", "VCC"),  # 3V3 to VCC
+    Connection(6, "BH1750", "GND"),  # GND to GND
+    Connection(5, "BH1750", "SCL"),  # GPIO3/SCL to SCL
+    Connection(3, "BH1750", "SDA"),  # GPIO2/SDA to SDA
+]
+
+diagram = Diagram(
+    title="BH1750 Light Sensor",
+    board=board,
+    devices=[sensor],
+    connections=connections
+)
+
+renderer = SVGRenderer()
+renderer.render(diagram, "output.svg")
+```
+
+</details>
+
+**[→ Full CLI documentation](https://nordstad.github.io/PinViz/guide/cli/) | [→ Python API reference](https://nordstad.github.io/PinViz/guide/python-api/)**
+
 ### 🤖 MCP Server (AI-Powered)
 
-- **Natural Language Diagram Generation**: Generate diagrams from conversational prompts like "Connect BME280 and LED to my Raspberry Pi"
+**Generate diagrams from natural language with AI assistants:**
+
+- **Natural Language**: "Connect BME280 and LED to my Raspberry Pi"
 - **Intelligent Pin Assignment**: Automatic I2C bus sharing, SPI chip select allocation, and conflict detection
-- **📚 Device Database**: 25+ pre-configured devices (sensors, displays, HATs, components) with automatic pin mapping
-- **🔗 URL-Based Device Discovery**: Add new devices by parsing datasheets from manufacturer websites
-- **AI Assistant Integration**: Works with Claude Desktop, GitHub Copilot, and other MCP-compatible clients
+- **25+ Device Database**: Sensors, displays, HATs, components with automatic pin mapping
+- **URL-Based Discovery**: Add new devices by parsing datasheets from manufacturer websites
+- **AI Integration**: Works with Claude Desktop, GitHub Copilot, and other MCP-compatible clients
+
+**[→ MCP Server documentation](https://nordstad.github.io/PinViz/mcp-server/)**
 
 ## 📥 Installation
 
@@ -52,7 +100,7 @@ Install as a standalone tool with global access to the CLI:
 uv tool install pinviz
 ```
 
-After installation, `pinviz` will be available globally in your terminal. See [Quick Start](#quick-start) below to generate your first diagram.
+After installation, `pinviz` will be available globally in your terminal. See [Quick Start](#-quick-start) below to generate your first diagram.
 
 ### As a Project Dependency
 
@@ -159,7 +207,8 @@ renderer = SVGRenderer()
 renderer.render(diagram, "output.svg")
 ```
 
-### Custom Wire Colors
+<details>
+<summary><b>Custom Wire Colors</b></summary>
 
 Use the `WireColor` enum for standard electronics wire colors:
 
@@ -182,12 +231,13 @@ connections = [
 ]
 ```
 
-**Available colors**: RED, BLACK, WHITE, GREEN, BLUE, YELLOW, ORANGE, PURPLE,
-GRAY, BROWN, PINK, CYAN, MAGENTA, LIME, TURQUOISE
+**Available colors**: RED, BLACK, WHITE, GREEN, BLUE, YELLOW, ORANGE, PURPLE, GRAY, BROWN, PINK, CYAN, MAGENTA, LIME, TURQUOISE
+
+</details>
 
 ## 💻 CLI Commands
 
-See the [Quick Start](#quick-start) section for basic usage. All examples below assume you installed with `uv tool install pinviz` or `pip install pinviz`. If you installed with `uv add`, prefix all commands with `uv run`.
+See the [Quick Start](#-quick-start) section for basic usage. All examples below assume you installed with `uv tool install pinviz` or `pip install pinviz`. If you installed with `uv add`, prefix all commands with `uv run`.
 
 ### Rendering Custom Diagrams
 
@@ -211,20 +261,21 @@ pinviz example ir_led -o ir_led.svg
 pinviz example i2c_spi -o i2c_spi.svg
 ```
 
-## MCP Server (AI-Powered Diagram Generation)
+**[→ Full CLI documentation](https://nordstad.github.io/PinViz/guide/cli/)**
+
+## 🤖 MCP Server (AI-Powered)
 
 PinViz includes an **MCP (Model Context Protocol) server** that enables natural language diagram generation through AI assistants like Claude Desktop.
 
-### What is the MCP Server?
+**Generate diagrams with prompts like:**
+- "Connect a BME280 temperature sensor to my Raspberry Pi 5"
+- "Wire a BH1750 light sensor and LED on GPIO 17"
+- "Set up environmental monitoring with BME280 and DHT22"
 
-The MCP server provides:
+<details>
+<summary><b>📖 Quick Start with Claude Desktop</b> (click to expand)</summary>
 
-- **Natural Language Parsing**: Generate diagrams from prompts like "Connect BME280 and LED to my Raspberry Pi"
-- **Intelligent Pin Assignment**: Automatic I2C bus sharing, SPI chip select allocation, and conflict detection
-- **Device Database**: 25+ pre-configured devices (sensors, displays, HATs, components)
-- **URL-Based Device Discovery**: Add new devices by parsing datasheets from URLs
-
-### Quick Start with Claude Desktop
+### Installation
 
 **Easiest Method (using Claude CLI):**
 
@@ -261,13 +312,16 @@ claude mcp add pinviz pinviz-mcp
 
 3. **Restart Claude Desktop**
 
-**Start generating diagrams with natural language:**
+**Start generating diagrams:**
 
 ```
 "Connect a BME280 temperature sensor to my Raspberry Pi 5"
 ```
 
-### GitHub Copilot (VS Code)
+</details>
+
+<details>
+<summary><b>🔧 GitHub Copilot (VS Code)</b></summary>
 
 To use PinViz with GitHub Copilot in VS Code, add to your `settings.json`:
 
@@ -287,17 +341,30 @@ Then reload VS Code and use `@pinviz` in Copilot Chat:
 @pinviz Connect BME280 and LED to Raspberry Pi 5
 ```
 
-See the [Installation Guide](src/pinviz_mcp/docs/INSTALLATION.md#github-copilot-vs-code) for detailed setup instructions.
+</details>
 
-### Example MCP Prompts
+<details>
+<summary><b>✨ Key Features</b></summary>
 
-- **Simple sensor**: `"Wire a BH1750 light sensor to my pi"`
-- **Multiple devices**: `"Connect BME280, BH1750, and an LED on GPIO 17"`
-- **Weather station**: `"Set up environmental monitoring with BME280 and DHT22"`
-- **Device search**: `"What I2C displays are available?"`
-- **Device info**: `"Tell me about the BME280 sensor pinout"`
+**Intelligent Pin Assignment:**
+- Automatic I2C bus sharing (multiple devices on SDA/SCL)
+- SPI chip select allocation (CE0, CE1)
+- Power distribution (cycles through 3.3V and 5V pins)
+- Conflict detection and resolution
 
-### Available MCP Tools
+**Device Database:**
+- 25+ devices covering sensors, displays, HATs, and components
+- Categories: sensor, display, hat, component, actuator, breakout
+- Protocols: I2C, SPI, UART, GPIO, 1-Wire, PWM
+
+**Hybrid Parsing:**
+- Regex patterns for common prompts (80% of cases, instant)
+- Claude API fallback for complex prompts (20% of cases)
+
+</details>
+
+<details>
+<summary><b>🛠️ Available MCP Tools</b></summary>
 
 - `generate_diagram` - Convert natural language to wiring diagrams (YAML/JSON/summary)
 - `list_devices` - Browse 25+ devices by category/protocol
@@ -306,35 +373,17 @@ See the [Installation Guide](src/pinviz_mcp/docs/INSTALLATION.md#github-copilot-
 - `parse_device_from_url` - Add new devices from datasheet URLs
 - `get_database_summary` - View database statistics
 
-### Documentation
+</details>
 
-- **Installation Guide**: [src/pinviz_mcp/docs/INSTALLATION.md](src/pinviz_mcp/docs/INSTALLATION.md)
-- **Usage Guide with Examples**: [src/pinviz_mcp/docs/USAGE.md](src/pinviz_mcp/docs/USAGE.md)
-- **Device Contribution Guide**: [src/pinviz_mcp/docs/CONTRIBUTING_DEVICES.md](src/pinviz_mcp/docs/CONTRIBUTING_DEVICES.md)
-- **MCP Server README**: [src/pinviz_mcp/README.md](src/pinviz_mcp/README.md)
-
-### Key Features
-
-**Intelligent Pin Assignment:**
-- Automatic I2C bus sharing (multiple devices on SDA/SCL)
-- SPI chip select allocation (CE0, CE1)
-- Power distribution (cycles through 3.3V and 5V pins)
-- Conflict detection and resolution
-
-**Hybrid Parsing:**
-- Regex patterns for common prompts (80% of cases, instant)
-- Claude API fallback for complex prompts (20% of cases)
-
-**Device Database:**
-- 25+ devices covering sensors, displays, HATs, and components
-- Categories: sensor, display, hat, component, actuator, breakout
-- Protocols: I2C, SPI, UART, GPIO, 1-Wire, PWM
+**📖 Full MCP Documentation:**
+- [MCP Installation Guide →](https://nordstad.github.io/PinViz/mcp-server/installation/)
+- [MCP Usage Guide & Examples →](https://nordstad.github.io/PinViz/mcp-server/usage/)
+- [Contributing Devices →](https://nordstad.github.io/PinViz/mcp-server/contributing/)
 
 ## 🖼️ Example Diagrams
 
-### LED with Resistor
-
-Simple LED circuit with inline current-limiting resistor:
+<details>
+<summary><b>LED with Resistor</b> - Simple circuit with inline component</summary>
 
 ```bash
 pinviz render examples/led_with_resistor.yaml -o led_with_resistor.svg
@@ -342,9 +391,10 @@ pinviz render examples/led_with_resistor.yaml -o led_with_resistor.svg
 
 ![LED with Resistor](https://raw.githubusercontent.com/nordstad/PinViz/main/images/led_with_resistor.svg)
 
-### Multi-Device Setup
+</details>
 
-BH1750 light sensor + IR LED ring with custom wire colors:
+<details>
+<summary><b>Multi-Device Setup</b> - BH1750 + IR LED Ring</summary>
 
 ```bash
 pinviz render examples/bh1750_ir_led.yaml -o bh1750_ir_led.svg
@@ -352,9 +402,10 @@ pinviz render examples/bh1750_ir_led.yaml -o bh1750_ir_led.svg
 
 ![BH1750 + IR LED Ring](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750_ir_led.svg)
 
-### Traffic Light
+</details>
 
-Three LEDs with individual resistors:
+<details>
+<summary><b>Traffic Light</b> - Three LEDs with resistors</summary>
 
 ```bash
 pinviz render examples/traffic_light.yaml -o traffic_light.svg
@@ -362,9 +413,10 @@ pinviz render examples/traffic_light.yaml -o traffic_light.svg
 
 ![Traffic Light](https://raw.githubusercontent.com/nordstad/PinViz/main/images/traffic_light.svg)
 
-### Raspberry Pi Zero 2 W
+</details>
 
-BH1750 light sensor wiring for the compact Pi Zero board:
+<details>
+<summary><b>Raspberry Pi Zero 2 W</b> - Compact board layout</summary>
 
 ```bash
 pinviz render examples/pi_zero_bh1750.yaml --no-gpio -o pi_zero_bh1750.svg
@@ -372,13 +424,14 @@ pinviz render examples/pi_zero_bh1750.yaml --no-gpio -o pi_zero_bh1750.svg
 
 ![Pi Zero BH1750](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/pi_zero_bh1750_without_gpio.svg)
 
-### GPIO Details: With vs Without
+</details>
 
-You can control whether to show the GPIO pin reference diagram. Here's a comparison:
+<details>
+<summary><b>GPIO Reference Comparison</b> - With vs Without GPIO details</summary>
 
-**With GPIO Details** (`--gpio` or `show_gpio_diagram: true`):
+### With GPIO Details
 
-Shows complete GPIO pinout reference for easy wiring verification.
+Shows complete GPIO pinout reference for easy wiring verification (`--gpio`, ~130KB).
 
 ```bash
 pinviz example bh1750 --gpio -o diagram.svg
@@ -386,9 +439,9 @@ pinviz example bh1750 --gpio -o diagram.svg
 
 ![BH1750 with GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_with_gpio.svg)
 
-**Without GPIO Details** (`--no-gpio` or default):
+### Without GPIO Details
 
-Cleaner, more compact diagram - 35% smaller file size.
+Cleaner, more compact diagram - 35% smaller file size (`--no-gpio`, ~85KB).
 
 ```bash
 pinviz example bh1750 --no-gpio -o diagram.svg
@@ -396,11 +449,19 @@ pinviz example bh1750 --no-gpio -o diagram.svg
 
 ![BH1750 without GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_without_gpio.svg)
 
+</details>
+
+**📸 More Examples:**
+- See all examples in the [`examples/`](examples/) directory
+- View generated diagrams in the [`images/`](images/) directory
+- [Browse example gallery in docs →](https://nordstad.github.io/PinViz/guide/examples/)
+
 ## ⚙️ Configuration Reference
 
-### Diagram Options
+<details>
+<summary><b>📋 Diagram Options</b></summary>
 
-#### GPIO Pin Reference
+### GPIO Pin Reference
 
 Control whether to show the GPIO pin reference diagram on the right side. This displays all 40 GPIO pins with their functions and color-coded roles.
 
@@ -428,14 +489,20 @@ pinviz render diagram.yaml --gpio -o output.svg
 - **With GPIO** (`--gpio`): ~130KB SVG, includes full pinout reference
 - **Without GPIO** (`--no-gpio`): ~85KB SVG, 35% smaller, cleaner diagram
 
-### Board Selection
+</details>
+
+<details>
+<summary><b>🎛️ Board Selection</b></summary>
 
 Currently supported boards:
 
 - `raspberry_pi_5` (aliases: `rpi5`, `rpi`) - Raspberry Pi 5 with 40-pin GPIO header
 - `raspberry_pi_zero_2w` (aliases: `raspberry_pi_zero`, `pizero`, `zero2w`, `zero`, `rpizero`) - Raspberry Pi Zero / Zero 2 W with 40-pin GPIO header
 
-### Built-in Device Types
+</details>
+
+<details>
+<summary><b>🔌 Built-in Device Types</b></summary>
 
 - `bh1750` - BH1750 I2C light sensor
 - `ir_led_ring` - IR LED ring module
@@ -444,7 +511,10 @@ Currently supported boards:
 - `led` - Simple LED
 - `button` - Push button/switch
 
-### Connection Configuration
+</details>
+
+<details>
+<summary><b>🔗 Connection Configuration</b></summary>
 
 Connections use **physical pin numbers** (1-40), not BCM GPIO numbers:
 
@@ -461,9 +531,14 @@ connections:
         position: 0.55     # Position along wire (0.0-1.0, default: 0.55)
 ```
 
-### Inline Components
+</details>
+
+<details>
+<summary><b>⚡ Inline Components</b></summary>
 
 Add resistors, capacitors, or diodes directly on wire connections:
+
+**YAML:**
 
 ```yaml
 connections:
@@ -477,7 +552,7 @@ connections:
         position: 0.55     # Position along wire path (0.0 = board, 1.0 = device)
 ```
 
-Python API:
+**Python API:**
 
 ```python
 from pinviz import Component, ComponentType, Connection
@@ -497,7 +572,10 @@ connection = Connection(
 )
 ```
 
-### Custom Devices
+</details>
+
+<details>
+<summary><b>🎨 Custom Devices</b></summary>
 
 Define custom devices inline:
 
@@ -522,7 +600,10 @@ devices:
         position: {x: 5.0, y: 40.0}
 ```
 
-### Pin Roles
+</details>
+
+<details>
+<summary><b>🎯 Pin Roles</b></summary>
 
 Supported pin roles (for automatic color assignment):
 
@@ -534,14 +615,54 @@ Supported pin roles (for automatic color assignment):
 - `UART_TX`, `UART_RX` - UART serial
 - `PWM` - PWM output
 
+</details>
+
+**📖 Full Configuration Guide:**
+- [YAML Configuration →](https://nordstad.github.io/PinViz/guide/yaml-config/)
+- [Python API Reference →](https://nordstad.github.io/PinViz/guide/python-api/)
+- [API Documentation →](https://nordstad.github.io/PinViz/api/)
+
+## 📖 Documentation
+
+**Full documentation available at [nordstad.github.io/PinViz](https://nordstad.github.io/PinViz/)**
+
+### Getting Started
+- [Installation Guide](https://nordstad.github.io/PinViz/getting-started/installation/)
+- [Quick Start Tutorial](https://nordstad.github.io/PinViz/getting-started/quickstart/)
+
+### User Guides
+- [CLI Usage](https://nordstad.github.io/PinViz/guide/cli/)
+- [YAML Configuration](https://nordstad.github.io/PinViz/guide/yaml-config/)
+- [Python API](https://nordstad.github.io/PinViz/guide/python-api/)
+- [Examples Gallery](https://nordstad.github.io/PinViz/guide/examples/)
+
+### MCP Server
+- [MCP Installation](https://nordstad.github.io/PinViz/mcp-server/installation/)
+- [MCP Usage Guide](https://nordstad.github.io/PinViz/mcp-server/usage/)
+- [Contributing Devices](https://nordstad.github.io/PinViz/mcp-server/contributing/)
+
+### API Reference
+- [API Overview](https://nordstad.github.io/PinViz/api/)
+- [Boards Module](https://nordstad.github.io/PinViz/api/boards/)
+- [Devices Module](https://nordstad.github.io/PinViz/api/devices/)
+- [Model Reference](https://nordstad.github.io/PinViz/api/model/)
+- [Config Loader](https://nordstad.github.io/PinViz/api/config_loader/)
+- [Layout Engine](https://nordstad.github.io/PinViz/api/layout/)
+- [SVG Renderer](https://nordstad.github.io/PinViz/api/render_svg/)
+
+### Development
+- [Contributing Guide](https://nordstad.github.io/PinViz/development/contributing/)
+- [Architecture Overview](https://nordstad.github.io/PinViz/development/architecture/)
+- [Dependency Management](https://nordstad.github.io/PinViz/development/dependency-management/)
+
 ## 🔧 Development
 
 ### Setup
 
 ```bash
 # Clone repository
-git clone https://gitlab.com/borkempire/pinviz.git
-cd pinviz
+git clone https://github.com/nordstad/PinViz.git
+cd PinViz
 
 # Install dependencies
 uv sync --dev
@@ -558,26 +679,34 @@ uv run ruff format .
 uv run pytest
 ```
 
-## 📝 Examples
+### Build Documentation
 
-The `examples/` directory contains:
+```bash
+# Install docs dependencies
+uv sync --group docs
 
-- `bh1750.yaml` / `bh1750_python.py` - I2C light sensor
-- `bh1750_ir_led.yaml` / `bh1750_ir_led_python.py` - Light sensor + IR LED ring
-- `led_with_resistor.yaml` / `led_with_resistor_python.py` - LED with inline
-  resistor
-- `traffic_light.yaml` - Traffic light with 3 LEDs and resistors
-- `pi_zero_bh1750.yaml` - BH1750 light sensor for Raspberry Pi Zero 2 W
+# Build documentation
+uv run mkdocs build
 
-All generated diagrams are in the `images/` directory.
+# Serve documentation locally
+uv run mkdocs serve
+```
 
-## 📄 License
-
-MIT License - See LICENSE file for details
+**[→ Full contributing guide](https://nordstad.github.io/PinViz/development/contributing/)**
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+**See our [Contributing Guide](https://nordstad.github.io/PinViz/development/contributing/) for:**
+- Code style guidelines
+- Development workflow
+- Testing requirements
+- Pull request process
+
+## 📄 License
+
+MIT License - See [LICENSE](LICENSE) file for details
 
 ## 🙏 Credits
 
@@ -585,4 +714,8 @@ Board and GPIO pin SVG assets courtesy of [FreeSVG.org](https://freesvg.org/)
 
 ## 👤 Author
 
-Even Nordstad
+**Even Nordstad**
+
+- GitHub: [@nordstad](https://github.com/nordstad)
+- Project: [PinViz](https://github.com/nordstad/PinViz)
+- Documentation: [nordstad.github.io/PinViz](https://nordstad.github.io/PinViz/)
