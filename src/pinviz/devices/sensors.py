@@ -79,6 +79,7 @@ def _register_sensors():
         description="BH1750 I2C ambient light sensor",
         category="sensors",
         factory=bh1750_light_sensor,
+        url="https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf",
     )
 
     registry.register(
@@ -87,6 +88,7 @@ def _register_sensors():
         description="DS18B20 waterproof 1-Wire temperature sensor",
         category="sensors",
         factory=ds18b20_temp_sensor,
+        url="https://www.analog.com/media/en/technical-documentation/data-sheets/DS18B20.pdf",
     )
 
 

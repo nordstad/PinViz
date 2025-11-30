@@ -88,6 +88,7 @@ def _register_generic():
         category="generic",
         factory=generic_i2c_device,
         parameters={"name": "I2C Device", "has_int_pin": False},
+        url="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#i2c",
     )
 
     registry.register(
@@ -97,6 +98,7 @@ def _register_generic():
         category="generic",
         factory=generic_i2c_device,
         parameters={"name": "I2C Device", "has_int_pin": False},
+        url="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#i2c",
     )
 
     registry.register(
@@ -106,6 +108,7 @@ def _register_generic():
         category="generic",
         factory=generic_spi_device,
         parameters={"name": "SPI Device"},
+        url="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#spi",
     )
 
     registry.register(
@@ -115,6 +118,7 @@ def _register_generic():
         category="generic",
         factory=generic_spi_device,
         parameters={"name": "SPI Device"},
+        url="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#spi",
     )
 
 

@@ -252,3 +252,58 @@ def test_device_pins_have_positions(device_func, device_args):
         assert pin.position is not None
         assert hasattr(pin.position, "x")
         assert hasattr(pin.position, "y")
+
+
+def test_registry_template_has_url_field():
+    """Test that device templates include URL field."""
+    registry = devices.get_registry()
+    template = registry.get("bh1750")
+    assert hasattr(template, "url")
+
+
+def test_registry_template_url_for_bh1750():
+    """Test that BH1750 template has correct URL."""
+    registry = devices.get_registry()
+    template = registry.get("bh1750")
+    assert template.url is not None
+    assert "mouser.com" in template.url or "datasheet" in template.url.lower()
+
+
+def test_registry_template_url_for_ds18b20():
+    """Test that DS18B20 template has correct URL."""
+    registry = devices.get_registry()
+    template = registry.get("ds18b20")
+    assert template.url is not None
+    assert "analog.com" in template.url or "DS18B20" in template.url
+
+
+def test_registry_template_url_for_ir_led_ring():
+    """Test that IR LED ring template has correct URL."""
+    registry = devices.get_registry()
+    template = registry.get("ir_led_ring")
+    assert template.url is not None
+    assert "electrokit.com" in template.url
+
+
+def test_registry_template_url_for_generic_devices():
+    """Test that generic device templates have URLs."""
+    registry = devices.get_registry()
+
+    i2c_template = registry.get("i2c_device")
+    assert i2c_template.url is not None
+    assert "raspberrypi.com" in i2c_template.url
+
+    spi_template = registry.get("spi_device")
+    assert spi_template.url is not None
+    assert "raspberrypi.com" in spi_template.url
+
+
+def test_registry_all_devices_have_urls():
+    """Test that all registered devices have documentation URLs."""
+    registry = devices.get_registry()
+    all_templates = registry.list_all()
+
+    for template in all_templates:
+        assert template.url is not None, f"Device {template.type_id} missing URL"
+        assert len(template.url) > 0, f"Device {template.type_id} has empty URL"
+        assert template.url.startswith("http"), f"Device {template.type_id} URL should start with http"
