@@ -43,28 +43,20 @@ Generate diagrams from simple prompts like:
 Get started with the MCP server in minutes:
 
 ```bash
-# Install via pip
-pip install pinviz
+# Install PinViz (using uv recommended, or pip)
+uv tool install pinviz
+# OR: pip install pinviz
 
-# Configure Claude Desktop (macOS example)
-cat << 'EOF' >> ~/Library/Application\ Support/Claude/claude_desktop_config.json
-{
-  "mcpServers": {
-    "pinviz": {
-      "command": "pinviz-mcp",
-      "env": {
-        "ANTHROPIC_API_KEY": "your-api-key-here"
-      }
-    }
-  }
-}
-EOF
+# Configure Claude Desktop automatically
+claude mcp add pinviz pinviz-mcp
 
 # Restart Claude Desktop and start creating diagrams!
 ```
 
 Then in Claude Desktop, simply ask:
 > "Connect a BME280 sensor to my Raspberry Pi 5"
+
+For manual configuration or other MCP clients, see the [Installation Guide](installation.md).
 
 ## Documentation
 

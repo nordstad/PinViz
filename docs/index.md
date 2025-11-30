@@ -55,7 +55,7 @@ Three LEDs with individual resistors:
 Using `uv` (recommended):
 
 ```bash
-uv add pinviz
+uv tool install pinviz
 ```
 
 Using `pip`:
