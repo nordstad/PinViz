@@ -17,6 +17,26 @@ Programmatically generate beautiful Raspberry Pi GPIO connection diagrams in SVG
 
 PinViz makes it easy to create clear, professional wiring diagrams for your Raspberry Pi projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
 
+## See It In Action
+
+### Quick Demo - CLI Usage
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/quick_demo.gif" alt="PinViz Quick Demo" width="800">
+</p>
+
+### Python API Demo
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/python_api_demo.gif" alt="PinViz Python API Demo" width="800">
+</p>
+
+### Custom Device Demo
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/custom_device_demo.gif" alt="PinViz Custom Device Demo" width="800">
+</p>
+
 ## Features
 
 - **Declarative Configuration**: Define diagrams using YAML or JSON
