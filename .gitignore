@@ -32,7 +32,7 @@ htmlcov/
 # Generated outputs (temporary/local builds only)
 # Note: images/ is NOT ignored - example diagrams should be committed
 out/
-output/
+/output/
 test_*.svg
 
 # Development tools
@@ -52,3 +52,8 @@ GPIO_LIBRARY_ANALYSIS.md
 # Test configurations (local development only)
 examples/pi_zero_test.yaml
 examples/*_test.yaml
+
+# Demo recordings - generated outputs
+scripts/demos/*.yaml
+scripts/demos/*.svg
+scripts/*.svg
