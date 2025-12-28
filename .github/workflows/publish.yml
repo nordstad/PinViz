@@ -87,12 +87,13 @@ jobs:
         run: uv publish dist/*
 
       - name: Create GitHub Release
+        id: create_release
         uses: actions/github-script@v7
         with:
           script: |
             const tag = context.ref.replace('refs/tags/', '');
 
-            await github.rest.repos.createRelease({
+            const release = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag_name: tag,
@@ -101,6 +102,45 @@ jobs:
               draft: false,
               prerelease: tag.includes('-')
             });
+
+            return {
+              version: tag.replace('v', ''),
+              body: release.data.body
+            };
+
+      - name: Update CHANGELOG.md
+        env:
+          RELEASE_DATA: ${{ steps.create_release.outputs.result }}
+        run: |
+          # Parse release data
+          VERSION=$(echo "$RELEASE_DATA" | jq -r '.version')
+          RELEASE_DATE=$(date +%Y-%m-%d)
+
+          # Save release notes to temp file
+          echo "$RELEASE_DATA" | jq -r '.body' > release_notes.txt
+
+          # Run update script
+          uv run python scripts/update_changelog.py "$VERSION" release_notes.txt "$RELEASE_DATE"
+
+          # Check if CHANGELOG.md was modified
+          if git diff --quiet CHANGELOG.md; then
+            echo "No changes to CHANGELOG.md"
+          else
+            echo "CHANGELOG.md updated successfully"
+          fi
+
+      - name: Commit and push CHANGELOG.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet CHANGELOG.md; then
+            echo "No changes to commit"
+          else
+            git add CHANGELOG.md
+            git commit -m "Update CHANGELOG.md for release ${GITHUB_REF#refs/tags/}"
+            git push origin HEAD:main
+          fi
 
   test-published:
     name: Test Published Package (Python ${{ matrix.python-version }})
