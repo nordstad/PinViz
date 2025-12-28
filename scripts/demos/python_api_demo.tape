@@ -36,7 +36,7 @@ Sleep 300ms
 
 # Type the Python code (fast typing)
 Set TypingSpeed 20ms
-Type "from pinviz import boards, Device, DevicePin, Connection, Diagram, SVGRenderer, PinRole, Point"
+Type "from pinviz import Connection, Device, DevicePin, Diagram, PinRole, Point, SVGRenderer, boards"
 Enter
 Enter
 Type "# Use predefined board"
