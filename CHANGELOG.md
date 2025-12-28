@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+
+
+## [0.5.1] - 2025-12-28
+
+### Dependencies
+- Bump ruff from 0.14.6 to 0.14.7 (https://github.com/nordstad/PinViz/pull/28)
+- Bump beautifulsoup4 from 4.14.2 to 4.14.3 (https://github.com/nordstad/PinViz/pull/29)
+- Bump ruff from 0.14.7 to 0.14.8 (https://github.com/nordstad/PinViz/pull/30)
+- Bump pytest from 9.0.1 to 9.0.2 (https://github.com/nordstad/PinViz/pull/31)
+- Bump mcp from 1.22.0 to 1.23.1 (https://github.com/nordstad/PinViz/pull/32)
+- Bump mkdocstrings-python from 2.0.0 to 2.0.1 (https://github.com/nordstad/PinViz/pull/33)
+- Bump mcp from 1.23.1 to 1.24.0 (https://github.com/nordstad/PinViz/pull/35)
+- Bump ruff from 0.14.8 to 0.14.9 (https://github.com/nordstad/PinViz/pull/34)
+- Bump ruff from 0.14.9 to 0.14.10 (https://github.com/nordstad/PinViz/pull/38)
+- Bump mkdocs-material from 9.7.0 to 9.7.1 (https://github.com/nordstad/PinViz/pull/37)
+- Bump mcp from 1.24.0 to 1.25.0 (https://github.com/nordstad/PinViz/pull/36)
+- bump version (https://github.com/nordstad/PinViz/pull/39)
+
+## [0.5.0] - 2025-11-30
+
+### Added
+- Add documentation links to all built-in device types (https://github.com/nordstad/PinViz/pull/27)
+
+### Changed
+- Improve README.md structure and user experience (https://github.com/nordstad/PinViz/pull/26)
+
+### Fixed
+- Fix docstring formatting: Change 'Example:' to 'Examples:' (https://github.com/nordstad/PinViz/pull/25)
+
+### Dependencies
+- Bump ruff from 0.14.5 to 0.14.6 (https://github.com/nordstad/PinViz/pull/22)
+- Bump mkdocstrings from 0.30.1 to 1.0.0 (https://github.com/nordstad/PinViz/pull/24)
+- Bump mkdocstrings-python from 1.19.0 to 2.0.0 (https://github.com/nordstad/PinViz/pull/23)
+
+## [0.4.0] - 2025-11-25
+
+### Added
+- Raspberry Pi Zero 2 W board support with full 40-pin GPIO header
+- Custom Pi Zero SVG board asset (scaled 1.6x for optimal visibility)
+- Board-specific pin sizing for better clarity on compact boards
+- Accurate pin positions extracted and scaled from official dimensions
+- All standard pin roles supported (GPIO, I2C, SPI, UART, PWM, power, ground)
+
 ## [0.3.0] - 2025-01-23
 
 ### Changed
@@ -145,7 +189,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md for AI assistant context
 - Example configurations and diagrams
 
-[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/nordstad/PinViz/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/nordstad/PinViz/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/nordstad/PinViz/compare/v0.3.0...v0.4.0
 [0.1.5]: https://github.com/nordstad/PinViz/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/nordstad/PinViz/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/nordstad/PinViz/compare/v0.1.2...v0.1.3
