@@ -1,5 +1,4 @@
-from pinviz import boards, Device, DevicePin, Connection, Diagram, SVGRenderer
-from pinviz.model import PinRole, Point
+from pinviz import boards, Device, DevicePin, Connection, Diagram, SVGRenderer, PinRole, Point
 
 # Use predefined board
 board = boards.raspberry_pi_5()
