@@ -58,7 +58,7 @@ Type '        DevicePin("DATA", PinRole.GPIO, Point(0, 20)),'
 Enter
 Type '        DevicePin("GND", PinRole.GROUND, Point(0, 40)),'
 Enter
-Type "    ]"
+Type "    ],"
 Enter
 Type ")"
 Enter
@@ -80,13 +80,7 @@ Type "# Create diagram"
 Enter
 Type "diagram = Diagram("
 Enter
-Type '    title="DHT22 Sensor - Python API",'
-Enter
-Type "    board=board,"
-Enter
-Type "    devices=[sensor],"
-Enter
-Type "    connections=connections"
+Type '    title="DHT22 Sensor - Python API", board=board, devices=[sensor], connections=connections'
 Enter
 Type ")"
 Enter

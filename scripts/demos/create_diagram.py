@@ -10,7 +10,7 @@ sensor = Device(
         DevicePin("VCC", PinRole.POWER_3V3, Point(0, 0)),
         DevicePin("DATA", PinRole.GPIO, Point(0, 20)),
         DevicePin("GND", PinRole.GROUND, Point(0, 40)),
-    ]
+    ],
 )
 
 # Define connections
@@ -22,10 +22,7 @@ connections = [
 
 # Create diagram
 diagram = Diagram(
-    title="DHT22 Sensor - Python API",
-    board=board,
-    devices=[sensor],
-    connections=connections
+    title="DHT22 Sensor - Python API", board=board, devices=[sensor], connections=connections
 )
 
 # Render to SVG
