@@ -313,11 +313,32 @@ Closes #123
 
 (For maintainers)
 
-1. Update version in `pyproject.toml`
-2. Update CHANGELOG.md
-3. Create and push a git tag
-4. Build and publish to PyPI
-5. Create GitHub release
+The release process is fully automated via GitHub Actions. Simply:
+
+1. **Update version** in `pyproject.toml`
+
+   ```bash
+   # Edit pyproject.toml and update version = "0.x.x"
+   git add pyproject.toml
+   git commit -m "Bump version from 0.x.x to 0.y.y"
+   git push origin main
+   ```
+
+2. **Create and push a git tag**
+
+   ```bash
+   git tag v0.y.y
+   git push origin v0.y.y
+   ```
+
+3. **GitHub Actions automatically**:
+   - Builds and publishes to PyPI
+   - Creates GitHub release with auto-generated notes
+   - Updates CHANGELOG.md from the release notes
+   - Commits CHANGELOG.md back to main
+   - Runs post-publish tests
+
+That's it! GitHub releases are the single source of truth, and CHANGELOG.md syncs automatically.
 
 ## Getting Help
 
@@ -328,6 +349,7 @@ Closes #123
 ## Recognition
 
 Contributors will be recognized in:
+
 - Git commit history
 - GitHub contributors page
 - Release notes (for significant contributions)
