@@ -48,7 +48,7 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - **SVG Output**: Scalable, high-quality vector graphics
 
 <details>
-<summary><b>View Python API example</b></summary>
+<summary><b>👉 View Python API example</b> <i>(click to expand)</i></summary>
 
 ```python
 from pinviz import boards, devices, Connection, Diagram, SVGRenderer
@@ -208,7 +208,7 @@ renderer.render(diagram, "output.svg")
 ```
 
 <details>
-<summary><b>Custom Wire Colors</b></summary>
+<summary><b>👉 Custom Wire Colors</b> <i>(click to expand)</i></summary>
 
 Use the `WireColor` enum for standard electronics wire colors:
 
@@ -273,7 +273,7 @@ PinViz includes an **MCP (Model Context Protocol) server** that enables natural 
 - "Set up environmental monitoring with BME280 and DHT22"
 
 <details>
-<summary><b>📖 Quick Start with Claude Desktop</b> (click to expand)</summary>
+<summary><b>👉 📖 Quick Start with Claude Desktop</b> (click to expand)</summary>
 
 ### Installation
 
@@ -327,7 +327,7 @@ claude mcp add pinviz pinviz-mcp
 </details>
 
 <details>
-<summary><b>🔧 GitHub Copilot (VS Code)</b></summary>
+<summary><b>👉 🔧 GitHub Copilot (VS Code)</b> <i>(click to expand)</i></summary>
 
 1. **Install PinViz**:
    ```bash
@@ -357,7 +357,7 @@ claude mcp add pinviz pinviz-mcp
 </details>
 
 <details>
-<summary><b>✨ Key Features</b></summary>
+<summary><b>👉 ✨ Key Features</b> <i>(click to expand)</i></summary>
 
 **Intelligent Pin Assignment:**
 - Automatic I2C bus sharing (multiple devices on SDA/SCL)
@@ -377,7 +377,7 @@ claude mcp add pinviz pinviz-mcp
 </details>
 
 <details>
-<summary><b>🛠️ Available MCP Tools</b></summary>
+<summary><b>👉 🛠️ Available MCP Tools</b> <i>(click to expand)</i></summary>
 
 - `generate_diagram` - Convert natural language to wiring diagrams (YAML/JSON/summary)
 - `list_devices` - Browse 25+ devices by category/protocol
@@ -395,8 +395,10 @@ claude mcp add pinviz pinviz-mcp
 
 ## 🖼️ Example Diagrams
 
+> **💡 Click any example below to view the code and diagram!**
+
 <details>
-<summary><b>LED with Resistor</b> - Simple circuit with inline component</summary>
+<summary><b>👉 LED with Resistor</b> - Simple circuit with inline component <i>(click to expand)</i></summary>
 
 ```bash
 pinviz render examples/led_with_resistor.yaml -o led_with_resistor.svg
@@ -407,7 +409,7 @@ pinviz render examples/led_with_resistor.yaml -o led_with_resistor.svg
 </details>
 
 <details>
-<summary><b>Multi-Device Setup</b> - BH1750 + IR LED Ring</summary>
+<summary><b>👉 Multi-Device Setup</b> - BH1750 + IR LED Ring <i>(click to expand)</i></summary>
 
 ```bash
 pinviz render examples/bh1750_ir_led.yaml -o bh1750_ir_led.svg
@@ -418,7 +420,7 @@ pinviz render examples/bh1750_ir_led.yaml -o bh1750_ir_led.svg
 </details>
 
 <details>
-<summary><b>Traffic Light</b> - Three LEDs with resistors</summary>
+<summary><b>👉 Traffic Light</b> - Three LEDs with resistors <i>(click to expand)</i></summary>
 
 ```bash
 pinviz render examples/traffic_light.yaml -o traffic_light.svg
@@ -429,7 +431,7 @@ pinviz render examples/traffic_light.yaml -o traffic_light.svg
 </details>
 
 <details>
-<summary><b>Raspberry Pi Zero 2 W</b> - Compact board layout</summary>
+<summary><b>👉 Raspberry Pi Zero 2 W</b> - Compact board layout <i>(click to expand)</i></summary>
 
 ```bash
 pinviz render examples/pi_zero_bh1750.yaml --no-gpio -o pi_zero_bh1750.svg
@@ -440,7 +442,7 @@ pinviz render examples/pi_zero_bh1750.yaml --no-gpio -o pi_zero_bh1750.svg
 </details>
 
 <details>
-<summary><b>GPIO Reference Comparison</b> - With vs Without GPIO details</summary>
+<summary><b>👉 GPIO Reference Comparison</b> - With vs Without GPIO details <i>(click to expand)</i></summary>
 
 ### With GPIO Details
 
@@ -471,8 +473,10 @@ pinviz example bh1750 --no-gpio -o diagram.svg
 
 ## ⚙️ Configuration Reference
 
+> **💡 Click any section below to see detailed configuration options!**
+
 <details>
-<summary><b>📋 Diagram Options</b></summary>
+<summary><b>👉 📋 Diagram Options</b> <i>(click to expand)</i></summary>
 
 ### GPIO Pin Reference
 
@@ -505,7 +509,7 @@ pinviz render diagram.yaml --gpio -o output.svg
 </details>
 
 <details>
-<summary><b>🎛️ Board Selection</b></summary>
+<summary><b>👉 🎛️ Board Selection</b> <i>(click to expand)</i></summary>
 
 Currently supported boards:
 
@@ -515,7 +519,7 @@ Currently supported boards:
 </details>
 
 <details>
-<summary><b>🔌 Built-in Device Types</b></summary>
+<summary><b>👉 🔌 Built-in Device Types</b> <i>(click to expand)</i></summary>
 
 **Sensors:**
 - `bh1750` - BH1750 I2C ambient light sensor ([datasheet](https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf))
@@ -537,7 +541,7 @@ Run `pinviz list` to see all available devices with their documentation links.
 </details>
 
 <details>
-<summary><b>🔗 Connection Configuration</b></summary>
+<summary><b>👉 🔗 Connection Configuration</b> <i>(click to expand)</i></summary>
 
 Connections use **physical pin numbers** (1-40), not BCM GPIO numbers:
 
@@ -557,7 +561,7 @@ connections:
 </details>
 
 <details>
-<summary><b>⚡ Inline Components</b></summary>
+<summary><b>👉 ⚡ Inline Components</b> <i>(click to expand)</i></summary>
 
 Add resistors, capacitors, or diodes directly on wire connections:
 
@@ -598,7 +602,7 @@ connection = Connection(
 </details>
 
 <details>
-<summary><b>🎨 Custom Devices</b></summary>
+<summary><b>👉 🎨 Custom Devices</b> <i>(click to expand)</i></summary>
 
 Define custom devices inline:
 
@@ -626,7 +630,7 @@ devices:
 </details>
 
 <details>
-<summary><b>🎯 Pin Roles</b></summary>
+<summary><b>👉 🎯 Pin Roles</b> <i>(click to expand)</i></summary>
 
 Supported pin roles (for automatic color assignment):
 
