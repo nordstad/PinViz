@@ -104,7 +104,20 @@ class SVGRenderer:
         self._draw_board(dwg, diagram.board)
 
         # Draw wires first so they appear behind devices
-        for wire in routed_wires:
+        # Sort wires for proper z-order to prevent overlapping/hiding
+        # Primary: source pin X position (left column pins first, right column on top)
+        # Secondary: destination Y (lower devices first)
+        # Tertiary: rail X position (further right first)
+        # This ensures wires from right GPIO column are always on top
+        sorted_wires = sorted(
+            routed_wires,
+            key=lambda w: (
+                w.from_pin_pos.x,  # Left column first, right column on top
+                -w.to_pin_pos.y,  # Lower Y (higher devices) drawn last
+                -(w.path_points[2].x if len(w.path_points) > 2 else w.path_points[0].x),
+            ),
+        )
+        for wire in sorted_wires:
             self._draw_wire(dwg, wire)
 
         # Draw devices on top of wires
