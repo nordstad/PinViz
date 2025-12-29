@@ -2,31 +2,43 @@
 
 ## Overview
 
-The PinViz wire routing system provides professional, collision-free wire routing for GPIO diagrams. The system uses an intelligent rail-based routing approach with automatic spacing and bundling to create clean, readable diagrams.
+The PinViz wire routing system provides professional, collision-free wire
+routing for GPIO diagrams. The system uses an intelligent rail-based routing
+approach with automatic spacing and bundling to create clean, readable
+diagrams.
 
 ## Key Features
 
-### 1. **Rail-Based Routing**
+### 1. Rail-Based Routing
+
 Wires are routed using a "rail" system:
+
 - **Horizontal segment**: From GPIO pin to vertical rail
 - **Vertical segment**: Along the rail to the target height
 - **Horizontal segment**: From rail to device pin
 
 This creates clean orthogonal paths that are easy to follow.
 
-### 2. **Intelligent Spacing**
-The router automatically prevents wire overlap through:
-- **Minimum spacing guarantees**: Configurable `wire_spacing` parameter (default: 8.0px)
-- **Collision detection**: Checks for conflicts in overlapping Y ranges
-- **Dynamic adjustment**: Automatically shifts wires right to maintain clearance
+### 2. Intelligent Spacing
 
-### 3. **Wire Bundling**
+The router automatically prevents wire overlap through:
+
+- **Minimum spacing guarantees**: Configurable `wire_spacing` parameter
+  (default: 8.0px)
+- **Collision detection**: Checks for conflicts in overlapping Y ranges
+- **Dynamic adjustment**: Automatically shifts wires right to maintain
+  clearance
+
+### 3. Wire Bundling
+
 Wires from the same source pin are bundled together:
+
 - Sorted by destination Y coordinate for natural grouping
 - Tighter spacing within bundles (`bundle_spacing`: 4.0px)
 - Wider spacing between different pin groups (`wire_spacing`: 8.0px)
 
-### 4. **Deterministic Output**
+### 4. Deterministic Output
+
 - Same inputs always produce the same diagram
 - No random routing or unpredictable behavior
 - Consistent, repeatable results for version control
@@ -52,10 +64,10 @@ renderer = SVGRenderer(layout_config=config)
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `rail_offset` | 40.0 | Horizontal distance from board to the first vertical rail |
-| `wire_spacing` | 8.0 | Minimum spacing between wires from different pin groups |
-| `bundle_spacing` | 4.0 | Spacing between wires in the same bundle (tighter) |
-| `corner_radius` | 5.0 | Radius for rounded corners in mixed/curved styles |
+| `rail_offset` | 40.0 | Horizontal distance from board to first rail |
+| `wire_spacing` | 8.0 | Minimum spacing between wires from pins |
+| `bundle_spacing` | 4.0 | Spacing within same bundle (tighter) |
+| `corner_radius` | 5.0 | Radius for rounded corners in styles |
 
 ## How It Works
 
@@ -63,7 +75,7 @@ renderer = SVGRenderer(layout_config=config)
 
 Connections are grouped by their source GPIO pin:
 
-```
+```text
 Pin 1: [VCC_conn1, VCC_conn2]
 Pin 3: [SDA_conn]
 Pin 5: [SCL_conn]
@@ -72,15 +84,18 @@ Pin 6: [GND_conn1, GND_conn2, GND_conn3]
 
 ### Step 2: Bundle Sorting
 
-Within each group, wires are sorted by destination Y coordinate to create natural bundles:
+Within each group, wires are sorted by destination Y coordinate to create
+natural bundles:
 
-```
-Pin 6: [GND to Device1 (y=60), GND to Device2 (y=80), GND to Device3 (y=100)]
+```text
+Pin 6: [GND to Device1 (y=60), GND to Device2 (y=80),
+        GND to Device3 (y=100)]
 ```
 
 ### Step 3: Rail Assignment
 
 Each wire gets a rail X position based on:
+
 1. **Base position**: `pin.x + rail_offset`
 2. **Bundle offset**: `+ index * bundle_spacing` (for wires from same pin)
 3. **Collision check**: Adjusted right if conflicts with existing wires
@@ -96,11 +111,13 @@ for existing_wire in used_rails:
             new_wire.rail_x = existing_wire.rail_x + wire_spacing
 ```
 
-This ensures minimum spacing is maintained even when wires from different pins overlap vertically.
+This ensures minimum spacing is maintained even when wires from different pins
+overlap vertically.
 
 ### Step 5: Path Creation
 
 The final path consists of 4 waypoints:
+
 1. Start: GPIO pin position
 2. Rail entry: `(rail_x, pin_y)`
 3. Rail exit: `(rail_x, device_y)`
@@ -145,13 +162,16 @@ config = LayoutConfig(
 
 ## Future Enhancements
 
-The routing system is designed for incremental improvement. Potential enhancements:
+The routing system is designed for incremental improvement. Potential
+enhancements:
 
-1. **Adaptive Rail Spacing**: Automatically adjust rail_offset based on wire count
+1. **Adaptive Rail Spacing**: Automatically adjust rail_offset based on wire
+   count
 2. **Multi-Rail Routing**: Use multiple parallel rails for very dense diagrams
 3. **Fan-Out Optimization**: Special handling for many wires to the same device
 4. **Crossing Minimization**: Reorder wires within bundles to reduce crossings
-5. **A* Pathfinding**: Advanced obstacle avoidance for complex layouts (experimental module available)
+5. **A* Pathfinding**: Advanced obstacle avoidance for complex layouts
+   (experimental module available)
 
 ## API Reference
 
@@ -168,6 +188,7 @@ Routes all wires in a diagram using the improved spacing algorithm.
 Finds a collision-free rail X position for a wire.
 
 **Parameters**:
+
 - `preferred_x`: Desired rail X position
 - `y_min`, `y_max`: Vertical range of the wire
 - `used_rails`: List of existing rail positions
@@ -179,6 +200,7 @@ Finds a collision-free rail X position for a wire.
 Creates waypoints for a wire path using rail-based routing.
 
 **Parameters**:
+
 - `from_pos`: Starting point (GPIO pin)
 - `to_pos`: Ending point (device pin)
 - `rail_x`: X position of the vertical rail
@@ -210,6 +232,7 @@ renderer.render(diagram, "sensor.svg")
 ```
 
 The routing system automatically:
+
 - Groups power and ground wires from common pins
 - Spaces them to prevent overlap
 - Creates clean bundles for related signals
@@ -237,6 +260,7 @@ renderer.render(diagram, "custom_routing.svg")
 ### Wires Still Overlap
 
 If you see overlapping wires:
+
 1. Increase `wire_spacing` (try 10.0 or 12.0)
 2. Increase `rail_offset` to provide more routing space
 3. Check if wire colors are too similar (may look like overlap)
@@ -244,6 +268,7 @@ If you see overlapping wires:
 ### Wires Too Spread Out
 
 If diagram is too wide:
+
 1. Decrease `wire_spacing` (try 6.0)
 2. Decrease `rail_offset` (try 30.0 or 35.0)
 3. Decrease `bundle_spacing` (try 3.0)
@@ -251,6 +276,7 @@ If diagram is too wide:
 ### Unexpected Routing
 
 The routing is deterministic based on:
+
 - Source pin number
 - Destination Y coordinate
 - Order in connections list
