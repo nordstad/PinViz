@@ -1,0 +1,33 @@
+{
+  "title": "BH1750 Light Sensor Wiring",
+  "board": "raspberry_pi_5",
+  "devices": [
+    {
+      "type": "bh1750",
+      "name": "BH1750"
+    }
+  ],
+  "connections": [
+    {
+      "board_pin": 1,
+      "device": "BH1750",
+      "device_pin": "VCC"
+    },
+    {
+      "board_pin": 6,
+      "device": "BH1750",
+      "device_pin": "GND"
+    },
+    {
+      "board_pin": 5,
+      "device": "BH1750",
+      "device_pin": "SCL"
+    },
+    {
+      "board_pin": 3,
+      "device": "BH1750",
+      "device_pin": "SDA"
+    }
+  ],
+  "show_legend": true
+}

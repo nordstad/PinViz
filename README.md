@@ -143,7 +143,9 @@ This creates an SVG file you can open in any web browser or vector graphics edit
 
 ### 2. Create Your Own Diagram
 
-Once you've seen what PinViz can do, create your own configuration file `my-diagram.yaml`:
+Once you've seen what PinViz can do, create your own configuration file using YAML or JSON format.
+
+**YAML format** (`my-diagram.yaml`):
 
 ```yaml
 title: "BH1750 Light Sensor Wiring"
@@ -173,7 +175,29 @@ connections:
 show_gpio_diagram: true  # Optional: include GPIO pin reference
 ```
 
-Generate your diagram:
+**JSON format** (`my-diagram.json`):
+
+```json
+{
+  "title": "BH1750 Light Sensor Wiring",
+  "board": "raspberry_pi_5",
+  "devices": [
+    {
+      "type": "bh1750",
+      "name": "BH1750"
+    }
+  ],
+  "connections": [
+    {"board_pin": 1, "device": "BH1750", "device_pin": "VCC"},
+    {"board_pin": 6, "device": "BH1750", "device_pin": "GND"},
+    {"board_pin": 5, "device": "BH1750", "device_pin": "SCL"},
+    {"board_pin": 3, "device": "BH1750", "device_pin": "SDA"}
+  ],
+  "show_gpio_diagram": true
+}
+```
+
+Generate your diagram (works with both YAML and JSON):
 
 ```bash
 pinviz render my-diagram.yaml -o output.svg
@@ -471,7 +495,7 @@ pinviz example bh1750 --no-gpio -o diagram.svg
 </details>
 
 **📸 More Examples:**
-- See all examples in the [`examples/`](examples/) directory
+- See all examples in the [`examples/`](examples/) directory (includes both YAML and JSON formats)
 - View generated diagrams in the [`images/`](images/) directory
 - [Browse example gallery in docs →](https://nordstad.github.io/PinViz/guide/examples/)
 

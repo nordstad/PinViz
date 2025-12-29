@@ -1,0 +1,33 @@
+{
+  "title": "LED with Current-Limiting Resistor",
+  "board": "raspberry_pi_5",
+  "devices": [
+    {
+      "type": "led",
+      "color": "Red",
+      "name": "Red LED"
+    }
+  ],
+  "connections": [
+    {
+      "board_pin": 11,
+      "device": "Red LED",
+      "device_pin": "+",
+      "color": "#FF0000",
+      "components": [
+        {
+          "type": "resistor",
+          "value": "220Ω",
+          "position": 0.55
+        }
+      ]
+    },
+    {
+      "board_pin": 9,
+      "device": "Red LED",
+      "device_pin": "-",
+      "color": "#000000"
+    }
+  ],
+  "show_legend": true
+}
