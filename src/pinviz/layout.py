@@ -21,7 +21,8 @@ class LayoutConfig:
         device_spacing_vertical: Vertical space between stacked devices (default: 20.0)
         device_margin_top: Top margin for first device (default: 60.0)
         rail_offset: Horizontal distance from board to wire routing rail (default: 40.0)
-        wire_offset_increment: Spacing between parallel wires from same pin (default: 3.0)
+        wire_spacing: Minimum vertical spacing between parallel wires (default: 8.0)
+        bundle_spacing: Spacing between wire bundles (default: 4.0)
         corner_radius: Radius for wire corner rounding (default: 5.0)
         legend_margin: Margin around legend box (default: 20.0)
         legend_width: Width of legend box (default: 150.0)
@@ -37,7 +38,8 @@ class LayoutConfig:
     device_spacing_vertical: float = 20.0  # Space between devices
     device_margin_top: float = 60.0
     rail_offset: float = 40.0  # Distance from board to wire rail
-    wire_offset_increment: float = 3.0  # Offset for parallel wires
+    wire_spacing: float = 8.0  # Minimum spacing between parallel wires
+    bundle_spacing: float = 4.0  # Spacing within a bundle
     corner_radius: float = 5.0  # Radius for rounded corners
     legend_margin: float = 20.0
     legend_width: float = 150.0
@@ -141,15 +143,18 @@ class LayoutEngine:
 
     def _route_wires(self, diagram: Diagram) -> list[RoutedWire]:
         """
-        Route all wires in the diagram.
+        Route all wires with improved spacing and bundling.
 
-        Uses orthogonal routing with rounded corners and automatic wire offsetting
-        to prevent overlap.
+        Uses rail-based routing with:
+        - Intelligent wire grouping by source pin
+        - Sorted routing by destination for natural bundling
+        - Progressive offsets to prevent overlap
+        - Minimum spacing guarantees
         """
         routed_wires: list[RoutedWire] = []
 
-        # Group connections by rail position to calculate offsets
-        rail_groups: dict[int, list[tuple[Connection, Point, Point, str]]] = {}
+        # Group connections by source pin and sort by destination Y
+        pin_groups: dict[int, list[tuple[Connection, Point, Point, str]]] = {}
 
         for conn in diagram.connections:
             # Find board pin
@@ -167,7 +172,6 @@ class LayoutEngine:
                 continue
 
             # Calculate absolute positions
-            # Add pin_number_y_offset to match where pin circles are actually drawn
             from_pos = Point(
                 self.config.board_margin_left + board_pin.position.x,
                 self.config.board_margin_top
@@ -183,25 +187,56 @@ class LayoutEngine:
             # Determine wire color
             from .model import DEFAULT_COLORS
 
-            # Handle both WireColor enum and plain hex string
             if conn.color:
                 color = conn.color.value if hasattr(conn.color, "value") else conn.color
             else:
                 color = DEFAULT_COLORS.get(board_pin.role, "#808080")
 
-            # Group by source pin for offset calculation
+            # Group by source pin
             pin_key = conn.board_pin
-            if pin_key not in rail_groups:
-                rail_groups[pin_key] = []
-            rail_groups[pin_key].append((conn, from_pos, to_pos, color))
+            if pin_key not in pin_groups:
+                pin_groups[pin_key] = []
+            pin_groups[pin_key].append((conn, from_pos, to_pos, color))
 
-        # Now create routed wires with proper offsets
-        for _pin_key, connections in rail_groups.items():
+        # Track used rail positions to avoid overlap
+        used_rails: list[tuple[float, float, float]] = []  # (y_min, y_max, rail_x)
+
+        # Calculate consistent base X for all rail positions
+        # Use the board's right edge as reference point for rail area
+        board_right_edge = self.config.board_margin_left + diagram.board.width
+        base_rail_x = board_right_edge + self.config.rail_offset
+
+        # Global wire counter for assigning unique rail positions
+        wire_index = 0
+
+        # Route wires for each pin group
+        for _pin_key, connections in pin_groups.items():
+            # Sort by destination Y for natural bundling
+            connections.sort(key=lambda x: x[2].y)
+
             for idx, (conn, from_pos, to_pos, color) in enumerate(connections):
-                # Calculate wire offset for parallel wires
-                offset = idx * self.config.wire_offset_increment
+                # Give each wire its own rail position with full wire_spacing
+                # Use consistent base for all wires, not per-pin position
+                rail_x = base_rail_x + (wire_index * self.config.wire_spacing)
 
-                path_points = self._calculate_wire_path(from_pos, to_pos, offset, conn.style)
+                # Y offset within pin group for visual separation at header
+                # Match wire_spacing to ensure clear vertical separation
+                y_offset = idx * self.config.wire_spacing  # Full spacing for visibility
+
+                # Check for collisions with existing wires and adjust if needed
+                rail_x = self._find_clear_rail_position(
+                    rail_x, from_pos.y + y_offset, to_pos.y, used_rails
+                )
+
+                # Create path points with Y offset
+                path_points = self._calculate_wire_path_with_rail(
+                    from_pos, to_pos, rail_x, y_offset, conn.style
+                )
+
+                # Record this rail usage
+                y_min = min(from_pos.y, to_pos.y)
+                y_max = max(from_pos.y, to_pos.y)
+                used_rails.append((y_min, y_max, rail_x))
 
                 routed_wires.append(
                     RoutedWire(
@@ -213,49 +248,77 @@ class LayoutEngine:
                     )
                 )
 
+                wire_index += 1  # Increment for next wire
+
         return routed_wires
 
-    def _calculate_wire_path(
-        self, from_pos: Point, to_pos: Point, offset: float, style: WireStyle
+    def _find_clear_rail_position(
+        self,
+        preferred_x: float,
+        y_min: float,
+        y_max: float,
+        used_rails: list[tuple[float, float, float]],
+    ) -> float:
+        """
+        Find a clear rail X position that doesn't overlap with existing wires.
+
+        Checks if the preferred position conflicts with any existing rail
+        in the same Y range, and adjusts if needed.
+        """
+        # Check for conflicts with existing wires in overlapping Y ranges
+        for used_y_min, used_y_max, used_x in used_rails:
+            # Check if Y ranges overlap and X positions are too close
+            if (
+                not (y_max < used_y_min or y_min > used_y_max)
+                and abs(preferred_x - used_x) < self.config.wire_spacing
+            ):
+                # Adjust to the right with proper spacing
+                preferred_x = used_x + self.config.wire_spacing
+
+        return preferred_x
+
+    def _calculate_wire_path_with_rail(
+        self, from_pos: Point, to_pos: Point, rail_x: float, y_offset: float, style: WireStyle
     ) -> list[Point]:
         """
-        Calculate the path for a wire.
+        Calculate wire path using rail-based routing with fan-out.
 
-        For MIXED style (orthogonal with rounded corners):
-        1. Start at from_pos
-        2. Move horizontally to rail
-        3. Move vertically along rail
-        4. Move horizontally to to_pos
+        Creates an orthogonal path:
+        1. Start at GPIO pin
+        2. Short horizontal with slight Y offset (fan-out)
+        3. Vertical to rail height
+        4. Along rail to target height
+        5. Horizontal to device pin
 
         Args:
-            from_pos: Starting position (board pin)
+            from_pos: Starting position (GPIO pin)
             to_pos: Ending position (device pin)
-            offset: Vertical offset for parallel wires
+            rail_x: X position of the vertical rail
+            y_offset: Vertical offset for fan-out effect
             style: Wire routing style
-
-        Returns:
-            List of points defining the wire path
         """
-        rail_x = from_pos.x + self.config.rail_offset + offset
+        # Create fan-out: horizontal segment at different Y for each wire
+        # Increase distance to allow wires to spread before reaching rail
+        fanout_x = from_pos.x + 35  # Distance to clear header and allow fan-out
+        fanout_y = from_pos.y + y_offset
 
         if style == WireStyle.MIXED or style == WireStyle.ORTHOGONAL:
-            # Orthogonal routing: horizontal -> vertical -> horizontal
             return [
                 from_pos,
-                Point(rail_x, from_pos.y),  # Move right to rail
-                Point(rail_x, to_pos.y),  # Move along rail to target y
-                to_pos,  # Move right to target
+                Point(fanout_x, fanout_y),  # Fan out with Y offset
+                Point(rail_x, fanout_y),  # Continue horizontal to rail
+                Point(rail_x, to_pos.y),  # Vertical along rail
+                to_pos,  # Final horizontal to device
             ]
         elif style == WireStyle.CURVED:
-            # For curved, we'll use the same waypoints but render as bezier
             return [
                 from_pos,
-                Point(rail_x, from_pos.y),
+                Point(fanout_x, fanout_y),
                 Point(rail_x, to_pos.y),
                 to_pos,
             ]
         else:
-            # Straight line
+            # Straight line fallback
             return [from_pos, to_pos]
 
     def _calculate_canvas_size(
