@@ -201,6 +201,11 @@ class LayoutEngine:
         # Track used rail positions to avoid overlap
         used_rails: list[tuple[float, float, float]] = []  # (y_min, y_max, rail_x)
 
+        # Calculate consistent base X for all rail positions
+        # Use the board's right edge as reference point for rail area
+        board_right_edge = self.config.board_margin_left + diagram.board.width
+        base_rail_x = board_right_edge + self.config.rail_offset
+
         # Global wire counter for assigning unique rail positions
         wire_index = 0
 
@@ -211,10 +216,8 @@ class LayoutEngine:
 
             for idx, (conn, from_pos, to_pos, color) in enumerate(connections):
                 # Give each wire its own rail position with full wire_spacing
-                # This spreads wires horizontally to use available space
-                rail_x = (
-                    from_pos.x + self.config.rail_offset + (wire_index * self.config.wire_spacing)
-                )
+                # Use consistent base for all wires, not per-pin position
+                rail_x = base_rail_x + (wire_index * self.config.wire_spacing)
 
                 # Y offset within pin group for visual separation at header
                 # Match wire_spacing to ensure clear vertical separation
