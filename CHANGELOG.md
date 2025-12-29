@@ -7,8 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2025-12-29
 
+### Added
+- Professional wire routing system with intelligent spacing and z-order
+  (https://github.com/nordstad/PinViz/pull/40)
+- Comprehensive wire routing documentation in `docs/wire-routing.md`
+- Wire spacing test suite with 5 tests for routing quality assurance
+- Collision detection for dynamic rail position adjustment
+- Configurable wire spacing parameters (`wire_spacing`, `bundle_spacing`)
 
+### Changed
+- Wire routing now uses horizontal rail spreading (8px spacing by default)
+- Vertical fan-out at GPIO header for clear visual separation
+- Three-level z-order sorting ensures all wires remain visible
+- Wires from right GPIO column now properly rendered on top
+- Improved wire bundling with natural grouping by destination
+- Enhanced `LayoutConfig` with new spacing parameters
+
+### Fixed
+- Wire overlap issues eliminated through intelligent spacing
+- Wires from even-numbered pins no longer hidden under odd-numbered pins
+- Improved wire visibility in dense diagrams
+- Deterministic routing for consistent version control
 
 ## [0.5.1] - 2025-12-28
 
