@@ -103,6 +103,9 @@ nav:
       - Dependency Management: development/dependency-management.md
 
 extra:
+  analytics:
+    provider: google
+    property: G-440XT392SM
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/nordstad/PinViz
