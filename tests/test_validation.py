@@ -182,15 +182,10 @@ class TestI2CAddressConflicts:
         """Test detection of multiple BH1750 sensors (same default address)."""
         board = boards.raspberry_pi_5()
         sensor1 = bh1750_light_sensor()
-        sensor2 = Device(
-            name="BH1750-2",
-            pins=[
-                DevicePin("VCC", PinRole.POWER_3V3, Point(5, 10)),
-                DevicePin("GND", PinRole.GROUND, Point(5, 18)),
-                DevicePin("SCL", PinRole.I2C_SCL, Point(5, 26)),
-                DevicePin("SDA", PinRole.I2C_SDA, Point(5, 34)),
-            ],
-        )
+        sensor1.type_id = "bh1750"  # Set type_id for registry lookup
+        sensor2 = bh1750_light_sensor()
+        sensor2.name = "BH1750-2"  # Rename to distinguish from first sensor
+        sensor2.type_id = "bh1750"  # Set type_id for registry lookup
 
         connections = [
             # First sensor

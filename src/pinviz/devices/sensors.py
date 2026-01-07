@@ -80,6 +80,7 @@ def _register_sensors():
         category="sensors",
         factory=bh1750_light_sensor,
         url="https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf",
+        i2c_address=0x23,  # Default address (can be 0x5C if ADDR pin high)
     )
 
     registry.register(

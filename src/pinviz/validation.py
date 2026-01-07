@@ -20,6 +20,7 @@ from the use of this validation tool.
 from dataclasses import dataclass
 from enum import Enum
 
+from .devices.registry import get_registry
 from .model import Diagram, PinRole
 
 
@@ -77,15 +78,6 @@ class DiagramValidator:
 
     # GPIO current limit per pin (Raspberry Pi spec)
     MAX_GPIO_CURRENT_MA = 16
-
-    # Default I2C addresses for common devices (7-bit addresses)
-    DEFAULT_I2C_ADDRESSES = {
-        "BH1750": 0x23,  # Can also be 0x5C if ADDR pin is high
-        "BME280": 0x76,  # Can also be 0x77
-        "BME680": 0x76,  # Can also be 0x77
-        "MPU6050": 0x68,  # Can also be 0x69
-        "ADS1115": 0x48,  # Can be 0x48-0x4B
-    }
 
     def validate(self, diagram: Diagram) -> list[ValidationIssue]:
         """Validate a diagram and return all issues found.
@@ -229,35 +221,44 @@ class DiagramValidator:
         """Check for I2C address conflicts between devices.
 
         Multiple I2C devices on the same bus must have unique addresses.
+        Uses device registry metadata for I2C addresses when available.
         """
         issues: list[ValidationIssue] = []
 
         # Find all devices connected to I2C bus
-        i2c_devices: list[str] = []
+        i2c_device_names: list[str] = []
         for conn in diagram.connections:
             board_pin = diagram.board.get_pin_by_number(conn.board_pin)
             if (
                 board_pin
                 and board_pin.role in (PinRole.I2C_SDA, PinRole.I2C_SCL)
-                and conn.device_name not in i2c_devices
+                and conn.device_name not in i2c_device_names
             ):
-                i2c_devices.append(conn.device_name)
+                i2c_device_names.append(conn.device_name)
 
-        # Check for address conflicts using default addresses
+        # Get registry for device metadata lookups
+        registry = get_registry()
+
+        # Check for address conflicts using registry metadata
         address_usage: dict[int, list[str]] = {}
-        for device_name in i2c_devices:
-            # Try to determine device type from name
-            device_type = None
-            for known_type in self.DEFAULT_I2C_ADDRESSES:
-                if known_type in device_name:
-                    device_type = known_type
-                    break
+        for device_name in i2c_device_names:
+            # Find the device object
+            device = next((d for d in diagram.devices if d.name == device_name), None)
+            if not device:
+                continue
 
-            if device_type:
-                addr = self.DEFAULT_I2C_ADDRESSES[device_type]
-                if addr not in address_usage:
-                    address_usage[addr] = []
-                address_usage[addr].append(device_name)
+            # Try to get I2C address from registry via type_id
+            i2c_address = None
+            if device.type_id:
+                template = registry.get(device.type_id)
+                if template and template.i2c_address is not None:
+                    i2c_address = template.i2c_address
+
+            # Group devices by address
+            if i2c_address is not None:
+                if i2c_address not in address_usage:
+                    address_usage[i2c_address] = []
+                address_usage[i2c_address].append(device_name)
 
         # Report conflicts
         for addr, devices in address_usage.items():
