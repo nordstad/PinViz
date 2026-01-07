@@ -4,13 +4,18 @@ import math
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-import svgwrite
+import drawsvg as draw
 
 from .layout import LayoutConfig, LayoutEngine, RoutedWire, create_bezier_path
 from .logging_config import get_logger
 from .model import DEFAULT_COLORS, Board, ComponentType, Device, Diagram, PinRole, Point
 
 log = get_logger(__name__)
+
+
+def _parse_font_size(size_str: str) -> float:
+    """Parse font size string like '20px' to float."""
+    return float(size_str.rstrip("px"))
 
 
 class SVGRenderer:
@@ -99,19 +104,20 @@ class SVGRenderer:
         )
 
         # Create SVG drawing
-        dwg = svgwrite.Drawing(str(output_path), size=(f"{canvas_width}px", f"{canvas_height}px"))
+        dwg = draw.Drawing(canvas_width, canvas_height)
 
         # Add white background
-        dwg.add(dwg.rect(insert=(0, 0), size=(canvas_width, canvas_height), fill="white"))
+        dwg.append(draw.Rectangle(0, 0, canvas_width, canvas_height, fill="white"))
 
         # Draw title
         if diagram.title:
-            dwg.add(
-                dwg.text(
+            dwg.append(
+                draw.Text(
                     diagram.title,
-                    insert=(canvas_width / 2, 25),
+                    20,
+                    canvas_width / 2,
+                    25,
                     text_anchor="middle",
-                    font_size="20px",
                     font_family="Arial, sans-serif",
                     font_weight="bold",
                     fill="#333",
@@ -154,10 +160,10 @@ class SVGRenderer:
 
         # Save
         log.debug("saving_svg", output_path=str(output_path))
-        dwg.save()
+        dwg.save_svg(str(output_path))
         log.info("render_completed", output_path=str(output_path))
 
-    def _draw_board(self, dwg: svgwrite.Drawing, board: Board) -> None:
+    def _draw_board(self, dwg: draw.Drawing, board: Board) -> None:
         """
         Draw the Raspberry Pi board with GPIO pins.
 
@@ -180,12 +186,12 @@ class SVGRenderer:
                 root = tree.getroot()
 
                 # Create a group for the board with proper positioning
-                board_group = dwg.g(transform=f"translate({x}, {y})")
+                board_group = draw.Group(transform=f"translate({x}, {y})")
 
                 # Inline the SVG content by parsing and recreating elements
                 self._inline_svg_elements(board_group, root, dwg)
 
-                dwg.add(board_group)
+                dwg.append(board_group)
 
             except Exception as e:
                 # Fallback: draw a simple rectangle
@@ -199,21 +205,20 @@ class SVGRenderer:
         self._draw_gpio_pin_numbers(dwg, board, x, y)
 
         # Draw board label
-        dwg.add(
-            dwg.text(
+        dwg.append(
+            draw.Text(
                 board.name,
-                insert=(x + board.width / 2, y + board.height + 20),
+                14,
+                x + board.width / 2,
+                y + board.height + 20,
                 text_anchor="middle",
-                font_size="14px",
                 font_family="Arial, sans-serif",
                 font_weight="bold",
                 fill="#333",
             )
         )
 
-    def _draw_gpio_pin_numbers(
-        self, dwg: svgwrite.Drawing, board: Board, x: float, y: float
-    ) -> None:
+    def _draw_gpio_pin_numbers(self, dwg: draw.Drawing, board: Board, x: float, y: float) -> None:
         """
         Draw pin numbers on GPIO header with color-coded backgrounds.
 
@@ -269,10 +274,11 @@ class SVGRenderer:
             # Use color based on pin role
             bg_color = role_colors.get(pin.role, "#FFFFFF")  # Default to white if role not found
 
-            dwg.add(
-                dwg.circle(
-                    center=(pin_x, pin_y),
-                    r=pin_radius,
+            dwg.append(
+                draw.Circle(
+                    pin_x,
+                    pin_y,
+                    pin_radius,
                     fill=bg_color,
                     stroke="#333",
                     stroke_width=0.5,
@@ -284,19 +290,20 @@ class SVGRenderer:
             font_size = pin_font_size  # Scaled to fit in circle
             # Use white text on blue backgrounds for better readability
             text_color = "#FFFFFF" if bg_color == "#0000FF" else "#000000"
-            dwg.add(
-                dwg.text(
+            dwg.append(
+                draw.Text(
                     str(pin.number),
-                    insert=(pin_x, pin_y + 1.5),
+                    _parse_font_size(font_size),
+                    pin_x,
+                    pin_y + 1.5,
                     text_anchor="middle",
-                    font_size=font_size,
                     font_family="Arial, sans-serif",
                     font_weight="bold",
                     fill=text_color,
                 )
             )
 
-    def _inline_svg_elements(self, parent_group, svg_root, dwg: svgwrite.Drawing) -> None:
+    def _inline_svg_elements(self, parent_group, svg_root, dwg: draw.Drawing) -> None:
         """
         Inline SVG elements from external SVG file.
 
@@ -326,29 +333,29 @@ class SVGRenderer:
 
                     # Handle gradients
                     if def_tag == "linearGradient":
-                        gradient = dwg.linearGradient(**def_attribs)
+                        gradient = draw.LinearGradient(**def_attribs)
                         for stop in def_child:
                             stop_attribs = self._parse_stop_attributes(stop)
-                            gradient.add_stop_color(**stop_attribs)
-                        dwg.defs.add(gradient)
+                            gradient.add_stop(**stop_attribs)
+                        # Auto-added to defs when referenced
                     elif def_tag == "radialGradient":
-                        gradient = dwg.radialGradient(**def_attribs)
+                        gradient = draw.RadialGradient(**def_attribs)
                         for stop in def_child:
                             stop_attribs = self._parse_stop_attributes(stop)
-                            gradient.add_stop_color(**stop_attribs)
-                        dwg.defs.add(gradient)
+                            gradient.add_stop(**stop_attribs)
+                        # Auto-added to defs when referenced
             elif tag == "g":
                 # Handle group
-                g = dwg.g(**attribs)
+                g = draw.Group(**attribs)
                 # Recursively process children
                 for grandchild in child:
                     self._add_svg_element(g, grandchild, dwg, svg_ns)
-                parent_group.add(g)
+                parent_group.append(g)
             else:
                 # Handle other elements
                 self._add_svg_element(parent_group, child, dwg, svg_ns)
 
-    def _add_svg_element(self, parent, element, dwg: svgwrite.Drawing, svg_ns: str) -> None:
+    def _add_svg_element(self, parent, element, dwg: draw.Drawing, svg_ns: str) -> None:
         """Add a single SVG element to parent."""
         tag = element.tag.replace(svg_ns, "") if svg_ns in element.tag else element.tag
 
@@ -367,87 +374,76 @@ class SVGRenderer:
         if handler:
             svg_element = handler(element, attribs, dwg, svg_ns)
             if svg_element:
-                parent.add(svg_element)
+                parent.append(svg_element)
 
     def _handle_rect(self, element, attribs, dwg, svg_ns):
-        params = {}
-        if "x" in attribs and "y" in attribs:
-            params["insert"] = (attribs.pop("x"), attribs.pop("y"))
-        if "width" in attribs and "height" in attribs:
-            params["size"] = (attribs.pop("width"), attribs.pop("height"))
-        params.update(attribs)
-        return dwg.rect(**params)
+        x = float(attribs.pop("x", 0))
+        y = float(attribs.pop("y", 0))
+        width = float(attribs.pop("width", 0))
+        height = float(attribs.pop("height", 0))
+        return draw.Rectangle(x, y, width, height, **attribs)
 
     def _handle_circle(self, element, attribs, dwg, svg_ns):
-        params = {}
-        if "cx" in attribs and "cy" in attribs:
-            params["center"] = (attribs.pop("cx"), attribs.pop("cy"))
-        if "r" in attribs:
-            params["r"] = attribs.pop("r")
-        params.update(attribs)
-        return dwg.circle(**params)
+        cx = float(attribs.pop("cx", 0))
+        cy = float(attribs.pop("cy", 0))
+        r = float(attribs.pop("r", 0))
+        return draw.Circle(cx, cy, r, **attribs)
 
     def _handle_ellipse(self, element, attribs, dwg, svg_ns):
-        params = {}
-        if "cx" in attribs and "cy" in attribs:
-            params["center"] = (attribs.pop("cx"), attribs.pop("cy"))
-        if "rx" in attribs:
-            params["r"] = (attribs.pop("rx"), attribs.pop("ry", attribs.get("rx")))
-        params.update(attribs)
-        return dwg.ellipse(**params)
+        cx = float(attribs.pop("cx", 0))
+        cy = float(attribs.pop("cy", 0))
+        rx = float(attribs.pop("rx", 0))
+        ry = float(attribs.pop("ry", rx))
+        return draw.Ellipse(cx, cy, rx, ry, **attribs)
 
     def _handle_line(self, element, attribs, dwg, svg_ns):
-        params = {}
-        if "x1" in attribs and "y1" in attribs:
-            params["start"] = (attribs.pop("x1"), attribs.pop("y1"))
-        if "x2" in attribs and "y2" in attribs:
-            params["end"] = (attribs.pop("x2"), attribs.pop("y2"))
-        params.update(attribs)
-        return dwg.line(**params)
+        x1 = float(attribs.pop("x1", 0))
+        y1 = float(attribs.pop("y1", 0))
+        x2 = float(attribs.pop("x2", 0))
+        y2 = float(attribs.pop("y2", 0))
+        return draw.Line(x1, y1, x2, y2, **attribs)
 
     def _handle_polyline(self, element, attribs, dwg, svg_ns):
-        params = {}
         if "points" in attribs:
             points_str = attribs.pop("points")
-            points = []
+            # Flatten points for drawsvg
+            points_flat = []
             for point in points_str.split():
                 coords = point.split(",")
                 if len(coords) == 2:
-                    points.append((float(coords[0]), float(coords[1])))
-            params["points"] = points
-        params.update(attribs)
-        return dwg.polyline(**params)
+                    points_flat.extend([float(coords[0]), float(coords[1])])
+            return draw.Polyline(*points_flat, **attribs)
+        return None
 
     def _handle_polygon(self, element, attribs, dwg, svg_ns):
-        params = {}
         if "points" in attribs:
             points_str = attribs.pop("points")
-            points = []
+            # Flatten points for drawsvg
+            points_flat = []
             for point in points_str.split():
                 coords = point.split(",")
                 if len(coords) == 2:
-                    points.append((float(coords[0]), float(coords[1])))
-            params["points"] = points
-        params.update(attribs)
-        return dwg.polygon(**params)
+                    points_flat.extend([float(coords[0]), float(coords[1])])
+            return draw.Polygon(*points_flat, **attribs)
+        return None
 
     def _handle_path(self, element, attribs, dwg, svg_ns):
-        params = {}
         if "d" in attribs:
-            params["d"] = attribs.pop("d")
-        params.update(attribs)
-        return dwg.path(**params)
+            d = attribs.pop("d")
+            return draw.Path(d=d, **attribs)
+        return None
 
     def _handle_text(self, element, attribs, dwg, svg_ns):
         text_content = element.text or ""
-        params = {}
-        if "x" in attribs and "y" in attribs:
-            params["insert"] = (attribs.pop("x"), attribs.pop("y"))
-        params.update(attribs)
-        return dwg.text(text_content, **params)
+        x = float(attribs.pop("x", 0))
+        y = float(attribs.pop("y", 0))
+        # Font size might not be present, use default
+        font_size = attribs.pop("font-size", None) or attribs.pop("font_size", None)
+        font_size = _parse_font_size(str(font_size)) if font_size else 12
+        return draw.Text(text_content, font_size, x, y, **attribs)
 
     def _handle_group(self, element, attribs, dwg, svg_ns):
-        g = dwg.g(**attribs)
+        g = draw.Group(**attribs)
         for child in element:
             self._add_svg_element(g, child, dwg, svg_ns)
         return g
@@ -483,13 +479,15 @@ class SVGRenderer:
 
         return result
 
-    def _draw_board_fallback(self, dwg: svgwrite.Drawing, board: Board, x: float, y: float) -> None:
+    def _draw_board_fallback(self, dwg: draw.Drawing, board: Board, x: float, y: float) -> None:
         """Draw a simple representation of the board when SVG asset is not available."""
         # Board rectangle
-        dwg.add(
-            dwg.rect(
-                insert=(x, y),
-                size=(board.width, board.height),
+        dwg.append(
+            draw.Rectangle(
+                x,
+                y,
+                board.width,
+                board.height,
                 rx=8,
                 ry=8,
                 fill="#2d8e3a",
@@ -502,10 +500,12 @@ class SVGRenderer:
         header_x = x + board.header_offset.x
         header_y = y + board.header_offset.y
 
-        dwg.add(
-            dwg.rect(
-                insert=(header_x - 5, header_y - 5),
-                size=(35, 100),
+        dwg.append(
+            draw.Rectangle(
+                header_x - 5,
+                header_y - 5,
+                35,
+                100,
                 rx=2,
                 ry=2,
                 fill="#1a1a1a",
@@ -513,7 +513,7 @@ class SVGRenderer:
             )
         )
 
-    def _draw_device(self, dwg: svgwrite.Drawing, device: Device) -> None:
+    def _draw_device(self, dwg: draw.Drawing, device: Device) -> None:
         """
         Draw a device or module as a colored rectangle with labeled pins.
 
@@ -544,12 +544,13 @@ class SVGRenderer:
         text_x = x + device.width / 2
         text_y = y - 5  # Position above the box
 
-        dwg.add(
-            dwg.text(
+        dwg.append(
+            draw.Text(
                 display_name,
-                insert=(text_x, text_y),
+                _parse_font_size(font_size),
+                text_x,
+                text_y,
                 text_anchor="middle",
-                font_size=font_size,
                 font_family="Arial, sans-serif",
                 font_weight="bold",
                 fill="#333",
@@ -557,10 +558,12 @@ class SVGRenderer:
         )
 
         # Device box
-        dwg.add(
-            dwg.rect(
-                insert=(x, y),
-                size=(device.width, device.height),
+        dwg.append(
+            draw.Rectangle(
+                x,
+                y,
+                device.width,
+                device.height,
                 rx=5,
                 ry=5,
                 fill=device.color,
@@ -576,7 +579,7 @@ class SVGRenderer:
             pin_y = y + pin.position.y
 
             # Pin circle
-            dwg.add(dwg.circle(center=(pin_x, pin_y), r=3, fill="#FFD700", stroke="#333"))
+            dwg.append(draw.Circle(pin_x, pin_y, 3, fill="#FFD700", stroke="#333"))
 
             # Pin label with black background inside device box (to the right of pin)
             label_padding = 4
@@ -588,10 +591,12 @@ class SVGRenderer:
             label_height = 10
 
             # Draw black background for pin label
-            dwg.add(
-                dwg.rect(
-                    insert=(label_x, label_y - label_height / 2),
-                    size=(label_width + label_padding * 2, label_height),
+            dwg.append(
+                draw.Rectangle(
+                    label_x,
+                    label_y - label_height / 2,
+                    label_width + label_padding * 2,
+                    label_height,
                     rx=2,
                     ry=2,
                     fill="#000000",
@@ -600,12 +605,13 @@ class SVGRenderer:
             )
 
             # Draw pin label text in white
-            dwg.add(
-                dwg.text(
+            dwg.append(
+                draw.Text(
                     pin.name,
-                    insert=(label_x + label_padding, label_y + 2.5),
+                    7,
+                    label_x + label_padding,
+                    label_y + 2.5,
                     text_anchor="start",
-                    font_size="7px",
                     font_family="Arial, sans-serif",
                     fill="#FFFFFF",
                 )
@@ -669,20 +675,22 @@ class SVGRenderer:
         return points[-1], 0.0
 
     def _draw_resistor_symbol(
-        self, dwg: svgwrite.Drawing, center: Point, angle: float, color: str, value: str
+        self, dwg: draw.Drawing, center: Point, angle: float, color: str, value: str
     ) -> None:
         """Draw a resistor symbol at the given position and angle."""
         # Resistor dimensions
         width = 20.0
         height = 6.0
 
-        # Create group for resistor
-        g = dwg.g()
+        # Create group for resistor with transform
+        g = draw.Group(transform=f"translate({center.x}, {center.y}) rotate({angle})")
 
         # Draw rectangle for resistor body
-        rect = dwg.rect(
-            insert=(-width / 2, -height / 2),
-            size=(width, height),
+        rect = draw.Rectangle(
+            -width / 2,
+            -height / 2,
+            width,
+            height,
             fill="white",
             stroke=color,
             stroke_width=2,
@@ -690,39 +698,38 @@ class SVGRenderer:
 
         # Draw lead lines (extending from resistor body)
         lead_length = 8.0
-        left_lead = dwg.line(
-            start=(-width / 2 - lead_length, 0),
-            end=(-width / 2, 0),
+        left_lead = draw.Line(
+            -width / 2 - lead_length,
+            0,
+            -width / 2,
+            0,
             stroke=color,
             stroke_width=2,
         )
-        right_lead = dwg.line(
-            start=(width / 2, 0), end=(width / 2 + lead_length, 0), stroke=color, stroke_width=2
+        right_lead = draw.Line(
+            width / 2, 0, width / 2 + lead_length, 0, stroke=color, stroke_width=2
         )
 
-        g.add(rect)
-        g.add(left_lead)
-        g.add(right_lead)
+        g.append(rect)
+        g.append(left_lead)
+        g.append(right_lead)
 
         # Add value label
-        text = dwg.text(
+        text = draw.Text(
             value,
-            insert=(0, -height / 2 - 5),
+            10,
+            0,
+            -height / 2 - 5,
             text_anchor="middle",
-            font_size="10px",
             font_family="Arial, sans-serif",
             fill="#333",
             font_weight="bold",
         )
-        g.add(text)
+        g.append(text)
 
-        # Apply rotation and translation
-        g.translate(center.x, center.y)
-        g.rotate(angle)
+        dwg.append(g)
 
-        dwg.add(g)
-
-    def _draw_wire(self, dwg: svgwrite.Drawing, wire: RoutedWire) -> None:
+    def _draw_wire(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
         """
         Draw a wire connection with optional inline components.
 
@@ -741,13 +748,13 @@ class SVGRenderer:
 
         self._draw_wire_endpoints(dwg, wire)
 
-    def _draw_simple_wire(self, dwg: svgwrite.Drawing, wire: RoutedWire) -> None:
+    def _draw_simple_wire(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
         """Draw a simple wire without components."""
         path_d = create_bezier_path(wire.path_points, self.layout_config.corner_radius)
         self._draw_wire_halo(dwg, path_d)
         self._draw_wire_core(dwg, path_d, wire.color)
 
-    def _draw_wire_with_components(self, dwg: svgwrite.Drawing, wire: RoutedWire) -> None:
+    def _draw_wire_with_components(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
         """Draw a wire broken into segments by inline components."""
         component_positions = sorted(
             [(comp, comp.position) for comp in wire.connection.components], key=lambda x: x[1]
@@ -771,7 +778,7 @@ class SVGRenderer:
             self._draw_wire_segment(dwg, wire, prev_pos, 1.0)
 
     def _draw_wire_segment(
-        self, dwg: svgwrite.Drawing, wire: RoutedWire, start_pos: float, end_pos: float
+        self, dwg: draw.Drawing, wire: RoutedWire, start_pos: float, end_pos: float
     ) -> None:
         """Draw a segment of a wire between two positions (0.0-1.0)."""
         segment_points = self._get_path_segment(wire.path_points, start_pos, end_pos)
@@ -833,10 +840,10 @@ class SVGRenderer:
 
         return unique_points if len(unique_points) >= 2 else segment_points
 
-    def _draw_wire_halo(self, dwg: svgwrite.Drawing, path_d: str) -> None:
+    def _draw_wire_halo(self, dwg: draw.Drawing, path_d: str) -> None:
         """Draw the white halo around a wire for visibility."""
-        dwg.add(
-            dwg.path(
+        dwg.append(
+            draw.Path(
                 d=path_d,
                 stroke="white",
                 stroke_width=7,
@@ -847,10 +854,10 @@ class SVGRenderer:
             )
         )
 
-    def _draw_wire_core(self, dwg: svgwrite.Drawing, path_d: str, color: str) -> None:
+    def _draw_wire_core(self, dwg: draw.Drawing, path_d: str, color: str) -> None:
         """Draw the colored core of a wire."""
-        dwg.add(
-            dwg.path(
+        dwg.append(
+            draw.Path(
                 d=path_d,
                 stroke=color,
                 stroke_width=3,
@@ -861,18 +868,18 @@ class SVGRenderer:
             )
         )
 
-    def _draw_wire_endpoints(self, dwg: svgwrite.Drawing, wire: RoutedWire) -> None:
+    def _draw_wire_endpoints(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
         """Draw the start and end connection dots."""
         # Start point
-        dwg.add(dwg.circle(center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=4, fill="white"))
-        dwg.add(dwg.circle(center=(wire.from_pin_pos.x, wire.from_pin_pos.y), r=3, fill=wire.color))
+        dwg.append(draw.Circle(wire.from_pin_pos.x, wire.from_pin_pos.y, 4, fill="white"))
+        dwg.append(draw.Circle(wire.from_pin_pos.x, wire.from_pin_pos.y, 3, fill=wire.color))
         # End point
-        dwg.add(dwg.circle(center=(wire.to_pin_pos.x, wire.to_pin_pos.y), r=4, fill="white"))
-        dwg.add(dwg.circle(center=(wire.to_pin_pos.x, wire.to_pin_pos.y), r=3, fill=wire.color))
+        dwg.append(draw.Circle(wire.to_pin_pos.x, wire.to_pin_pos.y, 4, fill="white"))
+        dwg.append(draw.Circle(wire.to_pin_pos.x, wire.to_pin_pos.y, 3, fill=wire.color))
 
     def _draw_legend(
         self,
-        dwg: svgwrite.Drawing,
+        dwg: draw.Drawing,
         routed_wires: list[RoutedWire],
         canvas_width: float,
         canvas_height: float,
@@ -961,7 +968,7 @@ class SVGRenderer:
 
             entry_y += line_height
 
-    def _draw_gpio_diagram(self, dwg: svgwrite.Drawing, canvas_width: float) -> None:
+    def _draw_gpio_diagram(self, dwg: draw.Drawing, canvas_width: float) -> None:
         """
         Draw the GPIO pin reference diagram on the right side.
 
@@ -1003,12 +1010,12 @@ class SVGRenderer:
             y = self.layout_config.board_margin_top
 
             # Create a group for the GPIO diagram with scaling and positioning
-            gpio_group = dwg.g(transform=f"translate({x}, {y}) scale({scale})")
+            gpio_group = draw.Group(transform=f"translate({x}, {y}) scale({scale})")
 
             # Inline the SVG content
             self._inline_svg_elements(gpio_group, root, dwg)
 
-            dwg.add(gpio_group)
+            dwg.append(gpio_group)
 
         except Exception as e:
             print(f"Warning: Could not load GPIO diagram ({e})")
