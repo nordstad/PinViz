@@ -7,7 +7,10 @@ from pathlib import Path
 import svgwrite
 
 from .layout import LayoutConfig, LayoutEngine, RoutedWire, create_bezier_path
+from .logging_config import get_logger
 from .model import DEFAULT_COLORS, Board, ComponentType, Device, Diagram, PinRole, Point
+
+log = get_logger(__name__)
 
 
 class SVGRenderer:
@@ -77,8 +80,23 @@ class SVGRenderer:
             diagram: The diagram to render
             output_path: Output file path
         """
+        log.info(
+            "render_started",
+            output_path=str(output_path),
+            title=diagram.title,
+            device_count=len(diagram.devices),
+            connection_count=len(diagram.connections),
+        )
+
         # Calculate layout
+        log.debug("calculating_layout")
         canvas_width, canvas_height, routed_wires = self.layout_engine.layout_diagram(diagram)
+        log.debug(
+            "layout_calculated",
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
+            wire_count=len(routed_wires),
+        )
 
         # Create SVG drawing
         dwg = svgwrite.Drawing(str(output_path), size=(f"{canvas_width}px", f"{canvas_height}px"))
@@ -101,6 +119,7 @@ class SVGRenderer:
             )
 
         # Draw board
+        log.debug("drawing_board", board_name=diagram.board.name)
         self._draw_board(dwg, diagram.board)
 
         # Draw wires first so they appear behind devices
@@ -109,6 +128,7 @@ class SVGRenderer:
         # Secondary: destination Y (lower devices first)
         # Tertiary: rail X position (further right first)
         # This ensures wires from right GPIO column are always on top
+        log.debug("drawing_wires", wire_count=len(routed_wires))
         sorted_wires = sorted(
             routed_wires,
             key=lambda w: (
@@ -121,17 +141,21 @@ class SVGRenderer:
             self._draw_wire(dwg, wire)
 
         # Draw devices on top of wires
+        log.debug("drawing_devices", device_count=len(diagram.devices))
         for device in diagram.devices:
             self._draw_device(dwg, device)
 
         # Draw GPIO pin diagram on the right if enabled
         if diagram.show_gpio_diagram:
+            log.debug("drawing_gpio_diagram")
             self._draw_gpio_diagram(dwg, canvas_width)
 
         # Legend removed per user request - cleaner diagram
 
         # Save
+        log.debug("saving_svg", output_path=str(output_path))
         dwg.save()
+        log.info("render_completed", output_path=str(output_path))
 
     def _draw_board(self, dwg: svgwrite.Drawing, board: Board) -> None:
         """
