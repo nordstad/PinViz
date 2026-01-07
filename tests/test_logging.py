@@ -146,18 +146,21 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with caplog.at_level(logging.INFO), patch.object(
-            sys,
-            "argv",
-            [
-                "pinviz",
-                "--log-level",
-                "INFO",
-                "render",
-                str(config_file),
-                "-o",
-                str(output_file),
-            ],
+        with (
+            caplog.at_level(logging.INFO),
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "pinviz",
+                    "--log-level",
+                    "INFO",
+                    "render",
+                    str(config_file),
+                    "-o",
+                    str(output_file),
+                ],
+            ),
         ):
             result = main()
 
@@ -187,18 +190,21 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with caplog.at_level(logging.DEBUG), patch.object(
-            sys,
-            "argv",
-            [
-                "pinviz",
-                "--log-level",
-                "DEBUG",
-                "render",
-                str(config_file),
-                "-o",
-                str(output_file),
-            ],
+        with (
+            caplog.at_level(logging.DEBUG),
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "pinviz",
+                    "--log-level",
+                    "DEBUG",
+                    "render",
+                    str(config_file),
+                    "-o",
+                    str(output_file),
+                ],
+            ),
         ):
             result = main()
 
@@ -316,18 +322,21 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with caplog.at_level(logging.INFO), patch.object(
-            sys,
-            "argv",
-            [
-                "pinviz",
-                "--log-level",
-                "INFO",
-                "render",
-                str(config_file),
-                "-o",
-                str(output_file),
-            ],
+        with (
+            caplog.at_level(logging.INFO),
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "pinviz",
+                    "--log-level",
+                    "INFO",
+                    "render",
+                    str(config_file),
+                    "-o",
+                    str(output_file),
+                ],
+            ),
         ):
             result = main()
 
@@ -354,16 +363,19 @@ connections:
 """
         )
 
-        with caplog.at_level(logging.INFO), patch.object(
-            sys,
-            "argv",
-            [
-                "pinviz",
-                "--log-level",
-                "INFO",
-                "validate",
-                str(config_file),
-            ],
+        with (
+            caplog.at_level(logging.INFO),
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "pinviz",
+                    "--log-level",
+                    "INFO",
+                    "validate",
+                    str(config_file),
+                ],
+            ),
         ):
             result = main()
 
@@ -376,18 +388,21 @@ connections:
         # Non-existent file
         config_file = tmp_path / "nonexistent.yaml"
 
-        with caplog.at_level(logging.ERROR), patch.object(
-            sys,
-            "argv",
-            [
-                "pinviz",
-                "--log-level",
-                "ERROR",
-                "render",
-                str(config_file),
-                "-o",
-                "/tmp/out.svg",
-            ],
+        with (
+            caplog.at_level(logging.ERROR),
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "pinviz",
+                    "--log-level",
+                    "ERROR",
+                    "render",
+                    str(config_file),
+                    "-o",
+                    "/tmp/out.svg",
+                ],
+            ),
         ):
             result = main()
 
@@ -477,18 +492,21 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with caplog.at_level(logging.ERROR), patch.object(
-            sys,
-            "argv",
-            [
-                "pinviz",
-                "--log-level",
-                "INFO",
-                "render",
-                str(config_file),
-                "-o",
-                str(output_file),
-            ],
+        with (
+            caplog.at_level(logging.ERROR),
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "pinviz",
+                    "--log-level",
+                    "INFO",
+                    "render",
+                    str(config_file),
+                    "-o",
+                    str(output_file),
+                ],
+            ),
         ):
             result = main()
 
@@ -502,18 +520,21 @@ connections:
         """Test example command works with logging enabled."""
         output_file = tmp_path / "example.svg"
 
-        with caplog.at_level(logging.DEBUG), patch.object(
-            sys,
-            "argv",
-            [
-                "pinviz",
-                "--log-level",
-                "DEBUG",
-                "example",
-                "bh1750",
-                "-o",
-                str(output_file),
-            ],
+        with (
+            caplog.at_level(logging.DEBUG),
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "pinviz",
+                    "--log-level",
+                    "DEBUG",
+                    "example",
+                    "bh1750",
+                    "-o",
+                    str(output_file),
+                ],
+            ),
         ):
             result = main()
 
