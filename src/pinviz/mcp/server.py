@@ -16,6 +16,9 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+from pinviz.validation import DiagramValidator, ValidationLevel
+
+from .connection_builder import ConnectionBuilder
 from .device_manager import Device, DeviceManager, DevicePin
 
 # Initialize FastMCP server
@@ -200,12 +203,31 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
         pin_assigner = PinAssigner()
         assignments, warnings = pin_assigner.assign_pins(devices_data)
 
-        # Step 4: Generate diagram output
-        diagram_title = title or (
-            f"{', '.join([d['name'] for d in devices_data])} Wiring"
-            if len(devices_data) <= 3
-            else "Multi-Device Wiring Diagram"
+        # Step 3.5: Build complete diagram and validate
+        builder = ConnectionBuilder()
+        diagram = builder.build_diagram(
+            assignments=assignments,
+            devices_data=devices_data,
+            board_name=parsed.board,
+            title=title
+            or (
+                f"{', '.join([d['name'] for d in devices_data])} Wiring"
+                if len(devices_data) <= 3
+                else "Multi-Device Wiring Diagram"
+            ),
         )
+
+        # Validate the diagram
+        validator = DiagramValidator()
+        validation_issues = validator.validate(diagram)
+
+        # Categorize validation issues
+        validation_errors = [i for i in validation_issues if i.level == ValidationLevel.ERROR]
+        validation_warnings = [i for i in validation_issues if i.level == ValidationLevel.WARNING]
+        validation_infos = [i for i in validation_issues if i.level == ValidationLevel.INFO]
+
+        # Step 4: Generate diagram output
+        diagram_title = diagram.title
 
         # Generate connections list for output
         connections = [
@@ -235,6 +257,42 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
         if not_found:
             result["not_found"] = not_found
 
+        # Add validation results
+        if validation_issues:
+            result["validation"] = {
+                "total_issues": len(validation_issues),
+                "errors": [str(e) for e in validation_errors],
+                "warnings": [str(w) for w in validation_warnings],
+                "info": [str(i) for i in validation_infos],
+            }
+
+            # Update status if there are errors
+            if validation_errors:
+                result["status"] = "error"
+                result["validation_status"] = "failed"
+                result["validation_message"] = (
+                    f"Diagram has {len(validation_errors)} validation error(s). "
+                    "These issues could cause hardware damage or circuit malfunction. "
+                    "Review the 'validation.errors' field for details."
+                )
+            elif validation_warnings:
+                result["validation_status"] = "warning"
+                result["validation_message"] = (
+                    f"Diagram has {len(validation_warnings)} validation warning(s). "
+                    "These should be reviewed. See 'validation.warnings' for details."
+                )
+            else:
+                result["validation_status"] = "info"
+        else:
+            result["validation"] = {
+                "total_issues": 0,
+                "errors": [],
+                "warnings": [],
+                "info": [],
+            }
+            result["validation_status"] = "passed"
+            result["validation_message"] = "All validation checks passed."
+
         if output_format == "yaml":
             # Generate YAML-style output with full device definitions
             yaml_output = f"""title: "{diagram_title}"
@@ -258,11 +316,26 @@ devices:
 
             result["yaml_content"] = yaml_output
             result["output"] = yaml_output  # Keep for backward compatibility
-            result["message"] = (
-                "Complete PinViz YAML configuration generated. "
-                "Save the 'yaml_content' field to a file and render with: "
-                "pinviz render <file>.yaml -o output.svg"
-            )
+
+            # Customize message based on validation status
+            if validation_errors:
+                result["message"] = (
+                    "YAML configuration generated but has VALIDATION ERRORS. "
+                    "Review 'validation.errors' before using. These issues could damage hardware."
+                )
+            elif validation_warnings:
+                result["message"] = (
+                    "YAML configuration generated with validation warnings. "
+                    "Review 'validation.warnings' before using. "
+                    "Save the 'yaml_content' field to a file and render with: "
+                    "pinviz render <file>.yaml -o output.svg"
+                )
+            else:
+                result["message"] = (
+                    "Complete PinViz YAML configuration generated and validated. "
+                    "Save the 'yaml_content' field to a file and render with: "
+                    "pinviz render <file>.yaml -o output.svg"
+                )
 
         elif output_format == "json":
             result["details"] = {

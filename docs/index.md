@@ -45,6 +45,9 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
 - **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
 - **Built-in Templates**: Pre-configured boards (Raspberry Pi 5 and Pi Zero 2 W) and common devices (BH1750, IR LED rings, etc.)
+- **Hardware Validation**: Catch wiring mistakes before building (pin conflicts, voltage mismatches, I2C address collisions)
+- **MCP Server**: Generate diagrams using natural language with Claude (via Model Context Protocol)
+- **Structured Logging**: Professional logging with contextual information using structlog
 - **GPIO Pin Reference**: Optional GPIO pinout diagram for easy reference
 - **SVG Output**: Scalable, high-quality vector graphics
 
@@ -125,6 +128,8 @@ pinviz render my-diagram.yaml -o output.svg
 - [Installation Guide](getting-started/installation.md) - Detailed installation instructions
 - [Quick Start Tutorial](getting-started/quickstart.md) - Step-by-step guide
 - [CLI Usage](guide/cli.md) - Command-line interface reference
+- [Validation Guide](validation.md) - Hardware safety checks and error detection
+- [MCP Server](mcp-server/index.md) - Natural language diagram generation with Claude
 - [Python API](guide/python-api.md) - Programmatic usage
 - [API Reference](api/index.md) - Complete API documentation
 

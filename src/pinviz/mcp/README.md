@@ -137,15 +137,56 @@ result = await session.call_tool("get_database_summary", {})
 
 ### `generate_diagram` (Phase 2)
 
-Generate a GPIO wiring diagram from a natural language prompt.
+Generate a GPIO wiring diagram from a natural language prompt with automatic validation.
 
-**Status:** Placeholder in Phase 1, full implementation in Phase 2
+**Status:** ✅ Fully implemented with validation
 
 **Parameters:**
-- `prompt` (required): Natural language description of the wiring
-- `output_format` (optional): Output format - 'yaml' or 'svg' (default: yaml)
+- `prompt` (required): Natural language description of the wiring (e.g., "connect BME280 sensor")
+- `output_format` (optional): Output format - 'yaml', 'json', or 'summary' (default: yaml)
+- `title` (optional): Custom diagram title (auto-generated if not provided)
 
-**Returns:** YAML configuration or SVG diagram as string
+**Returns:** JSON response with:
+- `status`: "success" or "error"
+- `validation_status`: "passed", "warning", or "failed"
+- `validation_message`: Human-readable validation summary
+- `validation`: Object with categorized validation issues
+  - `total_issues`: Number of validation issues found
+  - `errors`: List of error messages (hardware damage risk)
+  - `warnings`: List of warning messages (should be reviewed)
+  - `info`: List of informational messages
+- `yaml_content`: Complete PinViz YAML configuration (when output_format="yaml")
+- `devices`: List of matched device names
+- `connections`: Number of connections generated
+
+**Automatic Validation:**
+
+The tool automatically validates generated diagrams for:
+- **Pin Conflicts**: Multiple devices using the same GPIO pin (ERROR)
+- **I2C Address Conflicts**: Multiple devices with the same I2C address (WARNING)
+- **Voltage Mismatches**: 5V devices on 3.3V pins or vice versa (ERROR/WARNING)
+- **Current Limits**: GPIO pins driving too many devices (WARNING)
+- **Connection Validity**: Invalid pin numbers or non-existent pins (ERROR)
+
+**Example:**
+```python
+# Generate and validate a diagram
+result = await session.call_tool("generate_diagram", {
+    "prompt": "connect BME280 sensor and LED",
+    "output_format": "yaml"
+})
+
+# Check validation status
+if result.validation_status == "passed":
+    # Safe to use
+    yaml_config = result.yaml_content
+elif result.validation_status == "warning":
+    # Review warnings before using
+    print(result.validation.warnings)
+else:  # "failed"
+    # Do NOT use - fix errors first
+    print(result.validation.errors)
+```
 
 ## Available Resources
 
@@ -272,12 +313,13 @@ src/pinviz_mcp/
 - [x] Fuzzy name matching
 - [x] Comprehensive test suite
 
-### Phase 2: Natural Language Parsing (Planned)
-- [ ] Natural language prompt parser
-- [ ] Intelligent pin assignment algorithm
-- [ ] I2C bus sharing and SPI CS allocation
-- [ ] Connection conflict detection
-- [ ] YAML/SVG diagram generation
+### Phase 2: Natural Language Parsing ✅
+- [x] Natural language prompt parser
+- [x] Intelligent pin assignment algorithm
+- [x] I2C bus sharing and SPI CS allocation
+- [x] Connection conflict detection
+- [x] YAML diagram generation with validation
+- [x] Automatic hardware safety checks
 
 ### Phase 3: URL-Based Device Discovery (Planned)
 - [ ] Datasheet URL parsing
