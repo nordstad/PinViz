@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-01-07
+
+### Added
+- **Hardware Validation System** (https://github.com/nordstad/PinViz/pull/41)
+  - Comprehensive wiring diagram validation with 5 check categories
+  - Pin conflict detection (multiple devices on same GPIO)
+  - I2C address conflict warnings with device recognition
+  - Voltage compatibility checks (3.3V vs 5V protection)
+  - GPIO current limit warnings (16mA per pin)
+  - Connection validity checks (invalid pins, non-existent devices)
+  - `pinviz validate` CLI command with `--strict` mode
+  - Automatic validation during `render` command
+  - Three severity levels: ERROR, WARNING, INFO
+  - Clear, actionable error messages with location context
+  - Legal disclaimer for validation limitations
+  - 12 comprehensive test cases covering all validation scenarios
+  - Detailed documentation in `docs/validation.md`
+- **Professional Structured Logging** (https://github.com/nordstad/PinViz/pull/42)
+  - `structlog>=24.1.0` integration for observability and debugging
+  - Centralized logging configuration in `src/pinviz/logging_config.py`
+  - JSON format for machine-readable logs (log aggregation tools)
+  - Console format for human-readable output with colors
+  - Automatic callsite metadata (file, function, line number)
+  - Configurable log levels via `--log-level` flag (DEBUG, INFO, WARNING, ERROR)
+  - Configurable log format via `--log-format` flag (json|console)
+  - Default WARNING level for minimal noise
+  - Logs to stderr to avoid interfering with stdout/pipes
+  - 19 new tests for logging configuration and behavior
+- **MCP Server Validation Integration** (https://github.com/nordstad/PinViz/pull/43)
+  - Automatic hardware validation in `generate_diagram` tool
+  - Enhanced response format with validation results
+  - Validation status field: "passed", "warning", or "failed"
+  - Categorized validation issues (errors, warnings, info)
+  - Human-readable validation messages
+  - Updated MCP server documentation with validation examples
+- Google Analytics tracking for documentation site
+- Demo video infrastructure with VHS tape files
+- Validation demo video (`scripts/demos/validation_demo.tape`)
+- JSON configuration examples in documentation
+
+### Changed
+- MCP server builds complete `Diagram` objects using `ConnectionBuilder`
+- Documentation index now lists validation, MCP server, and structlog features
+- CLI guide includes `validate` command and logging options
+- MCP server usage docs include automatic validation section
+
+### Documentation
+- Added `docs/validation.md` comprehensive validation guide
+- Updated `docs/guide/cli.md` with validate command and logging flags
+- Updated `docs/index.md` with new features
+- Updated `docs/mcp-server/usage.md` with validation examples
+- Added Validation page to User Guide navigation in `mkdocs.yml`
+
 ## [0.6.1] - 2025-12-29
 
 ### Fixed
@@ -215,9 +268,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md for AI assistant context
 - Example configurations and diagrams
 
-[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.6.1...HEAD
-[0.6.1]: https://github.com/nordstad/PinViz/compare/v0.6.1...v0.6.1
-[0.6.0]: https://github.com/nordstad/PinViz/compare/v0.6.0...v0.6.0
+[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/nordstad/PinViz/compare/v0.6.1...v0.7.0
+[0.6.1]: https://github.com/nordstad/PinViz/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/nordstad/PinViz/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/nordstad/PinViz/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/nordstad/PinViz/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/nordstad/PinViz/compare/v0.3.0...v0.4.0
