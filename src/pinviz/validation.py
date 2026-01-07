@@ -116,9 +116,7 @@ class DiagramValidator:
         for conn in diagram.connections:
             if conn.board_pin not in pin_usage:
                 pin_usage[conn.board_pin] = []
-            pin_usage[conn.board_pin].append(
-                f"{conn.device_name}.{conn.device_pin_name}"
-            )
+            pin_usage[conn.board_pin].append(f"{conn.device_name}.{conn.device_pin_name}")
 
         # Check for conflicts (ignore power/ground pins which can be shared)
         for pin_num, devices in pin_usage.items():
@@ -187,9 +185,7 @@ class DiagramValidator:
             if not board_pin:
                 continue
 
-            device = next(
-                (d for d in diagram.devices if d.name == conn.device_name), None
-            )
+            device = next((d for d in diagram.devices if d.name == conn.device_name), None)
             if not device:
                 continue
 
@@ -198,10 +194,7 @@ class DiagramValidator:
                 continue
 
             # Check power pin compatibility
-            if (
-                board_pin.role == PinRole.POWER_5V
-                and device_pin.role == PinRole.POWER_3V3
-            ):
+            if board_pin.role == PinRole.POWER_5V and device_pin.role == PinRole.POWER_3V3:
                 issues.append(
                     ValidationIssue(
                         level=ValidationLevel.ERROR,
@@ -210,16 +203,12 @@ class DiagramValidator:
                             f"'{device_pin.name}' on {conn.device_name}"
                         ),
                         location=(
-                            f"Pin {conn.board_pin} → "
-                            f"{conn.device_name}.{conn.device_pin_name}"
+                            f"Pin {conn.board_pin} → {conn.device_name}.{conn.device_pin_name}"
                         ),
                     )
                 )
 
-            if (
-                board_pin.role == PinRole.POWER_3V3
-                and device_pin.role == PinRole.POWER_5V
-            ):
+            if board_pin.role == PinRole.POWER_3V3 and device_pin.role == PinRole.POWER_5V:
                 issues.append(
                     ValidationIssue(
                         level=ValidationLevel.WARNING,
@@ -229,8 +218,7 @@ class DiagramValidator:
                             "(device may not function properly)"
                         ),
                         location=(
-                            f"Pin {conn.board_pin} → "
-                            f"{conn.device_name}.{conn.device_pin_name}"
+                            f"Pin {conn.board_pin} → {conn.device_name}.{conn.device_pin_name}"
                         ),
                     )
                 )
@@ -279,8 +267,7 @@ class DiagramValidator:
                     ValidationIssue(
                         level=ValidationLevel.WARNING,
                         message=(
-                            f"I2C address conflict at 0x{addr:02X}: "
-                            f"{device_list} (default address)"
+                            f"I2C address conflict at 0x{addr:02X}: {device_list} (default address)"
                         ),
                         location="I2C Bus",
                     )
@@ -300,9 +287,7 @@ class DiagramValidator:
         for conn in diagram.connections:
             board_pin = diagram.board.get_pin_by_number(conn.board_pin)
             if board_pin and board_pin.role == PinRole.GPIO:
-                gpio_load_count[conn.board_pin] = (
-                    gpio_load_count.get(conn.board_pin, 0) + 1
-                )
+                gpio_load_count[conn.board_pin] = gpio_load_count.get(conn.board_pin, 0) + 1
 
         # Warn if multiple devices on one GPIO (likely current issue)
         for pin_num, count in gpio_load_count.items():
@@ -341,9 +326,7 @@ class DiagramValidator:
                 continue
 
             # Check device exists
-            device = next(
-                (d for d in diagram.devices if d.name == conn.device_name), None
-            )
+            device = next((d for d in diagram.devices if d.name == conn.device_name), None)
             if not device:
                 issues.append(
                     ValidationIssue(
@@ -361,8 +344,7 @@ class DiagramValidator:
                     ValidationIssue(
                         level=ValidationLevel.ERROR,
                         message=(
-                            f"Pin '{conn.device_pin_name}' not found on "
-                            f"device '{conn.device_name}'"
+                            f"Pin '{conn.device_pin_name}' not found on device '{conn.device_name}'"
                         ),
                         location=f"Connection #{i}",
                     )

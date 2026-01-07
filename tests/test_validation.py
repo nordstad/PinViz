@@ -1,6 +1,5 @@
 """Tests for validation module."""
 
-
 from pinviz import boards
 from pinviz.devices import bh1750_light_sensor, generic_i2c_device, simple_led
 from pinviz.model import Connection, Device, DevicePin, Diagram, PinRole, Point
