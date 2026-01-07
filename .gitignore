@@ -57,3 +57,7 @@ examples/*_test.yaml
 scripts/demos/*.yaml
 scripts/demos/*.svg
 scripts/*.svg
+# Demo files
+bad_wiring.yaml
+fixed_wiring.yaml
+fixed.svg

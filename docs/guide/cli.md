@@ -60,6 +60,43 @@ pinviz example bh1750 -o bh1750.svg
 pinviz example ir_led -o ir_led.svg
 ```
 
+### Validate a Configuration
+
+Check your diagram configuration for wiring errors and safety issues:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/validation_demo.gif" alt="PinViz Validation Demo" width="800">
+</p>
+
+```bash
+pinviz validate CONFIG_FILE [--strict]
+```
+
+**Arguments:**
+
+- `CONFIG_FILE` - Path to YAML or JSON configuration file
+- `--strict` - Treat warnings as errors (exits with code 1)
+
+**Examples:**
+
+```bash
+# Validate diagram configuration
+pinviz validate my-diagram.yaml
+
+# Strict mode - warnings cause failure
+pinviz validate my-diagram.yaml --strict
+```
+
+**Validation checks for:**
+
+- Duplicate GPIO pin assignments (ERROR)
+- I2C address conflicts (WARNING)
+- Voltage mismatches (ERROR/WARNING)
+- GPIO current limits (WARNING)
+- Invalid pins or devices (ERROR)
+
+See the [Validation Guide](../validation.md) for detailed information.
+
 ### List Templates
 
 List all available board and device templates:
@@ -83,6 +120,28 @@ This displays:
 
 - `--help` - Show help message and exit
 - `--version` - Show version and exit
+- `--log-level LEVEL` - Set logging level (DEBUG, INFO, WARNING, ERROR; default: WARNING)
+- `--log-format FORMAT` - Set log format (`json` or `console`; default: console)
+
+### Logging Examples
+
+```bash
+# Enable INFO level logging to see validation details
+pinviz --log-level INFO render my-diagram.yaml
+
+# Debug logging for troubleshooting
+pinviz --log-level DEBUG validate my-diagram.yaml
+
+# JSON format for machine-readable logs
+pinviz --log-format json render my-diagram.yaml
+```
+
+PinViz uses [structlog](https://www.structlog.org/) for structured logging. Log messages include:
+
+- Event name and level
+- Contextual information (file paths, device names, pin numbers)
+- Timestamps
+- Call site information (file, function, line number)
 
 ## Exit Codes
 
@@ -96,6 +155,8 @@ Currently, PinViz does not use any environment variables.
 
 ## See Also
 
+- [Validation Guide](../validation.md)
 - [YAML Configuration Guide](yaml-config.md)
 - [Python API Guide](python-api.md)
 - [Examples](examples.md)
+- [MCP Server](../mcp-server/index.md)

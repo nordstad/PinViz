@@ -326,6 +326,62 @@ Notes:
   - Conflicts: None
 ```
 
+#### Automatic Validation
+
+The `generate_diagram` tool automatically validates the generated wiring for safety issues. The response includes comprehensive validation results:
+
+```json
+{
+  "status": "success",
+  "validation_status": "passed",  // or "warning" or "failed"
+  "validation_message": "All validation checks passed.",
+  "validation": {
+    "total_issues": 0,
+    "errors": [],    // Hardware damage risks
+    "warnings": [],  // Should be reviewed
+    "info": []       // Informational notes
+  },
+  "yaml_content": "...",
+  ...
+}
+```
+
+**Validation Status Values:**
+
+- `"passed"` - No issues detected, safe to use
+- `"warning"` - Warnings found, review before using
+- `"failed"` - Errors found, DO NOT use (hardware damage risk)
+
+**Validation Checks:**
+
+1. **Pin Conflicts** (ERROR) - Multiple devices on same GPIO
+2. **I2C Address Conflicts** (WARNING) - Same address on same bus
+3. **Voltage Mismatches** (ERROR/WARNING) - 5V/3.3V incompatibility
+4. **Current Limits** (WARNING) - GPIO overload (16mA per pin)
+5. **Connection Validity** (ERROR) - Invalid pins or devices
+
+**Example with validation errors:**
+
+```json
+{
+  "status": "error",
+  "validation_status": "failed",
+  "validation_message": "Diagram has 1 validation error(s)...",
+  "validation": {
+    "total_issues": 2,
+    "errors": [
+      "⚠️  Error: Pin 11 (GPIO17) used by multiple devices: LED1.+, LED2.+"
+    ],
+    "warnings": [
+      "⚠️  Warning: GPIO GPIO17 driving 2 devices (max current: 16mA per pin)"
+    ],
+    "info": []
+  }
+}
+```
+
+See the [Validation Guide](../validation.md) for detailed information about validation checks.
+
 ### 5. parse_device_from_url
 
 **Description:** Extract device specifications from a datasheet URL
