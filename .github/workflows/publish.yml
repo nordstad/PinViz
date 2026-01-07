@@ -38,20 +38,181 @@ jobs:
           # Install the built wheel
           uv pip install dist/*.whl
 
-          # Test CLI installation and basic commands
+          echo "=========================================="
+          echo "PRE-PUBLISH SMOKE TESTS"
+          echo "Testing all features (existing + v0.7.0)"
+          echo "=========================================="
+
+          # Test 1: CLI installation and basic commands
+          echo ""
+          echo "[1/10] Testing CLI installation..."
           uv run pinviz --version
-          uv run pinviz list
+          uv run pinviz list | grep -q "raspberry_pi_5" || (echo "✗ Board list missing" && exit 1)
+          uv run pinviz list | grep -q "bh1750" || (echo "✗ Device templates missing" && exit 1)
+          echo "✓ CLI commands work"
 
-          # Test example generation
+          # Test 2: All built-in examples
+          echo ""
+          echo "[2/10] Testing all built-in examples..."
           uv run pinviz example bh1750 -o bh1750_ci.svg
+          uv run pinviz example ir_led -o ir_led_ci.svg
+          uv run pinviz example i2c_spi -o i2c_spi_ci.svg
+          test -f bh1750_ci.svg || (echo "✗ BH1750 example failed" && exit 1)
+          test -f ir_led_ci.svg || (echo "✗ IR LED example failed" && exit 1)
+          test -f i2c_spi_ci.svg || (echo "✗ I2C/SPI example failed" && exit 1)
+          echo "✓ All examples work"
 
-          # Verify the SVG file was created
-          test -f bh1750_ci.svg || (echo "Failed to generate example SVG" && exit 1)
+          # Test 3: Board aliases
+          echo ""
+          echo "[3/10] Testing board aliases..."
+          cat > alias_test.yaml << 'EOF'
+          title: "Alias Test"
+          board: "rpizero"
+          devices:
+            - type: "led"
+              name: "LED"
+          connections:
+            - board_pin: 11
+              device: "LED"
+              device_pin: "+"
+            - board_pin: 9
+              device: "LED"
+              device_pin: "-"
+          EOF
+          uv run pinviz render alias_test.yaml -o alias_test.svg || (echo "✗ Board alias failed" && exit 1)
+          echo "✓ Board aliases work"
 
-          # Test MCP server installation
-          uv run pinviz-mcp --version || (echo "Failed to run MCP server" && exit 1)
+          # Test 4: MCP server installation
+          echo ""
+          echo "[4/10] Testing MCP server..."
+          uv run pinviz-mcp --version || (echo "✗ Failed to run MCP server" && exit 1)
+          echo "✓ MCP server works"
 
-          echo "✓ Local smoke tests passed"
+          # Test 5: Validation command (valid config)
+          echo ""
+          echo "[5/10] Testing validation with valid config..."
+          cat > valid_config.yaml << 'EOF'
+          title: "Valid Test"
+          board: "rpi5"
+          devices:
+            - type: "i2c"
+              name: "Sensor"
+          connections:
+            - board_pin: 1
+              device: "Sensor"
+              device_pin: "VCC"
+            - board_pin: 3
+              device: "Sensor"
+              device_pin: "SDA"
+            - board_pin: 5
+              device: "Sensor"
+              device_pin: "SCL"
+            - board_pin: 6
+              device: "Sensor"
+              device_pin: "GND"
+          EOF
+          uv run pinviz validate valid_config.yaml || (echo "✗ Validation failed on valid config" && exit 1)
+          echo "✓ Valid config validation works"
+
+          # Test 6: Validation command (invalid config - pin conflict)
+          echo ""
+          echo "[6/10] Testing validation with invalid config..."
+          cat > invalid_config.yaml << 'EOF'
+          title: "Invalid Test"
+          board: "rpi5"
+          devices:
+            - type: "led"
+              name: "LED1"
+            - type: "led"
+              name: "LED2"
+          connections:
+            - board_pin: 11
+              device: "LED1"
+              device_pin: "+"
+            - board_pin: 11
+              device: "LED2"
+              device_pin: "+"
+            - board_pin: 9
+              device: "LED1"
+              device_pin: "-"
+            - board_pin: 9
+              device: "LED2"
+              device_pin: "-"
+          EOF
+          if uv run pinviz validate invalid_config.yaml; then
+            echo "✗ Validation should have failed on invalid config"
+            exit 1
+          else
+            echo "✓ Invalid config validation works (exit code: $?)"
+          fi
+
+          # Test 7: Structured logging flags
+          echo ""
+          echo "[7/10] Testing structured logging..."
+          uv run pinviz --log-level INFO render valid_config.yaml -o test_info.svg 2>&1 | grep -q "info" || (echo "✗ INFO logging failed" && exit 1)
+          uv run pinviz --log-level DEBUG render valid_config.yaml -o test_debug.svg 2>&1 | grep -q "debug" || (echo "✗ DEBUG logging failed" && exit 1)
+          uv run pinviz --log-level INFO --log-format json render valid_config.yaml -o test_json.svg 2>&1 | grep -q '"level": "info"' || (echo "✗ JSON logging failed" && exit 1)
+          echo "✓ Structured logging works"
+
+          # Test 8: Wire styles and colors
+          echo ""
+          echo "[8/10] Testing wire styles and custom colors..."
+          cat > wire_styles.yaml << 'EOF'
+          title: "Wire Styles Test"
+          board: "rpi5"
+          devices:
+            - type: "led"
+              name: "LED"
+          connections:
+            - board_pin: 11
+              device: "LED"
+              device_pin: "+"
+              color: "#FF0000"
+              style: "curved"
+            - board_pin: 9
+              device: "LED"
+              device_pin: "-"
+              style: "orthogonal"
+          EOF
+          uv run pinviz render wire_styles.yaml -o wire_styles.svg || (echo "✗ Wire styles failed" && exit 1)
+          echo "✓ Wire styles and colors work"
+
+          # Test 9: Legend and GPIO reference
+          echo ""
+          echo "[9/10] Testing legend generation..."
+          cat > legend_test.yaml << 'EOF'
+          title: "Legend Test"
+          board: "rpi5"
+          devices:
+            - type: "i2c"
+              name: "Sensor"
+          connections:
+            - board_pin: 1
+              device: "Sensor"
+              device_pin: "VCC"
+            - board_pin: 3
+              device: "Sensor"
+              device_pin: "SDA"
+          show_legend: true
+          EOF
+          uv run pinviz render legend_test.yaml -o legend_test.svg || (echo "✗ Legend generation failed" && exit 1)
+          grep -q "legend" legend_test.svg || echo "Warning: Legend may not be in SVG"
+          echo "✓ Legend generation works"
+
+          # Test 10: Automatic validation during render
+          echo ""
+          echo "[10/10] Testing automatic validation during render..."
+          if uv run pinviz render invalid_config.yaml -o should_fail.svg 2>&1; then
+            echo "✗ Render should have failed due to validation errors"
+            exit 1
+          else
+            echo "✓ Automatic validation during render works"
+          fi
+
+          echo ""
+          echo "=========================================="
+          echo "✓ All pre-publish smoke tests passed!"
+          echo "=========================================="
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -192,17 +353,32 @@ jobs:
 
       - name: Verify CLI installation
         run: |
-          uv run pinviz --version
-          uv run pinviz list
+          echo "=========================================="
+          echo "POST-PUBLISH INTEGRATION TESTS"
+          echo "Python ${{ matrix.python-version }}"
+          echo "Testing all features (existing + v0.7.0)"
+          echo "=========================================="
+          echo ""
+          echo "[1/11] Verifying CLI installation..."
+          VERSION=$(uv run pinviz --version)
+          echo "Installed: $VERSION"
+          uv run pinviz list | grep -q "raspberry_pi_5" || (echo "✗ Board list missing" && exit 1)
+          uv run pinviz list | grep -q "raspberry_pi_zero_2w" || (echo "✗ Pi Zero missing" && exit 1)
+          uv run pinviz list | grep -q "bh1750" || (echo "✗ Device templates missing" && exit 1)
           uv run pinviz-mcp --version
+          echo "✓ CLI installation verified"
 
-      - name: Test basic functionality
+      - name: Test basic Python API
         run: |
-          # Test that we can import the package
+          echo ""
+          echo "[2/11] Testing basic Python API..."
+          # Test core imports
           uv run python -c "from pinviz import boards, devices, Connection, Diagram, SVGRenderer"
           uv run python -c "from pinviz import WireColor, ComponentType, Component"
+          uv run python -c "from pinviz.validation import DiagramValidator, ValidationLevel"
+          uv run python -c "from pinviz.logging_config import configure_logging"
 
-          # Test that we can create a simple diagram
+          # Test simple diagram creation
           uv run python -c "
           from pinviz import boards, devices, Connection, Diagram, SVGRenderer
 
@@ -215,16 +391,354 @@ jobs:
           diagram = Diagram('Test', board, [led], connections)
           renderer = SVGRenderer()
           renderer.render(diagram, 'test.svg')
-          print('✓ Package works correctly')
+          print('✓ Python API works correctly')
           "
+          echo "✓ Python API functional"
 
-      - name: Test built-in examples
+      - name: Test all built-in examples
         run: |
+          echo ""
+          echo "[3/11] Testing all built-in examples..."
           uv run pinviz example bh1750 -o bh1750_test.svg
           uv run pinviz example ir_led -o ir_led_test.svg
-          if [ -f bh1750_test.svg ] && [ -f ir_led_test.svg ]; then
-            echo "✓ Example generation works"
-          else
-            echo "✗ Example generation failed"
+          uv run pinviz example i2c_spi -o i2c_spi_test.svg
+
+          # Verify all examples were created
+          for file in bh1750_test.svg ir_led_test.svg i2c_spi_test.svg; do
+            if [ ! -f "$file" ]; then
+              echo "✗ Example $file not created"
+              exit 1
+            fi
+
+            # Check file size is reasonable (> 10KB)
+            SIZE=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file")
+            if [ "$SIZE" -lt 10000 ]; then
+              echo "✗ Example $file too small ($SIZE bytes)"
+              exit 1
+            fi
+          done
+
+          echo "✓ All examples work"
+
+      - name: Test board aliases
+        run: |
+          echo ""
+          echo "[4/11] Testing board aliases..."
+
+          # Test various board aliases
+          for alias in "rpi5" "rpi" "rpizero" "zero" "pizero"; do
+            cat > "test_alias_${alias}.yaml" << EOF
+          title: "Alias Test: ${alias}"
+          board: "${alias}"
+          devices:
+            - type: "led"
+              name: "LED"
+          connections:
+            - board_pin: 11
+              device: "LED"
+              device_pin: "+"
+            - board_pin: 9
+              device: "LED"
+              device_pin: "-"
+          EOF
+            uv run pinviz render "test_alias_${alias}.yaml" -o "test_alias_${alias}.svg" || (echo "✗ Alias $alias failed" && exit 1)
+          done
+
+          echo "✓ Board aliases work"
+
+      - name: Test validation with valid config
+        run: |
+          echo ""
+          echo "[5/11] Testing validation with valid config..."
+          cat > valid_config.yaml << 'EOF'
+          title: "Valid Test"
+          board: "rpi5"
+          devices:
+            - type: "bh1750"
+              name: "Sensor"
+          connections:
+            - board_pin: 1
+              device: "Sensor"
+              device_pin: "VCC"
+            - board_pin: 3
+              device: "Sensor"
+              device_pin: "SDA"
+            - board_pin: 5
+              device: "Sensor"
+              device_pin: "SCL"
+            - board_pin: 6
+              device: "Sensor"
+              device_pin: "GND"
+            - board_pin: 7
+              device: "Sensor"
+              device_pin: "ADDR"
+          EOF
+          uv run pinviz validate valid_config.yaml || (echo "✗ Validation failed on valid config" && exit 1)
+          uv run pinviz render valid_config.yaml -o valid_test.svg || (echo "✗ Render failed on valid config" && exit 1)
+          echo "✓ Valid config validation works"
+
+      - name: Test validation with invalid config
+        run: |
+          echo ""
+          echo "[6/11] Testing validation with invalid config..."
+          cat > invalid_config.yaml << 'EOF'
+          title: "Invalid Test - Pin Conflict"
+          board: "rpi5"
+          devices:
+            - type: "led"
+              name: "LED1"
+            - type: "led"
+              name: "LED2"
+          connections:
+            - board_pin: 11
+              device: "LED1"
+              device_pin: "+"
+            - board_pin: 11
+              device: "LED2"
+              device_pin: "+"
+            - board_pin: 9
+              device: "LED1"
+              device_pin: "-"
+            - board_pin: 9
+              device: "LED2"
+              device_pin: "-"
+          EOF
+
+          # Validation should fail
+          if uv run pinviz validate invalid_config.yaml; then
+            echo "✗ Validation should have failed on invalid config"
             exit 1
           fi
+
+          # Render should also fail due to automatic validation
+          if uv run pinviz render invalid_config.yaml -o should_fail.svg 2>&1; then
+            echo "✗ Render should have failed due to validation errors"
+            exit 1
+          fi
+
+          echo "✓ Invalid config validation works"
+
+      - name: Test structured logging
+        run: |
+          echo ""
+          echo "[7/11] Testing structured logging..."
+
+          # Test INFO level with console format
+          uv run pinviz --log-level INFO render valid_config.yaml -o test_info.svg 2>&1 | grep -q "info" || (echo "✗ INFO logging failed" && exit 1)
+
+          # Test DEBUG level
+          uv run pinviz --log-level DEBUG render valid_config.yaml -o test_debug.svg 2>&1 | grep -q "debug" || (echo "✗ DEBUG logging failed" && exit 1)
+
+          # Test JSON format
+          OUTPUT=$(uv run pinviz --log-level INFO --log-format json render valid_config.yaml -o test_json.svg 2>&1)
+          echo "$OUTPUT" | grep -q '"level": "info"' || (echo "✗ JSON logging failed" && exit 1)
+          echo "$OUTPUT" | grep -q '"event":' || (echo "✗ JSON structure missing" && exit 1)
+
+          echo "✓ Structured logging works"
+
+      - name: Test validation API
+        run: |
+          echo ""
+          echo "[8/11] Testing validation Python API..."
+          uv run python << 'EOPY'
+          from pinviz.config_loader import ConfigLoader
+          from pinviz.validation import DiagramValidator, ValidationLevel
+
+          # Test valid config
+          valid_config = {
+              'title': 'API Test',
+              'board': 'rpi5',
+              'devices': [{'type': 'i2c', 'name': 'Sensor'}],
+              'connections': [
+                  {'board_pin': 1, 'device': 'Sensor', 'device_pin': 'VCC'},
+                  {'board_pin': 3, 'device': 'Sensor', 'device_pin': 'SDA'},
+              ]
+          }
+
+          loader = ConfigLoader()
+          diagram = loader.load_from_dict(valid_config)
+          validator = DiagramValidator()
+          issues = validator.validate(diagram)
+
+          errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+          if len(errors) > 0:
+              print(f"✗ Valid config generated {len(errors)} errors")
+              exit(1)
+
+          # Test invalid config
+          invalid_config = {
+              'title': 'API Test Invalid',
+              'board': 'rpi5',
+              'devices': [
+                  {'type': 'led', 'name': 'LED1'},
+                  {'type': 'led', 'name': 'LED2'},
+              ],
+              'connections': [
+                  {'board_pin': 11, 'device': 'LED1', 'device_pin': '+'},
+                  {'board_pin': 11, 'device': 'LED2', 'device_pin': '+'},
+              ]
+          }
+
+          diagram = loader.load_from_dict(invalid_config)
+          issues = validator.validate(diagram)
+          errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+
+          if len(errors) == 0:
+              print("✗ Invalid config should have generated errors")
+              exit(1)
+
+          if "Pin 11" not in errors[0].message:
+              print("✗ Error message missing pin information")
+              exit(1)
+
+          print("✓ Validation API works correctly")
+          EOPY
+          echo "✓ Validation API functional"
+
+      - name: Test board and device templates
+        run: |
+          echo ""
+          echo "[9/11] Testing board and device templates..."
+          uv run python << 'EOPY'
+          from pinviz import boards, devices
+
+          # Test boards
+          rpi5 = boards.raspberry_pi_5()
+          rpizero = boards.raspberry_pi_zero_2w()
+          assert len(rpi5.pins) == 40, "Raspberry Pi 5 should have 40 pins"
+          assert len(rpizero.pins) == 40, "Pi Zero 2 W should have 40 pins"
+
+          # Test devices
+          bh1750 = devices.bh1750_light_sensor()
+          led = devices.simple_led()
+          button = devices.button_switch()
+          ds18b20 = devices.ds18b20_temp_sensor()
+
+          assert len(bh1750.pins) == 5, "BH1750 should have 5 pins"
+          assert len(led.pins) == 2, "LED should have 2 pins"
+          assert len(button.pins) == 2, "Button should have 2 pins"
+          assert len(ds18b20.pins) == 3, "DS18B20 should have 3 pins"
+
+          print("✓ All templates functional")
+          EOPY
+          echo "✓ Board and device templates work"
+
+      - name: Test wire styles and colors
+        run: |
+          echo ""
+          echo "[10/11] Testing wire styles and custom colors..."
+
+          cat > wire_test.yaml << 'EOF'
+          title: "Wire Styles Test"
+          board: "rpi5"
+          devices:
+            - type: "led"
+              name: "Red LED"
+            - type: "led"
+              name: "Green LED"
+          connections:
+            - board_pin: 11
+              device: "Red LED"
+              device_pin: "+"
+              color: "#FF0000"
+              style: "curved"
+            - board_pin: 13
+              device: "Green LED"
+              device_pin: "+"
+              color: "#00FF00"
+              style: "orthogonal"
+            - board_pin: 9
+              device: "Red LED"
+              device_pin: "-"
+              style: "mixed"
+            - board_pin: 14
+              device: "Green LED"
+              device_pin: "-"
+          show_legend: true
+          EOF
+
+          uv run pinviz render wire_test.yaml -o wire_test.svg || (echo "✗ Wire styles failed" && exit 1)
+
+          # Verify custom colors in SVG
+          grep -q "#FF0000" wire_test.svg || echo "Warning: Red color not found"
+          grep -q "#00FF00" wire_test.svg || echo "Warning: Green color not found"
+
+          echo "✓ Wire styles and colors work"
+
+      - name: Test comprehensive scenario
+        run: |
+          echo ""
+          echo "[11/11] Testing comprehensive scenario..."
+
+          # Create a realistic multi-device config
+          cat > comprehensive_test.yaml << 'EOF'
+          title: "Multi-Device Test"
+          board: "raspberry_pi_5"
+          devices:
+            - type: "bh1750"
+              name: "Light"
+            - type: "ds18b20"
+              name: "Temp"
+            - type: "led"
+              name: "Status"
+          connections:
+            # BH1750 (I2C)
+            - board_pin: 1
+              device: "Light"
+              device_pin: "VCC"
+            - board_pin: 3
+              device: "Light"
+              device_pin: "SDA"
+            - board_pin: 5
+              device: "Light"
+              device_pin: "SCL"
+            - board_pin: 9
+              device: "Light"
+              device_pin: "GND"
+            - board_pin: 7
+              device: "Light"
+              device_pin: "ADDR"
+            # DS18B20 (1-Wire)
+            - board_pin: 1
+              device: "Temp"
+              device_pin: "VDD"
+            - board_pin: 7
+              device: "Temp"
+              device_pin: "DQ"
+            - board_pin: 9
+              device: "Temp"
+              device_pin: "GND"
+            # LED
+            - board_pin: 13
+              device: "Status"
+              device_pin: "+"
+            - board_pin: 14
+              device: "Status"
+              device_pin: "-"
+          EOF
+
+          # Validate
+          uv run pinviz validate comprehensive_test.yaml || (echo "✗ Comprehensive validation failed" && exit 1)
+
+          # Render with INFO logging
+          uv run pinviz --log-level INFO render comprehensive_test.yaml -o comprehensive.svg || (echo "✗ Comprehensive render failed" && exit 1)
+
+          # Verify SVG was created and has reasonable size
+          if [ ! -f comprehensive.svg ]; then
+            echo "✗ Comprehensive SVG not created"
+            exit 1
+          fi
+
+          SIZE=$(stat -f%z comprehensive.svg 2>/dev/null || stat -c%s comprehensive.svg)
+          if [ "$SIZE" -lt 50000 ]; then
+            echo "✗ SVG file too small ($SIZE bytes)"
+            exit 1
+          fi
+
+          echo "✓ Comprehensive scenario works"
+
+          echo ""
+          echo "=========================================="
+          echo "✓ ALL POST-PUBLISH TESTS PASSED!"
+          echo "Python ${{ matrix.python-version }}"
+          echo "=========================================="
