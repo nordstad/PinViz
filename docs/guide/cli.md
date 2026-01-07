@@ -64,6 +64,10 @@ pinviz example ir_led -o ir_led.svg
 
 Check your diagram configuration for wiring errors and safety issues:
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/validation_demo.gif" alt="PinViz Validation Demo" width="800">
+</p>
+
 ```bash
 pinviz validate CONFIG_FILE [--strict]
 ```
