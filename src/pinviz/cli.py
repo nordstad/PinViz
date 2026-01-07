@@ -10,6 +10,7 @@ from rich_argparse import RichHelpFormatter
 from .config_loader import load_diagram
 from .model import Diagram
 from .render_svg import SVGRenderer
+from .validation import DiagramValidator, ValidationLevel
 
 
 class CustomHelpFormatter(RichHelpFormatter):
@@ -53,6 +54,7 @@ def main() -> int:
             "Examples:",
             "  pinviz render diagram.yaml                     # Generate diagram from YAML config",
             "  pinviz render diagram.yaml -o out/wiring.svg   # Specify output path",
+            "  pinviz validate diagram.yaml                   # Validate wiring configuration",
             "  pinviz example bh1750                          # Use a built-in example",
             "  pinviz list                                     # List available templates",
             "",
@@ -149,6 +151,23 @@ def main() -> int:
     )
     example_parser.set_defaults(show_gpio=True)  # Examples default to showing GPIO
 
+    # Validate command
+    validate_parser = subparsers.add_parser(
+        "validate",
+        help="Validate a diagram configuration",
+        description="Check for wiring mistakes, pin conflicts, and compatibility issues",
+    )
+    validate_parser.add_argument(
+        "config",
+        metavar="CONFIG_FILE",
+        help="Path to YAML or JSON configuration file",
+    )
+    validate_parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Treat warnings as errors (exit with error code if warnings found)",
+    )
+
     # List command
     subparsers.add_parser(
         "list",
@@ -163,6 +182,8 @@ def main() -> int:
         return render_command(args)
     elif args.command == "example":
         return example_command(args)
+    elif args.command == "validate":
+        return validate_command(args)
     elif args.command == "list":
         return list_command()
     else:
@@ -188,6 +209,31 @@ def render_command(args: Any) -> int:
         print(f"Loading configuration from {config_path}...")
         diagram = load_diagram(config_path)
 
+        # Validate diagram and show warnings
+        validator = DiagramValidator()
+        issues = validator.validate(diagram)
+
+        if issues:
+            print("\nValidation Issues:")
+            errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+            warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
+            infos = [i for i in issues if i.level == ValidationLevel.INFO]
+
+            for issue in errors:
+                print(f"  {issue}")
+            for issue in warnings:
+                print(f"  {issue}")
+            for issue in infos:
+                print(f"  {issue}")
+
+            if errors:
+                print(f"\n❌ Found {len(errors)} error(s). Cannot generate diagram.")
+                return 1
+
+            if warnings:
+                print(f"\n⚠️  Found {len(warnings)} warning(s). Review your wiring carefully.")
+            print()
+
         # Override show_gpio_diagram if CLI flag is specified
         if hasattr(args, "show_gpio") and args.show_gpio is not None:
             from dataclasses import replace
@@ -199,6 +245,65 @@ def render_command(args: Any) -> int:
         renderer.render(diagram, output_path)
 
         print(f"✓ Diagram generated successfully: {output_path}")
+        return 0
+
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        import traceback
+
+        traceback.print_exc()
+        return 1
+
+
+def validate_command(args: Any) -> int:
+    """Validate a diagram configuration."""
+    config_path = Path(args.config)
+
+    if not config_path.exists():
+        print(f"Error: Configuration file not found: {config_path}", file=sys.stderr)
+        return 1
+
+    try:
+        print(f"Validating configuration: {config_path}")
+        diagram = load_diagram(config_path)
+
+        validator = DiagramValidator()
+        issues = validator.validate(diagram)
+
+        if not issues:
+            print("\n✓ Validation passed! No issues found.")
+            print("✓ Current limits OK")
+            return 0
+
+        # Categorize issues
+        errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+        warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
+        infos = [i for i in issues if i.level == ValidationLevel.INFO]
+
+        # Display all issues
+        print()
+        for issue in errors:
+            print(issue)
+        for issue in warnings:
+            print(issue)
+        for issue in infos:
+            print(issue)
+
+        # Summary
+        print()
+        error_count = len(errors)
+        warning_count = len(warnings)
+
+        if error_count > 0 or warning_count > 0:
+            print(f"Found {error_count} error(s), {warning_count} warning(s)")
+
+        # Return appropriate exit code
+        if errors:
+            return 1
+        if warnings and args.strict:
+            print("\n❌ Treating warnings as errors (--strict mode)")
+            return 1
+
         return 0
 
     except Exception as e:

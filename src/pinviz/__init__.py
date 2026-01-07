@@ -17,8 +17,15 @@ from .model import (
     WireStyle,
 )
 from .render_svg import SVGRenderer
+from .validation import DiagramValidator, ValidationIssue, ValidationLevel
 
-__version__ = "0.1.0"
+# Get version from package metadata
+try:
+    from importlib.metadata import version
+
+    __version__ = version("pinviz")
+except Exception:
+    __version__ = "unknown"
 
 __all__ = [
     # Core models
@@ -41,4 +48,8 @@ __all__ = [
     "load_diagram",
     # Renderer
     "SVGRenderer",
+    # Validation
+    "DiagramValidator",
+    "ValidationIssue",
+    "ValidationLevel",
 ]

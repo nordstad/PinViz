@@ -154,10 +154,10 @@ connections:
     device_pin: "SCL"
   - board_pin: 2
     device: "Status LED"
-    device_pin: "Anode"
+    device_pin: "+"
   - board_pin: 9
     device: "Status LED"
-    device_pin: "Cathode"
+    device_pin: "-"
 show_legend: true
 """
     config_path = temp_output_dir / "test_config.yaml"
