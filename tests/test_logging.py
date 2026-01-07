@@ -1,14 +1,8 @@
 """Tests for structured logging functionality."""
 
-import json
 import logging
 import sys
-from io import StringIO
-from pathlib import Path
 from unittest.mock import patch
-
-import pytest
-import structlog
 
 from pinviz.cli import main
 from pinviz.logging_config import configure_logging, get_logger
@@ -56,7 +50,7 @@ class TestLoggingConfiguration:
         """Test different log levels."""
         for level in ["DEBUG", "INFO", "WARNING", "ERROR"]:
             configure_logging(level=level, format="json")
-            log = get_logger(__name__)
+            get_logger(__name__)  # Initialize logger
 
             # Verify logger level is set
             stdlib_logger = logging.getLogger("pinviz")
@@ -152,21 +146,20 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with caplog.at_level(logging.INFO):
-            with patch.object(
-                sys,
-                "argv",
-                [
-                    "pinviz",
-                    "--log-level",
-                    "INFO",
-                    "render",
-                    str(config_file),
-                    "-o",
-                    str(output_file),
-                ],
-            ):
-                result = main()
+        with caplog.at_level(logging.INFO), patch.object(
+            sys,
+            "argv",
+            [
+                "pinviz",
+                "--log-level",
+                "INFO",
+                "render",
+                str(config_file),
+                "-o",
+                str(output_file),
+            ],
+        ):
+            result = main()
 
         assert result == 0
         # Verify INFO level logs were emitted
@@ -194,21 +187,20 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with caplog.at_level(logging.DEBUG):
-            with patch.object(
-                sys,
-                "argv",
-                [
-                    "pinviz",
-                    "--log-level",
-                    "DEBUG",
-                    "render",
-                    str(config_file),
-                    "-o",
-                    str(output_file),
-                ],
-            ):
-                result = main()
+        with caplog.at_level(logging.DEBUG), patch.object(
+            sys,
+            "argv",
+            [
+                "pinviz",
+                "--log-level",
+                "DEBUG",
+                "render",
+                str(config_file),
+                "-o",
+                str(output_file),
+            ],
+        ):
+            result = main()
 
         assert result == 0
         # Verify DEBUG level logs were emitted
@@ -324,21 +316,20 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with caplog.at_level(logging.INFO):
-            with patch.object(
-                sys,
-                "argv",
-                [
-                    "pinviz",
-                    "--log-level",
-                    "INFO",
-                    "render",
-                    str(config_file),
-                    "-o",
-                    str(output_file),
-                ],
-            ):
-                result = main()
+        with caplog.at_level(logging.INFO), patch.object(
+            sys,
+            "argv",
+            [
+                "pinviz",
+                "--log-level",
+                "INFO",
+                "render",
+                str(config_file),
+                "-o",
+                str(output_file),
+            ],
+        ):
+            result = main()
 
         assert result == 0
         # Verify that INFO level logs were emitted during rendering
@@ -363,19 +354,18 @@ connections:
 """
         )
 
-        with caplog.at_level(logging.INFO):
-            with patch.object(
-                sys,
-                "argv",
-                [
-                    "pinviz",
-                    "--log-level",
-                    "INFO",
-                    "validate",
-                    str(config_file),
-                ],
-            ):
-                result = main()
+        with caplog.at_level(logging.INFO), patch.object(
+            sys,
+            "argv",
+            [
+                "pinviz",
+                "--log-level",
+                "INFO",
+                "validate",
+                str(config_file),
+            ],
+        ):
+            result = main()
 
         assert result == 0
         # Verify validation logging occurred
@@ -386,21 +376,20 @@ connections:
         # Non-existent file
         config_file = tmp_path / "nonexistent.yaml"
 
-        with caplog.at_level(logging.ERROR):
-            with patch.object(
-                sys,
-                "argv",
-                [
-                    "pinviz",
-                    "--log-level",
-                    "ERROR",
-                    "render",
-                    str(config_file),
-                    "-o",
-                    "/tmp/out.svg",
-                ],
-            ):
-                result = main()
+        with caplog.at_level(logging.ERROR), patch.object(
+            sys,
+            "argv",
+            [
+                "pinviz",
+                "--log-level",
+                "ERROR",
+                "render",
+                str(config_file),
+                "-o",
+                "/tmp/out.svg",
+            ],
+        ):
+            result = main()
 
         assert result == 1
         # Should have error logs
@@ -488,21 +477,20 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with caplog.at_level(logging.ERROR):
-            with patch.object(
-                sys,
-                "argv",
-                [
-                    "pinviz",
-                    "--log-level",
-                    "INFO",
-                    "render",
-                    str(config_file),
-                    "-o",
-                    str(output_file),
-                ],
-            ):
-                result = main()
+        with caplog.at_level(logging.ERROR), patch.object(
+            sys,
+            "argv",
+            [
+                "pinviz",
+                "--log-level",
+                "INFO",
+                "render",
+                str(config_file),
+                "-o",
+                str(output_file),
+            ],
+        ):
+            result = main()
 
         # Should fail due to pin conflict
         assert result == 1
@@ -514,21 +502,20 @@ connections:
         """Test example command works with logging enabled."""
         output_file = tmp_path / "example.svg"
 
-        with caplog.at_level(logging.DEBUG):
-            with patch.object(
-                sys,
-                "argv",
-                [
-                    "pinviz",
-                    "--log-level",
-                    "DEBUG",
-                    "example",
-                    "bh1750",
-                    "-o",
-                    str(output_file),
-                ],
-            ):
-                result = main()
+        with caplog.at_level(logging.DEBUG), patch.object(
+            sys,
+            "argv",
+            [
+                "pinviz",
+                "--log-level",
+                "DEBUG",
+                "example",
+                "bh1750",
+                "-o",
+                str(output_file),
+            ],
+        ):
+            result = main()
 
         assert result == 0
         assert output_file.exists()
