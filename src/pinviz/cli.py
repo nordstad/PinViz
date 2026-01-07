@@ -8,6 +8,7 @@ from typing import Any
 from rich_argparse import RichHelpFormatter
 
 from .config_loader import load_diagram
+from .logging_config import configure_logging, get_logger
 from .model import Diagram
 from .render_svg import SVGRenderer
 from .validation import DiagramValidator, ValidationLevel
@@ -77,6 +78,20 @@ def main() -> int:
         "--version",
         action="version",
         version=f"%(prog)s {__version__}",
+    )
+
+    # Global logging options
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        default="WARNING",
+        help="Set logging verbosity (default: WARNING)",
+    )
+    parser.add_argument(
+        "--log-format",
+        choices=["json", "console"],
+        default="console",
+        help="Log output format: json (machine-readable) or console (human-readable)",
     )
 
     subparsers = parser.add_subparsers(
@@ -177,6 +192,12 @@ def main() -> int:
 
     args = parser.parse_args()
 
+    # Configure logging based on CLI arguments
+    configure_logging(level=args.log_level, format=args.log_format)
+    log = get_logger(__name__)
+
+    log.debug("cli_started", command=args.command, args=vars(args))
+
     # Handle commands
     if args.command == "render":
         return render_command(args)
@@ -193,9 +214,15 @@ def main() -> int:
 
 def render_command(args: Any) -> int:
     """Render a diagram from a configuration file."""
+    log = get_logger(__name__)
     config_path = Path(args.config)
 
     if not config_path.exists():
+        log.error(
+            "config_file_not_found",
+            config_path=str(config_path),
+            cwd=str(Path.cwd()),
+        )
         print(f"Error: Configuration file not found: {config_path}", file=sys.stderr)
         return 1
 
@@ -206,8 +233,16 @@ def render_command(args: Any) -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
+        log.info("loading_config", config_path=str(config_path))
         print(f"Loading configuration from {config_path}...")
         diagram = load_diagram(config_path)
+
+        log.debug(
+            "config_loaded",
+            device_count=len(diagram.devices),
+            connection_count=len(diagram.connections),
+            board=diagram.board.name,
+        )
 
         # Validate diagram and show warnings
         validator = DiagramValidator()
@@ -219,6 +254,14 @@ def render_command(args: Any) -> int:
             warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
             infos = [i for i in issues if i.level == ValidationLevel.INFO]
 
+            log.info(
+                "validation_completed",
+                total_issues=len(issues),
+                errors=len(errors),
+                warnings=len(warnings),
+                infos=len(infos),
+            )
+
             for issue in errors:
                 print(f"  {issue}")
             for issue in warnings:
@@ -227,10 +270,12 @@ def render_command(args: Any) -> int:
                 print(f"  {issue}")
 
             if errors:
+                log.error("validation_failed", error_count=len(errors))
                 print(f"\n❌ Found {len(errors)} error(s). Cannot generate diagram.")
                 return 1
 
             if warnings:
+                log.warning("validation_warnings", warning_count=len(warnings))
                 print(f"\n⚠️  Found {len(warnings)} warning(s). Review your wiring carefully.")
             print()
 
@@ -239,38 +284,59 @@ def render_command(args: Any) -> int:
             from dataclasses import replace
 
             diagram = replace(diagram, show_gpio_diagram=args.show_gpio)
+            log.debug("gpio_diagram_override", show_gpio=args.show_gpio)
 
+        log.info("rendering_started", output_path=str(output_path))
         print(f"Rendering diagram to {output_path}...")
         renderer = SVGRenderer()
         renderer.render(diagram, output_path)
 
+        log.info("diagram_generated", output_path=str(output_path))
         print(f"✓ Diagram generated successfully: {output_path}")
         return 0
 
     except Exception as e:
+        log.exception(
+            "render_failed",
+            config_path=str(config_path),
+            output_path=str(output_path),
+            error_type=type(e).__name__,
+            error_message=str(e),
+        )
         print(f"Error: {e}", file=sys.stderr)
-        import traceback
-
-        traceback.print_exc()
         return 1
 
 
 def validate_command(args: Any) -> int:
     """Validate a diagram configuration."""
+    log = get_logger(__name__)
     config_path = Path(args.config)
 
     if not config_path.exists():
+        log.error(
+            "config_file_not_found",
+            config_path=str(config_path),
+            cwd=str(Path.cwd()),
+        )
         print(f"Error: Configuration file not found: {config_path}", file=sys.stderr)
         return 1
 
     try:
+        log.info("validation_started", config_path=str(config_path), strict_mode=args.strict)
         print(f"Validating configuration: {config_path}")
         diagram = load_diagram(config_path)
+
+        log.debug(
+            "config_loaded",
+            device_count=len(diagram.devices),
+            connection_count=len(diagram.connections),
+        )
 
         validator = DiagramValidator()
         issues = validator.validate(diagram)
 
         if not issues:
+            log.info("validation_passed", config_path=str(config_path))
             print("\n✓ Validation passed! No issues found.")
             print("✓ Current limits OK")
             return 0
@@ -279,6 +345,14 @@ def validate_command(args: Any) -> int:
         errors = [i for i in issues if i.level == ValidationLevel.ERROR]
         warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
         infos = [i for i in issues if i.level == ValidationLevel.INFO]
+
+        log.info(
+            "validation_issues_found",
+            total_issues=len(issues),
+            errors=len(errors),
+            warnings=len(warnings),
+            infos=len(infos),
+        )
 
         # Display all issues
         print()
@@ -299,23 +373,31 @@ def validate_command(args: Any) -> int:
 
         # Return appropriate exit code
         if errors:
+            log.error("validation_failed", error_count=error_count)
             return 1
         if warnings and args.strict:
+            log.warning("strict_mode_warnings_as_errors", warning_count=warning_count)
             print("\n❌ Treating warnings as errors (--strict mode)")
             return 1
 
+        log.info("validation_completed_with_warnings", warning_count=warning_count)
         return 0
 
     except Exception as e:
+        log.exception(
+            "validation_error",
+            config_path=str(config_path),
+            error_type=type(e).__name__,
+            error_message=str(e),
+        )
         print(f"Error: {e}", file=sys.stderr)
-        import traceback
-
-        traceback.print_exc()
         return 1
 
 
 def example_command(args: Any) -> int:
     """Generate a built-in example diagram."""
+    log = get_logger(__name__)
+
     # Determine output path
     if args.output:
         output_path = Path(args.output)
@@ -327,6 +409,7 @@ def example_command(args: Any) -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
+        log.info("example_generation_started", example_name=args.name, output_path=str(output_path))
         print(f"Generating example diagram: {args.name}")
 
         # Create the example diagram
@@ -337,33 +420,50 @@ def example_command(args: Any) -> int:
         elif args.name == "i2c_spi":
             diagram = create_i2c_spi_example()
         else:
+            log.error("unknown_example", example_name=args.name)
             print(f"Error: Unknown example: {args.name}", file=sys.stderr)
             return 1
+
+        log.debug(
+            "example_diagram_created",
+            device_count=len(diagram.devices),
+            connection_count=len(diagram.connections),
+        )
 
         # Override show_gpio_diagram if CLI flag is explicitly specified
         if hasattr(args, "show_gpio"):
             from dataclasses import replace
 
             diagram = replace(diagram, show_gpio_diagram=args.show_gpio)
+            log.debug("gpio_diagram_override", show_gpio=args.show_gpio)
 
+        log.info("rendering_example", output_path=str(output_path))
         print(f"Rendering diagram to {output_path}...")
         renderer = SVGRenderer()
         renderer.render(diagram, output_path)
 
+        log.info("example_generated", example_name=args.name, output_path=str(output_path))
         print(f"✓ Example diagram generated successfully: {output_path}")
         return 0
 
     except Exception as e:
+        log.exception(
+            "example_generation_failed",
+            example_name=args.name,
+            output_path=str(output_path),
+            error_type=type(e).__name__,
+            error_message=str(e),
+        )
         print(f"Error: {e}", file=sys.stderr)
-        import traceback
-
-        traceback.print_exc()
         return 1
 
 
 def list_command() -> int:
     """List available templates."""
+    log = get_logger(__name__)
     from .devices import get_registry
+
+    log.info("listing_templates")
 
     print("Available Boards:")
     print("  - raspberry_pi_5 (aliases: rpi5, rpi)")
@@ -373,6 +473,8 @@ def list_command() -> int:
     # List devices by category
     registry = get_registry()
     categories = registry.get_categories()
+
+    log.debug("device_categories_found", category_count=len(categories))
 
     print("Available Device Templates:")
     for category in categories:
@@ -392,6 +494,7 @@ def list_command() -> int:
     print("  - i2c_spi: Multiple I2C and SPI devices")
     print()
 
+    log.info("templates_listed")
     return 0
 
 

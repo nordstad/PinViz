@@ -8,6 +8,7 @@ import yaml
 
 from . import boards
 from .devices import get_registry
+from .logging_config import get_logger
 from .model import (
     Component,
     ComponentType,
@@ -19,6 +20,8 @@ from .model import (
     Point,
     WireStyle,
 )
+
+log = get_logger(__name__)
 
 
 class ConfigLoader:
@@ -51,17 +54,23 @@ class ConfigLoader:
         """
         path = Path(config_path)
 
+        log.debug("loading_config_file", config_path=str(path), format=path.suffix)
+
         if not path.exists():
+            log.error("config_file_not_found", config_path=str(path))
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
         # Load file based on extension
         if path.suffix in [".yaml", ".yml"]:
             with open(path) as f:
                 config = yaml.safe_load(f)
+            log.debug("yaml_config_parsed", config_path=str(path))
         elif path.suffix == ".json":
             with open(path) as f:
                 config = json.load(f)
+            log.debug("json_config_parsed", config_path=str(path))
         else:
+            log.error("unsupported_file_format", format=path.suffix, config_path=str(path))
             raise ValueError(f"Unsupported file format: {path.suffix}")
 
         return self.load_from_dict(config)
@@ -94,21 +103,31 @@ class ConfigLoader:
         board_config = config.get("board", "raspberry_pi_5")
         if isinstance(board_config, str):
             board = self._load_board_by_name(board_config)
+            log.debug("board_loaded", board_name=board.name)
         else:
+            log.error("custom_board_not_supported")
             raise ValueError("Custom board definitions not yet supported")
 
         # Load devices
         device_configs = config.get("devices", [])
         diagram_devices = []
 
+        log.debug("loading_devices", device_count=len(device_configs))
         for dev_config in device_configs:
             device = self._load_device(dev_config)
             diagram_devices.append(device)
+            log.debug(
+                "device_loaded",
+                device_name=device.name,
+                pin_count=len(device.pins),
+                device_type=dev_config.get("type", "custom"),
+            )
 
         # Load connections
         connection_configs = config.get("connections", [])
         connections = []
 
+        log.debug("loading_connections", connection_count=len(connection_configs))
         for conn_config in connection_configs:
             connection = self._load_connection(conn_config)
             connections.append(connection)
@@ -121,6 +140,14 @@ class ConfigLoader:
             connections=connections,
             show_legend=config.get("show_legend", True),
             show_gpio_diagram=config.get("show_gpio_diagram", False),
+        )
+
+        log.info(
+            "diagram_config_loaded",
+            title=diagram.title,
+            board=board.name,
+            device_count=len(diagram_devices),
+            connection_count=len(connections),
         )
 
         return diagram

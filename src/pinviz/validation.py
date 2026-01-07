@@ -21,7 +21,10 @@ from dataclasses import dataclass
 from enum import Enum
 
 from .devices.registry import get_registry
+from .logging_config import get_logger
 from .model import Diagram, PinRole
+
+log = get_logger(__name__)
 
 
 class ValidationLevel(str, Enum):
@@ -88,12 +91,39 @@ class DiagramValidator:
         Returns:
             List of validation issues (errors, warnings, info)
         """
+        log.info(
+            "validation_started",
+            board=diagram.board.name,
+            device_count=len(diagram.devices),
+            connection_count=len(diagram.connections),
+        )
+
         issues: list[ValidationIssue] = []
         issues.extend(self._check_pin_conflicts(diagram))
         issues.extend(self._check_voltage_mismatches(diagram))
         issues.extend(self._check_i2c_address_conflicts(diagram))
         issues.extend(self._check_current_limits(diagram))
         issues.extend(self._check_connection_validity(diagram))
+
+        # Categorize for logging
+        errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+        warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
+        infos = [i for i in issues if i.level == ValidationLevel.INFO]
+
+        log.info(
+            "validation_completed",
+            total_issues=len(issues),
+            errors=len(errors),
+            warnings=len(warnings),
+            infos=len(infos),
+        )
+
+        # Log individual issues at appropriate levels
+        for issue in errors:
+            log.error("validation_error_found", issue=str(issue), location=issue.location)
+        for issue in warnings:
+            log.warning("validation_warning_found", issue=str(issue), location=issue.location)
+
         return issues
 
     def _check_pin_conflicts(self, diagram: Diagram) -> list[ValidationIssue]:
@@ -102,6 +132,7 @@ class DiagramValidator:
         This checks for duplicate physical pin usage, which is usually an error
         except for pins like power/ground that can be shared.
         """
+        log.debug("checking_pin_conflicts")
         issues: list[ValidationIssue] = []
         pin_usage: dict[int, list[str]] = {}
 
@@ -223,6 +254,7 @@ class DiagramValidator:
         Multiple I2C devices on the same bus must have unique addresses.
         Uses device registry metadata for I2C addresses when available.
         """
+        log.debug("checking_i2c_conflicts")
         issues: list[ValidationIssue] = []
 
         # Find all devices connected to I2C bus
