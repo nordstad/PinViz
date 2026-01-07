@@ -305,7 +305,7 @@ jobs:
           fi
 
   test-published:
-    name: Test Published Package (Python ${{ matrix.python-version }})
+    name: Test Published Package
     runs-on: ubuntu-latest
     needs: publish
     strategy:
