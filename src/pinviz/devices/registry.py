@@ -18,6 +18,7 @@ class DeviceTemplate:
     factory: Callable[..., Device]
     parameters: dict[str, Any] | None = None
     url: str | None = None
+    i2c_address: int | None = None  # Default I2C address (7-bit)
 
 
 class DeviceRegistry:
@@ -35,6 +36,7 @@ class DeviceRegistry:
         factory: Callable[..., Device],
         parameters: dict[str, Any] | None = None,
         url: str | None = None,
+        i2c_address: int | None = None,
     ) -> None:
         """
         Register a device template.
@@ -47,6 +49,7 @@ class DeviceRegistry:
             factory: Factory function that creates the device
             parameters: Optional dict describing factory parameters
             url: Optional URL to device documentation or datasheet
+            i2c_address: Optional default I2C address (7-bit) for I2C devices
         """
         template = DeviceTemplate(
             type_id=type_id,
@@ -56,6 +59,7 @@ class DeviceRegistry:
             factory=factory,
             parameters=parameters,
             url=url,
+            i2c_address=i2c_address,
         )
         self._templates[type_id.lower()] = template
 

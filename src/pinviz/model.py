@@ -296,6 +296,7 @@ class Device:
         height: Device box height in SVG units (default: 40.0)
         position: Device position in canvas (automatically calculated by layout engine)
         color: Device box fill color as hex code (default: "#4A90E2" blue)
+        type_id: Optional device template type ID (for registry lookup)
     """
 
     name: str  # Display name (e.g., "BH1750 Light Sensor")
@@ -304,6 +305,7 @@ class Device:
     height: float = 40.0
     position: Point = field(default_factory=lambda: Point(0, 0))  # Set by layout engine
     color: str = "#4A90E2"  # Device box color
+    type_id: str | None = None  # Optional device template type ID
 
     def get_pin_by_name(self, name: str) -> DevicePin | None:
         """

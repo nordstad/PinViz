@@ -241,6 +241,9 @@ class ConfigLoader:
                 # Create device from template
                 device = registry.create(device_type, **kwargs)
 
+                # Set type_id to enable registry lookups (e.g., for I2C address validation)
+                device.type_id = device_type
+
                 # Override device name if specified
                 if device_name and device_type not in ("i2c_device", "i2c", "spi_device", "spi"):
                     device.name = device_name
