@@ -118,6 +118,16 @@ def main() -> int:
         metavar="PATH",
         help="Output SVG file path (default: <config>.svg)",
     )
+    render_parser.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Hide the diagram title in the SVG output",
+    )
+    render_parser.add_argument(
+        "--no-board-name",
+        action="store_true",
+        help="Hide the board name in the SVG output",
+    )
 
     # Example command
     example_parser = subparsers.add_parser(
@@ -136,6 +146,16 @@ def main() -> int:
         "--output",
         metavar="PATH",
         help="Output SVG file path (default: ./out/<name>.svg)",
+    )
+    example_parser.add_argument(
+        "--no-title",
+        action="store_true",
+        help="Hide the diagram title in the SVG output",
+    )
+    example_parser.add_argument(
+        "--no-board-name",
+        action="store_true",
+        help="Hide the board name in the SVG output",
     )
 
     # Validate command
@@ -215,6 +235,12 @@ def render_command(args: Any) -> int:
             connection_count=len(diagram.connections),
             board=diagram.board.name,
         )
+
+        # Apply CLI flags for visibility
+        if hasattr(args, "no_title") and args.no_title:
+            diagram.show_title = False
+        if hasattr(args, "no_board_name") and args.no_board_name:
+            diagram.show_board_name = False
 
         # Validate diagram and show warnings
         validator = DiagramValidator()
@@ -394,6 +420,12 @@ def example_command(args: Any) -> int:
             device_count=len(diagram.devices),
             connection_count=len(diagram.connections),
         )
+
+        # Apply CLI flags for visibility
+        if hasattr(args, "no_title") and args.no_title:
+            diagram.show_title = False
+        if hasattr(args, "no_board_name") and args.no_board_name:
+            diagram.show_board_name = False
 
         log.info("rendering_example", output_path=str(output_path))
         print(f"Rendering diagram to {output_path}...")

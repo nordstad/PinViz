@@ -448,6 +448,8 @@ class Diagram:
         connections: List of all wire connections
         show_legend: Whether to show the wire color legend (default: True)
         show_gpio_diagram: Whether to show the GPIO pin reference diagram (default: False)
+        show_title: Whether to show the diagram title (default: True)
+        show_board_name: Whether to show the board name (default: True)
         canvas_width: Canvas width in SVG units (auto-calculated by layout engine)
         canvas_height: Canvas height in SVG units (auto-calculated by layout engine)
 
@@ -478,5 +480,7 @@ class Diagram:
     connections: list[Connection]
     show_legend: bool = True
     show_gpio_diagram: bool = False
+    show_title: bool = True
+    show_board_name: bool = True
     canvas_width: float = 800.0
     canvas_height: float = 600.0

@@ -135,7 +135,7 @@ class SVGRenderer:
         dwg.append(draw.Rectangle(0, 0, canvas_width, canvas_height, fill="white"))
 
         # Draw title
-        if diagram.title:
+        if diagram.title and diagram.show_title:
             dwg.append(
                 draw.Text(
                     diagram.title,
@@ -151,7 +151,7 @@ class SVGRenderer:
 
         # Draw board
         log.debug("drawing_board", board_name=diagram.board.name)
-        self._draw_board(dwg, diagram.board)
+        self._draw_board(dwg, diagram.board, diagram.show_board_name)
 
         # Draw GPIO pin numbers on the header
         x = self.layout_config.board_margin_left
@@ -188,7 +188,7 @@ class SVGRenderer:
         dwg.save_svg(str(output_path))
         log.info("render_completed", output_path=str(output_path))
 
-    def _draw_board(self, dwg: draw.Drawing, board: Board) -> None:
+    def _draw_board(self, dwg: draw.Drawing, board: Board, show_board_name: bool = True) -> None:
         """
         Draw the Raspberry Pi board with GPIO pins.
 
@@ -198,6 +198,7 @@ class SVGRenderer:
         Args:
             dwg: The SVG drawing object
             board: The board to render
+            show_board_name: Whether to display the board name label (default: True)
         """
         x = self.layout_config.board_margin_left
         y = self.layout_config.board_margin_top
@@ -252,18 +253,19 @@ class SVGRenderer:
             board_height = board.height
 
         # Draw board label
-        dwg.append(
-            draw.Text(
-                board.name,
-                14,
-                x + board_width / 2,
-                y + board_height + 20,
-                text_anchor="middle",
-                font_family="Arial, sans-serif",
-                font_weight="bold",
-                fill="#333",
+        if show_board_name:
+            dwg.append(
+                draw.Text(
+                    board.name,
+                    14,
+                    x + board_width / 2,
+                    y + board_height + 20,
+                    text_anchor="middle",
+                    font_family="Arial, sans-serif",
+                    font_weight="bold",
+                    fill="#333",
+                )
             )
-        )
 
     def _draw_gpio_pin_numbers(self, dwg: draw.Drawing, board: Board, x: float, y: float) -> None:
         """
