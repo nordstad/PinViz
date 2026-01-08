@@ -179,36 +179,6 @@ def test_load_board_by_name(board_name):
     assert diagram.board.name == "Raspberry Pi 5"
 
 
-@pytest.mark.parametrize(
-    "board_name",
-    [
-        "raspberry_pi_zero_2w",
-        "raspberry_pi_zero",
-        "pizero",
-        "zero2w",
-        "zero",
-        "rpizero",
-        "PIZERO",
-        "PiZero",
-        "ZERO",
-    ],
-)
-def test_load_pi_zero_board_by_name(board_name):
-    """Test loading Pi Zero boards by various name aliases."""
-    config = {
-        "title": "Test",
-        "board": board_name,
-        "devices": [],
-        "connections": [],
-    }
-    loader = ConfigLoader()
-    diagram = loader.load_from_dict(config)
-
-    assert diagram.board is not None
-    assert diagram.board.name == "Raspberry Pi Zero 2 W"
-    assert len(diagram.board.pins) == 40
-
-
 def test_load_unknown_board():
     """Test loading an unknown board raises error."""
     config = {

@@ -47,7 +47,7 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
 - **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
-- **Built-in Templates**: Pre-configured boards (Raspberry Pi 5, Pi Zero) and common devices
+- **Built-in Templates**: Pre-configured board (Raspberry Pi 5) and common devices
 - **SVG Output**: Scalable, high-quality vector graphics
 
 <details>
@@ -148,7 +148,7 @@ Once you've seen what PinViz can do, create your own configuration file using YA
 
 ```yaml
 title: "BH1750 Light Sensor Wiring"
-board: "raspberry_pi_5"  # or "raspberry_pi_zero_2w" for Pi Zero
+board: "raspberry_pi_5"
 
 devices:
   - type: "bh1750"
@@ -207,7 +207,7 @@ For programmatic diagram generation in your Python projects:
 from pinviz import boards, devices, Connection, Diagram, SVGRenderer
 
 # Create board and device
-board = boards.raspberry_pi_5()  # or boards.raspberry_pi_zero_2w()
+board = boards.raspberry_pi_5()
 sensor = devices.bh1750_light_sensor()
 
 # Define connections
@@ -453,17 +453,6 @@ pinviz render examples/traffic_light.yaml -o traffic_light.svg
 
 </details>
 
-<details>
-<summary><b>👉 Raspberry Pi Zero 2 W</b> - Compact board layout <i>(click to expand)</i></summary>
-
-```bash
-pinviz render examples/pi_zero_bh1750.yaml -o pi_zero_bh1750.svg
-```
-
-![Pi Zero BH1750](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/pi_zero_bh1750_without_gpio.svg)
-
-</details>
-
 **📸 More Examples:**
 - See all examples in the [`examples/`](examples/) directory (includes both YAML and JSON formats)
 - View generated diagrams in the [`images/`](images/) directory
@@ -479,7 +468,6 @@ pinviz render examples/pi_zero_bh1750.yaml -o pi_zero_bh1750.svg
 Currently supported boards:
 
 - `raspberry_pi_5` (aliases: `rpi5`, `rpi`) - Raspberry Pi 5 with 40-pin GPIO header
-- `raspberry_pi_zero_2w` (aliases: `raspberry_pi_zero`, `pizero`, `zero2w`, `zero`, `rpizero`) - Raspberry Pi Zero / Zero 2 W with 40-pin GPIO header
 
 </details>
 

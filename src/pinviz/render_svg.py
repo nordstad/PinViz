@@ -303,10 +303,9 @@ class SVGRenderer:
             PinRole.PCM_DOUT: "#00FF00",  # Green
         }
 
-        # Use larger pins for Pi Zero boards (smaller board, needs bigger pins)
-        is_pi_zero = "Zero" in board.name
-        pin_radius = 7.5 if is_pi_zero else 4.5
-        pin_font_size = "6px" if is_pi_zero else "4.5px"
+        # Pin size configuration
+        pin_radius = 4.5
+        pin_font_size = "4.5px"
 
         for pin in board.pins:
             pin_x = x + pin.position.x
