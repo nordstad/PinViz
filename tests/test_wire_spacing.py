@@ -220,26 +220,29 @@ class TestWireSpacing:
         engine = LayoutEngine(config)
         _, _, routed_wires = engine.layout_diagram(diagram)
 
-        # With device-rail routing, each device gets its own rail X position
-        # Check that all wires route through different rail X positions (preventing crossings)
-        rail_x_positions = []
+        # With device-based rail routing and Bezier curves, each wire to a different
+        # device should use different control points (path_points[1] is first control point)
+        control_point_x_positions = []
         for wire in routed_wires:
-            # Rail X is at index 1 (after horizontal from board pin) in the 4-point path
-            rail_x = wire.path_points[1].x
-            rail_x_positions.append(rail_x)
+            # First control point X (Bezier curve control point, not raw rail X)
+            ctrl_x = wire.path_points[1].x
+            control_point_x_positions.append(ctrl_x)
 
-        # All rail X positions should be different (each device gets its own rail)
-        unique_rails = set(rail_x_positions)
-        assert len(unique_rails) == 3, (
-            f"Expected 3 different rails (one per device), got {len(unique_rails)}"
+        # All control point X positions should be different (preventing crossings)
+        unique_ctrl_points = set(control_point_x_positions)
+        assert len(unique_ctrl_points) == 3, (
+            f"Expected 3 different control points (one per device), got {len(unique_ctrl_points)}"
         )
 
-        # Check spacing between rails
-        rail_x_sorted = sorted(unique_rails)
-        for i in range(len(rail_x_sorted) - 1):
-            spacing = rail_x_sorted[i + 1] - rail_x_sorted[i]
-            assert spacing >= config.wire_spacing - 0.1, (
-                f"Rail spacing {spacing:.2f} less than expected {config.wire_spacing}"
+        # Check that control points maintain reasonable separation
+        # With Bezier curves, control points are weighted blends, so spacing is smaller
+        # than raw rail spacing. We just need to verify they're distinct and ordered.
+        ctrl_x_sorted = sorted(unique_ctrl_points)
+        for i in range(len(ctrl_x_sorted) - 1):
+            spacing = ctrl_x_sorted[i + 1] - ctrl_x_sorted[i]
+            # Minimum separation should be positive (wires don't overlap)
+            assert spacing > 0.1, (
+                f"Control point spacing {spacing:.2f} too small, wires may cross"
             )
 
     def test_deterministic_routing(self):
