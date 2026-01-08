@@ -36,9 +36,9 @@ def _parse_numeric_value(value_str: str | float | int) -> float:
 
     # Strip common SVG units
     str_value = str(value_str)
-    for unit in ['px', 'pt', 'em', 'rem', '%', 'cm', 'mm', 'in']:
+    for unit in ["px", "pt", "em", "rem", "%", "cm", "mm", "in"]:
         if str_value.endswith(unit):
-            return float(str_value[:-len(unit)])
+            return float(str_value[: -len(unit)])
 
     return float(str_value)
 

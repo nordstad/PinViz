@@ -184,5 +184,3 @@ def test_raspberry_pi_alias():
     assert len(board1.pins) == len(board2.pins)
     assert board1.width == board2.width
     assert board1.height == board2.height
-
-

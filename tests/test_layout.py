@@ -135,14 +135,10 @@ def test_canvas_size_includes_board(sample_diagram):
 
     # Canvas should be at least as large as board + margins + padding
     expected_min_width = (
-        engine.config.board_margin_left
-        + sample_diagram.board.width
-        + engine.config.canvas_padding
+        engine.config.board_margin_left + sample_diagram.board.width + engine.config.canvas_padding
     )
     expected_min_height = (
-        engine.config.board_margin_top
-        + sample_diagram.board.height
-        + engine.config.canvas_padding
+        engine.config.board_margin_top + sample_diagram.board.height + engine.config.canvas_padding
     )
     assert canvas_width >= expected_min_width
     assert canvas_height >= expected_min_height
