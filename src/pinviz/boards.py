@@ -143,7 +143,7 @@ def raspberry_pi_5() -> Board:
     # )
 
     return Board(
-        name="Raspberry Pi",
+        name="Raspberry Pi 5",
         pins=pins,
         svg_asset_path=_get_asset_path("pi_5_mod.svg"),  # Use SVG asset
         width=205.42,  # Legacy

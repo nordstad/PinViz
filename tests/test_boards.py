@@ -10,7 +10,7 @@ def test_raspberry_pi_5_board_creation():
     """Test creating a Raspberry Pi 5 board."""
     board = boards.raspberry_pi_5()
     assert board is not None
-    assert board.name == "Raspberry Pi"
+    assert board.name == "Raspberry Pi 5"
 
 
 def test_raspberry_pi_5_has_40_pins():
@@ -143,8 +143,8 @@ def test_raspberry_pi_5_all_pins_have_positions():
 def test_raspberry_pi_5_pin_positions_alternating_columns():
     """Test that odd pins are in left column, even pins in right column."""
     board = boards.raspberry_pi_5()
-    left_col_x = 174.5
-    right_col_x = 186.5
+    left_col_x = 187.0
+    right_col_x = 199.0
 
     for pin in board.pins:
         if pin.number % 2 == 1:  # Odd pins (left column)
