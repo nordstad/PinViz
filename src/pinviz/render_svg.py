@@ -19,6 +19,30 @@ def _parse_font_size(size_str: str) -> float:
     return float(size_str.rstrip("px"))
 
 
+def _parse_numeric_value(value_str: str | float | int) -> float:
+    """
+    Parse numeric value, stripping common SVG unit suffixes.
+
+    Handles values like '173.122px', '10em', '5%' by stripping the unit suffix.
+
+    Args:
+        value_str: String, float, or int value
+
+    Returns:
+        Parsed float value
+    """
+    if isinstance(value_str, (float, int)):
+        return float(value_str)
+
+    # Strip common SVG units
+    str_value = str(value_str)
+    for unit in ['px', 'pt', 'em', 'rem', '%', 'cm', 'mm', 'in']:
+        if str_value.endswith(unit):
+            return float(str_value[:-len(unit)])
+
+    return float(str_value)
+
+
 class SVGRenderer:
     """
     Render GPIO wiring diagrams to SVG format.
@@ -295,7 +319,7 @@ class SVGRenderer:
             pin_y = y + pin.position.y + pin_number_y_offset
 
             # Draw circle background for pin number
-            # Match the size of connector circles in pi2.svg (r=2.088)
+            # Match the size of connector circles in pi_5_mod.svg (r=2.088)
             # Use larger size for better visibility: r=4.5 (Pi 5) or r=7.5 (Pi Zero)
             # Use color based on pin role
             bg_color = role_colors.get(pin.role, "#FFFFFF")  # Default to white if role not found
@@ -403,30 +427,30 @@ class SVGRenderer:
                 parent.append(svg_element)
 
     def _handle_rect(self, element, attribs, dwg, svg_ns):
-        x = float(attribs.pop("x", 0))
-        y = float(attribs.pop("y", 0))
-        width = float(attribs.pop("width", 0))
-        height = float(attribs.pop("height", 0))
+        x = _parse_numeric_value(attribs.pop("x", 0))
+        y = _parse_numeric_value(attribs.pop("y", 0))
+        width = _parse_numeric_value(attribs.pop("width", 0))
+        height = _parse_numeric_value(attribs.pop("height", 0))
         return draw.Rectangle(x, y, width, height, **attribs)
 
     def _handle_circle(self, element, attribs, dwg, svg_ns):
-        cx = float(attribs.pop("cx", 0))
-        cy = float(attribs.pop("cy", 0))
-        r = float(attribs.pop("r", 0))
+        cx = _parse_numeric_value(attribs.pop("cx", 0))
+        cy = _parse_numeric_value(attribs.pop("cy", 0))
+        r = _parse_numeric_value(attribs.pop("r", 0))
         return draw.Circle(cx, cy, r, **attribs)
 
     def _handle_ellipse(self, element, attribs, dwg, svg_ns):
-        cx = float(attribs.pop("cx", 0))
-        cy = float(attribs.pop("cy", 0))
-        rx = float(attribs.pop("rx", 0))
-        ry = float(attribs.pop("ry", rx))
+        cx = _parse_numeric_value(attribs.pop("cx", 0))
+        cy = _parse_numeric_value(attribs.pop("cy", 0))
+        rx = _parse_numeric_value(attribs.pop("rx", 0))
+        ry = _parse_numeric_value(attribs.pop("ry", rx))
         return draw.Ellipse(cx, cy, rx, ry, **attribs)
 
     def _handle_line(self, element, attribs, dwg, svg_ns):
-        x1 = float(attribs.pop("x1", 0))
-        y1 = float(attribs.pop("y1", 0))
-        x2 = float(attribs.pop("x2", 0))
-        y2 = float(attribs.pop("y2", 0))
+        x1 = _parse_numeric_value(attribs.pop("x1", 0))
+        y1 = _parse_numeric_value(attribs.pop("y1", 0))
+        x2 = _parse_numeric_value(attribs.pop("x2", 0))
+        y2 = _parse_numeric_value(attribs.pop("y2", 0))
         return draw.Line(x1, y1, x2, y2, **attribs)
 
     def _handle_polyline(self, element, attribs, dwg, svg_ns):
@@ -437,7 +461,9 @@ class SVGRenderer:
             for point in points_str.split():
                 coords = point.split(",")
                 if len(coords) == 2:
-                    points_flat.extend([float(coords[0]), float(coords[1])])
+                    x = _parse_numeric_value(coords[0])
+                    y = _parse_numeric_value(coords[1])
+                    points_flat.extend([x, y])
             return draw.Polyline(*points_flat, **attribs)
         return None
 
@@ -449,7 +475,9 @@ class SVGRenderer:
             for point in points_str.split():
                 coords = point.split(",")
                 if len(coords) == 2:
-                    points_flat.extend([float(coords[0]), float(coords[1])])
+                    x = _parse_numeric_value(coords[0])
+                    y = _parse_numeric_value(coords[1])
+                    points_flat.extend([x, y])
             return draw.Polygon(*points_flat, **attribs)
         return None
 
@@ -461,8 +489,8 @@ class SVGRenderer:
 
     def _handle_text(self, element, attribs, dwg, svg_ns):
         text_content = element.text or ""
-        x = float(attribs.pop("x", 0))
-        y = float(attribs.pop("y", 0))
+        x = _parse_numeric_value(attribs.pop("x", 0))
+        y = _parse_numeric_value(attribs.pop("y", 0))
         # Font size might not be present, use default
         font_size = attribs.pop("font-size", None) or attribs.pop("font_size", None)
         font_size = _parse_font_size(str(font_size)) if font_size else 12

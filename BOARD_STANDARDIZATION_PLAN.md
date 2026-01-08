@@ -6,7 +6,7 @@
 
 The Raspberry Pi and Raspberry Pi Zero boards have very different visual styles in the generated diagrams:
 
-- **Pi 5/Pi 2**: Uses `pi2.svg` with width=205.42, height=307.46
+- **Pi 5/Pi 2**: Uses `pi_5_mod.svg` with width=205.42, height=307.46
 - **Pi Zero 2 W**: Uses `pi_zero.svg` with width=465.60, height=931.20 (**2.27x larger!**)
 - **Critical scaling problem**: Pi Zero is rendered almost 2.3x larger than Pi 5, despite being physically SMALLER (65mm vs 85mm wide)
 - **Inconsistent visual language**: Different colors, details, proportions despite both being Raspberry Pi boards

@@ -164,7 +164,7 @@ def test_raspberry_pi_5_svg_asset_path():
     """Test that SVG asset path is set."""
     board = boards.raspberry_pi_5()
     assert board.svg_asset_path is not None
-    assert "pi2.svg" in board.svg_asset_path
+    assert "pi_5_mod.svg" in board.svg_asset_path
 
 
 def test_raspberry_pi_5_get_pin_by_bcm():

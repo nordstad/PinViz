@@ -14,7 +14,7 @@ def _get_asset_path(filename: str) -> str:
     Used internally by board factory functions to locate board SVG images.
 
     Args:
-        filename: Name of the asset file (e.g., "pi2.svg")
+        filename: Name of the asset file (e.g., "pi_5_mod.svg")
 
     Returns:
         Absolute path to the asset file as a string
@@ -44,10 +44,10 @@ def raspberry_pi_5() -> Board:
     # - Left column (odd pins): 1, 3, 5, ..., 39 (top to bottom)
     # - Right column (even pins): 2, 4, 6, ..., 40 (top to bottom)
     #
-    # Fine-tuned values to align with pi2.svg yellow circles (GPIO pins)
-    left_col_x = 174.5  # X position for left column (odd pins)
-    right_col_x = 186.5  # X position for right column (even pins)
-    start_y = 6.0  # Starting Y position (top)
+    # Fine-tuned values to align with pi_5_mod.svg yellow circles (GPIO pins)
+    left_col_x = 187.0  # X position for left column (odd pins)
+    right_col_x = 199.0  # X position for right column (even pins)
+    start_y = 4.5  # Starting Y position (top)
     row_spacing = 12.0  # Vertical spacing between rows
 
     _pin_positions = {}
@@ -124,31 +124,32 @@ def raspberry_pi_5() -> Board:
         HeaderPin(40, "GPIO21", PinRole.PCM_DOUT, gpio_bcm=21, position=_pin_positions[40]),
     ]
 
+    # Temporarily disabled programmatic rendering to use SVG asset
     # Create standardized layout with physical dimensions
     # Pi 5 is 85mm × 56mm, but rotated 90° in the SVG (height becomes width)
-    layout = BoardLayout(
-        width_mm=56.0,  # Physical 56mm width (rotated)
-        height_mm=85.0,  # Physical 85mm height (rotated)
-        header_x_mm=2.0,  # Header starts 2mm from left edge
-        header_y_mm=7.5,  # Header starts 7.5mm from top
-        header_width_mm=5.08,  # Standard 2-row header (2.54mm * 2)
-        header_height_mm=50.8,  # 20 pins * 2.54mm pitch
-        mounting_holes=[
-            Point(3.5, 3.5),  # Top-left
-            Point(52.5, 3.5),  # Top-right
-            Point(3.5, 81.5),  # Bottom-left
-            Point(52.5, 81.5),  # Bottom-right
-        ],
-    )
+    # layout = BoardLayout(
+    #     width_mm=56.0,  # Physical 56mm width (rotated)
+    #     height_mm=85.0,  # Physical 85mm height (rotated)
+    #     header_x_mm=2.0,  # Header starts 2mm from left edge
+    #     header_y_mm=7.5,  # Header starts 7.5mm from top
+    #     header_width_mm=5.08,  # Standard 2-row header (2.54mm * 2)
+    #     header_height_mm=50.8,  # 20 pins * 2.54mm pitch
+    #     mounting_holes=[
+    #         Point(3.5, 3.5),  # Top-left
+    #         Point(52.5, 3.5),  # Top-right
+    #         Point(3.5, 81.5),  # Bottom-left
+    #         Point(52.5, 81.5),  # Bottom-right
+    #     ],
+    # )
 
     return Board(
         name="Raspberry Pi",
         pins=pins,
-        svg_asset_path=_get_asset_path("pi2.svg"),  # Legacy fallback
+        svg_asset_path=_get_asset_path("pi_5_mod.svg"),  # Use SVG asset
         width=205.42,  # Legacy
         height=307.46,  # Legacy
         header_offset=Point(23.715, 5.156),  # Legacy
-        layout=layout,  # New standardized layout
+        layout=None,  # Disabled to use SVG asset instead
     )
 
 
