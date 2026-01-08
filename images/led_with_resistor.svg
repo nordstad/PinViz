@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-     width="700.0" height="427.46" viewBox="0 0 700.0 427.46">
+     width="670.0" height="447.46" viewBox="0 0 670.0 447.46">
 <defs>
 </defs>
-<rect x="0" y="0" width="700.0" height="427.46" fill="white" />
-<text x="350.0" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">LED with Current-Limiting Resistor</text>
+<rect x="0" y="0" width="670.0" height="447.46" fill="white" />
+<text x="335.0" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">LED with Current-Limiting Resistor</text>
 <g transform="translate(40.0, 80.0)">
 <g>
 <g id="g477">

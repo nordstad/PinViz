@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-     width="725.0" height="427.46" viewBox="0 0 725.0 427.46">
+     width="695.0" height="447.46" viewBox="0 0 695.0 447.46">
 <defs>
 </defs>
-<rect x="0" y="0" width="725.0" height="427.46" fill="white" />
-<text x="362.5" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">DS18B20 Waterproof Temperature Sensor</text>
+<rect x="0" y="0" width="695.0" height="447.46" fill="white" />
+<text x="347.5" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">DS18B20 Waterproof Temperature Sensor</text>
 <g transform="translate(40.0, 80.0)">
 <g>
 <g id="g477">
