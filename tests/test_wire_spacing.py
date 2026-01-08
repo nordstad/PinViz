@@ -241,9 +241,7 @@ class TestWireSpacing:
         for i in range(len(ctrl_x_sorted) - 1):
             spacing = ctrl_x_sorted[i + 1] - ctrl_x_sorted[i]
             # Minimum separation should be positive (wires don't overlap)
-            assert spacing > 0.1, (
-                f"Control point spacing {spacing:.2f} too small, wires may cross"
-            )
+            assert spacing > 0.1, f"Control point spacing {spacing:.2f} too small, wires may cross"
 
     def test_deterministic_routing(self):
         """Test that routing is deterministic (same inputs -> same outputs)."""
