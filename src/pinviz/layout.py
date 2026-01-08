@@ -503,23 +503,9 @@ class LayoutEngine:
                 max_x = max(max_x, point.x)
                 max_y = max(max_y, point.y)
 
-        # Calculate legend space if needed
-        legend_width_needed = 0
-        if diagram.show_legend:
-            legend_width_needed = self.config.legend_width + self.config.legend_margin
-
         # Add uniform padding around all content
-        # Use the larger of canvas_padding or legend space for width
-        canvas_width = max_x + max(self.config.canvas_padding, legend_width_needed)
+        canvas_width = max_x + self.config.canvas_padding
         canvas_height = max_y + self.config.canvas_padding
-
-        if diagram.show_legend:
-            # Reserve space for legend in bottom right
-            legend_y = canvas_height - self.config.legend_height - self.config.legend_margin
-            # Ensure legend doesn't overlap with content
-            canvas_height = max(
-                canvas_height, legend_y + self.config.legend_height + self.config.canvas_padding
-            )
 
         return canvas_width, canvas_height
 

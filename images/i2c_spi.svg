@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-     width="725.0" height="427.46" viewBox="0 0 725.0 427.46">
+     width="565.0" height="427.46" viewBox="0 0 565.0 427.46">
 <defs>
 </defs>
-<rect x="0" y="0" width="725.0" height="427.46" fill="white" />
-<text x="362.5" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">I2C and SPI Devices Example</text>
+<rect x="0" y="0" width="565.0" height="427.46" fill="white" />
+<text x="282.5" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">I2C and SPI Devices Example</text>
 <g transform="translate(40.0, 80.0)">
 <g>
 <g id="g477">
