@@ -846,7 +846,7 @@ class SVGRenderer:
             draw.Path(
                 d=path_d,
                 stroke="white",
-                stroke_width=7,
+                stroke_width=4.5,
                 fill="none",
                 stroke_linecap="round",
                 stroke_linejoin="round",
