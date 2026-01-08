@@ -153,6 +153,11 @@ class SVGRenderer:
         log.debug("drawing_board", board_name=diagram.board.name)
         self._draw_board(dwg, diagram.board)
 
+        # Draw GPIO pin numbers on the header
+        x = self.layout_config.board_margin_left
+        y = self.layout_config.board_margin_top
+        self._draw_gpio_pin_numbers(dwg, diagram.board, x, y)
+
         # Draw wires first so they appear behind devices
         # Sort wires for proper z-order to prevent overlapping/hiding
         # Primary: source pin X position (left column pins first, right column on top)
@@ -259,6 +264,86 @@ class SVGRenderer:
                 fill="#333",
             )
         )
+
+    def _draw_gpio_pin_numbers(self, dwg: draw.Drawing, board: Board, x: float, y: float) -> None:
+        """
+        Draw pin numbers on GPIO header with color-coded backgrounds.
+
+        Creates small circles at each pin location with the physical pin number (1-40)
+        and color-coded background based on pin role (power, ground, GPIO, I2C, SPI, etc.).
+
+        Args:
+            dwg: The SVG drawing object
+            board: The board containing pin definitions
+            x: Board X offset
+            y: Board Y offset
+        """
+        # Color mapping for pin backgrounds based on pin role
+        from .model import PinRole
+
+        role_colors = {
+            PinRole.POWER_3V3: "#FFA500",  # Orange
+            PinRole.POWER_5V: "#FF0000",  # Red
+            PinRole.GROUND: "#D3D3D3",  # Light gray
+            PinRole.I2C_SDA: "#FF00FF",  # Magenta
+            PinRole.I2C_SCL: "#FF00FF",  # Magenta
+            PinRole.I2C_EEPROM: "#FFFF00",  # Yellow
+            PinRole.SPI_MOSI: "#0000FF",  # Blue
+            PinRole.SPI_MISO: "#0000FF",  # Blue
+            PinRole.SPI_SCLK: "#0000FF",  # Blue
+            PinRole.SPI_CE0: "#0000FF",  # Blue
+            PinRole.SPI_CE1: "#0000FF",  # Blue
+            PinRole.UART_TX: "#0000FF",  # Blue
+            PinRole.UART_RX: "#0000FF",  # Blue
+            PinRole.PWM: "#00FF00",  # Green
+            PinRole.GPIO: "#00FF00",  # Green
+            PinRole.PCM_CLK: "#00FF00",  # Green
+            PinRole.PCM_FS: "#00FF00",  # Green
+            PinRole.PCM_DIN: "#00FF00",  # Green
+            PinRole.PCM_DOUT: "#00FF00",  # Green
+        }
+
+        # Use larger pins for Pi Zero boards (smaller board, needs bigger pins)
+        is_pi_zero = "Zero" in board.name
+        pin_radius = 7.5 if is_pi_zero else 4.5
+        pin_font_size = "6px" if is_pi_zero else "4.5px"
+
+        for pin in board.pins:
+            pin_x = x + pin.position.x
+            pin_y = y + pin.position.y
+
+            # Draw circle background for pin number
+            # Use color based on pin role
+            bg_color = role_colors.get(pin.role, "#FFFFFF")  # Default to white if role not found
+
+            dwg.append(
+                draw.Circle(
+                    pin_x,
+                    pin_y,
+                    pin_radius,
+                    fill=bg_color,
+                    stroke="#333",
+                    stroke_width=0.5,
+                    opacity=0.95,
+                )
+            )
+
+            # Draw pin number - scaled to fit in circle
+            font_size = pin_font_size  # Scaled to fit in circle
+            # Use white text on blue backgrounds for better readability
+            text_color = "#FFFFFF" if bg_color == "#0000FF" else "#000000"
+            dwg.append(
+                draw.Text(
+                    str(pin.number),
+                    _parse_font_size(font_size),
+                    pin_x,
+                    pin_y + 1.5,
+                    text_anchor="middle",
+                    font_family="Arial, sans-serif",
+                    font_weight="bold",
+                    fill=text_color,
+                )
+            )
 
     def _inline_svg_elements(self, parent_group, svg_root, dwg: draw.Drawing) -> None:
         """
