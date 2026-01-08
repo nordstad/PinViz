@@ -174,9 +174,7 @@ class LayoutEngine:
             # Calculate absolute positions
             from_pos = Point(
                 self.config.board_margin_left + board_pin.position.x,
-                self.config.board_margin_top
-                + board_pin.position.y
-                + self.config.pin_number_y_offset,
+                self.config.board_margin_top + board_pin.position.y,
             )
 
             to_pos = Point(
@@ -514,21 +512,6 @@ class LayoutEngine:
             canvas_height = max(
                 canvas_height, legend_y + self.config.legend_height + self.config.legend_margin
             )
-
-        # Add space for GPIO diagram on the right if enabled
-        if diagram.show_gpio_diagram:
-            canvas_width += self.config.gpio_diagram_width + self.config.gpio_diagram_margin
-
-            # Ensure canvas height accommodates the GPIO diagram
-            # GPIO diagram viewBox is 500x1600, when scaled to target width
-            gpio_original_width = 500.0
-            gpio_original_height = 1600.0
-            gpio_scale = self.config.gpio_diagram_width / gpio_original_width
-            gpio_height = gpio_original_height * gpio_scale
-
-            # Minimum canvas height to fit GPIO diagram with margins
-            min_height_for_gpio = gpio_height + (2 * self.config.board_margin_top)
-            canvas_height = max(canvas_height, min_height_for_gpio)
 
         return canvas_width, canvas_height
 

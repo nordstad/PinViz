@@ -21,7 +21,7 @@ def test_load_from_yaml_file(sample_yaml_config):
 
     assert diagram is not None
     assert diagram.title == "Test Configuration"
-    assert diagram.board.name == "Raspberry Pi"
+    assert diagram.board.name == "Raspberry Pi 5"
     assert len(diagram.devices) == 2
     assert len(diagram.connections) == 6
 
@@ -176,7 +176,7 @@ def test_load_board_by_name(board_name):
     diagram = loader.load_from_dict(config)
 
     assert diagram.board is not None
-    assert diagram.board.name == "Raspberry Pi"
+    assert diagram.board.name == "Raspberry Pi 5"
 
 
 @pytest.mark.parametrize(

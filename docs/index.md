@@ -48,7 +48,6 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - **Hardware Validation**: Catch wiring mistakes before building (pin conflicts, voltage mismatches, I2C address collisions)
 - **MCP Server**: Generate diagrams using natural language with Claude (via Model Context Protocol)
 - **Structured Logging**: Professional logging with contextual information using structlog
-- **GPIO Pin Reference**: Optional GPIO pinout diagram for easy reference
 - **SVG Output**: Scalable, high-quality vector graphics
 
 ## Example Diagrams

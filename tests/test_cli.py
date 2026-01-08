@@ -250,7 +250,7 @@ def test_create_bh1750_example():
     assert len(diagram.devices) == 1
     assert diagram.devices[0].name == "BH1750"
     assert len(diagram.connections) == 4
-    assert diagram.show_gpio_diagram is True
+    assert diagram.show_gpio_diagram is False
 
 
 def test_create_ir_led_example():
@@ -261,7 +261,7 @@ def test_create_ir_led_example():
     assert len(diagram.devices) == 1
     assert "IR LED Ring" in diagram.devices[0].name
     assert len(diagram.connections) == 3
-    assert diagram.show_gpio_diagram is True
+    assert diagram.show_gpio_diagram is False
 
 
 def test_create_i2c_spi_example():
@@ -275,7 +275,7 @@ def test_create_i2c_spi_example():
     assert "BH1750" in device_names
     assert any("LED" in name for name in device_names)
     assert len(diagram.connections) > 6  # Multiple device connections
-    assert diagram.show_gpio_diagram is True
+    assert diagram.show_gpio_diagram is False
 
 
 def test_full_render_workflow(sample_yaml_config, temp_output_dir):

@@ -4,7 +4,7 @@
 <defs>
 </defs>
 <rect x="0" y="0" width="730.0" height="427.46" fill="white" />
-<text x="365.0" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">12-LED IR Ring Module Wiring</text>
+<text x="365.0" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">IR LED Ring Wiring</text>
 <g transform="translate(40.0, 80.0)">
 <g>
 <g id="g477">
@@ -938,25 +938,25 @@
 </g>
 </g>
 <text x="142.70999999999998" y="407.46" font-size="14" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">Raspberry Pi 5</text>
-<path d="M 227.00,132.50 C 244.53,142.58 336.29,98.78 455.00,95.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 227.00,132.50 C 244.53,142.58 336.29,98.78 455.00,95.00" stroke="#000000" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<circle cx="227.0" cy="132.5" r="4" fill="white" />
-<circle cx="227.0" cy="132.5" r="3" fill="#000000" />
-<circle cx="455.0" cy="95.0" r="4" fill="white" />
-<circle cx="455.0" cy="95.0" r="3" fill="#000000" />
-<path d="M 227.00,144.50 C 253.57,150.26 390.37,86.92 455.00,85.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 227.00,144.50 C 253.57,150.26 390.37,86.92 455.00,85.00" stroke="#808080" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<circle cx="227.0" cy="144.5" r="4" fill="white" />
-<circle cx="227.0" cy="144.5" r="3" fill="#808080" />
+<path d="M 227.00,120.50 C 246.93,153.06 341.89,97.21 455.00,85.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 227.00,120.50 C 246.93,153.06 341.89,97.21 455.00,85.00" stroke="#808080" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<circle cx="227.0" cy="120.5" r="4" fill="white" />
+<circle cx="227.0" cy="120.5" r="3" fill="#808080" />
 <circle cx="455.0" cy="85.0" r="4" fill="white" />
 <circle cx="455.0" cy="85.0" r="3" fill="#808080" />
-<path d="M 239.00,84.50 C 250.53,69.30 330.69,69.30 455.00,75.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 239.00,84.50 C 250.53,69.30 330.69,69.30 455.00,75.00" stroke="#FF0000" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 239.00,108.50 C 252.93,105.54 336.29,93.89 455.00,95.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 239.00,108.50 C 252.93,105.54 336.29,93.89 455.00,95.00" stroke="#000000" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<circle cx="239.0" cy="108.5" r="4" fill="white" />
+<circle cx="239.0" cy="108.5" r="3" fill="#000000" />
+<circle cx="455.0" cy="95.0" r="4" fill="white" />
+<circle cx="455.0" cy="95.0" r="3" fill="#000000" />
+<path d="M 239.00,84.50 C 250.53,54.90 330.69,63.90 455.00,75.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 239.00,84.50 C 250.53,54.90 330.69,63.90 455.00,75.00" stroke="#FF0000" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="239.0" cy="84.5" r="4" fill="white" />
 <circle cx="239.0" cy="84.5" r="3" fill="#FF0000" />
 <circle cx="455.0" cy="75.0" r="4" fill="white" />
 <circle cx="455.0" cy="75.0" r="3" fill="#FF0000" />
-<text x="490.0" y="55.0" font-size="12.0" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">IR_LED_Ring</text>
+<text x="490.0" y="55.0" font-size="12.0" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">IR LED Ring (12)</text>
 <rect x="450.0" y="60.0" width="80.0" height="50.0" rx="5" ry="5" fill="#E24A4A" stroke="#333" stroke-width="2" opacity="0.9" />
 <circle cx="455.0" cy="75.0" r="3" fill="#FFD700" stroke="#333" />
 <rect x="461.0" y="70.0" width="20.6" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />

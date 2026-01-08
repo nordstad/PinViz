@@ -176,11 +176,6 @@ class SVGRenderer:
         for device in diagram.devices:
             self._draw_device(dwg, device)
 
-        # Draw GPIO pin diagram on the right if enabled
-        if diagram.show_gpio_diagram:
-            log.debug("drawing_gpio_diagram")
-            self._draw_gpio_diagram(dwg, canvas_width)
-
         # Legend removed per user request - cleaner diagram
 
         # Save
@@ -251,9 +246,6 @@ class SVGRenderer:
             board_width = board.width
             board_height = board.height
 
-        # Draw GPIO pin numbers
-        self._draw_gpio_pin_numbers(dwg, board, x, y)
-
         # Draw board label
         dwg.append(
             draw.Text(
@@ -267,91 +259,6 @@ class SVGRenderer:
                 fill="#333",
             )
         )
-
-    def _draw_gpio_pin_numbers(self, dwg: draw.Drawing, board: Board, x: float, y: float) -> None:
-        """
-        Draw pin numbers on GPIO header with color-coded backgrounds.
-
-        Creates small circles at each pin location with the physical pin number (1-40)
-        and color-coded background based on pin role (power, ground, GPIO, I2C, SPI, etc.).
-
-        Args:
-            dwg: The SVG drawing object
-            board: The board containing pin definitions
-            x: Board X offset
-            y: Board Y offset
-        """
-        # Use the same offset as defined in layout config for consistency
-        pin_number_y_offset = self.layout_config.pin_number_y_offset
-
-        # Color mapping for pin backgrounds based on pin role
-        from .model import PinRole
-
-        role_colors = {
-            PinRole.POWER_3V3: "#FFA500",  # Orange
-            PinRole.POWER_5V: "#FF0000",  # Red
-            PinRole.GROUND: "#D3D3D3",  # Light gray
-            PinRole.I2C_SDA: "#FF00FF",  # Magenta
-            PinRole.I2C_SCL: "#FF00FF",  # Magenta
-            PinRole.I2C_EEPROM: "#FFFF00",  # Yellow
-            PinRole.SPI_MOSI: "#0000FF",  # Blue
-            PinRole.SPI_MISO: "#0000FF",  # Blue
-            PinRole.SPI_SCLK: "#0000FF",  # Blue
-            PinRole.SPI_CE0: "#0000FF",  # Blue
-            PinRole.SPI_CE1: "#0000FF",  # Blue
-            PinRole.UART_TX: "#0000FF",  # Blue
-            PinRole.UART_RX: "#0000FF",  # Blue
-            PinRole.PWM: "#00FF00",  # Green
-            PinRole.GPIO: "#00FF00",  # Green
-            PinRole.PCM_CLK: "#00FF00",  # Green
-            PinRole.PCM_FS: "#00FF00",  # Green
-            PinRole.PCM_DIN: "#00FF00",  # Green
-            PinRole.PCM_DOUT: "#00FF00",  # Green
-        }
-
-        # Use larger pins for Pi Zero boards (smaller board, needs bigger pins)
-        is_pi_zero = "Zero" in board.name
-        pin_radius = 7.5 if is_pi_zero else 4.5
-        pin_font_size = "6px" if is_pi_zero else "4.5px"
-
-        for pin in board.pins:
-            pin_x = x + pin.position.x
-            pin_y = y + pin.position.y + pin_number_y_offset
-
-            # Draw circle background for pin number
-            # Match the size of connector circles in pi_5_mod.svg (r=2.088)
-            # Use larger size for better visibility: r=4.5 (Pi 5) or r=7.5 (Pi Zero)
-            # Use color based on pin role
-            bg_color = role_colors.get(pin.role, "#FFFFFF")  # Default to white if role not found
-
-            dwg.append(
-                draw.Circle(
-                    pin_x,
-                    pin_y,
-                    pin_radius,
-                    fill=bg_color,
-                    stroke="#333",
-                    stroke_width=0.5,
-                    opacity=0.95,
-                )
-            )
-
-            # Draw pin number - scaled to fit in circle
-            font_size = pin_font_size  # Scaled to fit in circle
-            # Use white text on blue backgrounds for better readability
-            text_color = "#FFFFFF" if bg_color == "#0000FF" else "#000000"
-            dwg.append(
-                draw.Text(
-                    str(pin.number),
-                    _parse_font_size(font_size),
-                    pin_x,
-                    pin_y + 1.5,
-                    text_anchor="middle",
-                    font_family="Arial, sans-serif",
-                    font_weight="bold",
-                    fill=text_color,
-                )
-            )
 
     def _inline_svg_elements(self, parent_group, svg_root, dwg: draw.Drawing) -> None:
         """
@@ -1021,58 +928,6 @@ class SVGRenderer:
             )
 
             entry_y += line_height
-
-    def _draw_gpio_diagram(self, dwg: draw.Drawing, canvas_width: float) -> None:
-        """
-        Draw the GPIO pin reference diagram on the right side.
-
-        Embeds the GPIO pin reference SVG showing all pins with their roles,
-        scaled and positioned on the right side of the canvas. This provides
-        a quick reference for pin functions.
-
-        Args:
-            dwg: The SVG drawing object
-            canvas_width: Total canvas width for positioning
-        """
-        # Path to the GPIO diagram SVG
-        gpio_svg_path = Path(__file__).parent / "assets" / "gpio_pins.svg"
-
-        if not gpio_svg_path.exists():
-            print(f"Warning: GPIO diagram not found at {gpio_svg_path}")
-            return
-
-        try:
-            # Parse the GPIO SVG file
-            tree = ET.parse(gpio_svg_path)
-            root = tree.getroot()
-
-            # Extract viewBox to get original dimensions
-            viewbox_str = root.get("viewBox")
-            if viewbox_str:
-                viewbox_parts = viewbox_str.split()
-                original_width = float(viewbox_parts[2])
-            else:
-                # Fallback dimensions if no viewBox
-                original_width = 500.0
-
-            # Calculate scale and position
-            target_width = self.layout_config.gpio_diagram_width
-            scale = target_width / original_width
-
-            # Position on the right side, aligned from top with margin
-            x = canvas_width - target_width - self.layout_config.gpio_diagram_margin
-            y = self.layout_config.board_margin_top
-
-            # Create a group for the GPIO diagram with scaling and positioning
-            gpio_group = draw.Group(transform=f"translate({x}, {y}) scale({scale})")
-
-            # Inline the SVG content
-            self._inline_svg_elements(gpio_group, root, dwg)
-
-            dwg.append(gpio_group)
-
-        except Exception as e:
-            print(f"Warning: Could not load GPIO diagram ({e})")
 
     def render_to_string(self, diagram: Diagram) -> str:
         """

@@ -45,9 +45,9 @@ def raspberry_pi_5() -> Board:
     # - Right column (even pins): 2, 4, 6, ..., 40 (top to bottom)
     #
     # Fine-tuned values to align with pi_5_mod.svg yellow circles (GPIO pins)
-    left_col_x = 187.0  # X position for left column (odd pins)
-    right_col_x = 199.0  # X position for right column (even pins)
-    start_y = 4.5  # Starting Y position (top)
+    left_col_x = 187.1  # X position for left column (odd pins)
+    right_col_x = 199.1  # X position for right column (even pins)
+    start_y = 16.2  # Starting Y position (top)
     row_spacing = 12.0  # Vertical spacing between rows
 
     _pin_positions = {}

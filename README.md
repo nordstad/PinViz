@@ -48,7 +48,6 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
 - **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
 - **Built-in Templates**: Pre-configured boards (Raspberry Pi 5, Pi Zero) and common devices
-- **GPIO Pin Reference**: Optional GPIO pinout diagram for easy reference
 - **SVG Output**: Scalable, high-quality vector graphics
 
 <details>
@@ -171,8 +170,6 @@ connections:
   - board_pin: 3     # GPIO2 (I2C SDA)
     device: "BH1750"
     device_pin: "SDA"
-
-show_gpio_diagram: true  # Optional: include GPIO pin reference
 ```
 
 **JSON format** (`my-diagram.json`):
@@ -192,8 +189,7 @@ show_gpio_diagram: true  # Optional: include GPIO pin reference
     {"board_pin": 6, "device": "BH1750", "device_pin": "GND"},
     {"board_pin": 5, "device": "BH1750", "device_pin": "SCL"},
     {"board_pin": 3, "device": "BH1750", "device_pin": "SDA"}
-  ],
-  "show_gpio_diagram": true
+  ]
 }
 ```
 
@@ -227,8 +223,7 @@ diagram = Diagram(
     title="BH1750 Light Sensor Wiring",
     board=board,
     devices=[sensor],
-    connections=connections,
-    show_gpio_diagram=True  # Optional: include GPIO pin reference
+    connections=connections
 )
 
 renderer = SVGRenderer()
@@ -462,35 +457,10 @@ pinviz render examples/traffic_light.yaml -o traffic_light.svg
 <summary><b>👉 Raspberry Pi Zero 2 W</b> - Compact board layout <i>(click to expand)</i></summary>
 
 ```bash
-pinviz render examples/pi_zero_bh1750.yaml --no-gpio -o pi_zero_bh1750.svg
+pinviz render examples/pi_zero_bh1750.yaml -o pi_zero_bh1750.svg
 ```
 
 ![Pi Zero BH1750](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/pi_zero_bh1750_without_gpio.svg)
-
-</details>
-
-<details>
-<summary><b>👉 GPIO Reference Comparison</b> - With vs Without GPIO details <i>(click to expand)</i></summary>
-
-### With GPIO Details
-
-Shows complete GPIO pinout reference for easy wiring verification (`--gpio`, ~130KB).
-
-```bash
-pinviz example bh1750 --gpio -o diagram.svg
-```
-
-![BH1750 with GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_with_gpio.svg)
-
-### Without GPIO Details
-
-Cleaner, more compact diagram - 35% smaller file size (`--no-gpio`, ~85KB).
-
-```bash
-pinviz example bh1750 --no-gpio -o diagram.svg
-```
-
-![BH1750 without GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_without_gpio.svg)
 
 </details>
 
@@ -502,39 +472,6 @@ pinviz example bh1750 --no-gpio -o diagram.svg
 ## ⚙️ Configuration Reference
 
 > **💡 Click any section below to see detailed configuration options!**
-
-<details>
-<summary><b>👉 📋 Diagram Options</b> <i>(click to expand)</i></summary>
-
-### GPIO Pin Reference
-
-Control whether to show the GPIO pin reference diagram on the right side. This displays all 40 GPIO pins with their functions and color-coded roles.
-
-**In YAML config:**
-
-```yaml
-show_gpio_diagram: true  # Include GPIO pin reference (default: false)
-```
-
-**Via CLI:**
-
-```bash
-# Show GPIO details (larger file, more complete reference)
-pinviz example bh1750 --gpio -o diagram.svg
-
-# Hide GPIO details (smaller file, cleaner look)
-pinviz example bh1750 --no-gpio -o diagram.svg
-
-# For config files (CLI flag overrides config value)
-pinviz render diagram.yaml --gpio -o output.svg
-```
-
-**Comparison:**
-
-- **With GPIO** (`--gpio`): ~130KB SVG, includes full pinout reference
-- **Without GPIO** (`--no-gpio`): ~85KB SVG, 35% smaller, cleaner diagram
-
-</details>
 
 <details>
 <summary><b>👉 🎛️ Board Selection</b> <i>(click to expand)</i></summary>

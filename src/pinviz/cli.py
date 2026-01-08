@@ -118,20 +118,6 @@ def main() -> int:
         metavar="PATH",
         help="Output SVG file path (default: <config>.svg)",
     )
-    gpio_group = render_parser.add_mutually_exclusive_group()
-    gpio_group.add_argument(
-        "--gpio",
-        action="store_true",
-        dest="show_gpio",
-        help="Show GPIO pin reference diagram",
-    )
-    gpio_group.add_argument(
-        "--no-gpio",
-        action="store_false",
-        dest="show_gpio",
-        help="Hide GPIO pin reference diagram (default: use config file setting)",
-    )
-    render_parser.set_defaults(show_gpio=None)  # None means use config file value
 
     # Example command
     example_parser = subparsers.add_parser(
@@ -151,20 +137,6 @@ def main() -> int:
         metavar="PATH",
         help="Output SVG file path (default: ./out/<name>.svg)",
     )
-    gpio_group = example_parser.add_mutually_exclusive_group()
-    gpio_group.add_argument(
-        "--gpio",
-        action="store_true",
-        dest="show_gpio",
-        help="Show GPIO pin reference diagram",
-    )
-    gpio_group.add_argument(
-        "--no-gpio",
-        action="store_false",
-        dest="show_gpio",
-        help="Hide GPIO pin reference diagram (default: show)",
-    )
-    example_parser.set_defaults(show_gpio=True)  # Examples default to showing GPIO
 
     # Validate command
     validate_parser = subparsers.add_parser(
@@ -278,13 +250,6 @@ def render_command(args: Any) -> int:
                 log.warning("validation_warnings", warning_count=len(warnings))
                 print(f"\n⚠️  Found {len(warnings)} warning(s). Review your wiring carefully.")
             print()
-
-        # Override show_gpio_diagram if CLI flag is specified
-        if hasattr(args, "show_gpio") and args.show_gpio is not None:
-            from dataclasses import replace
-
-            diagram = replace(diagram, show_gpio_diagram=args.show_gpio)
-            log.debug("gpio_diagram_override", show_gpio=args.show_gpio)
 
         log.info("rendering_started", output_path=str(output_path))
         print(f"Rendering diagram to {output_path}...")
@@ -430,13 +395,6 @@ def example_command(args: Any) -> int:
             connection_count=len(diagram.connections),
         )
 
-        # Override show_gpio_diagram if CLI flag is explicitly specified
-        if hasattr(args, "show_gpio"):
-            from dataclasses import replace
-
-            diagram = replace(diagram, show_gpio_diagram=args.show_gpio)
-            log.debug("gpio_diagram_override", show_gpio=args.show_gpio)
-
         log.info("rendering_example", output_path=str(output_path))
         print(f"Rendering diagram to {output_path}...")
         renderer = SVGRenderer()
@@ -519,7 +477,6 @@ def create_bh1750_example():
         board=board,
         devices=[sensor],
         connections=connections,
-        show_gpio_diagram=True,
     )
 
 
@@ -543,7 +500,6 @@ def create_ir_led_example() -> Diagram:
         board=board,
         devices=[ir_led],
         connections=connections,
-        show_gpio_diagram=True,
     )
 
 
@@ -582,7 +538,6 @@ def create_i2c_spi_example():
         board=board,
         devices=[bh1750, spi_device, led],
         connections=connections,
-        show_gpio_diagram=True,
     )
 
 

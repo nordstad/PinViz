@@ -305,7 +305,7 @@ show_legend: true
 **Generate:**
 
 ```bash
-pinviz render examples/pi_zero_bh1750.yaml --no-gpio -o pi_zero.svg
+pinviz render examples/pi_zero_bh1750.yaml -o pi_zero.svg
 ```
 
 **Result:**
@@ -317,36 +317,6 @@ pinviz render examples/pi_zero_bh1750.yaml --no-gpio -o pi_zero.svg
 - Same 40-pin GPIO header pinout as Pi 5
 - Smaller form factor visualization
 - Identical connections work across boards
-
----
-
-## GPIO Reference Comparison
-
-You can control whether to show the GPIO pin reference diagram. Here's a side-by-side comparison:
-
-### With GPIO Details
-
-Shows complete GPIO pinout reference (~130KB SVG):
-
-```bash
-pinviz example bh1750 --gpio -o diagram.svg
-```
-
-![BH1750 with GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_with_gpio.svg)
-
-### Without GPIO Details
-
-Cleaner, more compact diagram (~85KB SVG, 35% smaller):
-
-```bash
-pinviz example bh1750 --no-gpio -o diagram.svg
-```
-
-![BH1750 without GPIO](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_without_gpio.svg)
-
-**When to use each:**
-- **With GPIO** (`--gpio`): Initial learning, documentation, when you need the pinout reference
-- **Without GPIO** (`--no-gpio`): Cleaner diagrams, presentations, when space is limited
 
 ---
 

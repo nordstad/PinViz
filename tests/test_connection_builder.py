@@ -21,7 +21,7 @@ class TestConnectionBuilder:
         builder = ConnectionBuilder()
         board = builder._get_board("raspberry_pi_5")
 
-        assert board.name == "Raspberry Pi"
+        assert board.name == "Raspberry Pi 5"
         assert len(board.pins) == 40
 
     def test_get_board_default(self):
@@ -29,7 +29,7 @@ class TestConnectionBuilder:
         builder = ConnectionBuilder()
         board = builder._get_board("unknown_board")
 
-        assert board.name == "Raspberry Pi"
+        assert board.name == "Raspberry Pi 5"
 
     def test_build_single_device(self):
         """Test building a single device."""
@@ -206,7 +206,7 @@ class TestConnectionBuilder:
 
         assert isinstance(diagram, Diagram)
         assert diagram.title == "Test Diagram"
-        assert diagram.board.name == "Raspberry Pi"
+        assert diagram.board.name == "Raspberry Pi 5"
         assert len(diagram.devices) == 1
         assert len(diagram.connections) == 2
         assert diagram.show_legend is True
