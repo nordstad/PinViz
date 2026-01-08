@@ -9,7 +9,7 @@ def test_layout_config_defaults():
     """Test that LayoutConfig has sensible defaults."""
     config = LayoutConfig()
     assert config.board_margin_left == 40.0
-    assert config.board_margin_top == 40.0
+    assert config.board_margin_top == 80.0  # Increased to prevent title overlap
     assert config.device_area_left == 450.0
     assert config.device_spacing_vertical == 20.0
     assert config.rail_offset == 40.0
