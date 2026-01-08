@@ -143,18 +143,18 @@ class LayoutEngine:
 
     def _route_wires(self, diagram: Diagram) -> list[RoutedWire]:
         """
-        Route all wires with improved spacing and bundling.
+        Route all wires using device-based routing lanes to prevent crossings.
 
-        Uses rail-based routing with:
-        - Intelligent wire grouping by source pin
-        - Sorted routing by destination for natural bundling
-        - Progressive offsets to prevent overlap
-        - Minimum spacing guarantees
+        Strategy:
+        - Assign each device a vertical routing zone based on its Y position
+        - Wires to the same device route through that device's zone
+        - Wires to different devices use different zones, preventing crossings
+        - Similar to Fritzing's approach where wires don't cross
         """
         routed_wires: list[RoutedWire] = []
 
-        # Group connections by source pin and sort by destination Y
-        pin_groups: dict[int, list[tuple[Connection, Point, Point, str]]] = {}
+        # First pass: collect all connection data
+        wire_data: list[tuple[Connection, Point, Point, str, Device]] = []
 
         for conn in diagram.connections:
             # Find board pin
@@ -192,128 +192,124 @@ class LayoutEngine:
             else:
                 color = DEFAULT_COLORS.get(board_pin.role, "#808080")
 
-            # Group by source pin
-            pin_key = conn.board_pin
-            if pin_key not in pin_groups:
-                pin_groups[pin_key] = []
-            pin_groups[pin_key].append((conn, from_pos, to_pos, color))
+            wire_data.append((conn, from_pos, to_pos, color, device))
 
-        # Track used rail positions to avoid overlap
-        used_rails: list[tuple[float, float, float]] = []  # (y_min, y_max, rail_x)
+        # Sort wires by target device Y position, then by target pin Y
+        # This ensures wires going to the same device are grouped together
+        wire_data.sort(key=lambda x: (x[4].position.y, x[2].y))
 
-        # Calculate consistent base X for all rail positions
-        # Use the board's right edge as reference point for rail area
+        # Calculate base rail X position
         board_right_edge = self.config.board_margin_left + diagram.board.width
         base_rail_x = board_right_edge + self.config.rail_offset
 
-        # Global wire counter for assigning unique rail positions
-        wire_index = 0
+        # Assign each unique device a base rail X position
+        # Devices lower on the page get rails further to the right
+        unique_devices = []
+        seen_devices = set()
+        for _, _, _, _, device in wire_data:
+            if device.name not in seen_devices:
+                unique_devices.append(device)
+                seen_devices.add(device.name)
 
-        # Route wires for each pin group
-        for _pin_key, connections in pin_groups.items():
-            # Sort by destination Y for natural bundling
-            connections.sort(key=lambda x: x[2].y)
+        # Create rail mapping: each device gets a base rail position
+        device_to_base_rail: dict[str, float] = {}
+        for idx, device in enumerate(unique_devices):
+            # Each device gets a base rail offset
+            device_to_base_rail[device.name] = base_rail_x + (idx * self.config.wire_spacing * 3)
 
-            for idx, (conn, from_pos, to_pos, color) in enumerate(connections):
-                # Give each wire its own rail position with full wire_spacing
-                # Use consistent base for all wires, not per-pin position
-                rail_x = base_rail_x + (wire_index * self.config.wire_spacing)
+        # Count wires per device to add sub-offsets
+        wire_count_per_device: dict[str, int] = {}
+        for _, _, _, _, device in wire_data:
+            wire_count_per_device[device.name] = wire_count_per_device.get(device.name, 0) + 1
 
-                # Y offset within pin group for visual separation at header
-                # Match wire_spacing to ensure clear vertical separation
-                y_offset = idx * self.config.wire_spacing  # Full spacing for visibility
+        # Track wire index per device
+        wire_index_per_device: dict[str, int] = {}
 
-                # Check for collisions with existing wires and adjust if needed
-                rail_x = self._find_clear_rail_position(
-                    rail_x, from_pos.y + y_offset, to_pos.y, used_rails
+        # Route each wire through its target device's dedicated rail with sub-offset
+        for conn, from_pos, to_pos, color, device in wire_data:
+            # Get the base rail X for this device
+            base_rail = device_to_base_rail[device.name]
+
+            # Get wire index for this device
+            wire_idx = wire_index_per_device.get(device.name, 0)
+            wire_index_per_device[device.name] = wire_idx + 1
+
+            # Add sub-offset for multiple wires to same device
+            # Center the wires around the base rail position
+            num_wires = wire_count_per_device[device.name]
+            if num_wires > 1:
+                # Spread wires evenly around the base rail
+                spread = (num_wires - 1) * self.config.wire_spacing / 2
+                offset = wire_idx * self.config.wire_spacing - spread
+            else:
+                offset = 0
+
+            rail_x = base_rail + offset
+
+            # Create path points routing through the device's rail
+            path_points = self._calculate_wire_path_device_zone(
+                from_pos,
+                to_pos,
+                rail_x,
+                0,
+                conn.style,  # zone_y unused now
+            )
+
+            routed_wires.append(
+                RoutedWire(
+                    connection=conn,
+                    path_points=path_points,
+                    color=color,
+                    from_pin_pos=from_pos,
+                    to_pin_pos=to_pos,
                 )
-
-                # Create path points with Y offset
-                path_points = self._calculate_wire_path_with_rail(
-                    from_pos, to_pos, rail_x, y_offset, conn.style
-                )
-
-                # Record this rail usage
-                y_min = min(from_pos.y, to_pos.y)
-                y_max = max(from_pos.y, to_pos.y)
-                used_rails.append((y_min, y_max, rail_x))
-
-                routed_wires.append(
-                    RoutedWire(
-                        connection=conn,
-                        path_points=path_points,
-                        color=color,
-                        from_pin_pos=from_pos,
-                        to_pin_pos=to_pos,
-                    )
-                )
-
-                wire_index += 1  # Increment for next wire
+            )
 
         return routed_wires
 
-    def _find_clear_rail_position(
+    def _calculate_wire_path_device_zone(
         self,
-        preferred_x: float,
-        y_min: float,
-        y_max: float,
-        used_rails: list[tuple[float, float, float]],
-    ) -> float:
-        """
-        Find a clear rail X position that doesn't overlap with existing wires.
-
-        Checks if the preferred position conflicts with any existing rail
-        in the same Y range, and adjusts if needed.
-        """
-        # Check for conflicts with existing wires in overlapping Y ranges
-        for used_y_min, used_y_max, used_x in used_rails:
-            # Check if Y ranges overlap and X positions are too close
-            if (
-                not (y_max < used_y_min or y_min > used_y_max)
-                and abs(preferred_x - used_x) < self.config.wire_spacing
-            ):
-                # Adjust to the right with proper spacing
-                preferred_x = used_x + self.config.wire_spacing
-
-        return preferred_x
-
-    def _calculate_wire_path_with_rail(
-        self, from_pos: Point, to_pos: Point, rail_x: float, y_offset: float, style: WireStyle
+        from_pos: Point,
+        to_pos: Point,
+        rail_x: float,
+        zone_y: float,
+        style: WireStyle,
     ) -> list[Point]:
         """
-        Calculate wire path using rail-based routing with fan-out.
+        Calculate wire path routing through a device's vertical zone.
 
-        Creates an orthogonal path:
-        1. Start at GPIO pin
-        2. Short horizontal with slight Y offset (fan-out)
-        3. Vertical to rail height
-        4. Along rail to target height
-        5. Horizontal to device pin
+        This routing strategy prevents wire crossings by ensuring wires
+        to different devices route through different vertical zones.
+
+        Path structure:
+        1. Start at board pin
+        2. Horizontal to rail X
+        3. Vertical along rail to target device pin Y
+        4. Horizontal to device pin
+
+        Note: We route directly to the device pin Y, not through a zone,
+        to ensure wires connect to the correct pins.
 
         Args:
-            from_pos: Starting position (GPIO pin)
+            from_pos: Starting position (board pin)
             to_pos: Ending position (device pin)
-            rail_x: X position of the vertical rail
-            y_offset: Vertical offset for fan-out effect
+            rail_x: X position of vertical routing rail
+            zone_y: Y position of device's routing zone (unused in this simple version)
             style: Wire routing style
-        """
-        # Create fan-out: horizontal segment at different Y for each wire
-        # Increase distance to allow wires to spread before reaching rail
-        fanout_x = from_pos.x + 35  # Distance to clear header and allow fan-out
-        fanout_y = from_pos.y + y_offset
 
+        Returns:
+            List of points defining the wire path
+        """
         if style == WireStyle.MIXED or style == WireStyle.ORTHOGONAL:
             return [
-                from_pos,
-                Point(fanout_x, fanout_y),  # Fan out with Y offset
-                Point(rail_x, fanout_y),  # Continue horizontal to rail
-                Point(rail_x, to_pos.y),  # Vertical along rail
-                to_pos,  # Final horizontal to device
+                from_pos,  # Start at board pin
+                Point(rail_x, from_pos.y),  # Horizontal to rail
+                Point(rail_x, to_pos.y),  # Vertical along rail to device pin Y
+                to_pos,  # Horizontal to device pin
             ]
         elif style == WireStyle.CURVED:
             return [
                 from_pos,
-                Point(fanout_x, fanout_y),
                 Point(rail_x, to_pos.y),
                 to_pos,
             ]
