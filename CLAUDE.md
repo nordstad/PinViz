@@ -77,7 +77,7 @@ pinviz list
 - **LayoutConfig**: Configurable spacing, margins, corner radius
 
 ### SVG Rendering (`render_svg.py`)
-- **SVGRenderer class**: Converts diagram objects to SVG files using `svgwrite`
+- **SVGRenderer class**: Converts diagram objects to SVG files using `drawsvg`
 - Embeds external board SVG assets by parsing and inlining elements
 - Draws devices as colored rounded rectangles with pin markers
 - Draws wires as paths with rounded corners using bezier curves

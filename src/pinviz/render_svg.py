@@ -6,6 +6,7 @@ from pathlib import Path
 
 import drawsvg as draw
 
+from .board_renderer import BoardRenderer, BoardStyle
 from .layout import LayoutConfig, LayoutEngine, RoutedWire, create_bezier_path
 from .logging_config import get_logger
 from .model import DEFAULT_COLORS, Board, ComponentType, Device, Diagram, PinRole, Point
@@ -167,9 +168,8 @@ class SVGRenderer:
         """
         Draw the Raspberry Pi board with GPIO pins.
 
-        Embeds the board SVG asset, draws GPIO pin numbers with color-coded backgrounds,
-        and adds the board name label. Falls back to simple rectangle if SVG asset
-        is not available.
+        Uses the new standardized BoardRenderer if board.layout is defined,
+        otherwise falls back to legacy SVG asset embedding.
 
         Args:
             dwg: The SVG drawing object
@@ -178,8 +178,25 @@ class SVGRenderer:
         x = self.layout_config.board_margin_left
         y = self.layout_config.board_margin_top
 
-        # Load and embed the board SVG
-        if Path(board.svg_asset_path).exists():
+        # NEW: Use standardized BoardRenderer if layout is defined
+        if board.layout is not None:
+            log.debug("using_standardized_board_renderer", board_name=board.name)
+
+            # Create board style (with optional overrides)
+            style = BoardStyle(**board.style_overrides) if board.style_overrides else BoardStyle()
+
+            # Render using new system
+            renderer = BoardRenderer(style)
+            board_group = renderer.render_board(board.layout, x, y)
+            dwg.append(board_group)
+
+            # Calculate board dimensions for label positioning
+            board_width = board.layout.width_mm * style.scale_factor
+            board_height = board.layout.height_mm * style.scale_factor
+
+        # LEGACY: Fall back to SVG asset embedding
+        elif Path(board.svg_asset_path).exists():
+            log.debug("using_legacy_svg_asset", board_name=board.name, path=board.svg_asset_path)
             try:
                 # Parse the SVG file
                 tree = ET.parse(board.svg_asset_path)
@@ -193,13 +210,22 @@ class SVGRenderer:
 
                 dwg.append(board_group)
 
+                board_width = board.width
+                board_height = board.height
+
             except Exception as e:
                 # Fallback: draw a simple rectangle
+                log.warning("svg_load_failed", error=str(e), board=board.name)
                 print(f"Warning: Could not load board SVG ({e}), using fallback")
                 self._draw_board_fallback(dwg, board, x, y)
+                board_width = board.width
+                board_height = board.height
         else:
             # Fallback: draw a simple rectangle
+            log.debug("using_fallback_rectangle", board_name=board.name)
             self._draw_board_fallback(dwg, board, x, y)
+            board_width = board.width
+            board_height = board.height
 
         # Draw GPIO pin numbers
         self._draw_gpio_pin_numbers(dwg, board, x, y)
@@ -209,8 +235,8 @@ class SVGRenderer:
             draw.Text(
                 board.name,
                 14,
-                x + board.width / 2,
-                y + board.height + 20,
+                x + board_width / 2,
+                y + board_height + 20,
                 text_anchor="middle",
                 font_family="Arial, sans-serif",
                 font_weight="bold",

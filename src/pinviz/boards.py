@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from .board_renderer import BoardLayout
 from .model import Board, HeaderPin, PinRole, Point
 
 
@@ -123,13 +124,31 @@ def raspberry_pi_5() -> Board:
         HeaderPin(40, "GPIO21", PinRole.PCM_DOUT, gpio_bcm=21, position=_pin_positions[40]),
     ]
 
+    # Create standardized layout with physical dimensions
+    # Pi 5 is 85mm × 56mm, but rotated 90° in the SVG (height becomes width)
+    layout = BoardLayout(
+        width_mm=56.0,  # Physical 56mm width (rotated)
+        height_mm=85.0,  # Physical 85mm height (rotated)
+        header_x_mm=2.0,  # Header starts 2mm from left edge
+        header_y_mm=7.5,  # Header starts 7.5mm from top
+        header_width_mm=5.08,  # Standard 2-row header (2.54mm * 2)
+        header_height_mm=50.8,  # 20 pins * 2.54mm pitch
+        mounting_holes=[
+            Point(3.5, 3.5),  # Top-left
+            Point(52.5, 3.5),  # Top-right
+            Point(3.5, 81.5),  # Bottom-left
+            Point(52.5, 81.5),  # Bottom-right
+        ],
+    )
+
     return Board(
         name="Raspberry Pi",
         pins=pins,
-        svg_asset_path=_get_asset_path("pi2.svg"),
-        width=205.42,
-        height=307.46,
-        header_offset=Point(23.715, 5.156),
+        svg_asset_path=_get_asset_path("pi2.svg"),  # Legacy fallback
+        width=205.42,  # Legacy
+        height=307.46,  # Legacy
+        header_offset=Point(23.715, 5.156),  # Legacy
+        layout=layout,  # New standardized layout
     )
 
 
@@ -246,13 +265,32 @@ def raspberry_pi_zero_2w() -> Board:
         HeaderPin(40, "GPIO21", PinRole.PCM_DOUT, gpio_bcm=21, position=_pin_positions[40]),
     ]
 
+    # Create standardized layout with physical dimensions
+    # Pi Zero is 65mm × 30mm, rotated 90° like Pi 5
+    # KEY FIX: Using same 3.0 px/mm scale factor as Pi 5 for consistency
+    layout = BoardLayout(
+        width_mm=30.0,  # Physical 30mm width (rotated) - SMALLER than Pi 5!
+        height_mm=65.0,  # Physical 65mm height (rotated) - SMALLER than Pi 5!
+        header_x_mm=2.0,  # Header starts 2mm from left edge
+        header_y_mm=7.5,  # Header starts 7.5mm from top
+        header_width_mm=5.08,  # Standard 2-row header (2.54mm * 2)
+        header_height_mm=50.8,  # 20 pins * 2.54mm pitch (same as Pi 5)
+        mounting_holes=[
+            Point(3.5, 3.5),  # Top-left
+            Point(26.5, 3.5),  # Top-right (closer - smaller board)
+            Point(3.5, 61.5),  # Bottom-left (closer - smaller board)
+            Point(26.5, 61.5),  # Bottom-right
+        ],
+    )
+
     return Board(
         name="Raspberry Pi Zero 2 W",
         pins=pins,
-        svg_asset_path=_get_asset_path("pi_zero.svg"),
-        width=465.60,  # SVG viewBox 291.0 scaled by 1.6x for better pin visibility
-        height=931.20,  # SVG viewBox 582.0 scaled by 1.6x (matches Pi 5 pin spacing)
-        header_offset=Point(0, 0),  # No offset needed - pins aligned to scaled SVG coordinates
+        svg_asset_path=_get_asset_path("pi_zero.svg"),  # Legacy fallback
+        width=465.60,  # Legacy (was 2.3x too large!)
+        height=931.20,  # Legacy (was 2.3x too large!)
+        header_offset=Point(0, 0),  # Legacy
+        layout=layout,  # New standardized layout - FIXES the size issue!
     )
 
 

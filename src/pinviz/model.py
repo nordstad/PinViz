@@ -1,7 +1,13 @@
 """Core data model for Raspberry Pi GPIO diagrams."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .board_renderer import BoardLayout
 
 
 class PinRole(str, Enum):
@@ -184,25 +190,29 @@ class Board:
     A Raspberry Pi board with GPIO header.
 
     Represents a physical Raspberry Pi board including its GPIO header pins,
-    dimensions, and SVG asset for visual representation.
+    dimensions, and rendering information.
 
     Attributes:
         name: Board display name (e.g., "Raspberry Pi 5")
         pins: List of all GPIO header pins (40 pins for standard boards)
-        svg_asset_path: Path to board SVG image file for rendering
-        width: Board width in SVG units (default: 340.0)
-        height: Board height in SVG units (default: 220.0)
-        header_offset: Position of GPIO header pin 1 relative to board origin
+        svg_asset_path: Path to board SVG image file (legacy, optional)
+        width: Board width in SVG units (legacy, used if layout is None)
+        height: Board height in SVG units (legacy, used if layout is None)
+        header_offset: Position of GPIO header pin 1 (legacy)
+        layout: Optional BoardLayout for standardized rendering (preferred)
+        style_overrides: Optional style customizations (e.g., custom PCB color)
     """
 
     name: str
     pins: list[HeaderPin]
-    svg_asset_path: str  # Path to board SVG image
-    width: float = 340.0  # Board width in SVG units
-    height: float = 220.0  # Board height in SVG units
+    svg_asset_path: str = ""  # Path to board SVG image (legacy)
+    width: float = 340.0  # Board width in SVG units (legacy)
+    height: float = 220.0  # Board height in SVG units (legacy)
     header_offset: Point = field(
         default_factory=lambda: Point(297.0, 52.0)
-    )  # GPIO header pin 1 position
+    )  # GPIO header pin 1 position (legacy)
+    layout: BoardLayout | None = None  # Standardized layout (preferred)
+    style_overrides: dict = field(default_factory=dict)  # Custom styling
 
     def get_pin_by_number(self, pin_number: int) -> HeaderPin | None:
         """
