@@ -136,3 +136,4 @@ renderer.render(diagram, "output.svg")
 - The layout engine mutates device positions but connections reference devices by name
 - Board SVG assets are packaged in `src/pinviz/assets/` directory with the module
 - All measurements are in SVG units (typically pixels)
+- Always run ruff format and check before committing Python code.
