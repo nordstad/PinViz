@@ -49,6 +49,9 @@ pinviz-ci-cd-plan.md
 IMPROVEMENT_PLAN.md
 GPIO_LIBRARY_ANALYSIS.md
 
+# Internal migration planning documents (not for commit)
+migration/
+
 # Test configurations (local development only)
 examples/pi_zero_test.yaml
 examples/*_test.yaml
