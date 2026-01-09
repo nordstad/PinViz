@@ -1,0 +1,179 @@
+"""Component and device rendering functionality for GPIO diagrams."""
+
+import drawsvg as draw
+
+from .model import Board, Device
+from .render_constants import RENDER_CONSTANTS, _parse_font_size
+
+
+class ComponentRenderer:
+    """Handles rendering of devices, components, and board elements."""
+
+    def draw_device(self, dwg: draw.Drawing, device: Device) -> None:
+        """
+        Draw a device or module as a colored rectangle with labeled pins.
+
+        Renders the device name above the box, draws a rounded rectangle for the
+        device body, and adds labeled pin markers with black backgrounds for
+        readability.
+
+        Args:
+            dwg: The SVG drawing object
+            device: The device to render
+        """
+        self.draw_device_box(dwg, device)
+        self.draw_device_pins(dwg, device)
+
+    def draw_device_box(self, dwg: draw.Drawing, device: Device) -> None:
+        """Draw just the device box and name, without pins."""
+        x = device.position.x
+        y = device.position.y
+
+        # Use full device name (no truncation)
+        display_name = device.name
+
+        # Adjust font size based on name length for better fit
+        name_length = len(display_name)
+        if name_length <= 20:
+            font_size = RENDER_CONSTANTS.LEGEND_TITLE_FONT_SIZE
+        elif name_length <= 30:
+            font_size = RENDER_CONSTANTS.LEGEND_ENTRY_FONT_SIZE
+        else:
+            font_size = "9px"
+
+        # Device name above the box
+        text_x = x + device.width / 2
+        text_y = y - 5  # Position above the box
+
+        dwg.append(
+            draw.Text(
+                display_name,
+                _parse_font_size(font_size),
+                text_x,
+                text_y,
+                text_anchor="middle",
+                font_family="Arial, sans-serif",
+                font_weight="bold",
+                fill="#333",
+            )
+        )
+
+        # Device box
+        dwg.append(
+            draw.Rectangle(
+                x,
+                y,
+                device.width,
+                device.height,
+                rx=RENDER_CONSTANTS.DEVICE_BORDER_RADIUS,
+                ry=RENDER_CONSTANTS.DEVICE_BORDER_RADIUS,
+                fill=device.color,
+                stroke="#333",
+                stroke_width=2,
+                opacity=0.9,
+            )
+        )
+
+    def draw_device_pins(self, dwg: draw.Drawing, device: Device) -> None:
+        """Draw device pins and labels."""
+        x = device.position.x
+        y = device.position.y
+
+        # Draw pins
+        for pin in device.pins:
+            pin_x = x + pin.position.x
+            pin_y = y + pin.position.y
+
+            # Pin circle - small and visible with white halo for connection visibility
+            # Draw white halo first for better wire connection visibility
+            dwg.append(
+                draw.Circle(
+                    pin_x,
+                    pin_y,
+                    RENDER_CONSTANTS.PIN_MARKER_OUTER_RADIUS,
+                    fill="white",
+                    opacity=0.8,
+                )
+            )
+            # Draw main pin circle
+            dwg.append(
+                draw.Circle(
+                    pin_x,
+                    pin_y,
+                    RENDER_CONSTANTS.PIN_MARKER_INNER_RADIUS,
+                    fill="#FFD700",
+                    stroke="#333",
+                    stroke_width=RENDER_CONSTANTS.DEVICE_STROKE_WIDTH,
+                    opacity=RENDER_CONSTANTS.DEVICE_OPACITY,
+                )
+            )
+
+            # Pin label with black background inside device box (to the right of pin)
+            label_padding = 4
+            label_x = pin_x + 6  # Position to the right of the pin circle
+            label_y = pin_y
+
+            # Estimate label dimensions
+            label_width = len(pin.name) * 4.2  # ~4.2px per character at 7px font
+            label_height = 10
+
+            # Draw black background for pin label
+            dwg.append(
+                draw.Rectangle(
+                    label_x,
+                    label_y - label_height / 2,
+                    label_width + label_padding * 2,
+                    label_height,
+                    rx=2,
+                    ry=2,
+                    fill="#000000",
+                    opacity=0.8,
+                )
+            )
+
+            # Draw pin label text in white
+            dwg.append(
+                draw.Text(
+                    pin.name,
+                    7,
+                    label_x + label_padding,
+                    label_y + 2.5,
+                    text_anchor="start",
+                    font_family="Arial, sans-serif",
+                    fill="#FFFFFF",
+                )
+            )
+
+    def draw_board_fallback(self, dwg: draw.Drawing, board: Board, x: float, y: float) -> None:
+        """Draw a simple representation of the board when SVG asset is not available."""
+        # Board rectangle
+        dwg.append(
+            draw.Rectangle(
+                x,
+                y,
+                board.width,
+                board.height,
+                rx=8,
+                ry=8,
+                fill="#2d8e3a",
+                stroke="#1a5a23",
+                stroke_width=2,
+            )
+        )
+
+        # GPIO header representation
+        header_x = x + board.header_offset.x
+        header_y = y + board.header_offset.y
+
+        dwg.append(
+            draw.Rectangle(
+                header_x - 5,
+                header_y - 5,
+                35,
+                100,
+                rx=2,
+                ry=2,
+                fill="#1a1a1a",
+                stroke="#000",
+            )
+        )
