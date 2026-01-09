@@ -1,8 +1,10 @@
 """Predefined Raspberry Pi board templates."""
 
+import json
 from pathlib import Path
 
 from .model import Board, HeaderPin, PinRole, Point
+from .schemas import BoardConfigSchema, validate_board_config
 
 
 def _get_asset_path(filename: str) -> str:
@@ -26,130 +28,162 @@ def _get_asset_path(filename: str) -> str:
     return str(asset_path)
 
 
+def _get_board_config_path(config_name: str) -> Path:
+    """
+    Get the path to a board configuration file.
+
+    Args:
+        config_name: Name of the board configuration (e.g., "raspberry_pi_5")
+
+    Returns:
+        Path to the board configuration JSON file
+
+    Note:
+        This is an internal function. Users typically don't need to call this directly.
+    """
+    module_dir = Path(__file__).parent
+    config_path = module_dir / "board_configs" / f"{config_name}.json"
+    return config_path
+
+
+def load_board_from_config(config_name: str) -> Board:
+    """
+    Load a board definition from a JSON configuration file.
+
+    This function reads a board configuration from the board_configs directory,
+    validates it against the BoardConfigSchema, calculates pin positions based
+    on layout parameters, and returns a fully configured Board object.
+
+    The configuration file must specify:
+    - Board metadata (name, SVG asset, dimensions)
+    - GPIO header layout parameters (column positions, spacing)
+    - Pin definitions (physical pin number, name, role, BCM GPIO number)
+
+    Pin positions are calculated automatically based on the layout parameters
+    to align with the board's SVG asset.
+
+    Args:
+        config_name: Name of the board configuration file (without .json extension)
+                    For example, "raspberry_pi_5" will load "raspberry_pi_5.json"
+
+    Returns:
+        Board: Configured board with all pins positioned
+
+    Raises:
+        FileNotFoundError: If the configuration file doesn't exist
+        ValueError: If the configuration is invalid or fails validation
+        json.JSONDecodeError: If the JSON file is malformed
+
+    Examples:
+        >>> board = load_board_from_config("raspberry_pi_5")
+        >>> print(board.name)
+        Raspberry Pi 5
+        >>> print(len(board.pins))
+        40
+
+    Note:
+        This is the recommended way to add new board types. Simply create a new
+        JSON configuration file in the board_configs directory following the
+        schema defined in BoardConfigSchema.
+    """
+    config_path = _get_board_config_path(config_name)
+
+    if not config_path.exists():
+        raise FileNotFoundError(
+            f"Board configuration file not found: {config_path}. "
+            f"Available configurations should be placed in the board_configs directory."
+        )
+
+    try:
+        with open(config_path) as f:
+            config_dict = json.load(f)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in board configuration file {config_path}: {e}") from e
+
+    # Validate configuration against schema
+    try:
+        config: BoardConfigSchema = validate_board_config(config_dict)
+    except Exception as e:
+        raise ValueError(f"Invalid board configuration in {config_path}: {e}") from e
+
+    # Calculate pin positions based on layout parameters
+    # Standard Raspberry Pi GPIO has 2 vertical columns with rows:
+    # - Left column (odd pins): 1, 3, 5, ..., N-1 (top to bottom)
+    # - Right column (even pins): 2, 4, 6, ..., N (top to bottom)
+    pin_positions = {}
+    num_rows = len(config.pins) // 2  # 20 rows for 40-pin header
+
+    for row in range(num_rows):
+        y_pos = config.layout.start_y + (row * config.layout.row_spacing)
+        odd_pin = (row * 2) + 1  # Physical pins 1, 3, 5, ...
+        even_pin = (row * 2) + 2  # Physical pins 2, 4, 6, ...
+
+        pin_positions[odd_pin] = Point(config.layout.left_col_x, y_pos)  # Left column
+        pin_positions[even_pin] = Point(config.layout.right_col_x, y_pos)  # Right column
+
+    # Create HeaderPin objects from configuration
+    pins = []
+    for pin_config in config.pins:
+        pin_role = PinRole(pin_config.role)  # Convert string to PinRole enum
+        position = pin_positions.get(pin_config.physical_pin)
+
+        if position is None:
+            raise ValueError(
+                f"Could not calculate position for pin {pin_config.physical_pin}. "
+                f"Pin number may be out of range for the configured layout."
+            )
+
+        header_pin = HeaderPin(
+            number=pin_config.physical_pin,
+            name=pin_config.name,
+            role=pin_role,
+            gpio_bcm=pin_config.gpio_bcm,
+            position=position,
+        )
+        pins.append(header_pin)
+
+    # Sort pins by physical pin number for consistency
+    pins.sort(key=lambda p: p.number)
+
+    return Board(
+        name=config.name,
+        pins=pins,
+        svg_asset_path=_get_asset_path(config.svg_asset),
+        width=config.width,
+        height=config.height,
+        header_offset=Point(config.header_offset.x, config.header_offset.y),
+        layout=None,  # Using SVG asset instead of programmatic rendering
+    )
+
+
 def raspberry_pi_5() -> Board:
     """
     Create a Raspberry Pi 5 board with 40-pin GPIO header.
 
+    This function loads the board definition from a JSON configuration file
+    (raspberry_pi_5.json) which specifies pin layout, positions, and metadata.
+    Pin positions are calculated automatically to align with the board's SVG asset.
+
     Pin layout (physical pin numbers):
     Standard 2x20 header layout:
-    - Top row (odd pins): 1, 3, 5, ..., 39 (left to right)
-    - Bottom row (even pins): 2, 4, 6, ..., 40 (left to right)
+    - Left column (odd pins): 1, 3, 5, ..., 39 (top to bottom)
+    - Right column (even pins): 2, 4, 6, ..., 40 (top to bottom)
 
     Returns:
-        Board: Configured Raspberry Pi 5 board
+        Board: Configured Raspberry Pi 5 board with all pins positioned
+
+    Examples:
+        >>> board = raspberry_pi_5()
+        >>> print(board.name)
+        Raspberry Pi 5
+        >>> print(len(board.pins))
+        40
+        >>> # Get a specific pin by physical number
+        >>> pin_1 = board.get_pin(1)
+        >>> print(pin_1.name, pin_1.role)
+        3V3 PinRole.POWER_3V3
     """
-    # GPIO header positions for standard vertical column layout
-    # Standard Raspberry Pi GPIO has 2 vertical columns with 20 rows:
-    # - Left column (odd pins): 1, 3, 5, ..., 39 (top to bottom)
-    # - Right column (even pins): 2, 4, 6, ..., 40 (top to bottom)
-    #
-    # Fine-tuned values to align with pi_5_mod.svg yellow circles (GPIO pins)
-    left_col_x = 187.1  # X position for left column (odd pins)
-    right_col_x = 199.1  # X position for right column (even pins)
-    start_y = 16.2  # Starting Y position (top)
-    row_spacing = 12.0  # Vertical spacing between rows
-
-    _pin_positions = {}
-
-    # Generate positions for all 40 pins in vertical columns
-    for row in range(20):  # 20 rows
-        y_pos = start_y + (row * row_spacing)
-        odd_pin = (row * 2) + 1  # Physical pins 1, 3, 5, ..., 39
-        even_pin = (row * 2) + 2  # Physical pins 2, 4, 6, ..., 40
-
-        _pin_positions[odd_pin] = Point(left_col_x, y_pos)  # Left column (odd)
-        _pin_positions[even_pin] = Point(right_col_x, y_pos)  # Right column (even)
-
-    pins = [
-        # Pin 1-2
-        HeaderPin(1, "3V3", PinRole.POWER_3V3, gpio_bcm=None, position=_pin_positions[1]),
-        HeaderPin(2, "5V", PinRole.POWER_5V, gpio_bcm=None, position=_pin_positions[2]),
-        # Pin 3-4
-        HeaderPin(3, "GPIO2", PinRole.I2C_SDA, gpio_bcm=2, position=_pin_positions[3]),
-        HeaderPin(4, "5V", PinRole.POWER_5V, gpio_bcm=None, position=_pin_positions[4]),
-        # Pin 5-6
-        HeaderPin(5, "GPIO3", PinRole.I2C_SCL, gpio_bcm=3, position=_pin_positions[5]),
-        HeaderPin(6, "GND", PinRole.GROUND, gpio_bcm=None, position=_pin_positions[6]),
-        # Pin 7-8
-        HeaderPin(7, "GPIO4", PinRole.GPIO, gpio_bcm=4, position=_pin_positions[7]),
-        HeaderPin(8, "GPIO14", PinRole.UART_TX, gpio_bcm=14, position=_pin_positions[8]),
-        # Pin 9-10
-        HeaderPin(9, "GND", PinRole.GROUND, gpio_bcm=None, position=_pin_positions[9]),
-        HeaderPin(10, "GPIO15", PinRole.UART_RX, gpio_bcm=15, position=_pin_positions[10]),
-        # Pin 11-12
-        HeaderPin(11, "GPIO17", PinRole.GPIO, gpio_bcm=17, position=_pin_positions[11]),
-        HeaderPin(12, "GPIO18", PinRole.PWM, gpio_bcm=18, position=_pin_positions[12]),
-        # Pin 13-14
-        HeaderPin(13, "GPIO27", PinRole.GPIO, gpio_bcm=27, position=_pin_positions[13]),
-        HeaderPin(14, "GND", PinRole.GROUND, gpio_bcm=None, position=_pin_positions[14]),
-        # Pin 15-16
-        HeaderPin(15, "GPIO22", PinRole.GPIO, gpio_bcm=22, position=_pin_positions[15]),
-        HeaderPin(16, "GPIO23", PinRole.GPIO, gpio_bcm=23, position=_pin_positions[16]),
-        # Pin 17-18
-        HeaderPin(17, "3V3", PinRole.POWER_3V3, gpio_bcm=None, position=_pin_positions[17]),
-        HeaderPin(18, "GPIO24", PinRole.GPIO, gpio_bcm=24, position=_pin_positions[18]),
-        # Pin 19-20
-        HeaderPin(19, "GPIO10", PinRole.SPI_MOSI, gpio_bcm=10, position=_pin_positions[19]),
-        HeaderPin(20, "GND", PinRole.GROUND, gpio_bcm=None, position=_pin_positions[20]),
-        # Pin 21-22
-        HeaderPin(21, "GPIO9", PinRole.SPI_MISO, gpio_bcm=9, position=_pin_positions[21]),
-        HeaderPin(22, "GPIO25", PinRole.GPIO, gpio_bcm=25, position=_pin_positions[22]),
-        # Pin 23-24
-        HeaderPin(23, "GPIO11", PinRole.SPI_SCLK, gpio_bcm=11, position=_pin_positions[23]),
-        HeaderPin(24, "GPIO8", PinRole.SPI_CE0, gpio_bcm=8, position=_pin_positions[24]),
-        # Pin 25-26
-        HeaderPin(25, "GND", PinRole.GROUND, gpio_bcm=None, position=_pin_positions[25]),
-        HeaderPin(26, "GPIO7", PinRole.SPI_CE1, gpio_bcm=7, position=_pin_positions[26]),
-        # Pin 27-28
-        HeaderPin(27, "GPIO0", PinRole.I2C_EEPROM, gpio_bcm=0, position=_pin_positions[27]),
-        HeaderPin(28, "GPIO1", PinRole.I2C_EEPROM, gpio_bcm=1, position=_pin_positions[28]),
-        # Pin 29-30
-        HeaderPin(29, "GPIO5", PinRole.GPIO, gpio_bcm=5, position=_pin_positions[29]),
-        HeaderPin(30, "GND", PinRole.GROUND, gpio_bcm=None, position=_pin_positions[30]),
-        # Pin 31-32
-        HeaderPin(31, "GPIO6", PinRole.GPIO, gpio_bcm=6, position=_pin_positions[31]),
-        HeaderPin(32, "GPIO12", PinRole.PWM, gpio_bcm=12, position=_pin_positions[32]),
-        # Pin 33-34
-        HeaderPin(33, "GPIO13", PinRole.PWM, gpio_bcm=13, position=_pin_positions[33]),
-        HeaderPin(34, "GND", PinRole.GROUND, gpio_bcm=None, position=_pin_positions[34]),
-        # Pin 35-36
-        HeaderPin(35, "GPIO19", PinRole.PCM_FS, gpio_bcm=19, position=_pin_positions[35]),
-        HeaderPin(36, "GPIO16", PinRole.GPIO, gpio_bcm=16, position=_pin_positions[36]),
-        # Pin 37-38
-        HeaderPin(37, "GPIO26", PinRole.GPIO, gpio_bcm=26, position=_pin_positions[37]),
-        HeaderPin(38, "GPIO20", PinRole.PCM_DIN, gpio_bcm=20, position=_pin_positions[38]),
-        # Pin 39-40
-        HeaderPin(39, "GND", PinRole.GROUND, gpio_bcm=None, position=_pin_positions[39]),
-        HeaderPin(40, "GPIO21", PinRole.PCM_DOUT, gpio_bcm=21, position=_pin_positions[40]),
-    ]
-
-    # Temporarily disabled programmatic rendering to use SVG asset
-    # Create standardized layout with physical dimensions
-    # Pi 5 is 85mm × 56mm, but rotated 90° in the SVG (height becomes width)
-    # layout = BoardLayout(
-    #     width_mm=56.0,  # Physical 56mm width (rotated)
-    #     height_mm=85.0,  # Physical 85mm height (rotated)
-    #     header_x_mm=2.0,  # Header starts 2mm from left edge
-    #     header_y_mm=7.5,  # Header starts 7.5mm from top
-    #     header_width_mm=5.08,  # Standard 2-row header (2.54mm * 2)
-    #     header_height_mm=50.8,  # 20 pins * 2.54mm pitch
-    #     mounting_holes=[
-    #         Point(3.5, 3.5),  # Top-left
-    #         Point(52.5, 3.5),  # Top-right
-    #         Point(3.5, 81.5),  # Bottom-left
-    #         Point(52.5, 81.5),  # Bottom-right
-    #     ],
-    # )
-
-    return Board(
-        name="Raspberry Pi 5",
-        pins=pins,
-        svg_asset_path=_get_asset_path("pi_5_mod.svg"),  # Use SVG asset
-        width=205.42,  # Legacy
-        height=307.46,  # Legacy
-        header_offset=Point(23.715, 5.156),  # Legacy
-        layout=None,  # Disabled to use SVG asset instead
-    )
+    return load_board_from_config("raspberry_pi_5")
 
 
 # Alias for convenience

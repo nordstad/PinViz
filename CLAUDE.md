@@ -91,8 +91,59 @@ pinviz list
 3. **Position calculation**: Absolute positions calculated during layout phase; devices/pins use relative positions
 4. **Two-phase wire routing**: Group connections by source pin to calculate offsets, then route each wire
 5. **Color assignment**: Automatic based on pin role, can be overridden per connection
+6. **Configuration-based boards**: Board definitions loaded from JSON files in `src/pinviz/board_configs/`
 
-## Configuration File Structure
+## Board Configuration System
+
+Board definitions are stored in JSON files in `src/pinviz/board_configs/` directory. This makes it easy to add new board types without modifying Python code.
+
+### Board Configuration Structure
+
+```json
+{
+  "name": "Raspberry Pi 5",
+  "svg_asset": "pi_5_mod.svg",
+  "width": 205.42,
+  "height": 307.46,
+  "header_offset": {"x": 23.715, "y": 5.156},
+  "layout": {
+    "left_col_x": 187.1,
+    "right_col_x": 199.1,
+    "start_y": 16.2,
+    "row_spacing": 12.0
+  },
+  "pins": [
+    {"physical_pin": 1, "name": "3V3", "role": "3V3", "gpio_bcm": null},
+    {"physical_pin": 2, "name": "5V", "role": "5V", "gpio_bcm": null},
+    ...
+  ]
+}
+```
+
+### Adding a New Board
+
+1. Create SVG asset file in `src/pinviz/assets/` (e.g., `raspberry_pi_4.svg`)
+2. Create board configuration JSON in `src/pinviz/board_configs/` (e.g., `raspberry_pi_4.json`)
+3. Define layout parameters to align with SVG pin positions:
+   - `left_col_x`, `right_col_x`: X coordinates for pin columns
+   - `start_y`: Y coordinate for first pin row
+   - `row_spacing`: Vertical spacing between rows
+4. List all pins with physical number, name, role, and BCM GPIO number
+5. Create factory function in `boards.py`:
+   ```python
+   def raspberry_pi_4() -> Board:
+       return load_board_from_config("raspberry_pi_4")
+   ```
+
+### Board Configuration Validation
+
+All board configurations are validated against `BoardConfigSchema` in `schemas.py`:
+- Pin numbers must be sequential (1, 2, 3, ...)
+- Pin roles must be valid (GPIO, I2C_SDA, PWM, etc.)
+- Layout parameters must be positive numbers
+- Right column X must be greater than left column X
+
+## Diagram Configuration File Structure
 
 YAML/JSON format:
 ```yaml
