@@ -39,11 +39,16 @@ def test_device_manager():
 
     # Test getting specific device
     bme280 = dm.get_device_by_name("BME280")
-    assert bme280 is not None, "BME280 not found"
-    print(f"✓ Found BME280: {bme280.name}")
-    print(f"  - Category: {bme280.category}")
-    print(f"  - Protocols: {', '.join(bme280.protocols)}")
-    print(f"  - Pins: {len(bme280.pins)}")
+    if bme280:
+        print(f"✓ Found BME280: {bme280.name}")
+        print(f"  - Category: {bme280.category}")
+        print(f"  - Protocols: {', '.join(bme280.protocols)}")
+        print(f"  - Pins: {len(bme280.pins)}")
+    else:
+        print("✗ BME280 not found")
+        return False
+
+    return True
 
 
 def test_prompt_parser():
@@ -66,6 +71,8 @@ def test_prompt_parser():
         print(f"  Devices found: {result.devices}")
         print(f"  Board: {result.board}")
 
+    return True
+
 
 def test_pin_assignment():
     """Test 3: Pin Assignment Logic."""
@@ -80,8 +87,9 @@ def test_pin_assignment():
     bme280 = dm.get_device_by_name("BME280")
     bh1750 = dm.get_device_by_name("BH1750")
 
-    assert bme280 is not None, "BME280 not found"
-    assert bh1750 is not None, "BH1750 not found"
+    if not bme280 or not bh1750:
+        print("✗ Required devices not found")
+        return False
 
     devices = [bme280.to_dict(), bh1750.to_dict()]
     assignments, warnings = assigner.assign_pins(devices)
@@ -98,10 +106,15 @@ def test_pin_assignment():
         elif assignment.pin_role.name == "I2C_SCL":
             i2c_scl_pins.add(assignment.board_pin_number)
 
-    assert len(i2c_sda_pins) == 1 and len(i2c_scl_pins) == 1, "I2C bus sharing failed"
-    print("✓ I2C bus shared correctly:")
-    print(f"  - SDA on pin {list(i2c_sda_pins)[0]}")
-    print(f"  - SCL on pin {list(i2c_scl_pins)[0]}")
+    if len(i2c_sda_pins) == 1 and len(i2c_scl_pins) == 1:
+        print("✓ I2C bus shared correctly:")
+        print(f"  - SDA on pin {list(i2c_sda_pins)[0]}")
+        print(f"  - SCL on pin {list(i2c_scl_pins)[0]}")
+    else:
+        print("✗ I2C bus sharing failed")
+        return False
+
+    return True
 
 
 def test_diagram_generation():
@@ -138,7 +151,9 @@ def test_diagram_generation():
         else:
             print(f"   ✗ Not found: {device_name}")
 
-    assert len(device_specs) > 0, "No devices found"
+    if not device_specs:
+        print("✗ No devices found")
+        return False
 
     # Step 3: Assign pins
     assignments, warnings = assigner.assign_pins(device_specs)
@@ -163,11 +178,15 @@ def test_diagram_generation():
     # Step 5: Render SVG
     renderer.render(diagram, output_file)
 
-    assert Path(output_file).exists(), f"Failed to create {output_file}"
-    size = Path(output_file).stat().st_size
-    print("\n4. Render SVG:")
-    print(f"   ✓ File created: {output_file}")
-    print(f"   ✓ Size: {size:,} bytes")
+    if Path(output_file).exists():
+        size = Path(output_file).stat().st_size
+        print("\n4. Render SVG:")
+        print(f"   ✓ File created: {output_file}")
+        print(f"   ✓ Size: {size:,} bytes")
+        return True
+    else:
+        print(f"\n✗ Failed to create {output_file}")
+        return False
 
 
 def test_database_summary():
@@ -196,6 +215,8 @@ def test_database_summary():
         print(f"  {protocol:12s}: {count:2d} devices")
 
     print(f"\n✓ Total: {len(dm.search_devices())} devices")
+
+    return True
 
 
 def main():
