@@ -24,6 +24,7 @@ class LayoutConfig:
         wire_spacing: Minimum vertical spacing between parallel wires (default: 8.0)
         bundle_spacing: Spacing between wire bundles (default: 4.0)
         corner_radius: Radius for wire corner rounding (default: 5.0)
+        canvas_padding: Uniform padding around all content (default: 40.0)
         legend_margin: Margin around legend box (default: 20.0)
         legend_width: Width of legend box (default: 150.0)
         legend_height: Height of legend box (default: 120.0)
@@ -41,6 +42,7 @@ class LayoutConfig:
     wire_spacing: float = 8.0  # Minimum spacing between parallel wires
     bundle_spacing: float = 4.0  # Spacing within a bundle
     corner_radius: float = 5.0  # Radius for rounded corners
+    canvas_padding: float = 40.0  # Uniform padding around all content
     legend_margin: float = 20.0
     legend_width: float = 150.0
     legend_height: float = 120.0
@@ -174,9 +176,7 @@ class LayoutEngine:
             # Calculate absolute positions
             from_pos = Point(
                 self.config.board_margin_left + board_pin.position.x,
-                self.config.board_margin_top
-                + board_pin.position.y
-                + self.config.pin_number_y_offset,
+                self.config.board_margin_top + board_pin.position.y,
             )
 
             to_pos = Point(
@@ -503,32 +503,9 @@ class LayoutEngine:
                 max_x = max(max_x, point.x)
                 max_y = max(max_y, point.y)
 
-        # Add margin and space for legend
-        canvas_width = max_x + 200  # Extra space for legend
-        canvas_height = max_y + 40
-
-        if diagram.show_legend:
-            # Reserve space for legend in bottom right
-            legend_y = canvas_height - self.config.legend_height - self.config.legend_margin
-            # Ensure legend doesn't overlap with content
-            canvas_height = max(
-                canvas_height, legend_y + self.config.legend_height + self.config.legend_margin
-            )
-
-        # Add space for GPIO diagram on the right if enabled
-        if diagram.show_gpio_diagram:
-            canvas_width += self.config.gpio_diagram_width + self.config.gpio_diagram_margin
-
-            # Ensure canvas height accommodates the GPIO diagram
-            # GPIO diagram viewBox is 500x1600, when scaled to target width
-            gpio_original_width = 500.0
-            gpio_original_height = 1600.0
-            gpio_scale = self.config.gpio_diagram_width / gpio_original_width
-            gpio_height = gpio_original_height * gpio_scale
-
-            # Minimum canvas height to fit GPIO diagram with margins
-            min_height_for_gpio = gpio_height + (2 * self.config.board_margin_top)
-            canvas_height = max(canvas_height, min_height_for_gpio)
+        # Add uniform padding around all content
+        canvas_width = max_x + self.config.canvas_padding
+        canvas_height = max_y + self.config.canvas_padding
 
         return canvas_width, canvas_height
 

@@ -170,9 +170,6 @@ class ConfigLoader:
         Supported names:
             - "raspberry_pi_5", "rpi5": Raspberry Pi 5
             - "raspberry_pi", "rpi": Latest Raspberry Pi (currently Pi 5)
-            - "raspberry_pi_zero_2w", "raspberry_pi_zero", "raspberry pi zero",
-              "raspberry pi zero 2", "raspberry pi zero 2w", "pizero", "pi zero",
-              "zero2w", "zero 2w", "zero", "rpizero", "rpi zero": Raspberry Pi Zero/Zero 2 W
         """
         board_loaders = {
             # Raspberry Pi 5
@@ -180,19 +177,6 @@ class ConfigLoader:
             "raspberry_pi": boards.raspberry_pi,
             "rpi5": boards.raspberry_pi_5,
             "rpi": boards.raspberry_pi,
-            # Raspberry Pi Zero / Zero 2 W (13 aliases total)
-            "raspberry_pi_zero_2w": boards.raspberry_pi_zero_2w,
-            "raspberry_pi_zero": boards.raspberry_pi_zero_2w,
-            "raspberry pi zero": boards.raspberry_pi_zero_2w,
-            "raspberry pi zero 2": boards.raspberry_pi_zero_2w,
-            "raspberry pi zero 2w": boards.raspberry_pi_zero_2w,
-            "pizero": boards.raspberry_pi_zero_2w,
-            "pi zero": boards.raspberry_pi_zero_2w,
-            "zero2w": boards.raspberry_pi_zero_2w,
-            "zero 2w": boards.raspberry_pi_zero_2w,
-            "zero": boards.raspberry_pi_zero_2w,
-            "rpizero": boards.raspberry_pi_zero_2w,
-            "rpi zero": boards.raspberry_pi_zero_2w,
         }
 
         loader = board_loaders.get(name.lower())

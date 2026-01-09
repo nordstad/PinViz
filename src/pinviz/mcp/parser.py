@@ -110,19 +110,6 @@ class PromptParser:
         "raspberry_pi_5": "raspberry_pi_5",
         "pi 5": "raspberry_pi_5",
         "pi5": "raspberry_pi_5",
-        # Raspberry Pi Zero / Zero 2 W
-        "raspberry_pi_zero_2w": "raspberry_pi_zero_2w",
-        "raspberry_pi_zero": "raspberry_pi_zero_2w",
-        "raspberry pi zero": "raspberry_pi_zero_2w",
-        "raspberry pi zero 2": "raspberry_pi_zero_2w",
-        "raspberry pi zero 2w": "raspberry_pi_zero_2w",
-        "pizero": "raspberry_pi_zero_2w",
-        "pi zero": "raspberry_pi_zero_2w",
-        "zero2w": "raspberry_pi_zero_2w",
-        "zero 2w": "raspberry_pi_zero_2w",
-        "zero": "raspberry_pi_zero_2w",
-        "rpizero": "raspberry_pi_zero_2w",
-        "rpi zero": "raspberry_pi_zero_2w",
     }
 
     def __init__(self, use_llm: bool = False):

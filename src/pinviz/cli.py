@@ -118,20 +118,16 @@ def main() -> int:
         metavar="PATH",
         help="Output SVG file path (default: <config>.svg)",
     )
-    gpio_group = render_parser.add_mutually_exclusive_group()
-    gpio_group.add_argument(
-        "--gpio",
+    render_parser.add_argument(
+        "--no-title",
         action="store_true",
-        dest="show_gpio",
-        help="Show GPIO pin reference diagram",
+        help="Hide the diagram title in the SVG output",
     )
-    gpio_group.add_argument(
-        "--no-gpio",
-        action="store_false",
-        dest="show_gpio",
-        help="Hide GPIO pin reference diagram (default: use config file setting)",
+    render_parser.add_argument(
+        "--no-board-name",
+        action="store_true",
+        help="Hide the board name in the SVG output",
     )
-    render_parser.set_defaults(show_gpio=None)  # None means use config file value
 
     # Example command
     example_parser = subparsers.add_parser(
@@ -151,20 +147,16 @@ def main() -> int:
         metavar="PATH",
         help="Output SVG file path (default: ./out/<name>.svg)",
     )
-    gpio_group = example_parser.add_mutually_exclusive_group()
-    gpio_group.add_argument(
-        "--gpio",
+    example_parser.add_argument(
+        "--no-title",
         action="store_true",
-        dest="show_gpio",
-        help="Show GPIO pin reference diagram",
+        help="Hide the diagram title in the SVG output",
     )
-    gpio_group.add_argument(
-        "--no-gpio",
-        action="store_false",
-        dest="show_gpio",
-        help="Hide GPIO pin reference diagram (default: show)",
+    example_parser.add_argument(
+        "--no-board-name",
+        action="store_true",
+        help="Hide the board name in the SVG output",
     )
-    example_parser.set_defaults(show_gpio=True)  # Examples default to showing GPIO
 
     # Validate command
     validate_parser = subparsers.add_parser(
@@ -244,6 +236,12 @@ def render_command(args: Any) -> int:
             board=diagram.board.name,
         )
 
+        # Apply CLI flags for visibility
+        if hasattr(args, "no_title") and args.no_title:
+            diagram.show_title = False
+        if hasattr(args, "no_board_name") and args.no_board_name:
+            diagram.show_board_name = False
+
         # Validate diagram and show warnings
         validator = DiagramValidator()
         issues = validator.validate(diagram)
@@ -278,13 +276,6 @@ def render_command(args: Any) -> int:
                 log.warning("validation_warnings", warning_count=len(warnings))
                 print(f"\n⚠️  Found {len(warnings)} warning(s). Review your wiring carefully.")
             print()
-
-        # Override show_gpio_diagram if CLI flag is specified
-        if hasattr(args, "show_gpio") and args.show_gpio is not None:
-            from dataclasses import replace
-
-            diagram = replace(diagram, show_gpio_diagram=args.show_gpio)
-            log.debug("gpio_diagram_override", show_gpio=args.show_gpio)
 
         log.info("rendering_started", output_path=str(output_path))
         print(f"Rendering diagram to {output_path}...")
@@ -430,12 +421,11 @@ def example_command(args: Any) -> int:
             connection_count=len(diagram.connections),
         )
 
-        # Override show_gpio_diagram if CLI flag is explicitly specified
-        if hasattr(args, "show_gpio"):
-            from dataclasses import replace
-
-            diagram = replace(diagram, show_gpio_diagram=args.show_gpio)
-            log.debug("gpio_diagram_override", show_gpio=args.show_gpio)
+        # Apply CLI flags for visibility
+        if hasattr(args, "no_title") and args.no_title:
+            diagram.show_title = False
+        if hasattr(args, "no_board_name") and args.no_board_name:
+            diagram.show_board_name = False
 
         log.info("rendering_example", output_path=str(output_path))
         print(f"Rendering diagram to {output_path}...")
@@ -467,7 +457,6 @@ def list_command() -> int:
 
     print("Available Boards:")
     print("  - raspberry_pi_5 (aliases: rpi5, rpi)")
-    print("  - raspberry_pi_zero_2w (aliases: raspberry_pi_zero, pizero, zero2w, zero, rpizero)")
     print()
 
     # List devices by category
@@ -519,7 +508,6 @@ def create_bh1750_example():
         board=board,
         devices=[sensor],
         connections=connections,
-        show_gpio_diagram=True,
     )
 
 
@@ -543,7 +531,6 @@ def create_ir_led_example() -> Diagram:
         board=board,
         devices=[ir_led],
         connections=connections,
-        show_gpio_diagram=True,
     )
 
 
@@ -582,7 +569,6 @@ def create_i2c_spi_example():
         board=board,
         devices=[bh1750, spi_device, led],
         connections=connections,
-        show_gpio_diagram=True,
     )
 
 
