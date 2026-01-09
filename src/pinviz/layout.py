@@ -441,29 +441,41 @@ class LayoutEngine:
 
         dy = to_pos.y - from_pos.y
 
+        # Add a straight segment at the end for better visual pin connection
+        # Create a point slightly before the device pin for the curve to end
+        straight_segment_length = 15.0
+        connection_point = Point(to_pos.x - straight_segment_length, to_pos.y)
+
+        # Extend the final point slightly beyond pin center so wire visually penetrates the pin
+        # The wire has stroke-width=3, so we need to extend by ~2px to be visible inside the pin
+        extended_end = Point(to_pos.x + 2.0, to_pos.y)
+
         # Create a smooth S-curve or gentle arc path using rail_x for routing
         # Apply stronger y_offset at the beginning to fan out wires dramatically
         if abs(dy) < 50:  # Wires at similar Y - gentle horizontal arc through rail
             # Control point 1 - strong fan out
             ctrl1 = Point(rail_x * 0.3 + from_pos.x * 0.7, from_pos.y + y_offset * 0.8)
-            # Control point 2 - converge
-            ctrl2 = Point(rail_x * 0.7 + to_pos.x * 0.3, to_pos.y + y_offset * 0.3)
-            return [from_pos, ctrl1, ctrl2, to_pos]
+            # Control point 2 - converge to connection point
+            ctrl2_x = rail_x * 0.7 + connection_point.x * 0.3
+            ctrl2_y = connection_point.y + y_offset * 0.3
+            ctrl2 = Point(ctrl2_x, ctrl2_y)
+            return [from_pos, ctrl1, ctrl2, connection_point, extended_end]
         else:  # Wires with vertical separation - smooth S-curve
             # Use 4 control points for a single smooth cubic Bezier
             # Control point 1: starts from board, curves toward rail with dramatic fan out
             ctrl1_x = from_pos.x + (rail_x - from_pos.x) * 0.4
             ctrl1_y = from_pos.y + y_offset * 0.9
 
-            # Control point 2: approaches device from rail with gentle convergence
-            ctrl2_x = to_pos.x + (rail_x - to_pos.x) * 0.4
-            ctrl2_y = to_pos.y + y_offset * 0.3
+            # Control point 2: approaches connection point from rail with gentle convergence
+            ctrl2_x = connection_point.x + (rail_x - connection_point.x) * 0.4
+            ctrl2_y = connection_point.y + y_offset * 0.3
 
             return [
                 from_pos,
                 Point(ctrl1_x, ctrl1_y),  # Control point 1
                 Point(ctrl2_x, ctrl2_y),  # Control point 2
-                to_pos,
+                connection_point,  # End of curve
+                extended_end,  # Straight segment penetrating into pin
             ]
 
     def _calculate_canvas_size(
@@ -546,33 +558,20 @@ def create_bezier_path(points: list[Point], corner_radius: float = 5.0) -> str:
             f"{points[3].x:.2f},{points[3].y:.2f}"
         )
     elif len(points) == 5:
-        # Two connected smooth cubic Bezier curves for S-shape
-        # Calculate smooth control points for the transition at middle point
-        mid_point = points[2]
+        # Cubic Bezier curve followed by straight line into pin
+        # This ensures the wire visually connects directly into the device pin
+        # points[0] = start, points[1] = ctrl1, points[2] = ctrl2
+        # points[3] = connection point, points[4] = pin center
 
-        # First curve: points[0] -> points[2]
-        # Control point 1: points[1]
-        # Control point 2: approach mid_point smoothly from points[1] direction
-        ctrl2_x = mid_point.x - (mid_point.x - points[1].x) * 0.3
-        ctrl2_y = mid_point.y - (mid_point.y - points[1].y) * 0.3
-
+        # Smooth cubic Bezier using middle two points as control points
         path_parts.append(
             f"C {points[1].x:.2f},{points[1].y:.2f} "
-            f"{ctrl2_x:.2f},{ctrl2_y:.2f} "
-            f"{mid_point.x:.2f},{mid_point.y:.2f}"
+            f"{points[2].x:.2f},{points[2].y:.2f} "
+            f"{points[3].x:.2f},{points[3].y:.2f}"
         )
 
-        # Second curve: points[2] -> points[4]
-        # Control point 1: leave mid_point smoothly toward points[3]
-        # Control point 2: points[3]
-        ctrl1_x = mid_point.x + (points[3].x - mid_point.x) * 0.3
-        ctrl1_y = mid_point.y + (points[3].y - mid_point.y) * 0.3
-
-        path_parts.append(
-            f"C {ctrl1_x:.2f},{ctrl1_y:.2f} "
-            f"{points[3].x:.2f},{points[3].y:.2f} "
-            f"{points[4].x:.2f},{points[4].y:.2f}"
-        )
+        # Straight line segment into the pin for clear visual connection
+        path_parts.append(f"L {points[4].x:.2f},{points[4].y:.2f}")
     else:
         # Many points - create smooth curve through all
         for i in range(1, len(points)):

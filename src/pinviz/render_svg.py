@@ -174,12 +174,20 @@ class SVGRenderer:
             ),
         )
         for wire in sorted_wires:
-            self._draw_wire(dwg, wire)
+            self._draw_wire(dwg, wire, draw_connection_segment=False)
 
-        # Draw devices on top of wires
+        # Draw device boxes (without pins yet)
         log.debug("drawing_devices", device_count=len(diagram.devices))
         for device in diagram.devices:
-            self._draw_device(dwg, device)
+            self._draw_device_box(dwg, device)
+
+        # Draw wire connection segments on top of device boxes
+        for wire in sorted_wires:
+            self._draw_wire_connection_segment(dwg, wire)
+
+        # Draw device pins on top of everything
+        for device in diagram.devices:
+            self._draw_device_pins(dwg, device)
 
         # Legend removed per user request - cleaner diagram
 
@@ -572,6 +580,11 @@ class SVGRenderer:
             dwg: The SVG drawing object
             device: The device to render
         """
+        self._draw_device_box(dwg, device)
+        self._draw_device_pins(dwg, device)
+
+    def _draw_device_box(self, dwg: draw.Drawing, device: Device) -> None:
+        """Draw just the device box and name, without pins."""
         x = device.position.x
         y = device.position.y
 
@@ -620,13 +633,31 @@ class SVGRenderer:
             )
         )
 
+    def _draw_device_pins(self, dwg: draw.Drawing, device: Device) -> None:
+        """Draw device pins and labels."""
+        x = device.position.x
+        y = device.position.y
+
         # Draw pins
         for pin in device.pins:
             pin_x = x + pin.position.x
             pin_y = y + pin.position.y
 
-            # Pin circle
-            dwg.append(draw.Circle(pin_x, pin_y, 3, fill="#FFD700", stroke="#333"))
+            # Pin circle - small and visible with white halo for connection visibility
+            # Draw white halo first for better wire connection visibility
+            dwg.append(draw.Circle(pin_x, pin_y, 4, fill="white", opacity=0.8))
+            # Draw main pin circle
+            dwg.append(
+                draw.Circle(
+                    pin_x,
+                    pin_y,
+                    3,
+                    fill="#FFD700",
+                    stroke="#333",
+                    stroke_width=1,
+                    opacity=0.95,
+                )
+            )
 
             # Pin label with black background inside device box (to the right of pin)
             label_padding = 4
@@ -776,7 +807,9 @@ class SVGRenderer:
 
         dwg.append(g)
 
-    def _draw_wire(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
+    def _draw_wire(
+        self, dwg: draw.Drawing, wire: RoutedWire, draw_connection_segment: bool = True
+    ) -> None:
         """
         Draw a wire connection with optional inline components.
 
@@ -787,21 +820,50 @@ class SVGRenderer:
         Args:
             dwg: The SVG drawing object
             wire: The routed wire with path and color information
+            draw_connection_segment: If False, skips drawing the final segment into the device pin
         """
         if not wire.connection.components:
-            self._draw_simple_wire(dwg, wire)
+            self._draw_simple_wire(dwg, wire, draw_connection_segment)
         else:
-            self._draw_wire_with_components(dwg, wire)
+            self._draw_wire_with_components(dwg, wire, draw_connection_segment)
 
         self._draw_wire_endpoints(dwg, wire)
 
-    def _draw_simple_wire(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
+    def _draw_simple_wire(
+        self, dwg: draw.Drawing, wire: RoutedWire, draw_connection_segment: bool = True
+    ) -> None:
         """Draw a simple wire without components."""
-        path_d = create_bezier_path(wire.path_points, self.layout_config.corner_radius)
-        self._draw_wire_halo(dwg, path_d)
-        self._draw_wire_core(dwg, path_d, wire.color)
+        if draw_connection_segment or len(wire.path_points) < 5:
+            # Draw the full wire path
+            path_d = create_bezier_path(wire.path_points, self.layout_config.corner_radius)
+            self._draw_wire_halo(dwg, path_d)
+            self._draw_wire_core(dwg, path_d, wire.color)
+        else:
+            # Draw only up to the connection point (skip the final straight segment)
+            path_d = create_bezier_path(wire.path_points[:-1], self.layout_config.corner_radius)
+            self._draw_wire_halo(dwg, path_d)
+            self._draw_wire_core(dwg, path_d, wire.color)
 
-    def _draw_wire_with_components(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
+    def _draw_wire_connection_segment(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
+        """Draw just the final straight segment that connects to the device pin."""
+        if len(wire.path_points) >= 5:
+            # Draw the straight line from connection_point to pin
+            connection_point = wire.path_points[-2]
+            end_point = wire.path_points[-1]
+
+            # Create a simple line path
+            path_d = (
+                f"M {connection_point.x:.2f},{connection_point.y:.2f} "
+                f"L {end_point.x:.2f},{end_point.y:.2f}"
+            )
+
+            # Draw with halo and core
+            self._draw_wire_halo(dwg, path_d)
+            self._draw_wire_core(dwg, path_d, wire.color)
+
+    def _draw_wire_with_components(
+        self, dwg: draw.Drawing, wire: RoutedWire, draw_connection_segment: bool = True
+    ) -> None:
         """Draw a wire broken into segments by inline components."""
         component_positions = sorted(
             [(comp, comp.position) for comp in wire.connection.components], key=lambda x: x[1]
@@ -916,13 +978,11 @@ class SVGRenderer:
         )
 
     def _draw_wire_endpoints(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
-        """Draw the start and end connection dots."""
-        # Start point
+        """Draw the start connection dots (board side only - device pins drawn separately)."""
+        # Only draw endpoint circle at board side (start point)
+        # Device side endpoint is handled by the device pin circle drawn later
         dwg.append(draw.Circle(wire.from_pin_pos.x, wire.from_pin_pos.y, 4, fill="white"))
         dwg.append(draw.Circle(wire.from_pin_pos.x, wire.from_pin_pos.y, 3, fill=wire.color))
-        # End point
-        dwg.append(draw.Circle(wire.to_pin_pos.x, wire.to_pin_pos.y, 4, fill="white"))
-        dwg.append(draw.Circle(wire.to_pin_pos.x, wire.to_pin_pos.y, 3, fill=wire.color))
 
     def _draw_legend(
         self,
