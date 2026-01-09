@@ -1,46 +1,19 @@
 """SVG rendering for GPIO diagrams."""
 
-import math
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import drawsvg as draw
 
 from .board_renderer import BoardRenderer, BoardStyle
-from .layout import LayoutConfig, LayoutEngine, RoutedWire, create_bezier_path
+from .component_renderer import ComponentRenderer
+from .layout import LayoutConfig, LayoutEngine
 from .logging_config import get_logger
-from .model import DEFAULT_COLORS, Board, ComponentType, Device, Diagram, PinRole, Point
+from .model import Board, Diagram, PinRole
+from .render_constants import RENDER_CONSTANTS, _parse_font_size, _parse_numeric_value
+from .wire_renderer import WireRenderer
 
 log = get_logger(__name__)
-
-
-def _parse_font_size(size_str: str) -> float:
-    """Parse font size string like '20px' to float."""
-    return float(size_str.rstrip("px"))
-
-
-def _parse_numeric_value(value_str: str | float | int) -> float:
-    """
-    Parse numeric value, stripping common SVG unit suffixes.
-
-    Handles values like '173.122px', '10em', '5%' by stripping the unit suffix.
-
-    Args:
-        value_str: String, float, or int value
-
-    Returns:
-        Parsed float value
-    """
-    if isinstance(value_str, (float, int)):
-        return float(value_str)
-
-    # Strip common SVG units
-    str_value = str(value_str)
-    for unit in ["px", "pt", "em", "rem", "%", "cm", "mm", "in"]:
-        if str_value.endswith(unit):
-            return float(str_value[: -len(unit)])
-
-    return float(str_value)
 
 
 class SVGRenderer:
@@ -86,6 +59,8 @@ class SVGRenderer:
         """
         self.layout_config = layout_config or LayoutConfig()
         self.layout_engine = LayoutEngine(self.layout_config)
+        self.wire_renderer = WireRenderer(self.layout_config)
+        self.component_renderer = ComponentRenderer()
         self._init_svg_handlers()
 
     def _init_svg_handlers(self) -> None:
@@ -139,9 +114,9 @@ class SVGRenderer:
             dwg.append(
                 draw.Text(
                     diagram.title,
-                    20,
+                    RENDER_CONSTANTS.TITLE_FONT_SIZE,
                     canvas_width / 2,
-                    25,
+                    RENDER_CONSTANTS.TITLE_Y_OFFSET,
                     text_anchor="middle",
                     font_family="Arial, sans-serif",
                     font_weight="bold",
@@ -174,20 +149,20 @@ class SVGRenderer:
             ),
         )
         for wire in sorted_wires:
-            self._draw_wire(dwg, wire, draw_connection_segment=False)
+            self.wire_renderer.draw_wire(dwg, wire, draw_connection_segment=False)
 
         # Draw device boxes (without pins yet)
         log.debug("drawing_devices", device_count=len(diagram.devices))
         for device in diagram.devices:
-            self._draw_device_box(dwg, device)
+            self.component_renderer.draw_device_box(dwg, device)
 
         # Draw wire connection segments on top of device boxes
         for wire in sorted_wires:
-            self._draw_wire_connection_segment(dwg, wire)
+            self.wire_renderer.draw_wire_connection_segment(dwg, wire)
 
         # Draw device pins on top of everything
         for device in diagram.devices:
-            self._draw_device_pins(dwg, device)
+            self.component_renderer.draw_device_pins(dwg, device)
 
         # Legend removed per user request - cleaner diagram
 
@@ -246,17 +221,59 @@ class SVGRenderer:
                 board_width = board.width
                 board_height = board.height
 
-            except Exception as e:
-                # Fallback: draw a simple rectangle
-                log.warning("svg_load_failed", error=str(e), board=board.name)
-                print(f"Warning: Could not load board SVG ({e}), using fallback")
-                self._draw_board_fallback(dwg, board, x, y)
+            except FileNotFoundError:
+                # SVG asset file not found - use fallback rendering
+                log.warning(
+                    "svg_file_not_found",
+                    path=board.svg_asset_path,
+                    board=board.name,
+                )
+                print(f"Warning: SVG file not found at {board.svg_asset_path}, using fallback")
+                self.component_renderer.draw_board_fallback(dwg, board, x, y)
+                board_width = board.width
+                board_height = board.height
+
+            except ET.ParseError as e:
+                # SVG file is malformed or invalid XML - use fallback rendering
+                log.warning(
+                    "svg_parse_error",
+                    error=str(e),
+                    path=board.svg_asset_path,
+                    board=board.name,
+                )
+                print(f"Warning: Could not parse SVG file ({e}), using fallback")
+                self.component_renderer.draw_board_fallback(dwg, board, x, y)
+                board_width = board.width
+                board_height = board.height
+
+            except PermissionError:
+                # No permission to read SVG file - use fallback rendering
+                log.warning(
+                    "svg_permission_denied",
+                    path=board.svg_asset_path,
+                    board=board.name,
+                )
+                print(f"Warning: Permission denied reading {board.svg_asset_path}, using fallback")
+                self.component_renderer.draw_board_fallback(dwg, board, x, y)
+                board_width = board.width
+                board_height = board.height
+
+            except OSError as e:
+                # Other I/O errors (disk full, network issues, etc.) - use fallback rendering
+                log.warning(
+                    "svg_io_error",
+                    error=str(e),
+                    path=board.svg_asset_path,
+                    board=board.name,
+                )
+                print(f"Warning: I/O error reading SVG file ({e}), using fallback")
+                self.component_renderer.draw_board_fallback(dwg, board, x, y)
                 board_width = board.width
                 board_height = board.height
         else:
             # Fallback: draw a simple rectangle
             log.debug("using_fallback_rectangle", board_name=board.name)
-            self._draw_board_fallback(dwg, board, x, y)
+            self.component_renderer.draw_board_fallback(dwg, board, x, y)
             board_width = board.width
             board_height = board.height
 
@@ -265,9 +282,9 @@ class SVGRenderer:
             dwg.append(
                 draw.Text(
                     board.name,
-                    14,
+                    RENDER_CONSTANTS.BOARD_LABEL_FONT_SIZE,
                     x + board_width / 2,
-                    y + board_height + 20,
+                    y + board_height + RENDER_CONSTANTS.BOARD_LABEL_Y_OFFSET,
                     text_anchor="middle",
                     font_family="Arial, sans-serif",
                     font_weight="bold",
@@ -289,7 +306,6 @@ class SVGRenderer:
             y: Board Y offset
         """
         # Color mapping for pin backgrounds based on pin role
-        from .model import PinRole
 
         role_colors = {
             PinRole.POWER_3V3: "#FFA500",  # Orange
@@ -314,8 +330,8 @@ class SVGRenderer:
         }
 
         # Pin size configuration
-        pin_radius = 4.5
-        pin_font_size = "4.5px"
+        pin_radius = RENDER_CONSTANTS.PIN_RADIUS
+        pin_font_size = RENDER_CONSTANTS.PIN_FONT_SIZE
 
         for pin in board.pins:
             pin_x = x + pin.position.x
@@ -332,8 +348,8 @@ class SVGRenderer:
                     pin_radius,
                     fill=bg_color,
                     stroke="#333",
-                    stroke_width=0.5,
-                    opacity=0.95,
+                    stroke_width=RENDER_CONSTANTS.PIN_STROKE_WIDTH,
+                    opacity=RENDER_CONSTANTS.PIN_OPACITY,
                 )
             )
 
@@ -346,7 +362,7 @@ class SVGRenderer:
                     str(pin.number),
                     _parse_font_size(font_size),
                     pin_x,
-                    pin_y + 1.5,
+                    pin_y + RENDER_CONSTANTS.PIN_TEXT_Y_OFFSET,
                     text_anchor="middle",
                     font_family="Arial, sans-serif",
                     font_weight="bold",
@@ -533,547 +549,6 @@ class SVGRenderer:
             result["opacity"] = attribs["opacity"]
 
         return result
-
-    def _draw_board_fallback(self, dwg: draw.Drawing, board: Board, x: float, y: float) -> None:
-        """Draw a simple representation of the board when SVG asset is not available."""
-        # Board rectangle
-        dwg.append(
-            draw.Rectangle(
-                x,
-                y,
-                board.width,
-                board.height,
-                rx=8,
-                ry=8,
-                fill="#2d8e3a",
-                stroke="#1a5a23",
-                stroke_width=2,
-            )
-        )
-
-        # GPIO header representation
-        header_x = x + board.header_offset.x
-        header_y = y + board.header_offset.y
-
-        dwg.append(
-            draw.Rectangle(
-                header_x - 5,
-                header_y - 5,
-                35,
-                100,
-                rx=2,
-                ry=2,
-                fill="#1a1a1a",
-                stroke="#000",
-            )
-        )
-
-    def _draw_device(self, dwg: draw.Drawing, device: Device) -> None:
-        """
-        Draw a device or module as a colored rectangle with labeled pins.
-
-        Renders the device name above the box, draws a rounded rectangle for the
-        device body, and adds labeled pin markers with black backgrounds for
-        readability.
-
-        Args:
-            dwg: The SVG drawing object
-            device: The device to render
-        """
-        self._draw_device_box(dwg, device)
-        self._draw_device_pins(dwg, device)
-
-    def _draw_device_box(self, dwg: draw.Drawing, device: Device) -> None:
-        """Draw just the device box and name, without pins."""
-        x = device.position.x
-        y = device.position.y
-
-        # Use full device name (no truncation)
-        display_name = device.name
-
-        # Adjust font size based on name length for better fit
-        name_length = len(display_name)
-        if name_length <= 20:
-            font_size = "12px"
-        elif name_length <= 30:
-            font_size = "10px"
-        else:
-            font_size = "9px"
-
-        # Device name above the box
-        text_x = x + device.width / 2
-        text_y = y - 5  # Position above the box
-
-        dwg.append(
-            draw.Text(
-                display_name,
-                _parse_font_size(font_size),
-                text_x,
-                text_y,
-                text_anchor="middle",
-                font_family="Arial, sans-serif",
-                font_weight="bold",
-                fill="#333",
-            )
-        )
-
-        # Device box
-        dwg.append(
-            draw.Rectangle(
-                x,
-                y,
-                device.width,
-                device.height,
-                rx=5,
-                ry=5,
-                fill=device.color,
-                stroke="#333",
-                stroke_width=2,
-                opacity=0.9,
-            )
-        )
-
-    def _draw_device_pins(self, dwg: draw.Drawing, device: Device) -> None:
-        """Draw device pins and labels."""
-        x = device.position.x
-        y = device.position.y
-
-        # Draw pins
-        for pin in device.pins:
-            pin_x = x + pin.position.x
-            pin_y = y + pin.position.y
-
-            # Pin circle - small and visible with white halo for connection visibility
-            # Draw white halo first for better wire connection visibility
-            dwg.append(draw.Circle(pin_x, pin_y, 4, fill="white", opacity=0.8))
-            # Draw main pin circle
-            dwg.append(
-                draw.Circle(
-                    pin_x,
-                    pin_y,
-                    3,
-                    fill="#FFD700",
-                    stroke="#333",
-                    stroke_width=1,
-                    opacity=0.95,
-                )
-            )
-
-            # Pin label with black background inside device box (to the right of pin)
-            label_padding = 4
-            label_x = pin_x + 6  # Position to the right of the pin circle
-            label_y = pin_y
-
-            # Estimate label dimensions
-            label_width = len(pin.name) * 4.2  # ~4.2px per character at 7px font
-            label_height = 10
-
-            # Draw black background for pin label
-            dwg.append(
-                draw.Rectangle(
-                    label_x,
-                    label_y - label_height / 2,
-                    label_width + label_padding * 2,
-                    label_height,
-                    rx=2,
-                    ry=2,
-                    fill="#000000",
-                    opacity=0.8,
-                )
-            )
-
-            # Draw pin label text in white
-            dwg.append(
-                draw.Text(
-                    pin.name,
-                    7,
-                    label_x + label_padding,
-                    label_y + 2.5,
-                    text_anchor="start",
-                    font_family="Arial, sans-serif",
-                    fill="#FFFFFF",
-                )
-            )
-
-    def _point_along_path(self, points: list[Point], position: float) -> tuple[Point, float]:
-        """
-        Calculate a point along a path at the given position (0.0-1.0).
-
-        Returns:
-            Tuple of (point, angle_degrees) where angle is the tangent direction
-        """
-        if position <= 0.0:
-            # Angle from first to second point
-            dx = points[1].x - points[0].x
-            dy = points[1].y - points[0].y
-            angle = math.degrees(math.atan2(dy, dx))
-            return points[0], angle
-        if position >= 1.0:
-            # Angle from second-to-last to last point
-            dx = points[-1].x - points[-2].x
-            dy = points[-1].y - points[-2].y
-            angle = math.degrees(math.atan2(dy, dx))
-            return points[-1], angle
-
-        # Calculate total path length
-        segments = []
-        total_length = 0.0
-        for i in range(len(points) - 1):
-            dx = points[i + 1].x - points[i].x
-            dy = points[i + 1].y - points[i].y
-            seg_length = math.sqrt(dx * dx + dy * dy)
-            segments.append(seg_length)
-            total_length += seg_length
-
-        # Find target distance along path
-        target_dist = position * total_length
-        current_dist = 0.0
-
-        # Find which segment contains the target point
-        for i, seg_length in enumerate(segments):
-            if current_dist + seg_length >= target_dist:
-                # Interpolate within this segment
-                segment_position = (target_dist - current_dist) / seg_length
-                p1 = points[i]
-                p2 = points[i + 1]
-
-                x = p1.x + segment_position * (p2.x - p1.x)
-                y = p1.y + segment_position * (p2.y - p1.y)
-
-                # Calculate angle
-                dx = p2.x - p1.x
-                dy = p2.y - p1.y
-                angle = math.degrees(math.atan2(dy, dx))
-
-                return Point(x, y), angle
-
-            current_dist += seg_length
-
-        # Fallback (shouldn't reach here)
-        return points[-1], 0.0
-
-    def _draw_resistor_symbol(
-        self, dwg: draw.Drawing, center: Point, angle: float, color: str, value: str
-    ) -> None:
-        """Draw a resistor symbol at the given position and angle."""
-        # Resistor dimensions
-        width = 20.0
-        height = 6.0
-
-        # Create group for resistor with transform
-        g = draw.Group(transform=f"translate({center.x}, {center.y}) rotate({angle})")
-
-        # Draw rectangle for resistor body
-        rect = draw.Rectangle(
-            -width / 2,
-            -height / 2,
-            width,
-            height,
-            fill="white",
-            stroke=color,
-            stroke_width=2,
-        )
-
-        # Draw lead lines (extending from resistor body)
-        lead_length = 8.0
-        left_lead = draw.Line(
-            -width / 2 - lead_length,
-            0,
-            -width / 2,
-            0,
-            stroke=color,
-            stroke_width=2,
-        )
-        right_lead = draw.Line(
-            width / 2, 0, width / 2 + lead_length, 0, stroke=color, stroke_width=2
-        )
-
-        g.append(rect)
-        g.append(left_lead)
-        g.append(right_lead)
-
-        # Add value label
-        text = draw.Text(
-            value,
-            10,
-            0,
-            -height / 2 - 5,
-            text_anchor="middle",
-            font_family="Arial, sans-serif",
-            fill="#333",
-            font_weight="bold",
-        )
-        g.append(text)
-
-        dwg.append(g)
-
-    def _draw_wire(
-        self, dwg: draw.Drawing, wire: RoutedWire, draw_connection_segment: bool = True
-    ) -> None:
-        """
-        Draw a wire connection with optional inline components.
-
-        Renders wires with rounded corners and white halos for visibility. If the
-        wire has inline components (resistors, capacitors, diodes), breaks the wire
-        into segments and draws component symbols at specified positions.
-
-        Args:
-            dwg: The SVG drawing object
-            wire: The routed wire with path and color information
-            draw_connection_segment: If False, skips drawing the final segment into the device pin
-        """
-        if not wire.connection.components:
-            self._draw_simple_wire(dwg, wire, draw_connection_segment)
-        else:
-            self._draw_wire_with_components(dwg, wire, draw_connection_segment)
-
-        self._draw_wire_endpoints(dwg, wire)
-
-    def _draw_simple_wire(
-        self, dwg: draw.Drawing, wire: RoutedWire, draw_connection_segment: bool = True
-    ) -> None:
-        """Draw a simple wire without components."""
-        if draw_connection_segment or len(wire.path_points) < 5:
-            # Draw the full wire path
-            path_d = create_bezier_path(wire.path_points, self.layout_config.corner_radius)
-            self._draw_wire_halo(dwg, path_d)
-            self._draw_wire_core(dwg, path_d, wire.color)
-        else:
-            # Draw only up to the connection point (skip the final straight segment)
-            path_d = create_bezier_path(wire.path_points[:-1], self.layout_config.corner_radius)
-            self._draw_wire_halo(dwg, path_d)
-            self._draw_wire_core(dwg, path_d, wire.color)
-
-    def _draw_wire_connection_segment(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
-        """Draw just the final straight segment that connects to the device pin."""
-        if len(wire.path_points) >= 5:
-            # Draw the straight line from connection_point to pin
-            connection_point = wire.path_points[-2]
-            end_point = wire.path_points[-1]
-
-            # Create a simple line path
-            path_d = (
-                f"M {connection_point.x:.2f},{connection_point.y:.2f} "
-                f"L {end_point.x:.2f},{end_point.y:.2f}"
-            )
-
-            # Draw with halo and core
-            self._draw_wire_halo(dwg, path_d)
-            self._draw_wire_core(dwg, path_d, wire.color)
-
-    def _draw_wire_with_components(
-        self, dwg: draw.Drawing, wire: RoutedWire, draw_connection_segment: bool = True
-    ) -> None:
-        """Draw a wire broken into segments by inline components."""
-        component_positions = sorted(
-            [(comp, comp.position) for comp in wire.connection.components], key=lambda x: x[1]
-        )
-
-        prev_pos = 0.0
-        for comp, comp_pos in component_positions:
-            # Draw wire segment from prev_pos to comp_pos
-            if comp_pos > prev_pos + 0.01:
-                self._draw_wire_segment(dwg, wire, prev_pos, comp_pos)
-
-            # Draw component symbol
-            comp_pt, angle = self._point_along_path(wire.path_points, comp_pos)
-            if comp.type == ComponentType.RESISTOR:
-                self._draw_resistor_symbol(dwg, comp_pt, angle, wire.color, comp.value)
-
-            prev_pos = comp_pos
-
-        # Draw final segment from last component to end
-        if prev_pos < 0.99:
-            self._draw_wire_segment(dwg, wire, prev_pos, 1.0)
-
-    def _draw_wire_segment(
-        self, dwg: draw.Drawing, wire: RoutedWire, start_pos: float, end_pos: float
-    ) -> None:
-        """Draw a segment of a wire between two positions (0.0-1.0)."""
-        segment_points = self._get_path_segment(wire.path_points, start_pos, end_pos)
-        if len(segment_points) >= 2:
-            path_d = create_bezier_path(segment_points, self.layout_config.corner_radius)
-            self._draw_wire_halo(dwg, path_d)
-            self._draw_wire_core(dwg, path_d, wire.color)
-
-    def _get_path_segment(
-        self, path_points: list[Point], start_pos: float, end_pos: float
-    ) -> list[Point]:
-        """Extract points from path between start_pos and end_pos."""
-        if start_pos >= end_pos:
-            return []
-
-        segment_points = []
-
-        # Add start point
-        if start_pos > 0.0:
-            start_pt, _ = self._point_along_path(path_points, start_pos)
-            segment_points.append(start_pt)
-
-        # Add all intermediate path points that fall within range
-        total_length = 0.0
-        segment_lengths = []
-        for i in range(len(path_points) - 1):
-            dx = path_points[i + 1].x - path_points[i].x
-            dy = path_points[i + 1].y - path_points[i].y
-            seg_len = math.sqrt(dx * dx + dy * dy)
-            segment_lengths.append(seg_len)
-            total_length += seg_len
-
-        cumulative = 0.0
-        for i, seg_len in enumerate(segment_lengths):
-            pos_at_start = cumulative / total_length
-            pos_at_end = (cumulative + seg_len) / total_length
-
-            # Include point if it's within our range
-            if start_pos <= pos_at_start <= end_pos:
-                segment_points.append(path_points[i])
-            if start_pos <= pos_at_end <= end_pos:
-                segment_points.append(path_points[i + 1])
-
-            cumulative += seg_len
-
-        # Add end point
-        if end_pos < 1.0:
-            end_pt, _ = self._point_along_path(path_points, end_pos)
-            segment_points.append(end_pt)
-
-        # Remove duplicates while preserving order
-        seen = set()
-        unique_points = []
-        for pt in segment_points:
-            key = (round(pt.x, 2), round(pt.y, 2))
-            if key not in seen:
-                seen.add(key)
-                unique_points.append(pt)
-
-        return unique_points if len(unique_points) >= 2 else segment_points
-
-    def _draw_wire_halo(self, dwg: draw.Drawing, path_d: str) -> None:
-        """Draw the white halo around a wire for visibility."""
-        dwg.append(
-            draw.Path(
-                d=path_d,
-                stroke="white",
-                stroke_width=4.5,
-                fill="none",
-                stroke_linecap="round",
-                stroke_linejoin="round",
-                opacity=1.0,
-            )
-        )
-
-    def _draw_wire_core(self, dwg: draw.Drawing, path_d: str, color: str) -> None:
-        """Draw the colored core of a wire."""
-        dwg.append(
-            draw.Path(
-                d=path_d,
-                stroke=color,
-                stroke_width=3,
-                fill="none",
-                stroke_linecap="round",
-                stroke_linejoin="round",
-                opacity=0.8,
-            )
-        )
-
-    def _draw_wire_endpoints(self, dwg: draw.Drawing, wire: RoutedWire) -> None:
-        """Draw the start connection dots (board side only - device pins drawn separately)."""
-        # Only draw endpoint circle at board side (start point)
-        # Device side endpoint is handled by the device pin circle drawn later
-        dwg.append(draw.Circle(wire.from_pin_pos.x, wire.from_pin_pos.y, 4, fill="white"))
-        dwg.append(draw.Circle(wire.from_pin_pos.x, wire.from_pin_pos.y, 3, fill=wire.color))
-
-    def _draw_legend(
-        self,
-        dwg: draw.Drawing,
-        routed_wires: list[RoutedWire],
-        canvas_width: float,
-        canvas_height: float,
-    ) -> None:
-        """Draw the legend showing wire color meanings."""
-        legend_x = canvas_width - self.layout_config.legend_width - self.layout_config.legend_margin
-        legend_y = (
-            canvas_height - self.layout_config.legend_height - self.layout_config.legend_margin
-        )
-
-        # Legend background
-        dwg.add(
-            dwg.rect(
-                insert=(legend_x, legend_y),
-                size=(self.layout_config.legend_width, self.layout_config.legend_height),
-                rx=5,
-                ry=5,
-                fill="white",
-                stroke="#333",
-                stroke_width=1,
-                opacity=0.95,
-            )
-        )
-
-        # Legend title
-        dwg.add(
-            dwg.text(
-                "Wire Colors",
-                insert=(legend_x + self.layout_config.legend_width / 2, legend_y + 20),
-                text_anchor="middle",
-                font_size="12px",
-                font_family="Arial, sans-serif",
-                font_weight="bold",
-                fill="#333",
-            )
-        )
-
-        # Collect unique colors and their roles
-        color_roles: dict[str, set[PinRole]] = {}
-        for wire in routed_wires:
-            color = wire.color
-            # Try to determine the role from the connection
-            # This is a simplified version; in practice, you'd look up the actual pin role
-            if color not in color_roles:
-                color_roles[color] = set()
-
-            # Find the role by reverse lookup in DEFAULT_COLORS
-            for role, default_color in DEFAULT_COLORS.items():
-                if default_color == color:
-                    color_roles[color].add(role)
-                    break
-
-        # Draw legend entries
-        entry_y = legend_y + 35
-        line_height = 18
-
-        for color, roles in sorted(color_roles.items()):
-            if entry_y > legend_y + self.layout_config.legend_height - 10:
-                break  # Don't overflow legend box
-
-            # Color swatch
-            dwg.add(
-                dwg.line(
-                    start=(legend_x + 10, entry_y),
-                    end=(legend_x + 30, entry_y),
-                    stroke=color,
-                    stroke_width=4,
-                    stroke_linecap="round",
-                )
-            )
-
-            # Role label
-            role_text = ", ".join(sorted(r.value for r in roles))
-            if not role_text:
-                role_text = "Signal"
-
-            dwg.add(
-                dwg.text(
-                    role_text,
-                    insert=(legend_x + 35, entry_y + 4),
-                    font_size="10px",
-                    font_family="Arial, sans-serif",
-                    fill="#333",
-                )
-            )
-
-            entry_y += line_height
 
     def render_to_string(self, diagram: Diagram) -> str:
         """

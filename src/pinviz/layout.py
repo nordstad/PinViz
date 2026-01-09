@@ -52,6 +52,70 @@ class LayoutConfig:
 
 
 @dataclass
+class LayoutConstants:
+    """
+    Algorithm constants for wire routing and path calculation.
+
+    These constants control the behavior of the wire routing algorithm,
+    including grouping, spacing, and curve generation. They are separate
+    from LayoutConfig as they represent algorithmic tuning parameters
+    rather than user-configurable layout settings.
+    """
+
+    # Wire grouping constants
+    Y_POSITION_TOLERANCE: float = 50.0  # Pixels - wires within this Y range are grouped together
+    FROM_Y_POSITION_TOLERANCE: float = (
+        100.0  # Pixels - tolerance for conflict detection between wires
+    )
+
+    # Rail positioning constants
+    RAIL_SPACING_MULTIPLIER: float = (
+        3.0  # Multiplier for device rail spacing (multiplied by wire_spacing)
+    )
+
+    # Vertical spacing constants
+    VERTICAL_SPACING_MULTIPLIER: float = (
+        4.5  # Multiplier for vertical wire separation (multiplied by wire_spacing)
+    )
+    MIN_SEPARATION_MULTIPLIER: float = (
+        1.5  # Multiplier for minimum wire separation in conflict detection
+    )
+
+    # Path sampling constants for conflict detection
+    SAMPLE_POSITIONS: tuple[float, ...] = (
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+    )  # Positions along path to sample for overlap detection
+
+    # Conflict resolution constants
+    CONFLICT_ADJUSTMENT_DIVISOR: float = 2.0  # Divisor for adjusting conflicting wires
+
+    # Wire path calculation constants
+    STRAIGHT_SEGMENT_LENGTH: float = 15.0  # Length of straight segment at device pin end
+    WIRE_PIN_EXTENSION: float = 2.0  # Extension beyond pin center for visual connection
+    SIMILAR_Y_THRESHOLD: float = 50.0  # Threshold for determining if wires are at similar Y
+
+    # Bezier curve control point ratios for gentle horizontal arc (similar Y)
+    GENTLE_ARC_CTRL1_RAIL_RATIO: float = 0.3  # Rail influence on control point 1
+    GENTLE_ARC_CTRL1_START_RATIO: float = 0.7  # Start position influence on control point 1
+    GENTLE_ARC_CTRL1_OFFSET_RATIO: float = 0.8  # Y offset influence on control point 1
+
+    GENTLE_ARC_CTRL2_RAIL_RATIO: float = 0.7  # Rail influence on control point 2
+    GENTLE_ARC_CTRL2_END_RATIO: float = 0.3  # End position influence on control point 2
+    GENTLE_ARC_CTRL2_OFFSET_RATIO: float = 0.3  # Y offset influence on control point 2
+
+    # Bezier curve control point ratios for S-curve (different Y)
+    S_CURVE_CTRL1_RATIO: float = 0.4  # Ratio for control point 1 position
+    S_CURVE_CTRL1_OFFSET_RATIO: float = 0.9  # Y offset influence on control point 1
+
+    S_CURVE_CTRL2_RATIO: float = 0.4  # Ratio for control point 2 position
+    S_CURVE_CTRL2_OFFSET_RATIO: float = 0.3  # Y offset influence on control point 2
+
+
+@dataclass
 class RoutedWire:
     """
     A wire connection with calculated routing path.
@@ -72,6 +136,29 @@ class RoutedWire:
     color: str
     from_pin_pos: Point
     to_pin_pos: Point
+
+
+@dataclass
+class WireData:
+    """
+    Intermediate wire data collected during routing.
+
+    Stores all information needed to route a single wire before path calculation.
+    Used internally by the layout engine during the wire routing algorithm.
+
+    Attributes:
+        connection: The original connection specification
+        from_pos: Absolute position of source pin on board
+        to_pos: Absolute position of destination pin on device
+        color: Wire color as hex code (from connection or auto-assigned)
+        device: The target device for this wire
+    """
+
+    connection: Connection
+    from_pos: Point
+    to_pos: Point
+    color: str
+    device: Device
 
 
 class LayoutEngine:
@@ -98,6 +185,7 @@ class LayoutEngine:
             config: Layout configuration parameters. If None, uses default LayoutConfig.
         """
         self.config = config or LayoutConfig()
+        self.constants = LayoutConstants()
 
     def layout_diagram(self, diagram: Diagram) -> tuple[float, float, list[RoutedWire]]:
         """
@@ -143,48 +231,54 @@ class LayoutEngine:
             )
             y_offset += device.height + self.config.device_spacing_vertical
 
-    def _route_wires(self, diagram: Diagram) -> list[RoutedWire]:
+    def _collect_wire_data(self, diagram: Diagram) -> list[WireData]:
         """
-        Route all wires using device-based routing lanes to prevent crossings.
+        Collect wire connection data from the diagram.
 
-        Strategy:
-        - Assign each device a vertical routing zone based on its Y position
-        - Wires to the same device route through that device's zone
-        - Wires to different devices use different zones, preventing crossings
-        - Similar to Fritzing's approach where wires don't cross
+        First pass: Gathers information about each connection including pin positions,
+        device references, and wire colors. This prepares all the data needed for
+        the wire routing algorithm.
+
+        Args:
+            diagram: The diagram containing connections, board, and devices
+
+        Returns:
+            List of WireData objects with resolved positions and colors
         """
-        routed_wires: list[RoutedWire] = []
-
-        # First pass: collect all connection data
-        wire_data: list[tuple[Connection, Point, Point, str, Device]] = []
+        wire_data: list[WireData] = []
 
         for conn in diagram.connections:
-            # Find board pin
+            # Find board pin by physical pin number
             board_pin = diagram.board.get_pin_by_number(conn.board_pin)
             if not board_pin or not board_pin.position:
                 continue
 
-            # Find device and device pin
+            # Find the target device by name
             device = next((d for d in diagram.devices if d.name == conn.device_name), None)
             if not device:
                 continue
 
+            # Find the specific device pin by name
             device_pin = device.get_pin_by_name(conn.device_pin_name)
             if not device_pin:
                 continue
 
-            # Calculate absolute positions
+            # Calculate absolute position of board pin
+            # (board position is offset by margins)
             from_pos = Point(
                 self.config.board_margin_left + board_pin.position.x,
                 self.config.board_margin_top + board_pin.position.y,
             )
 
+            # Calculate absolute position of device pin
+            # (device pins are relative to device position)
             to_pos = Point(
                 device.position.x + device_pin.position.x,
                 device.position.y + device_pin.position.y,
             )
 
-            # Determine wire color
+            # Determine wire color: use connection color if specified,
+            # otherwise use default color based on pin role
             from .model import DEFAULT_COLORS
 
             if conn.color:
@@ -192,73 +286,189 @@ class LayoutEngine:
             else:
                 color = DEFAULT_COLORS.get(board_pin.role, "#808080")
 
-            wire_data.append((conn, from_pos, to_pos, color, device))
+            wire_data.append(WireData(conn, from_pos, to_pos, color, device))
 
-        # Sort wires by starting Y position first, then by target device
-        # This groups wires from nearby pins together for better visual flow
-        wire_data.sort(key=lambda x: (x[1].y, x[4].position.y, x[2].y))
+        return wire_data
 
-        # Group wires by starting Y position to add vertical offsets for horizontal segments
-        # This prevents horizontal overlap when multiple wires start from nearby pins
-        y_tolerance = 50.0  # Pixels - pins within this range are considered at same Y level
-        y_groups: dict[int, list[int]] = {}  # Maps group_id to list of wire indices
+    def _group_wires_by_position(self, wire_data: list[WireData]) -> dict[int, list[int]]:
+        """
+        Group wires by their starting Y position for vertical offset calculation.
 
-        for idx, (_, from_pos, _, _, _) in enumerate(wire_data):
-            # Find existing group with similar Y, or create new group
+        Wires that start from pins at similar Y coordinates need vertical offsets
+        on their horizontal segments to prevent visual overlap. This method groups
+        wire indices by Y position so offsets can be calculated per group.
+
+        Args:
+            wire_data: List of WireData objects to group
+
+        Returns:
+            Dictionary mapping group_id to list of wire indices in that group
+        """
+        # Tolerance in pixels - pins within this range are considered at same Y level
+        y_tolerance = self.constants.Y_POSITION_TOLERANCE
+        y_groups: dict[int, list[int]] = {}
+
+        for idx, wire in enumerate(wire_data):
+            # Find existing group with similar starting Y position
             group_id = None
             for gid, wire_indices in y_groups.items():
-                # Check first wire in group to see if Y positions are close
-                first_wire_y = wire_data[wire_indices[0]][1].y
-                if abs(from_pos.y - first_wire_y) < y_tolerance:
+                # Compare with the first wire in the group
+                first_wire_y = wire_data[wire_indices[0]].from_pos.y
+                if abs(wire.from_pos.y - first_wire_y) < y_tolerance:
                     group_id = gid
                     break
 
+            # Create new group if no matching group found
             if group_id is None:
                 group_id = len(y_groups)
                 y_groups[group_id] = []
 
             y_groups[group_id].append(idx)
 
-        # Calculate base rail X position
-        board_right_edge = self.config.board_margin_left + diagram.board.width
+        return y_groups
+
+    def _assign_rail_positions(
+        self, wire_data: list[WireData], board_width: float
+    ) -> tuple[dict[str, float], dict[str, int]]:
+        """
+        Assign rail X positions for each device to prevent wire crossings.
+
+        Each device gets its own vertical "rail" for routing wires. Wires to the
+        same device share a rail, while wires to different devices use different
+        rails. This prevents crossing and maintains visual clarity.
+
+        Args:
+            wire_data: List of WireData objects to assign rails for
+            board_width: Width of the board for calculating base rail position
+
+        Returns:
+            Tuple of (device_to_base_rail, wire_count_per_device):
+            - device_to_base_rail: Maps device name to its base rail X position
+            - wire_count_per_device: Maps device name to count of wires going to it
+        """
+        # Calculate base rail X position (to the right of the board)
+        board_right_edge = self.config.board_margin_left + board_width
         base_rail_x = board_right_edge + self.config.rail_offset
 
-        # Assign each unique device a base rail X position
-        # Devices lower on the page get rails further to the right
+        # Collect unique devices in order of appearance
+        # This maintains visual flow from top to bottom
         unique_devices = []
         seen_devices = set()
-        for _, _, _, _, device in wire_data:
-            if device.name not in seen_devices:
-                unique_devices.append(device)
-                seen_devices.add(device.name)
+        for wire in wire_data:
+            if wire.device.name not in seen_devices:
+                unique_devices.append(wire.device)
+                seen_devices.add(wire.device.name)
 
-        # Create rail mapping: each device gets a base rail position
+        # Assign each device a base rail position
+        # Devices lower on the page get rails further to the right
         device_to_base_rail: dict[str, float] = {}
         for idx, device in enumerate(unique_devices):
-            # Each device gets a base rail offset
-            device_to_base_rail[device.name] = base_rail_x + (idx * self.config.wire_spacing * 3)
+            # Each device gets progressively more rail offset
+            device_to_base_rail[device.name] = base_rail_x + (
+                idx * self.config.wire_spacing * self.constants.RAIL_SPACING_MULTIPLIER
+            )
 
-        # Count wires per device to add sub-offsets
+        # Count wires per device for sub-offset calculations
         wire_count_per_device: dict[str, int] = {}
-        for _, _, _, _, device in wire_data:
-            wire_count_per_device[device.name] = wire_count_per_device.get(device.name, 0) + 1
+        for wire in wire_data:
+            wire_count_per_device[wire.device.name] = (
+                wire_count_per_device.get(wire.device.name, 0) + 1
+            )
 
-        # Track wire index per device
+        return device_to_base_rail, wire_count_per_device
+
+    def _route_wires(self, diagram: Diagram) -> list[RoutedWire]:
+        """
+        Route all wires using device-based routing lanes to prevent crossings.
+
+        This is the main wire routing orchestration method. It coordinates the
+        multi-step routing algorithm:
+        1. Collect wire data (pins, positions, colors)
+        2. Sort wires for optimal visual flow
+        3. Group wires by starting position for offset calculation
+        4. Assign routing rails to each device
+        5. Calculate initial wire paths with offsets
+        6. Detect and resolve any remaining conflicts
+        7. Generate final routed wires
+
+        Strategy:
+        - Assign each device a vertical routing zone based on its Y position
+        - Wires to the same device route through that device's zone
+        - Wires to different devices use different zones, preventing crossings
+        - Similar to Fritzing's approach where wires don't cross
+
+        Args:
+            diagram: The diagram containing all connections, board, and devices
+
+        Returns:
+            List of RoutedWire objects with calculated paths
+        """
+        # Step 1: Collect wire data from all connections
+        wire_data = self._collect_wire_data(diagram)
+
+        # Sort wires by starting Y position first, then by target device
+        # This groups wires from nearby pins together for better visual flow
+        wire_data.sort(key=lambda w: (w.from_pos.y, w.device.position.y, w.to_pos.y))
+
+        # Step 2: Group wires by starting Y position for vertical offset calculation
+        y_groups = self._group_wires_by_position(wire_data)
+
+        # Step 3: Assign rail positions for each device
+        device_to_base_rail, wire_count_per_device = self._assign_rail_positions(
+            wire_data, diagram.board.width
+        )
+
+        # Step 4: Calculate initial wire paths with offsets
+        initial_wires = self._calculate_initial_wire_paths(
+            wire_data, y_groups, device_to_base_rail, wire_count_per_device
+        )
+
+        # Step 5: Detect and resolve any overlapping wire paths
+        y_offset_adjustments = self._detect_and_resolve_overlaps(initial_wires)
+
+        # Step 6: Generate final routed wires with all adjustments applied
+        routed_wires = self._generate_final_routed_wires(initial_wires, y_offset_adjustments)
+
+        return routed_wires
+
+    def _calculate_initial_wire_paths(
+        self,
+        wire_data: list[WireData],
+        y_groups: dict[int, list[int]],
+        device_to_base_rail: dict[str, float],
+        wire_count_per_device: dict[str, int],
+    ) -> list[dict]:
+        """
+        Calculate initial wire paths with rail positions and vertical offsets.
+
+        For each wire, calculates:
+        - The rail X position (based on device assignment with sub-offsets)
+        - The vertical Y offset (based on position within Y group)
+
+        Args:
+            wire_data: List of WireData objects to route
+            y_groups: Mapping of group_id to list of wire indices
+            device_to_base_rail: Base rail X position for each device
+            wire_count_per_device: Number of wires going to each device
+
+        Returns:
+            List of wire info dictionaries with routing parameters
+        """
+        # Track wire index per device for sub-offset calculation
         wire_index_per_device: dict[str, int] = {}
-
-        # Initial routing pass - calculate all wire paths
         initial_wires = []
-        for wire_idx, (conn, from_pos, to_pos, color, device) in enumerate(wire_data):
+
+        for wire_idx, wire in enumerate(wire_data):
             # Get the base rail X for this device
-            base_rail = device_to_base_rail[device.name]
+            base_rail = device_to_base_rail[wire.device.name]
 
-            # Get wire index for this device
-            dev_wire_idx = wire_index_per_device.get(device.name, 0)
-            wire_index_per_device[device.name] = dev_wire_idx + 1
+            # Get and increment wire index for this device
+            dev_wire_idx = wire_index_per_device.get(wire.device.name, 0)
+            wire_index_per_device[wire.device.name] = dev_wire_idx + 1
 
-            # Add sub-offset for multiple wires to same device
+            # Calculate sub-offset for multiple wires to same device
             # Center the wires around the base rail position
-            num_wires = wire_count_per_device[device.name]
+            num_wires = wire_count_per_device[wire.device.name]
             if num_wires > 1:
                 # Spread wires evenly around the base rail
                 spread = (num_wires - 1) * self.config.wire_spacing / 2
@@ -277,28 +487,46 @@ class LayoutEngine:
                     num_in_group = len(group_indices)
                     if num_in_group > 1:
                         # Spread wires vertically with dramatic spacing for clear separation
-                        vertical_spacing = self.config.wire_spacing * 4.5
+                        vertical_spacing = (
+                            self.config.wire_spacing * self.constants.VERTICAL_SPACING_MULTIPLIER
+                        )
                         spread = (num_in_group - 1) * vertical_spacing / 2
                         y_offset = pos_in_group * vertical_spacing - spread
                     break
 
             initial_wires.append(
                 {
-                    "conn": conn,
-                    "from_pos": from_pos,
-                    "to_pos": to_pos,
-                    "color": color,
-                    "device": device,
+                    "conn": wire.connection,
+                    "from_pos": wire.from_pos,
+                    "to_pos": wire.to_pos,
+                    "color": wire.color,
+                    "device": wire.device,
                     "rail_x": rail_x,
                     "y_offset": y_offset,
                     "wire_idx": wire_idx,
                 }
             )
 
-        # Conflict detection and resolution pass
-        y_offset_adjustments = self._detect_and_resolve_overlaps(initial_wires)
+        return initial_wires
 
-        # Final routing with adjusted offsets
+    def _generate_final_routed_wires(
+        self, initial_wires: list[dict], y_offset_adjustments: dict[int, float]
+    ) -> list[RoutedWire]:
+        """
+        Generate final routed wires with all adjustments applied.
+
+        Takes the initial wire paths and applies conflict resolution adjustments
+        to create the final RoutedWire objects with complete path information.
+
+        Args:
+            initial_wires: List of initial wire info dictionaries
+            y_offset_adjustments: Adjustments to y_offset for each wire
+
+        Returns:
+            List of RoutedWire objects with calculated paths
+        """
+        routed_wires: list[RoutedWire] = []
+
         for wire_info in initial_wires:
             # Apply any adjustments from conflict resolution
             adjustment = y_offset_adjustments.get(wire_info["wire_idx"], 0.0)
@@ -339,7 +567,9 @@ class LayoutEngine:
             Dictionary mapping wire_idx to y_offset adjustment
         """
         adjustments = {}
-        min_separation = self.config.wire_spacing * 1.5  # Minimum desired separation
+        min_separation = (
+            self.config.wire_spacing * self.constants.MIN_SEPARATION_MULTIPLIER
+        )  # Minimum desired separation
 
         # Sample points along each wire's potential path
         wire_samples = []
@@ -357,8 +587,8 @@ class LayoutEngine:
             samples = []
             for i in range(len(path_points) - 1):
                 p1, p2 = path_points[i], path_points[i + 1]
-                # Sample 5 points between each pair
-                for t in [0.0, 0.25, 0.5, 0.75, 1.0]:
+                # Sample points between each pair
+                for t in self.constants.SAMPLE_POSITIONS:
                     x = p1.x + (p2.x - p1.x) * t
                     y = p1.y + (p2.y - p1.y) * t
                     samples.append((x, y))
@@ -379,7 +609,10 @@ class LayoutEngine:
                 wire_b = wire_samples[j]
 
                 # Check if wires have similar starting Y (potential overlap)
-                if abs(wire_a["from_y"] - wire_b["from_y"]) > 100:
+                if (
+                    abs(wire_a["from_y"] - wire_b["from_y"])
+                    > self.constants.FROM_Y_POSITION_TOLERANCE
+                ):
                     continue  # Wires start far apart, unlikely to conflict
 
                 # Check minimum distance between sampled points
@@ -401,7 +634,7 @@ class LayoutEngine:
         # Apply adjustments to resolve conflicts
         # Push conflicting wires further apart
         for conflict in sorted(conflicts, key=lambda c: c["severity"], reverse=True):
-            adjustment_amount = conflict["severity"] / 2
+            adjustment_amount = conflict["severity"] / self.constants.CONFLICT_ADJUSTMENT_DIVISOR
 
             # Push wire_a up, wire_b down
             wire_a_idx = conflict["wire_a"]
@@ -443,32 +676,43 @@ class LayoutEngine:
 
         # Add a straight segment at the end for better visual pin connection
         # Create a point slightly before the device pin for the curve to end
-        straight_segment_length = 15.0
-        connection_point = Point(to_pos.x - straight_segment_length, to_pos.y)
+        connection_point = Point(to_pos.x - self.constants.STRAIGHT_SEGMENT_LENGTH, to_pos.y)
 
         # Extend the final point slightly beyond pin center so wire visually penetrates the pin
-        # The wire has stroke-width=3, so we need to extend by ~2px to be visible inside the pin
-        extended_end = Point(to_pos.x + 2.0, to_pos.y)
+        # The wire has stroke-width=3, so extending helps visual connection
+        extended_end = Point(to_pos.x + self.constants.WIRE_PIN_EXTENSION, to_pos.y)
 
         # Create a smooth S-curve or gentle arc path using rail_x for routing
         # Apply stronger y_offset at the beginning to fan out wires dramatically
-        if abs(dy) < 50:  # Wires at similar Y - gentle horizontal arc through rail
+        if abs(dy) < self.constants.SIMILAR_Y_THRESHOLD:
+            # Wires at similar Y - gentle horizontal arc through rail
             # Control point 1 - strong fan out
-            ctrl1 = Point(rail_x * 0.3 + from_pos.x * 0.7, from_pos.y + y_offset * 0.8)
+            ctrl1 = Point(
+                rail_x * self.constants.GENTLE_ARC_CTRL1_RAIL_RATIO
+                + from_pos.x * self.constants.GENTLE_ARC_CTRL1_START_RATIO,
+                from_pos.y + y_offset * self.constants.GENTLE_ARC_CTRL1_OFFSET_RATIO,
+            )
             # Control point 2 - converge to connection point
-            ctrl2_x = rail_x * 0.7 + connection_point.x * 0.3
-            ctrl2_y = connection_point.y + y_offset * 0.3
+            ctrl2_x = (
+                rail_x * self.constants.GENTLE_ARC_CTRL2_RAIL_RATIO
+                + connection_point.x * self.constants.GENTLE_ARC_CTRL2_END_RATIO
+            )
+            ctrl2_y = connection_point.y + y_offset * self.constants.GENTLE_ARC_CTRL2_OFFSET_RATIO
             ctrl2 = Point(ctrl2_x, ctrl2_y)
             return [from_pos, ctrl1, ctrl2, connection_point, extended_end]
-        else:  # Wires with vertical separation - smooth S-curve
+        else:
+            # Wires with vertical separation - smooth S-curve
             # Use 4 control points for a single smooth cubic Bezier
             # Control point 1: starts from board, curves toward rail with dramatic fan out
-            ctrl1_x = from_pos.x + (rail_x - from_pos.x) * 0.4
-            ctrl1_y = from_pos.y + y_offset * 0.9
+            ctrl1_x = from_pos.x + (rail_x - from_pos.x) * self.constants.S_CURVE_CTRL1_RATIO
+            ctrl1_y = from_pos.y + y_offset * self.constants.S_CURVE_CTRL1_OFFSET_RATIO
 
             # Control point 2: approaches connection point from rail with gentle convergence
-            ctrl2_x = connection_point.x + (rail_x - connection_point.x) * 0.4
-            ctrl2_y = connection_point.y + y_offset * 0.3
+            ctrl2_x = (
+                connection_point.x
+                + (rail_x - connection_point.x) * self.constants.S_CURVE_CTRL2_RATIO
+            )
+            ctrl2_y = connection_point.y + y_offset * self.constants.S_CURVE_CTRL2_OFFSET_RATIO
 
             return [
                 from_pos,

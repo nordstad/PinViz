@@ -184,3 +184,63 @@ def test_raspberry_pi_alias():
     assert len(board1.pins) == len(board2.pins)
     assert board1.width == board2.width
     assert board1.height == board2.height
+
+
+def test_load_board_from_config():
+    """Test loading board configuration from JSON file."""
+    board = boards.load_board_from_config("raspberry_pi_5")
+    assert board.name == "Raspberry Pi 5"
+    assert len(board.pins) == 40
+    assert board.svg_asset_path.endswith("pi_5_mod.svg")
+
+
+def test_load_board_config_missing_file():
+    """Test that loading non-existent config raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError) as exc_info:
+        boards.load_board_from_config("nonexistent_board")
+    assert "Board configuration file not found" in str(exc_info.value)
+
+
+def test_load_board_config_positions_calculated():
+    """Test that pin positions are calculated from layout parameters."""
+    board = boards.load_board_from_config("raspberry_pi_5")
+
+    # Check that positions are calculated correctly
+    # Layout parameters from config: left_col_x=187.1, right_col_x=199.1,
+    # start_y=16.2, row_spacing=12.0
+    pin1 = board.get_pin_by_number(1)  # Odd pin, left column, row 0
+    pin2 = board.get_pin_by_number(2)  # Even pin, right column, row 0
+
+    assert pin1.position.x == pytest.approx(187.1, abs=0.01)
+    assert pin2.position.x == pytest.approx(199.1, abs=0.01)
+    assert pin1.position.y == pytest.approx(16.2, abs=0.01)  # start_y
+    assert pin2.position.y == pytest.approx(16.2, abs=0.01)  # start_y
+
+    # Check row spacing
+    pin3 = board.get_pin_by_number(3)  # Row 1
+    assert pin3.position.y == pytest.approx(16.2 + 12.0, abs=0.01)
+
+
+def test_load_board_config_pin_roles():
+    """Test that pin roles are correctly loaded and converted."""
+    board = boards.load_board_from_config("raspberry_pi_5")
+
+    # Verify some pin roles
+    assert board.get_pin_by_number(1).role == PinRole.POWER_3V3
+    assert board.get_pin_by_number(3).role == PinRole.I2C_SDA
+    assert board.get_pin_by_number(6).role == PinRole.GROUND
+    assert board.get_pin_by_number(7).role == PinRole.GPIO
+
+
+def test_load_board_config_bcm_numbers():
+    """Test that BCM GPIO numbers are correctly loaded."""
+    board = boards.load_board_from_config("raspberry_pi_5")
+
+    # Verify BCM numbers
+    assert board.get_pin_by_number(3).gpio_bcm == 2  # GPIO2
+    assert board.get_pin_by_number(5).gpio_bcm == 3  # GPIO3
+    assert board.get_pin_by_number(7).gpio_bcm == 4  # GPIO4
+
+    # Power and ground pins should have None
+    assert board.get_pin_by_number(1).gpio_bcm is None  # 3V3
+    assert board.get_pin_by_number(6).gpio_bcm is None  # GND

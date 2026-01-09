@@ -174,25 +174,130 @@ def create_device(name: str, pins: list[DevicePin]) -> Device:
 
 ### Writing Tests
 
+All tests should follow these guidelines:
+
 - Add tests for new features
 - Ensure existing tests still pass
 - Aim for high test coverage (85%+)
 - Use descriptive test names
 - Follow the Arrange-Act-Assert pattern
 
-```python
-def test_device_creation():
-    # Arrange
-    name = "Test Device"
-    pins = [DevicePin("VCC", PinRole.V3_3)]
+#### Test Structure Guidelines
 
-    # Act
-    device = Device(name=name, pins=pins)
+PinViz uses a consistent test structure across the codebase. Follow these patterns:
+
+**Use test classes when:**
+
+1. Testing a specific class from the source code
+2. Grouping related tests that share common setup or test a coherent feature area
+3. Tests need shared fixtures or setup methods
+
+**Use plain test functions when:**
+
+1. Testing simple, independent module-level functions
+2. Each test is self-contained and doesn't benefit from grouping
+3. Testing CLI commands or straightforward integrations
+
+#### Test Class Example
+
+```python
+"""Tests for the PinAssigner class."""
+
+from pinviz.mcp.pin_assignment import PinAssigner, PinAssignment
+from pinviz.model import PinRole
+
+
+class TestPinAssigner:
+    """Test suite for PinAssigner class."""
+
+    def test_initialization(self):
+        """Test that assigner initializes correctly."""
+        # Arrange & Act
+        assigner = PinAssigner()
+
+        # Assert
+        assert isinstance(assigner.state, PinAllocationState)
+        assert len(assigner.assignments) == 0
+
+    def test_single_i2c_device(self):
+        """Test assigning pins for a single I2C device."""
+        # Arrange
+        assigner = PinAssigner()
+        device = {
+            "name": "BME280 Sensor",
+            "protocols": ["I2C"],
+            "pins": [
+                {"name": "VCC", "role": "3V3"},
+                {"name": "GND", "role": "GND"},
+            ],
+        }
+
+        # Act
+        assignments, warnings = assigner.assign_pins([device])
+
+        # Assert
+        assert len(assignments) == 2
+        assert len(warnings) == 0
+```
+
+#### Plain Function Example
+
+```python
+"""Tests for device factory functions."""
+
+from pinviz import devices
+from pinviz.model import PinRole
+
+
+def test_bh1750_creation():
+    """Test creating a BH1750 light sensor device."""
+    # Arrange & Act
+    device = devices.bh1750_light_sensor()
 
     # Assert
-    assert device.name == name
-    assert len(device.pins) == 1
+    assert device.name == "BH1750"
+    assert device.width == 60.0
+    assert device.height == 50.0
+
+
+def test_bh1750_has_correct_pins():
+    """Test BH1750 device has all required pins."""
+    # Arrange & Act
+    device = devices.bh1750_light_sensor()
+
+    # Assert
+    assert len(device.pins) == 4
+    pin_names = [p.name for p in device.pins]
+    assert "VCC" in pin_names
+    assert "GND" in pin_names
 ```
+
+#### Required Documentation
+
+Every test file must include:
+
+1. **Module docstring** - Describe what's being tested
+2. **Class docstrings** - For test classes, describe the test suite purpose
+3. **Function docstrings** - For each test, describe what behavior is verified
+
+Example module docstring:
+
+```python
+"""Tests for wire routing spacing and non-overlap guarantees.
+
+This module verifies that:
+- Wires maintain minimum spacing when routed in parallel
+- Vertical rails are properly separated
+- Multiple wires from the same pin don't overlap
+"""
+```
+
+#### Test Organization
+
+- **Group by feature**: Related tests should be in the same test class
+- **Logical ordering**: Arrange tests from simple to complex
+- **One assertion focus**: Each test should verify one specific behavior
+- **Descriptive names**: Test names should clearly state what they verify
 
 ### Adding Device Templates
 

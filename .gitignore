@@ -16,6 +16,7 @@ ENV/
 .coverage
 htmlcov/
 .pytest_cache/
+.hypothesis/
 .tox/
 
 # IDE and editor files
@@ -64,3 +65,4 @@ scripts/*.svg
 bad_wiring.yaml
 fixed_wiring.yaml
 fixed.svg
+CODE_REVIEW_TASKS.md

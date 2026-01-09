@@ -188,7 +188,7 @@ def test_load_unknown_board():
         "connections": [],
     }
     loader = ConfigLoader()
-    with pytest.raises(ValueError, match="Unknown board"):
+    with pytest.raises(ValueError, match="Invalid board name"):
         loader.load_from_dict(config)
 
 
@@ -259,7 +259,7 @@ def test_load_unknown_device_type():
         "connections": [],
     }
     loader = ConfigLoader()
-    with pytest.raises(ValueError, match="Unknown or incomplete device configuration"):
+    with pytest.raises(ValueError, match="Invalid device type"):
         loader.load_from_dict(config)
 
 

@@ -374,3 +374,78 @@ def test_render_overwrites_existing_file(sample_diagram, temp_output_dir):
 
     assert "initial" not in content
     assert sample_diagram.title in content
+
+
+def test_render_handles_missing_svg_asset(sample_diagram, temp_output_dir):
+    """Test that render handles missing SVG asset file gracefully."""
+    from unittest.mock import patch
+
+    output_path = temp_output_dir / "missing_asset.svg"
+    renderer = SVGRenderer()
+
+    # Patch ET.parse to raise FileNotFoundError
+    with patch("xml.etree.ElementTree.parse", side_effect=FileNotFoundError("File not found")):
+        # Should not raise, but use fallback rendering
+        renderer.render(sample_diagram, output_path)
+
+    # File should still be created with fallback rendering
+    assert output_path.exists()
+    content = output_path.read_text()
+    assert sample_diagram.title in content
+
+
+def test_render_handles_malformed_svg_asset(sample_diagram, temp_output_dir):
+    """Test that render handles malformed SVG asset file gracefully."""
+    from unittest.mock import patch
+
+    output_path = temp_output_dir / "malformed_asset.svg"
+    renderer = SVGRenderer()
+
+    # Patch ET.parse to raise ParseError
+    with patch("xml.etree.ElementTree.parse", side_effect=ET.ParseError("Invalid XML")):
+        # Should not raise, but use fallback rendering
+        renderer.render(sample_diagram, output_path)
+
+    # File should still be created with fallback rendering
+    assert output_path.exists()
+    content = output_path.read_text()
+    assert sample_diagram.title in content
+
+
+def test_render_handles_permission_denied(sample_diagram, temp_output_dir):
+    """Test that render handles permission denied errors gracefully."""
+    from unittest.mock import patch
+
+    output_path = temp_output_dir / "permission_denied.svg"
+    renderer = SVGRenderer()
+
+    # Patch ET.parse to raise PermissionError
+    with patch(
+        "xml.etree.ElementTree.parse",
+        side_effect=PermissionError("Permission denied"),
+    ):
+        # Should not raise, but use fallback rendering
+        renderer.render(sample_diagram, output_path)
+
+    # File should still be created with fallback rendering
+    assert output_path.exists()
+    content = output_path.read_text()
+    assert sample_diagram.title in content
+
+
+def test_render_handles_io_error(sample_diagram, temp_output_dir):
+    """Test that render handles I/O errors gracefully."""
+    from unittest.mock import patch
+
+    output_path = temp_output_dir / "io_error.svg"
+    renderer = SVGRenderer()
+
+    # Patch ET.parse to raise OSError
+    with patch("xml.etree.ElementTree.parse", side_effect=OSError("Disk full")):
+        # Should not raise, but use fallback rendering
+        renderer.render(sample_diagram, output_path)
+
+    # File should still be created with fallback rendering
+    assert output_path.exists()
+    content = output_path.read_text()
+    assert sample_diagram.title in content

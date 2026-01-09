@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from pydantic import ValidationError
 
 from . import boards
 from .devices import get_registry
@@ -20,6 +21,7 @@ from .model import (
     Point,
     WireStyle,
 )
+from .schemas import validate_config
 
 log = get_logger(__name__)
 
@@ -98,7 +100,44 @@ class ConfigLoader:
 
         Returns:
             Diagram object
+
+        Raises:
+            ValueError: If configuration fails schema validation
         """
+        # Check for None or non-dict config
+        if config is None or not isinstance(config, dict):
+            log.error("invalid_config_type", config_type=type(config).__name__)
+            raise ValueError(
+                "Configuration validation failed:\n"
+                "  • Config must be a dictionary with required fields "
+                "(title, board, devices, connections)"
+            )
+
+        # Validate configuration against schema
+        try:
+            validated_config = validate_config(config)
+            log.debug(
+                "config_schema_validated",
+                title=validated_config.title,
+                device_count=len(validated_config.devices),
+                connection_count=len(validated_config.connections),
+            )
+        except ValidationError as e:
+            # Format validation errors for better readability
+            error_messages = []
+            for error in e.errors():
+                field_path = " -> ".join(str(loc) for loc in error["loc"])
+                error_messages.append(f"  • {field_path}: {error['msg']}")
+
+            log.error(
+                "config_schema_validation_failed",
+                error_count=len(error_messages),
+                errors=error_messages,
+            )
+            raise ValueError(
+                "Configuration validation failed:\n" + "\n".join(error_messages)
+            ) from e
+
         # Load board
         board_config = config.get("board", "raspberry_pi_5")
         if isinstance(board_config, str):
