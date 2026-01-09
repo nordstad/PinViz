@@ -204,6 +204,37 @@ def main() -> int:
         return 1
 
 
+def _apply_cli_flags(diagram: Diagram, args: Any) -> None:
+    """Apply CLI flags to diagram visibility settings.
+
+    Args:
+        diagram: Diagram to modify
+        args: CLI arguments containing flag values
+    """
+    if hasattr(args, "no_title") and args.no_title:
+        diagram.show_title = False
+    if hasattr(args, "no_board_name") and args.no_board_name:
+        diagram.show_board_name = False
+
+
+def _render_diagram(diagram: Diagram, output_path: Path) -> None:
+    """Render diagram to SVG file with status messages.
+
+    Args:
+        diagram: Diagram to render
+        output_path: Path where SVG will be saved
+    """
+    log = get_logger(__name__)
+
+    log.info("rendering_started", output_path=str(output_path))
+    print(f"Rendering diagram to {output_path}...")
+    renderer = SVGRenderer()
+    renderer.render(diagram, output_path)
+
+    log.info("diagram_generated", output_path=str(output_path))
+    print(f"✓ Diagram generated successfully: {output_path}")
+
+
 def render_command(args: Any) -> int:
     """Render a diagram from a configuration file."""
     log = get_logger(__name__)
@@ -237,10 +268,7 @@ def render_command(args: Any) -> int:
         )
 
         # Apply CLI flags for visibility
-        if hasattr(args, "no_title") and args.no_title:
-            diagram.show_title = False
-        if hasattr(args, "no_board_name") and args.no_board_name:
-            diagram.show_board_name = False
+        _apply_cli_flags(diagram, args)
 
         # Validate diagram and show warnings
         validator = DiagramValidator()
@@ -277,13 +305,7 @@ def render_command(args: Any) -> int:
                 print(f"\n⚠️  Found {len(warnings)} warning(s). Review your wiring carefully.")
             print()
 
-        log.info("rendering_started", output_path=str(output_path))
-        print(f"Rendering diagram to {output_path}...")
-        renderer = SVGRenderer()
-        renderer.render(diagram, output_path)
-
-        log.info("diagram_generated", output_path=str(output_path))
-        print(f"✓ Diagram generated successfully: {output_path}")
+        _render_diagram(diagram, output_path)
         return 0
 
     except Exception as e:
@@ -422,18 +444,12 @@ def example_command(args: Any) -> int:
         )
 
         # Apply CLI flags for visibility
-        if hasattr(args, "no_title") and args.no_title:
-            diagram.show_title = False
-        if hasattr(args, "no_board_name") and args.no_board_name:
-            diagram.show_board_name = False
+        _apply_cli_flags(diagram, args)
 
         log.info("rendering_example", output_path=str(output_path))
-        print(f"Rendering diagram to {output_path}...")
-        renderer = SVGRenderer()
-        renderer.render(diagram, output_path)
+        _render_diagram(diagram, output_path)
 
         log.info("example_generated", example_name=args.name, output_path=str(output_path))
-        print(f"✓ Example diagram generated successfully: {output_path}")
         return 0
 
     except Exception as e:
