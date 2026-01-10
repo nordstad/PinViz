@@ -1,0 +1,35 @@
+title: "MCP3008 ADC - Analog Sensor Reading"
+board: "raspberry_pi_5"
+devices:
+  - type: "mcp3008"
+    name: "ADC Chip"
+connections:
+  # MCP3008 Power
+  - board_pin: 1   # 3.3V
+    device: "ADC Chip"
+    device_pin: "VDD"
+  - board_pin: 1   # 3.3V
+    device: "ADC Chip"
+    device_pin: "VREF"
+  - board_pin: 6   # GND
+    device: "ADC Chip"
+    device_pin: "AGND"
+  - board_pin: 6   # GND
+    device: "ADC Chip"
+    device_pin: "DGND"
+
+  # MCP3008 SPI Interface
+  - board_pin: 19  # GPIO 10 (SPI0 MOSI)
+    device: "ADC Chip"
+    device_pin: "DIN"
+  - board_pin: 21  # GPIO 9 (SPI0 MISO)
+    device: "ADC Chip"
+    device_pin: "DOUT"
+  - board_pin: 23  # GPIO 11 (SPI0 SCLK)
+    device: "ADC Chip"
+    device_pin: "CLK"
+  - board_pin: 24  # GPIO 8 (SPI0 CE0)
+    device: "ADC Chip"
+    device_pin: "CS"
+
+show_legend: true

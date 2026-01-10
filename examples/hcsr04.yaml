@@ -1,0 +1,18 @@
+title: "HC-SR04 Ultrasonic Distance Sensor"
+board: "raspberry_pi_5"
+devices:
+  - type: "hcsr04"
+connections:
+  - board_pin: 2   # 5V
+    device: "HC-SR04 Ultrasonic Distance Sensor"
+    device_pin: "VCC"
+  - board_pin: 6   # GND
+    device: "HC-SR04 Ultrasonic Distance Sensor"
+    device_pin: "GND"
+  - board_pin: 11  # GPIO 17
+    device: "HC-SR04 Ultrasonic Distance Sensor"
+    device_pin: "TRIG"
+  - board_pin: 13  # GPIO 27
+    device: "HC-SR04 Ultrasonic Distance Sensor"
+    device_pin: "ECHO"
+show_legend: true

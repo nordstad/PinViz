@@ -1,0 +1,31 @@
+title: "HC-SR04 Ultrasonic Distance Sensor Demo"
+board: "raspberry_pi_5"
+devices:
+  - type: "hcsr04"
+    name: "Distance Sensor"
+  - type: "led"
+    name: "Alert LED (Red)"
+connections:
+  # HC-SR04 Distance Sensor
+  - board_pin: 2   # 5V
+    device: "Distance Sensor"
+    device_pin: "VCC"
+  - board_pin: 6   # GND
+    device: "Distance Sensor"
+    device_pin: "GND"
+  - board_pin: 11  # GPIO 17
+    device: "Distance Sensor"
+    device_pin: "TRIG"
+  - board_pin: 13  # GPIO 27
+    device: "Distance Sensor"
+    device_pin: "ECHO"
+
+  # Alert LED
+  - board_pin: 15  # GPIO 22
+    device: "Alert LED (Red)"
+    device_pin: "+"
+  - board_pin: 14  # GND
+    device: "Alert LED (Red)"
+    device_pin: "-"
+
+show_legend: true

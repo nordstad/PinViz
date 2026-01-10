@@ -472,6 +472,44 @@ def example_command(args: Any) -> int:
         # Apply CLI flags for visibility
         _apply_cli_flags(diagram, args)
 
+        # Validate diagram before rendering
+        validator = DiagramValidator()
+        issues = validator.validate(diagram)
+
+        if issues:
+            errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+            warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
+            infos = [i for i in issues if i.level == ValidationLevel.INFO]
+
+            log.info(
+                "validation_completed",
+                total_issues=len(issues),
+                errors=len(errors),
+                warnings=len(warnings),
+                infos=len(infos),
+            )
+
+            # Show validation issues
+            if errors or warnings or infos:
+                print("\nValidation Issues:")
+                for issue in errors:
+                    print(f"  {issue}")
+                for issue in warnings:
+                    print(f"  {issue}")
+                for issue in infos:
+                    print(f"  {issue}")
+
+            # Fail on errors
+            if errors:
+                log.error("example_validation_failed", error_count=len(errors))
+                print(f"\n❌ Found {len(errors)} error(s). Cannot generate example diagram.")
+                return 1
+
+            if warnings:
+                log.warning("example_validation_warnings", warning_count=len(warnings))
+                print(f"\n⚠️  Found {len(warnings)} warning(s). Review the example carefully.")
+            print()
+
         log.info("rendering_example", output_path=str(output_path))
         _render_diagram(diagram, output_path)
 
@@ -633,10 +671,10 @@ def create_bh1750_example():
     sensor = registry.create("bh1750")
 
     connections = [
-        Connection(1, "BH1750", "VCC"),  # 3V3 to VCC
-        Connection(6, "BH1750", "GND"),  # GND to GND
-        Connection(5, "BH1750", "SCL"),  # GPIO3/SCL to SCL
-        Connection(3, "BH1750", "SDA"),  # GPIO2/SDA to SDA
+        Connection(1, "BH1750 Light Sensor", "VCC"),  # 3V3 to VCC
+        Connection(6, "BH1750 Light Sensor", "GND"),  # GND to GND
+        Connection(5, "BH1750 Light Sensor", "SCL"),  # GPIO3/SCL to SCL
+        Connection(3, "BH1750 Light Sensor", "SDA"),  # GPIO2/SDA to SDA
     ]
 
     return Diagram(
@@ -686,10 +724,10 @@ def create_i2c_spi_example():
 
     connections = [
         # BH1750 I2C sensor
-        Connection(1, "BH1750", "VCC"),
-        Connection(9, "BH1750", "GND"),
-        Connection(5, "BH1750", "SCL"),
-        Connection(3, "BH1750", "SDA"),
+        Connection(1, "BH1750 Light Sensor", "VCC"),
+        Connection(9, "BH1750 Light Sensor", "GND"),
+        Connection(5, "BH1750 Light Sensor", "SCL"),
+        Connection(3, "BH1750 Light Sensor", "SDA"),
         # SPI OLED display
         Connection(17, "OLED Display", "VCC"),
         Connection(20, "OLED Display", "GND"),
