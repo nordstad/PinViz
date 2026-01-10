@@ -186,6 +186,40 @@ def raspberry_pi_5() -> Board:
     return load_board_from_config("raspberry_pi_5")
 
 
+def raspberry_pi_4() -> Board:
+    """
+    Create a Raspberry Pi 4 Model B board with 40-pin GPIO header.
+
+    Uses standard 40-pin GPIO pinout (same as Pi 2, 3, 5, Zero 2 W).
+    All GPIO pins operate at 3.3V logic levels and are NOT 5V tolerant.
+
+    This function loads the board definition from a JSON configuration file
+    (raspberry_pi_4.json) which specifies pin layout, positions, and metadata.
+    Pin positions are calculated automatically to align with the board's SVG asset.
+
+    Pin layout (physical pin numbers):
+    Standard 2x20 header layout:
+    - Left column (odd pins): 1, 3, 5, ..., 39 (top to bottom)
+    - Right column (even pins): 2, 4, 6, ..., 40 (top to bottom)
+
+    Returns:
+        Board: Configured Raspberry Pi 4 Model B board with all pins positioned
+
+    Examples:
+        >>> board = raspberry_pi_4()
+        >>> print(board.name)
+        Raspberry Pi 4 Model B
+        >>> print(len(board.pins))
+        40
+
+    Note:
+        WARNING: All Raspberry Pi GPIO pins operate at 3.3V logic levels.
+        GPIO pins are NOT 5V tolerant. Applying 5V to any GPIO pin may
+        permanently damage the board. Use level shifters for 5V devices.
+    """
+    return load_board_from_config("raspberry_pi_4")
+
+
 # Alias for convenience
 def raspberry_pi() -> Board:
     """

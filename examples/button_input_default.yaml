@@ -1,0 +1,22 @@
+title: "Button Input (Default Board)"
+
+# Board defaults to Raspberry Pi 5 when not specified
+# Shows minimal configuration for GPIO input
+
+devices:
+  - type: "button"
+    name: "Button"
+    pull_up: true
+
+connections:
+  - board_pin: 16   # GPIO23
+    device: "Button"
+    device_pin: "SIG"
+    color: "#FF5722"  # Deep Orange
+
+  - board_pin: 14   # GND
+    device: "Button"
+    device_pin: "GND"
+    color: "#000000"  # Black
+
+show_legend: true

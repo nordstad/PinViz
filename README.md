@@ -47,8 +47,9 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
 - **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
-- **Built-in Templates**: Pre-configured board (Raspberry Pi 5) and common devices
+- **Built-in Templates**: Pre-configured boards (Raspberry Pi 4 & 5) and common devices
 - **SVG Output**: Scalable, high-quality vector graphics
+- **Extensible**: Easily add support for new boards (see [ADDING_BOARDS.md](ADDING_BOARDS.md))
 
 <details>
 <summary><b>👉 View Python API example</b> <i>(click to expand)</i></summary>
@@ -468,6 +469,11 @@ pinviz render examples/traffic_light.yaml -o traffic_light.svg
 Currently supported boards:
 
 - `raspberry_pi_5` (aliases: `rpi5`, `rpi`) - Raspberry Pi 5 with 40-pin GPIO header
+- `raspberry_pi_4` (aliases: `rpi4`, `pi4`) - Raspberry Pi 4 Model B with 40-pin GPIO header
+
+**Note:** All modern Raspberry Pi boards (Pi 2, 3, 4, 5, Zero 2 W) share the identical 40-pin GPIO pinout. Additional boards can be added easily by following the [Adding Boards Guide](ADDING_BOARDS.md).
+
+**Want to add your own board?** See [ADDING_BOARDS.md](ADDING_BOARDS.md) for a step-by-step guide. Takes ~15-30 minutes for Raspberry Pi boards.
 
 </details>
 

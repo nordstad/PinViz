@@ -179,6 +179,8 @@ class ConfigLoader:
             connections=connections,
             show_legend=config.get("show_legend", True),
             show_gpio_diagram=config.get("show_gpio_diagram", False),
+            show_title=config.get("show_title", True),
+            show_board_name=config.get("show_board_name", True),
         )
 
         log.info(
@@ -208,13 +210,19 @@ class ConfigLoader:
 
         Supported names:
             - "raspberry_pi_5", "rpi5": Raspberry Pi 5
+            - "raspberry_pi_4", "rpi4", "pi4": Raspberry Pi 4 Model B
             - "raspberry_pi", "rpi": Latest Raspberry Pi (currently Pi 5)
         """
         board_loaders = {
             # Raspberry Pi 5
             "raspberry_pi_5": boards.raspberry_pi_5,
-            "raspberry_pi": boards.raspberry_pi,
             "rpi5": boards.raspberry_pi_5,
+            # Raspberry Pi 4
+            "raspberry_pi_4": boards.raspberry_pi_4,
+            "rpi4": boards.raspberry_pi_4,
+            "pi4": boards.raspberry_pi_4,
+            # Aliases
+            "raspberry_pi": boards.raspberry_pi,
             "rpi": boards.raspberry_pi,
         }
 

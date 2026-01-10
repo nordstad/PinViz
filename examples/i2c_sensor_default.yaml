@@ -1,0 +1,31 @@
+title: "I2C Sensor Wiring (Default Board)"
+
+# No board specified - defaults to Raspberry Pi 5
+# Demonstrates that board selection is optional
+
+devices:
+  - type: "bh1750"
+    name: "Light Sensor"
+
+connections:
+  - board_pin: 1    # 3V3
+    device: "Light Sensor"
+    device_pin: "VCC"
+    color: "#FF9800"  # Orange
+
+  - board_pin: 9    # GND
+    device: "Light Sensor"
+    device_pin: "GND"
+    color: "#000000"  # Black
+
+  - board_pin: 3    # GPIO2 (I2C SDA)
+    device: "Light Sensor"
+    device_pin: "SDA"
+    color: "#4CAF50"  # Green
+
+  - board_pin: 5    # GPIO3 (I2C SCL)
+    device: "Light Sensor"
+    device_pin: "SCL"
+    color: "#2196F3"  # Blue
+
+show_legend: true

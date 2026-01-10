@@ -40,17 +40,15 @@ test_*.svg
 .ruff_cache/
 .mypy_cache/
 *.log
-quick_test.sh
 
 # GitHub Actions documentation (not for commit)
 .github/workflows/SECURITY_EXPLANATION.md
 .github/workflows/WORKFLOWS_TO_CREATE.md
 site/
-pinviz-ci-cd-plan.md
-IMPROVEMENT_PLAN.md
 GPIO_LIBRARY_ANALYSIS.md
 
-# Internal migration planning documents (not for commit)
+# Internal planning documents (not for commit)
+plans/
 migration/
 
 # Test configurations (local development only)
@@ -65,4 +63,3 @@ scripts/*.svg
 bad_wiring.yaml
 fixed_wiring.yaml
 fixed.svg
-CODE_REVIEW_TASKS.md

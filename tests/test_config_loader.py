@@ -179,6 +179,25 @@ def test_load_board_by_name(board_name):
     assert diagram.board.name == "Raspberry Pi 5"
 
 
+@pytest.mark.parametrize(
+    "board_name",
+    ["raspberry_pi_4", "rpi4", "pi4", "RPI4", "PI4"],
+)
+def test_load_raspberry_pi_4_by_name(board_name):
+    """Test loading Raspberry Pi 4 board by various name aliases."""
+    config = {
+        "title": "Test",
+        "board": board_name,
+        "devices": [],
+        "connections": [],
+    }
+    loader = ConfigLoader()
+    diagram = loader.load_from_dict(config)
+
+    assert diagram.board is not None
+    assert diagram.board.name == "Raspberry Pi 4 Model B"
+
+
 def test_load_unknown_board():
     """Test loading an unknown board raises error."""
     config = {

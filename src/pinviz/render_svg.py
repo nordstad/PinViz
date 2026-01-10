@@ -214,7 +214,7 @@ class SVGRenderer:
                 board_group = draw.Group(transform=f"translate({x}, {y})")
 
                 # Inline the SVG content by parsing and recreating elements
-                self._inline_svg_elements(board_group, root, dwg)
+                self._inline_svg_elements(board_group, root, dwg, show_board_name)
 
                 dwg.append(board_group)
 
@@ -370,11 +370,19 @@ class SVGRenderer:
                 )
             )
 
-    def _inline_svg_elements(self, parent_group, svg_root, dwg: draw.Drawing) -> None:
+    def _inline_svg_elements(
+        self, parent_group, svg_root, dwg: draw.Drawing, show_board_name: bool = True
+    ) -> None:
         """
         Inline SVG elements from external SVG file.
 
         Recursively processes all elements in the SVG and adds them to the parent group.
+
+        Args:
+            parent_group: Parent drawing group to add elements to
+            svg_root: Root element of the SVG to inline
+            dwg: Main drawing object
+            show_board_name: Whether to include board name text from SVG
         """
         # SVG namespace
         svg_ns = "{http://www.w3.org/2000/svg}"
@@ -416,13 +424,15 @@ class SVGRenderer:
                 g = draw.Group(**attribs)
                 # Recursively process children
                 for grandchild in child:
-                    self._add_svg_element(g, grandchild, dwg, svg_ns)
+                    self._add_svg_element(g, grandchild, dwg, svg_ns, show_board_name)
                 parent_group.append(g)
             else:
                 # Handle other elements
-                self._add_svg_element(parent_group, child, dwg, svg_ns)
+                self._add_svg_element(parent_group, child, dwg, svg_ns, show_board_name)
 
-    def _add_svg_element(self, parent, element, dwg: draw.Drawing, svg_ns: str) -> None:
+    def _add_svg_element(
+        self, parent, element, dwg: draw.Drawing, svg_ns: str, show_board_name: bool = True
+    ) -> None:
         """Add a single SVG element to parent."""
         tag = element.tag.replace(svg_ns, "") if svg_ns in element.tag else element.tag
 
@@ -439,38 +449,38 @@ class SVGRenderer:
         # Dispatch to appropriate handler
         handler = self._svg_handlers.get(tag)
         if handler:
-            svg_element = handler(element, attribs, dwg, svg_ns)
+            svg_element = handler(element, attribs, dwg, svg_ns, show_board_name)
             if svg_element:
                 parent.append(svg_element)
 
-    def _handle_rect(self, element, attribs, dwg, svg_ns):
+    def _handle_rect(self, element, attribs, dwg, svg_ns, show_board_name=True):
         x = _parse_numeric_value(attribs.pop("x", 0))
         y = _parse_numeric_value(attribs.pop("y", 0))
         width = _parse_numeric_value(attribs.pop("width", 0))
         height = _parse_numeric_value(attribs.pop("height", 0))
         return draw.Rectangle(x, y, width, height, **attribs)
 
-    def _handle_circle(self, element, attribs, dwg, svg_ns):
+    def _handle_circle(self, element, attribs, dwg, svg_ns, show_board_name=True):
         cx = _parse_numeric_value(attribs.pop("cx", 0))
         cy = _parse_numeric_value(attribs.pop("cy", 0))
         r = _parse_numeric_value(attribs.pop("r", 0))
         return draw.Circle(cx, cy, r, **attribs)
 
-    def _handle_ellipse(self, element, attribs, dwg, svg_ns):
+    def _handle_ellipse(self, element, attribs, dwg, svg_ns, show_board_name=True):
         cx = _parse_numeric_value(attribs.pop("cx", 0))
         cy = _parse_numeric_value(attribs.pop("cy", 0))
         rx = _parse_numeric_value(attribs.pop("rx", 0))
         ry = _parse_numeric_value(attribs.pop("ry", rx))
         return draw.Ellipse(cx, cy, rx, ry, **attribs)
 
-    def _handle_line(self, element, attribs, dwg, svg_ns):
+    def _handle_line(self, element, attribs, dwg, svg_ns, show_board_name=True):
         x1 = _parse_numeric_value(attribs.pop("x1", 0))
         y1 = _parse_numeric_value(attribs.pop("y1", 0))
         x2 = _parse_numeric_value(attribs.pop("x2", 0))
         y2 = _parse_numeric_value(attribs.pop("y2", 0))
         return draw.Line(x1, y1, x2, y2, **attribs)
 
-    def _handle_polyline(self, element, attribs, dwg, svg_ns):
+    def _handle_polyline(self, element, attribs, dwg, svg_ns, show_board_name=True):
         if "points" in attribs:
             points_str = attribs.pop("points")
             # Flatten points for drawsvg
@@ -484,7 +494,7 @@ class SVGRenderer:
             return draw.Polyline(*points_flat, **attribs)
         return None
 
-    def _handle_polygon(self, element, attribs, dwg, svg_ns):
+    def _handle_polygon(self, element, attribs, dwg, svg_ns, show_board_name=True):
         if "points" in attribs:
             points_str = attribs.pop("points")
             # Flatten points for drawsvg
@@ -498,14 +508,19 @@ class SVGRenderer:
             return draw.Polygon(*points_flat, **attribs)
         return None
 
-    def _handle_path(self, element, attribs, dwg, svg_ns):
+    def _handle_path(self, element, attribs, dwg, svg_ns, show_board_name=True):
         if "d" in attribs:
             d = attribs.pop("d")
             return draw.Path(d=d, **attribs)
         return None
 
-    def _handle_text(self, element, attribs, dwg, svg_ns):
+    def _handle_text(self, element, attribs, dwg, svg_ns, show_board_name=True):
         text_content = element.text or ""
+
+        # Skip board name text if show_board_name is False
+        if not show_board_name and "Raspberry Pi" in text_content:
+            return None
+
         x = _parse_numeric_value(attribs.pop("x", 0))
         y = _parse_numeric_value(attribs.pop("y", 0))
         # Font size might not be present, use default
@@ -513,10 +528,10 @@ class SVGRenderer:
         font_size = _parse_font_size(str(font_size)) if font_size else 12
         return draw.Text(text_content, font_size, x, y, **attribs)
 
-    def _handle_group(self, element, attribs, dwg, svg_ns):
+    def _handle_group(self, element, attribs, dwg, svg_ns, show_board_name=True):
         g = draw.Group(**attribs)
         for child in element:
-            self._add_svg_element(g, child, dwg, svg_ns)
+            self._add_svg_element(g, child, dwg, svg_ns, show_board_name)
         return g
 
     def _parse_stop_attributes(self, stop_element) -> dict:
