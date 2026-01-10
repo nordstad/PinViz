@@ -363,7 +363,7 @@ jobs:
           VERSION=$(uv run pinviz --version)
           echo "Installed: $VERSION"
           uv run pinviz list | grep -q "raspberry_pi_5" || (echo "✗ Board list missing" && exit 1)
-          uv run pinviz list | grep -q "raspberry_pi_zero_2w" || (echo "✗ Pi Zero missing" && exit 1)
+          uv run pinviz list | grep -q "raspberry_pi_4" || (echo "✗ Pi 4 missing" && exit 1)
           uv run pinviz list | grep -q "bh1750" || (echo "✗ Device templates missing" && exit 1)
           uv run pinviz-mcp --version
           echo "✓ CLI installation verified"
