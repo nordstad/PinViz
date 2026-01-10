@@ -35,8 +35,11 @@ from pydantic import (
 # Valid board names and aliases
 VALID_BOARD_NAMES = {
     "raspberry_pi_5",
+    "raspberry_pi_4",
     "raspberry_pi",
     "rpi5",
+    "rpi4",
+    "pi4",
     "rpi",
 }
 
@@ -306,6 +309,8 @@ class DiagramConfigSchema(BaseModel):
         connections: List of wire connections
         show_legend: Whether to show wire color legend
         show_gpio_diagram: Whether to show GPIO pin diagram
+        show_title: Whether to show the diagram title
+        show_board_name: Whether to show board name label
     """
 
     title: Annotated[str, Field(min_length=1, max_length=200, description="Diagram title")] = (
@@ -320,6 +325,8 @@ class DiagramConfigSchema(BaseModel):
     )
     show_legend: bool = True
     show_gpio_diagram: bool = False
+    show_title: bool = True
+    show_board_name: bool = True
 
     model_config = ConfigDict(extra="forbid")
 

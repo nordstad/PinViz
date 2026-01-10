@@ -1,0 +1,66 @@
+title: "Raspberry Pi 4 - I2C OLED Display + SPI Accelerometer"
+
+board: "rpi4"
+
+devices:
+  - type: "i2c"
+    name: "OLED Display"
+    has_int_pin: false
+
+  - type: "spi"
+    name: "Accelerometer"
+
+connections:
+  # I2C OLED Display (128x64)
+  - board_pin: 1    # 3V3
+    device: "OLED Display"
+    device_pin: "VCC"
+    color: "#FF0000"  # Red
+
+  - board_pin: 6    # GND
+    device: "OLED Display"
+    device_pin: "GND"
+    color: "#000000"  # Black
+
+  - board_pin: 5    # GPIO3 (I2C SCL)
+    device: "OLED Display"
+    device_pin: "SCL"
+    color: "#FFFF00"  # Yellow
+
+  - board_pin: 3    # GPIO2 (I2C SDA)
+    device: "OLED Display"
+    device_pin: "SDA"
+    color: "#00FF00"  # Green
+
+  # SPI Accelerometer (ADXL345)
+  - board_pin: 17   # 3V3
+    device: "Accelerometer"
+    device_pin: "VCC"
+    color: "#FF00FF"  # Magenta
+
+  - board_pin: 25   # GND
+    device: "Accelerometer"
+    device_pin: "GND"
+    color: "#808080"  # Gray
+
+  - board_pin: 23   # GPIO11 (SPI SCLK)
+    device: "Accelerometer"
+    device_pin: "SCLK"
+    color: "#00FFFF"  # Cyan
+
+  - board_pin: 19   # GPIO10 (SPI MOSI)
+    device: "Accelerometer"
+    device_pin: "MOSI"
+    color: "#FFA500"  # Orange
+
+  - board_pin: 21   # GPIO9 (SPI MISO)
+    device: "Accelerometer"
+    device_pin: "MISO"
+    color: "#FF69B4"  # Pink
+
+  - board_pin: 24   # GPIO8 (SPI CE0)
+    device: "Accelerometer"
+    device_pin: "CS"
+    color: "#8B4513"  # Brown
+
+show_legend: true

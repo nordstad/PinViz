@@ -1,0 +1,26 @@
+title: "Simple LED Circuit (Default Board)"
+
+# No board specified - defaults to Raspberry Pi 5
+
+devices:
+  - type: "led"
+    color: "Red"
+    name: "LED1"
+
+connections:
+  # LED Anode to GPIO17 via 220Ω resistor
+  - board_pin: 11  # GPIO17
+    device: "LED1"
+    device_pin: "+"
+    color: "#FF0000"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  # LED Cathode to Ground
+  - board_pin: 9   # GND
+    device: "LED1"
+    device_pin: "-"
+    color: "#000000"
+
+show_legend: true

@@ -244,3 +244,90 @@ def test_load_board_config_bcm_numbers():
     # Power and ground pins should have None
     assert board.get_pin_by_number(1).gpio_bcm is None  # 3V3
     assert board.get_pin_by_number(6).gpio_bcm is None  # GND
+
+
+# Raspberry Pi 4 Tests
+def test_raspberry_pi_4_board_creation():
+    """Test creating a Raspberry Pi 4 board."""
+    board = boards.raspberry_pi_4()
+    assert board is not None
+    assert board.name == "Raspberry Pi 4 Model B"
+
+
+def test_raspberry_pi_4_has_40_pins():
+    """Test that Raspberry Pi 4 has 40 GPIO pins."""
+    board = boards.raspberry_pi_4()
+    assert len(board.pins) == 40
+
+
+def test_raspberry_pi_4_identical_pinout_to_pi5():
+    """Test that Raspberry Pi 4 has identical GPIO pinout to Pi 5."""
+    pi4 = boards.raspberry_pi_4()
+    pi5 = boards.raspberry_pi_5()
+
+    # Both should have 40 pins
+    assert len(pi4.pins) == len(pi5.pins)
+
+    # Pin roles and BCM numbers should be identical
+    for pin_num in range(1, 41):
+        pi4_pin = pi4.get_pin_by_number(pin_num)
+        pi5_pin = pi5.get_pin_by_number(pin_num)
+
+        assert pi4_pin.role == pi5_pin.role, f"Pin {pin_num} role mismatch"
+        assert pi4_pin.gpio_bcm == pi5_pin.gpio_bcm, f"Pin {pin_num} BCM mismatch"
+        assert pi4_pin.name == pi5_pin.name, f"Pin {pin_num} name mismatch"
+
+
+def test_raspberry_pi_4_svg_asset_path():
+    """Test that SVG asset path is set correctly for Pi 4."""
+    board = boards.raspberry_pi_4()
+    assert board.svg_asset_path is not None
+    assert "pi_4_mod.svg" in board.svg_asset_path
+
+
+def test_raspberry_pi_4_board_dimensions():
+    """Test that Pi 4 has same dimensions as Pi 5 (identical SVG size)."""
+    pi4 = boards.raspberry_pi_4()
+    pi5 = boards.raspberry_pi_5()
+
+    # Should have identical dimensions for pin alignment
+    assert pi4.width == pytest.approx(pi5.width, abs=0.1)
+    assert pi4.height == pytest.approx(pi5.height, abs=0.1)
+
+
+def test_raspberry_pi_4_i2c_pins():
+    """Test I2C pin roles and BCM numbers on Pi 4."""
+    board = boards.raspberry_pi_4()
+
+    # SDA on GPIO2 (pin 3)
+    sda_pin = board.get_pin_by_number(3)
+    assert sda_pin.role == PinRole.I2C_SDA
+    assert sda_pin.gpio_bcm == 2
+
+    # SCL on GPIO3 (pin 5)
+    scl_pin = board.get_pin_by_number(5)
+    assert scl_pin.role == PinRole.I2C_SCL
+    assert scl_pin.gpio_bcm == 3
+
+
+def test_raspberry_pi_4_spi_pins():
+    """Test SPI pin roles and BCM numbers on Pi 4."""
+    board = boards.raspberry_pi_4()
+
+    # MOSI on GPIO10 (pin 19)
+    mosi_pin = board.get_pin_by_number(19)
+    assert mosi_pin.role == PinRole.SPI_MOSI
+    assert mosi_pin.gpio_bcm == 10
+
+    # CE0 on GPIO8 (pin 24)
+    ce0_pin = board.get_pin_by_number(24)
+    assert ce0_pin.role == PinRole.SPI_CE0
+    assert ce0_pin.gpio_bcm == 8
+
+
+def test_load_board_from_config_pi4():
+    """Test loading Raspberry Pi 4 configuration from JSON file."""
+    board = boards.load_board_from_config("raspberry_pi_4")
+    assert board.name == "Raspberry Pi 4 Model B"
+    assert len(board.pins) == 40
+    assert board.svg_asset_path.endswith("pi_4_mod.svg")

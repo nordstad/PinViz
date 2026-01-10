@@ -1,0 +1,40 @@
+title: "Raspberry Pi 4 - Button & LED (GPIO Input/Output)"
+
+board: "raspberry_pi_4"
+
+devices:
+  - type: "button"
+    name: "Push Button"
+    pull_up: true
+
+  - type: "led"
+    color: "Blue"
+    name: "Blue LED"
+
+connections:
+  # Push Button connections
+  - board_pin: 16   # GPIO23
+    device: "Push Button"
+    device_pin: "SIG"
+    color: "#FFA500"  # Orange
+
+  - board_pin: 14   # GND
+    device: "Push Button"
+    device_pin: "GND"
+    color: "#000000"  # Black
+
+  # LED connections
+  - board_pin: 18   # GPIO24
+    device: "Blue LED"
+    device_pin: "+"
+    color: "#0000FF"  # Blue
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  - board_pin: 20   # GND
+    device: "Blue LED"
+    device_pin: "-"
+    color: "#000000"  # Black
+
+show_legend: true

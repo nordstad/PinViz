@@ -1,0 +1,59 @@
+title: "Raspberry Pi 4 - Traffic Light with 3 LEDs"
+
+board: "pi4"
+
+devices:
+  - type: "led"
+    color: "Red"
+    name: "Red LED"
+  - type: "led"
+    color: "Yellow"
+    name: "Yellow LED"
+  - type: "led"
+    color: "Green"
+    name: "Green LED"
+
+connections:
+  # Red LED
+  - board_pin: 11  # GPIO17
+    device: "Red LED"
+    device_pin: "+"
+    color: "#FF0000"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  - board_pin: 9   # GND
+    device: "Red LED"
+    device_pin: "-"
+    color: "#000000"
+
+  # Yellow LED
+  - board_pin: 13  # GPIO27
+    device: "Yellow LED"
+    device_pin: "+"
+    color: "#FFFF00"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  - board_pin: 14  # GND
+    device: "Yellow LED"
+    device_pin: "-"
+    color: "#000000"
+
+  # Green LED
+  - board_pin: 15  # GPIO22
+    device: "Green LED"
+    device_pin: "+"
+    color: "#00FF00"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  - board_pin: 20  # GND
+    device: "Green LED"
+    device_pin: "-"
+    color: "#000000"
+
+show_legend: true
