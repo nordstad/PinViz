@@ -95,7 +95,7 @@ jobs:
           title: "Valid Test"
           board: "rpi5"
           devices:
-            - type: "i2c"
+            - type: "i2c_device"
               name: "Sensor"
           connections:
             - board_pin: 1
@@ -184,7 +184,7 @@ jobs:
           title: "Legend Test"
           board: "rpi5"
           devices:
-            - type: "i2c"
+            - type: "i2c_device"
               name: "Sensor"
           connections:
             - board_pin: 1
