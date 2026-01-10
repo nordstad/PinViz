@@ -682,11 +682,49 @@ uv run mkdocs serve
 
 ## ➕ Adding New Devices
 
-PinViz uses a JSON-based device configuration system with smart defaults. Creating a new device takes about 5 minutes:
+PinViz uses a JSON-based device configuration system with smart defaults. Creating a new device takes about 5 minutes.
 
-### Quick Example
+### Interactive Wizard (Recommended)
 
-Create a JSON file in `src/pinviz/device_configs/{category}/`:
+The easiest way to create a new device is using the interactive wizard:
+
+```bash
+pinviz add-device
+```
+
+The wizard will guide you through:
+- Device name and identifier
+- Category selection (sensors, LEDs, displays, etc.)
+- Pin configuration with role selection
+- Optional metadata (I2C address, datasheet URL, notes)
+- Automatic validation and testing
+
+**Example session:**
+```bash
+$ pinviz add-device
+
+🚀 Device Configuration Wizard
+============================================================
+This wizard will help you create a new device configuration.
+
+? Device name: BME280 Environmental Sensor
+? Device ID: bme280
+? Category: sensors
+? Number of pins: 4
+
+Pin 1:
+  Name: VCC
+  Role: 3V3
+
+... (continues interactively)
+
+✅ Configuration saved to: src/pinviz/device_configs/sensors/bme280.json
+🎉 Success! Device 'bme280' is ready to use.
+```
+
+### Manual Configuration
+
+Alternatively, create a JSON file manually in `src/pinviz/device_configs/{category}/`:
 
 ```json
 {

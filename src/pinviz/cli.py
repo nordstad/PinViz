@@ -1,6 +1,7 @@
 """Command-line interface for pinviz."""
 
 import argparse
+import asyncio
 import sys
 from pathlib import Path
 from typing import Any
@@ -58,6 +59,7 @@ def main() -> int:
             "  pinviz validate diagram.yaml                   # Validate wiring configuration",
             "  pinviz example bh1750                          # Use a built-in example",
             "  pinviz list                                     # List available templates",
+            "  pinviz add-device                              # Create a new device interactively",
             "",
             "For more information, visit: https://github.com/nordstad/PinViz",
         ]
@@ -182,6 +184,13 @@ def main() -> int:
         description="List all available board models, device templates, and examples",
     )
 
+    # Add-device command
+    subparsers.add_parser(
+        "add-device",
+        help="Interactive wizard to create a new device configuration",
+        description="Launch an interactive wizard to create a new device configuration file",
+    )
+
     args = parser.parse_args()
 
     # Configure logging based on CLI arguments
@@ -199,6 +208,8 @@ def main() -> int:
         return validate_command(args)
     elif args.command == "list":
         return list_command()
+    elif args.command == "add-device":
+        return add_device_command()
     else:
         parser.print_help()
         return 1
@@ -501,6 +512,26 @@ def list_command() -> int:
 
     log.info("templates_listed")
     return 0
+
+
+def add_device_command() -> int:
+    """Launch interactive device wizard."""
+    log = get_logger(__name__)
+    from .device_wizard import main as wizard_main
+
+    log.info("device_wizard_started")
+
+    try:
+        # Run the async wizard
+        return asyncio.run(wizard_main())
+    except KeyboardInterrupt:
+        print("\n\n❌ Wizard cancelled by user.")
+        log.info("device_wizard_cancelled")
+        return 1
+    except Exception as e:
+        log.exception("device_wizard_error", error_type=type(e).__name__, error_message=str(e))
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
 
 
 def create_bh1750_example():

@@ -44,6 +44,9 @@ pinviz example i2c_spi -o images/i2c_spi.svg
 
 # List available templates
 pinviz list
+
+# Create new device interactively
+pinviz add-device
 ```
 
 ## Architecture
@@ -93,11 +96,11 @@ pinviz list
 ## Key Design Patterns
 
 1. **Separation of concerns**: Model → Layout → Rendering pipeline
-2. **Factory pattern**: `boards.py` and `devices.py` provide factory functions for predefined components
+2. **Registry pattern**: `boards.py` loads from JSON configs; `devices/registry.py` provides device templates from JSON
 3. **Position calculation**: Absolute positions calculated during layout phase; devices/pins use relative positions
 4. **Two-phase wire routing**: Group connections by source pin to calculate offsets, then route each wire
 5. **Color assignment**: Automatic based on pin role, can be overridden per connection
-6. **Configuration-based boards**: Board definitions loaded from JSON files in `src/pinviz/board_configs/`
+6. **Configuration-based**: Board and device definitions loaded from JSON files with smart defaults
 
 ## Board Configuration System
 
@@ -392,7 +395,7 @@ i2c_dev = registry.create('i2c_device', name='BME280')  # Creates "BME280"
 3. Let smart defaults handle positions, dimensions, and colors
 4. Done! Use with `registry.create('bme280')`
 
-**Note:** Python factory functions are deprecated. New devices should use JSON configs. See deprecation warnings in `src/pinviz/devices/` modules for migration guidance.
+**Note:** All devices now use JSON configs exclusively. Legacy Python factory functions have been removed as of Phase 5 cleanup.
 
 ## Diagram Configuration File Structure
 
