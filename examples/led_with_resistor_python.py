@@ -8,12 +8,13 @@ from pinviz import (
     SVGRenderer,
     WireColor,
     boards,
-    devices,
 )
+from pinviz.devices import get_registry
 
 # Create board and LED device
 board = boards.raspberry_pi_5()
-led = devices.simple_led(color_name="Red")
+registry = get_registry()
+led = registry.create("led", color_name="Red")
 
 # Define connections with inline resistor component
 connections = [

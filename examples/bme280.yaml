@@ -1,0 +1,18 @@
+title: "BME280 Environmental Sensor"
+board: "raspberry_pi_5"
+devices:
+  - type: "bme280"
+connections:
+  - board_pin: 1   # 3.3V
+    device: "BME280 Environmental Sensor"
+    device_pin: "VCC"
+  - board_pin: 6   # GND
+    device: "BME280 Environmental Sensor"
+    device_pin: "GND"
+  - board_pin: 3   # GPIO 2 (I2C1 SDA)
+    device: "BME280 Environmental Sensor"
+    device_pin: "SDA"
+  - board_pin: 5   # GPIO 3 (I2C1 SCL)
+    device: "BME280 Environmental Sensor"
+    device_pin: "SCL"
+show_legend: true

@@ -10,8 +10,9 @@ import time
 
 import pytest
 
-from pinviz import boards, devices
+from pinviz import boards
 from pinviz.config_loader import ConfigLoader
+from pinviz.devices import get_registry
 from pinviz.layout import LayoutEngine
 from pinviz.model import Connection, Device, DevicePin, Diagram, Point
 from pinviz.render_svg import SVGRenderer
@@ -32,7 +33,7 @@ class TestLayoutPerformanceBaselines:
     def test_baseline_small_diagram_layout(self):
         """Baseline: Small diagram (4 connections) should layout in <100ms."""
         board = boards.raspberry_pi_5()
-        device = devices.bh1750_light_sensor()
+        device = get_registry().create("bh1750")
 
         connections = [
             Connection(1, "BH1750", "VCC"),
@@ -128,7 +129,7 @@ class TestRenderPerformanceBaselines:
     def test_baseline_small_diagram_render(self, temp_output_dir):
         """Baseline: Small diagram rendering should complete in <200ms."""
         board = boards.raspberry_pi_5()
-        device = devices.bh1750_light_sensor()
+        device = get_registry().create("bh1750")
 
         connections = [
             Connection(1, "BH1750", "VCC"),
@@ -350,7 +351,7 @@ class TestPerformanceConsistency:
     def test_layout_performance_consistency(self):
         """Test that layout performance is consistent across multiple runs."""
         board = boards.raspberry_pi_5()
-        device = devices.bh1750_light_sensor()
+        device = get_registry().create("bh1750")
 
         connections = [
             Connection(1, "BH1750", "VCC"),

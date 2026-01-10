@@ -46,13 +46,20 @@ VALID_BOARD_NAMES = {
 # Valid device types from the device registry
 VALID_DEVICE_TYPES = {
     "bh1750",
-    "ir_led_ring",
-    "i2c_device",
-    "i2c",
-    "spi_device",
-    "spi",
-    "led",
+    "bme280",
     "button",
+    "dht22",
+    "ds18b20",
+    "hcsr04",
+    "i2c_device",
+    "i2c",  # Alias for i2c_device
+    "ir_led_ring",
+    "led",
+    "mcp3008",
+    "pir",
+    "spi_device",
+    "spi",  # Alias for spi_device
+    "ssd1306",
 }
 
 # Valid pin roles
@@ -611,3 +618,251 @@ def validate_board_config(config_dict: dict[str, Any]) -> BoardConfigSchema:
         Test Board
     """
     return BoardConfigSchema(**config_dict)
+
+
+# Valid device categories
+VALID_DEVICE_CATEGORIES = {"sensors", "leds", "displays", "actuators", "io", "generic"}
+
+
+class DeviceParameterSchema(BaseModel):
+    """Schema for device parameter definition.
+
+    Attributes:
+        type: Parameter type (string, int, float, bool)
+        default: Default value for the parameter
+        description: Description of what the parameter does
+    """
+
+    type: Annotated[str, Field(description="Parameter type")]
+    default: Any = None
+    description: Annotated[str, Field(description="Parameter description")] = ""
+
+    model_config = ConfigDict(extra="forbid")
+
+    @field_validator("type")
+    @classmethod
+    def validate_parameter_type(cls, v: str) -> str:
+        """Validate that parameter type is valid."""
+        valid_types = {"string", "int", "float", "bool"}
+        type_lower = v.lower()
+        if type_lower not in valid_types:
+            raise ValueError(
+                f"Invalid parameter type '{v}'. Must be one of: {', '.join(sorted(valid_types))}"
+            )
+        return type_lower
+
+
+class DeviceDisplaySchema(BaseModel):
+    """Schema for device display properties.
+
+    Attributes:
+        width: Device width in SVG units
+        height: Device height in SVG units
+        color: Optional device color override
+    """
+
+    width: Annotated[float, Field(gt=0, description="Device width")] = 80.0
+    height: Annotated[float, Field(gt=0, description="Device height")] = 40.0
+    color: (
+        Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$", description="Hex color code")] | None
+    ) = None
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class DeviceLayoutSchema(BaseModel):
+    """Schema for device pin layout configuration.
+
+    Attributes:
+        pin_spacing: Spacing between pins
+        start_y: Starting Y position for pins
+        orientation: Layout orientation (vertical or horizontal)
+    """
+
+    pin_spacing: Annotated[float, Field(gt=0, description="Pin spacing")] = 10.0
+    start_y: Annotated[float, Field(ge=0, description="Starting Y position")] = 12.0
+    orientation: Annotated[str, Field(description="Layout orientation")] = "vertical"
+
+    model_config = ConfigDict(extra="forbid")
+
+    @field_validator("orientation")
+    @classmethod
+    def validate_orientation(cls, v: str) -> str:
+        """Validate that orientation is valid."""
+        valid_orientations = {"vertical", "horizontal"}
+        orientation_lower = v.lower()
+        if orientation_lower not in valid_orientations:
+            valid_str = ", ".join(sorted(valid_orientations))
+            raise ValueError(f"Invalid orientation '{v}'. Must be one of: {valid_str}")
+        return orientation_lower
+
+
+class DeviceConfigPinSchema(BaseModel):
+    """Schema for device configuration pin definition.
+
+    Attributes:
+        name: Pin name (e.g., "VCC", "GND", "SDA")
+        role: Pin role/function (e.g., "3V3", "GND", "GPIO")
+        optional: Whether the pin is optional
+        position: Optional explicit pin position
+    """
+
+    name: Annotated[str, Field(min_length=1, max_length=50, description="Pin name")]
+    role: Annotated[str, Field(description="Pin role/function")] = "GPIO"
+    optional: bool = False
+    position: PointSchema | None = None
+
+    model_config = ConfigDict(extra="forbid")
+
+    @field_validator("role")
+    @classmethod
+    def validate_role(cls, v: str) -> str:
+        """Validate that role is a known pin role."""
+        role_upper = v.upper()
+        if role_upper not in VALID_PIN_ROLES:
+            raise ValueError(
+                f"Invalid pin role '{v}'. Must be one of: {', '.join(sorted(VALID_PIN_ROLES))}"
+            )
+        return role_upper
+
+
+class DeviceConfigSchema(BaseModel):
+    """Schema for device configuration file validation.
+
+    This schema validates device definition JSON files that specify device
+    properties, pins, and metadata. Device configurations are loaded from
+    JSON files in the device_configs directory.
+
+    Attributes:
+        id: Unique device identifier (lowercase, alphanumeric with underscores)
+        name: Device display name
+        category: Device category (sensors, leds, displays, etc.)
+        description: Brief description of the device
+        pins: List of device pins
+        parameters: Optional device parameters for variants
+        layout: Optional pin layout configuration
+        display: Optional display properties
+        i2c_address: Optional I2C address
+        datasheet_url: Optional datasheet URL
+        notes: Optional setup notes
+
+    Examples:
+        >>> config_dict = {
+        ...     "id": "bh1750",
+        ...     "name": "BH1750 Light Sensor",
+        ...     "category": "sensors",
+        ...     "pins": [
+        ...         {"name": "VCC", "role": "3V3"},
+        ...         {"name": "GND", "role": "GND"}
+        ...     ],
+        ...     "i2c_address": "0x23"
+        ... }
+        >>> config = DeviceConfigSchema(**config_dict)
+        >>> config.name
+        'BH1750 Light Sensor'
+    """
+
+    id: Annotated[
+        str,
+        Field(
+            min_length=1,
+            max_length=50,
+            pattern=r"^[a-z][a-z0-9_-]*$",
+            description="Unique device identifier",
+        ),
+    ]
+    name: Annotated[str, Field(min_length=1, max_length=100, description="Device name")]
+    category: Annotated[str, Field(description="Device category")]
+    description: Annotated[str, Field(description="Device description")] = ""
+    pins: Annotated[
+        list[DeviceConfigPinSchema],
+        Field(min_length=1, description="List of device pins"),
+    ]
+    parameters: dict[str, DeviceParameterSchema] = Field(default_factory=dict)
+    layout: DeviceLayoutSchema | None = None
+    display: DeviceDisplaySchema | None = None
+    i2c_address: (
+        Annotated[
+            str,
+            Field(pattern=r"^0x[0-9A-Fa-f]{2}$", description="I2C address in hex format"),
+        ]
+        | None
+    ) = None
+    datasheet_url: Annotated[str, Field(description="Datasheet URL")] | None = None
+    notes: Annotated[str, Field(description="Setup notes")] = ""
+
+    model_config = ConfigDict(extra="forbid")
+
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, v: str) -> str:
+        """Validate that category is valid."""
+        category_lower = v.lower()
+        if category_lower not in VALID_DEVICE_CATEGORIES:
+            valid_str = ", ".join(sorted(VALID_DEVICE_CATEGORIES))
+            raise ValueError(f"Invalid category '{v}'. Must be one of: {valid_str}")
+        return category_lower
+
+    @field_validator("datasheet_url")
+    @classmethod
+    def validate_datasheet_url(cls, v: str | None) -> str | None:
+        """Validate that datasheet URL is valid."""
+        if v and not v.startswith(("http://", "https://")):
+            raise ValueError(f"Invalid datasheet URL '{v}'. Must start with http:// or https://")
+        return v
+
+    @model_validator(mode="after")
+    def validate_unique_pin_names(self):
+        """Ensure all pin names are unique within the device."""
+        pin_names = [pin.name for pin in self.pins]
+        duplicates = [name for name in pin_names if pin_names.count(name) > 1]
+        if duplicates:
+            unique_dups = sorted(set(duplicates))
+            raise ValueError(
+                f"Duplicate pin names found in device '{self.name}': {', '.join(unique_dups)}"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_i2c_pins_if_address(self):
+        """If I2C address is specified, ensure device has I2C pins."""
+        if self.i2c_address:
+            pin_roles = [pin.role for pin in self.pins]
+            has_sda = "I2C_SDA" in pin_roles
+            has_scl = "I2C_SCL" in pin_roles
+            if not (has_sda and has_scl):
+                raise ValueError(
+                    f"Device '{self.name}' has i2c_address but missing I2C pins "
+                    f"(needs both I2C_SDA and I2C_SCL)"
+                )
+        return self
+
+
+def validate_device_config(config_dict: dict[str, Any]) -> DeviceConfigSchema:
+    """
+    Validate a device configuration dictionary against the schema.
+
+    Args:
+        config_dict: Device configuration dictionary to validate
+
+    Returns:
+        Validated DeviceConfigSchema instance
+
+    Raises:
+        ValidationError: If configuration is invalid with detailed error messages
+
+    Examples:
+        >>> config = {
+        ...     "id": "test_sensor",
+        ...     "name": "Test Sensor",
+        ...     "category": "sensors",
+        ...     "pins": [
+        ...         {"name": "VCC", "role": "3V3"},
+        ...         {"name": "GND", "role": "GND"}
+        ...     ]
+        ... }
+        >>> validated = validate_device_config(config)
+        >>> print(validated.name)
+        Test Sensor
+    """
+    return DeviceConfigSchema(**config_dict)

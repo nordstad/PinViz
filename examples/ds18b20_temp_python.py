@@ -8,26 +8,27 @@ from pinviz import (
     SVGRenderer,
     WireColor,
     boards,
-    devices,
 )
+from pinviz.devices import get_registry
 
 # Create board and DS18B20 sensor device
 board = boards.raspberry_pi_5()
-temp_sensor = devices.ds18b20_temp_sensor()
+registry = get_registry()
+temp_sensor = registry.create("ds18b20")
 
 # Define connections with pull-up resistor
 connections = [
     # VCC to 3.3V power
     Connection(
         board_pin=1,  # 3.3V
-        device_name="DS18B20",
+        device_name="DS18B20 Temperature Sensor",
         device_pin_name="VCC",
         color=WireColor.RED,
     ),
     # DATA to GPIO4 (default 1-Wire pin) with 4.7kΩ pull-up resistor
     Connection(
         board_pin=7,  # GPIO4
-        device_name="DS18B20",
+        device_name="DS18B20 Temperature Sensor",
         device_pin_name="DATA",
         color=WireColor.YELLOW,
         components=[
@@ -41,7 +42,7 @@ connections = [
     # GND to Ground
     Connection(
         board_pin=9,  # GND
-        device_name="DS18B20",
+        device_name="DS18B20 Temperature Sensor",
         device_pin_name="GND",
         color=WireColor.BLACK,
     ),

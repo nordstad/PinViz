@@ -116,6 +116,153 @@ This displays:
 - `raspberry_pi_5` (aliases: `rpi5`, `rpi`) - Raspberry Pi 5 with 40-pin GPIO header
 - `raspberry_pi_zero_2w` (aliases: `raspberry_pi_zero`, `pizero`, `zero2w`, `zero`, `rpizero`) - Raspberry Pi Zero / Zero 2 W with 40-pin GPIO header
 
+### Add Device (Interactive Wizard)
+
+Launch an interactive wizard to create a new device configuration:
+
+```bash
+pinviz add-device
+```
+
+The wizard guides you through creating a device configuration with:
+
+- Device name and identifier
+- Category selection (sensors, LEDs, displays, io, etc.)
+- Pin configuration with role assignment
+- Optional metadata (I2C address, datasheet URL, notes)
+- Automatic validation and testing
+
+**Example session:**
+
+```bash
+$ pinviz add-device
+
+🚀 Device Configuration Wizard
+============================================================
+This wizard will help you create a new device configuration.
+
+? Device name: DHT22 Temperature Sensor
+? Device ID: dht22
+? Category: sensors
+? Number of pins: 3
+
+Pin 1:
+  Name: VCC
+  Role: 3V3
+
+Pin 2:
+  Name: DATA
+  Role: GPIO
+
+Pin 3:
+  Name: GND
+  Role: GND
+
+? I2C address (optional): [press Enter to skip]
+? Datasheet URL: https://www.sparkfun.com/datasheets/Sensors/Temperature/DHT22.pdf
+? Setup notes: Requires 4.7-10kΩ pull-up resistor on DATA pin
+
+📄 Configuration Preview
+------------------------------------------------------------
+{
+  "id": "dht22",
+  "name": "DHT22 Temperature Sensor",
+  "category": "sensors",
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "DATA", "role": "GPIO"},
+    {"name": "GND", "role": "GND"}
+  ],
+  "datasheet_url": "https://www.sparkfun.com/datasheets/Sensors/Temperature/DHT22.pdf",
+  "notes": "Requires 4.7-10kΩ pull-up resistor on DATA pin"
+}
+
+? Save this configuration? Yes
+
+✅ Configuration saved to: src/pinviz/device_configs/sensors/dht22.json
+🔍 Testing device configuration...
+✅ Device loaded successfully
+🎉 Success! Device 'dht22' is ready to use.
+
+Usage:
+  Python: registry.create('dht22')
+  YAML:   type: "dht22"
+```
+
+**Available pin roles:**
+
+- `3V3`, `5V` - Power supply
+- `GND` - Ground
+- `GPIO` - General purpose I/O
+- `I2C_SDA`, `I2C_SCL` - I2C communication
+- `SPI_MOSI`, `SPI_MISO`, `SPI_SCLK`, `SPI_CE0`, `SPI_CE1` - SPI communication
+- `UART_TX`, `UART_RX` - UART serial
+- `PWM` - Pulse width modulation
+- `PCM_CLK`, `PCM_FS`, `PCM_DIN`, `PCM_DOUT` - PCM audio
+
+**Available categories:**
+
+- `sensors` - Temperature, light, motion, etc. (color: turquoise)
+- `leds` - LEDs and lighting (color: red)
+- `displays` - OLED, LCD, etc. (color: blue)
+- `io` - Buttons, switches, relays (color: gray)
+- `other` - Custom devices
+
+### Validate Device Configurations
+
+Validate all device configuration files in the library:
+
+```bash
+pinviz validate-devices [--strict]
+```
+
+**Arguments:**
+
+- `--strict` - Treat warnings as errors (exits with code 1)
+
+**Examples:**
+
+```bash
+# Validate all device configurations
+pinviz validate-devices
+
+# Strict mode - warnings cause failure (useful for CI/CD)
+pinviz validate-devices --strict
+```
+
+**Validation checks:**
+
+- **Schema validation**: Ensures all required fields are present
+- **Pin configuration**: Validates pin names, roles, and layout parameters
+- **I2C address format**: Checks I2C address syntax (0xXX format)
+- **Parameter definitions**: Validates parameter types and defaults
+- **Duplicate device IDs**: Ensures no duplicate device identifiers
+
+**Example output:**
+
+```
+Validating device configurations...
+
+✓ Validated 13 device configuration files
+✓ No errors found
+⚠ 1 warning
+
+Warnings:
+  src/pinviz/device_configs/leds/ir_led_ring.json: No datasheet URL provided
+
+Summary:
+  Total files: 13
+  Valid files: 13
+  Errors: 0
+  Warnings: 1
+```
+
+This command is useful for:
+
+- **Contributors**: Validate your device configuration before submitting a PR
+- **CI/CD pipelines**: Add `--strict` mode to fail builds on validation issues
+- **Maintenance**: Quickly check all device configs after schema changes
+
 ## Global Options
 
 - `--help` - Show help message and exit

@@ -482,7 +482,11 @@ Currently supported boards:
 
 **Sensors:**
 - `bh1750` - BH1750 I2C ambient light sensor ([datasheet](https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf))
+- `bme280` - BME280 environmental sensor (I2C) - temperature, humidity, pressure ([datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf))
+- `dht22` - DHT22 digital temperature/humidity sensor ([datasheet](https://www.sparkfun.com/datasheets/Sensors/Temperature/DHT22.pdf))
 - `ds18b20` - DS18B20 waterproof 1-Wire temperature sensor ([datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/DS18B20.pdf))
+- `hcsr04` - HC-SR04 ultrasonic distance sensor (2cm-400cm range) ([datasheet](https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf))
+- `pir` - PIR motion sensor (HC-SR501) - passive infrared detection ([datasheet](https://www.mpja.com/download/31227sc.pdf))
 
 **LEDs:**
 - `led` - Simple LED with anode/cathode pins ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header))
@@ -490,6 +494,7 @@ Currently supported boards:
 
 **I/O:**
 - `button` - Push button or switch with pull-up/pull-down configuration ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header))
+- `mcp3008` - MCP3008 8-channel 10-bit ADC with SPI interface ([datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/21295d.pdf))
 
 **Generic:**
 - `i2c_device` - Generic I2C device with standard pinout ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#i2c))
@@ -679,6 +684,93 @@ uv run mkdocs serve
 ```
 
 **[→ Full contributing guide](https://nordstad.github.io/PinViz/development/contributing/)**
+
+## ➕ Adding New Devices
+
+PinViz uses a JSON-based device configuration system with smart defaults. Creating a new device takes about 5 minutes.
+
+### Interactive Wizard (Recommended)
+
+The easiest way to create a new device is using the interactive wizard:
+
+```bash
+pinviz add-device
+```
+
+The wizard will guide you through:
+- Device name and identifier
+- Category selection (sensors, LEDs, displays, etc.)
+- Pin configuration with role selection
+- Optional metadata (I2C address, datasheet URL, notes)
+- Automatic validation and testing
+
+**Example session:**
+```bash
+$ pinviz add-device
+
+🚀 Device Configuration Wizard
+============================================================
+This wizard will help you create a new device configuration.
+
+? Device name: BME280 Environmental Sensor
+? Device ID: bme280
+? Category: sensors
+? Number of pins: 4
+
+Pin 1:
+  Name: VCC
+  Role: 3V3
+
+... (continues interactively)
+
+✅ Configuration saved to: src/pinviz/device_configs/sensors/bme280.json
+🎉 Success! Device 'bme280' is ready to use.
+```
+
+### Manual Configuration
+
+Alternatively, create a JSON file manually in `src/pinviz/device_configs/{category}/`:
+
+```json
+{
+  "id": "bme280",
+  "name": "BME280 Environmental Sensor",
+  "category": "sensors",
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"}
+  ],
+  "i2c_address": "0x76",
+  "datasheet_url": "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf"
+}
+```
+
+**That's it!** No manual coordinates, no complex calculations - just list your pins.
+
+**Smart defaults automatically handle:**
+- Pin positions (vertical/horizontal layouts)
+- Device dimensions (auto-sized to fit pins)
+- Colors (category-based: sensors=turquoise, LEDs=red, etc.)
+- Wire colors (based on pin roles)
+
+**Available categories:** `sensors`, `displays`, `leds`, `actuators`, `io`, `generic`
+
+**See:** [plans/DEVICE_CONFIG_GUIDE.md](https://github.com/nordstad/PinViz/blob/main/plans/DEVICE_CONFIG_GUIDE.md) for detailed configuration options.
+
+### Using Custom Devices
+
+```python
+from pinviz.devices import get_registry
+
+# Create device from JSON config
+registry = get_registry()
+sensor = registry.create('bme280')  # Loads from device_configs/sensors/bme280.json
+
+# Use with parameters
+led = registry.create('led', color_name='Blue')
+```
 
 ## 🤝 Contributing
 

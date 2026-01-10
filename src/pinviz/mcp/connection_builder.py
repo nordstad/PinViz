@@ -6,6 +6,7 @@ complete Diagram objects ready for rendering.
 """
 
 from pinviz import boards
+from pinviz.devices import get_registry
 from pinviz.mcp.pin_assignment import PinAssignment
 from pinviz.model import DEFAULT_COLORS, Connection, Device, DevicePin, Diagram, Point
 
@@ -72,32 +73,71 @@ class ConnectionBuilder:
             return boards.raspberry_pi_5()
 
     def _build_devices(self, devices_data: list[dict]) -> list[Device]:
-        """Build Device objects from device data."""
+        """Build Device objects from device data.
+
+        First tries to load from device registry (device_configs/ or Python factories),
+        then falls back to manual construction from MCP database data.
+        """
         devices = []
+        registry = get_registry()
 
         for device_data in devices_data:
+            device_id = device_data.get("id")
             device_name = device_data["name"]
-            device_pins_data = device_data["pins"]
 
-            # Build DevicePin objects
-            device_pins = []
-            for i, pin_data in enumerate(device_pins_data):
-                pin = DevicePin(
-                    name=pin_data["name"],
-                    role=pin_data["role"],
-                    position=Point(0, i * 10),  # Simple vertical spacing
+            # Try to load from registry first (device_configs/ or Python factories)
+            device = None
+            if device_id:
+                try:
+                    device = registry.create(device_id)
+                    # Override name if different in MCP data
+                    if device.name != device_name:
+                        # Create a copy with the MCP name
+                        device = Device(
+                            name=device_name,
+                            pins=device.pins,
+                            width=device.width,
+                            height=device.height,
+                            color=device.color,
+                            position=device.position,
+                            type_id=device.type_id,
+                            description=device.description,
+                            url=device.url,
+                            category=device.category,
+                            i2c_address=device.i2c_address,
+                        )
+                except (ValueError, FileNotFoundError):
+                    # Device not in registry, fall back to manual construction
+                    pass
+
+            # Fall back to manual construction from MCP database
+            if device is None:
+                device_pins_data = device_data["pins"]
+
+                # Build DevicePin objects
+                device_pins = []
+                for i, pin_data in enumerate(device_pins_data):
+                    pin = DevicePin(
+                        name=pin_data["name"],
+                        role=pin_data["role"],
+                        position=Point(0, i * 10),  # Simple vertical spacing
+                    )
+                    device_pins.append(pin)
+
+                # Create Device
+                device = Device(
+                    name=device_name,
+                    pins=device_pins,
+                    width=120.0,
+                    height=max(60.0, len(device_pins) * 10 + 20),
+                    position=Point(0, 0),  # Will be set by layout engine
+                    color=self._get_device_color(device_data),
+                    type_id=device_id,
+                    description=device_data.get("description"),
+                    url=device_data.get("datasheet_url"),
+                    category=device_data.get("category"),
                 )
-                device_pins.append(pin)
 
-            # Create Device
-            device = Device(
-                name=device_name,
-                pins=device_pins,
-                width=120.0,
-                height=max(60.0, len(device_pins) * 10 + 20),
-                position=Point(0, 0),  # Will be set by layout engine
-                color=self._get_device_color(device_data),
-            )
             devices.append(device)
 
         return devices

@@ -1,6 +1,7 @@
 """Command-line interface for pinviz."""
 
 import argparse
+import asyncio
 import sys
 from pathlib import Path
 from typing import Any
@@ -58,6 +59,8 @@ def main() -> int:
             "  pinviz validate diagram.yaml                   # Validate wiring configuration",
             "  pinviz example bh1750                          # Use a built-in example",
             "  pinviz list                                     # List available templates",
+            "  pinviz add-device                              # Create a new device interactively",
+            "  pinviz validate-devices                        # Validate all device configs",
             "",
             "For more information, visit: https://github.com/nordstad/PinViz",
         ]
@@ -182,6 +185,25 @@ def main() -> int:
         description="List all available board models, device templates, and examples",
     )
 
+    # Add-device command
+    subparsers.add_parser(
+        "add-device",
+        help="Interactive wizard to create a new device configuration",
+        description="Launch an interactive wizard to create a new device configuration file",
+    )
+
+    # Validate-devices command
+    validate_devices_parser = subparsers.add_parser(
+        "validate-devices",
+        help="Validate all device configuration files",
+        description="Check all device JSON files for errors and common issues",
+    )
+    validate_devices_parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Treat warnings as errors (exit with error code if warnings found)",
+    )
+
     args = parser.parse_args()
 
     # Configure logging based on CLI arguments
@@ -199,6 +221,10 @@ def main() -> int:
         return validate_command(args)
     elif args.command == "list":
         return list_command()
+    elif args.command == "add-device":
+        return add_device_command()
+    elif args.command == "validate-devices":
+        return validate_devices_command(args)
     else:
         parser.print_help()
         return 1
@@ -446,6 +472,44 @@ def example_command(args: Any) -> int:
         # Apply CLI flags for visibility
         _apply_cli_flags(diagram, args)
 
+        # Validate diagram before rendering
+        validator = DiagramValidator()
+        issues = validator.validate(diagram)
+
+        if issues:
+            errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+            warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
+            infos = [i for i in issues if i.level == ValidationLevel.INFO]
+
+            log.info(
+                "validation_completed",
+                total_issues=len(issues),
+                errors=len(errors),
+                warnings=len(warnings),
+                infos=len(infos),
+            )
+
+            # Show validation issues
+            if errors or warnings or infos:
+                print("\nValidation Issues:")
+                for issue in errors:
+                    print(f"  {issue}")
+                for issue in warnings:
+                    print(f"  {issue}")
+                for issue in infos:
+                    print(f"  {issue}")
+
+            # Fail on errors
+            if errors:
+                log.error("example_validation_failed", error_count=len(errors))
+                print(f"\n❌ Found {len(errors)} error(s). Cannot generate example diagram.")
+                return 1
+
+            if warnings:
+                log.warning("example_validation_warnings", warning_count=len(warnings))
+                print(f"\n⚠️  Found {len(warnings)} warning(s). Review the example carefully.")
+            print()
+
         log.info("rendering_example", output_path=str(output_path))
         _render_diagram(diagram, output_path)
 
@@ -503,20 +567,114 @@ def list_command() -> int:
     return 0
 
 
+def add_device_command() -> int:
+    """Launch interactive device wizard."""
+    log = get_logger(__name__)
+    from .device_wizard import main as wizard_main
+
+    log.info("device_wizard_started")
+
+    try:
+        # Run the async wizard
+        return asyncio.run(wizard_main())
+    except KeyboardInterrupt:
+        print("\n\n❌ Wizard cancelled by user.")
+        log.info("device_wizard_cancelled")
+        return 1
+    except Exception as e:
+        log.exception("device_wizard_error", error_type=type(e).__name__, error_message=str(e))
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
+def validate_devices_command(args: Any) -> int:
+    """Validate all device configuration files."""
+    log = get_logger(__name__)
+    from .device_validator import validate_devices
+
+    log.info("device_validation_started", strict_mode=args.strict)
+    print("Validating device configurations...")
+    print()
+
+    try:
+        result = validate_devices()
+
+        log.debug(
+            "validation_completed",
+            total_files=result.total_files,
+            valid_files=result.valid_files,
+            errors=result.error_count,
+            warnings=result.warning_count,
+        )
+
+        # Display errors
+        if result.errors:
+            print("Errors:")
+            for error in result.errors:
+                print(f"  {error}")
+            print()
+
+        # Display warnings
+        if result.warnings:
+            print("Warnings:")
+            for warning in result.warnings:
+                print(f"  {warning}")
+            print()
+
+        # Summary
+        print(f"Scanned {result.total_files} device configuration files")
+        print(f"Valid: {result.valid_files}")
+
+        if result.error_count > 0:
+            print(f"Errors: {result.error_count}")
+        if result.warning_count > 0:
+            print(f"Warnings: {result.warning_count}")
+
+        # Exit codes
+        if result.has_errors:
+            log.error("validation_failed", error_count=result.error_count)
+            print("\n❌ Validation failed with errors")
+            return 1
+
+        if result.has_warnings and args.strict:
+            log.warning("strict_mode_warnings_as_errors", warning_count=result.warning_count)
+            print("\n❌ Validation failed: warnings in strict mode")
+            return 1
+
+        if result.has_warnings:
+            log.info("validation_completed_with_warnings", warning_count=result.warning_count)
+            print("\n⚠️  Validation completed with warnings")
+            return 0
+
+        log.info("validation_passed")
+        print("\n✓ All device configurations are valid!")
+        return 0
+
+    except Exception as e:
+        log.exception(
+            "validation_error",
+            error_type=type(e).__name__,
+            error_message=str(e),
+        )
+        print(f"Error during validation: {e}", file=sys.stderr)
+        return 1
+
+
 def create_bh1750_example():
     """Create BH1750 example diagram."""
     from . import boards
-    from .devices import bh1750_light_sensor
+    from .devices import get_registry
     from .model import Connection, Diagram
 
     board = boards.raspberry_pi_5()
-    sensor = bh1750_light_sensor()
+    registry = get_registry()
+    sensor = registry.create("bh1750")
 
     connections = [
-        Connection(1, "BH1750", "VCC"),  # 3V3 to VCC
-        Connection(6, "BH1750", "GND"),  # GND to GND
-        Connection(5, "BH1750", "SCL"),  # GPIO3/SCL to SCL
-        Connection(3, "BH1750", "SDA"),  # GPIO2/SDA to SDA
+        Connection(1, "BH1750 Light Sensor", "VCC"),  # 3V3 to VCC
+        Connection(6, "BH1750 Light Sensor", "GND"),  # GND to GND
+        Connection(5, "BH1750 Light Sensor", "SCL"),  # GPIO3/SCL to SCL
+        Connection(3, "BH1750 Light Sensor", "SDA"),  # GPIO2/SDA to SDA
     ]
 
     return Diagram(
@@ -530,11 +688,12 @@ def create_bh1750_example():
 def create_ir_led_example() -> Diagram:
     """Create IR LED ring example diagram."""
     from . import boards
-    from .devices import ir_led_ring
+    from .devices import get_registry
     from .model import Connection, Diagram
 
     board = boards.raspberry_pi_5()
-    ir_led = ir_led_ring(12)
+    registry = get_registry()
+    ir_led = registry.create("ir_led_ring", num_leds=12)
 
     connections = [
         Connection(2, "IR LED Ring (12)", "VCC"),  # 5V to VCC
@@ -553,21 +712,22 @@ def create_ir_led_example() -> Diagram:
 def create_i2c_spi_example():
     """Create example with multiple I2C and SPI devices."""
     from . import boards
-    from .devices import bh1750_light_sensor, generic_spi_device, simple_led
+    from .devices import get_registry
     from .model import Connection, Diagram
 
     board = boards.raspberry_pi_5()
+    registry = get_registry()
 
-    bh1750 = bh1750_light_sensor()
-    spi_device = generic_spi_device("OLED Display")
-    led = simple_led("Red")
+    bh1750 = registry.create("bh1750")
+    spi_device = registry.create("spi_device", name="OLED Display")
+    led = registry.create("led", color_name="Red")
 
     connections = [
         # BH1750 I2C sensor
-        Connection(1, "BH1750", "VCC"),
-        Connection(9, "BH1750", "GND"),
-        Connection(5, "BH1750", "SCL"),
-        Connection(3, "BH1750", "SDA"),
+        Connection(1, "BH1750 Light Sensor", "VCC"),
+        Connection(9, "BH1750 Light Sensor", "GND"),
+        Connection(5, "BH1750 Light Sensor", "SCL"),
+        Connection(3, "BH1750 Light Sensor", "SDA"),
         # SPI OLED display
         Connection(17, "OLED Display", "VCC"),
         Connection(20, "OLED Display", "GND"),

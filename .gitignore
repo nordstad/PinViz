@@ -50,6 +50,7 @@ GPIO_LIBRARY_ANALYSIS.md
 # Internal planning documents (not for commit)
 plans/
 migration/
+test_mcp_integration.py
 
 # Test configurations (local development only)
 examples/pi_zero_test.yaml
@@ -63,3 +64,4 @@ scripts/*.svg
 bad_wiring.yaml
 fixed_wiring.yaml
 fixed.svg
+/plans/

@@ -299,36 +299,111 @@ This module verifies that:
 - **One assertion focus**: Each test should verify one specific behavior
 - **Descriptive names**: Test names should clearly state what they verify
 
-### Adding Device Templates
+### Adding New Devices
 
-To add a new device template:
+PinViz uses a JSON-based device configuration system with smart defaults. Creating a new device takes about 5 minutes and requires **68% less configuration** compared to the old Python approach.
 
-1. Add the factory function to `src/pinviz/devices/__init__.py`
-2. Register it in the `DEVICE_REGISTRY`
-3. Add tests to `tests/test_devices.py`
-4. Update documentation in `docs/guide/examples.md`
+#### Quick Steps
 
-Example:
+1. **Create JSON file** in appropriate category folder (e.g., `src/pinviz/device_configs/sensors/bme280.json`)
+2. **Define minimal required fields** (id, name, category, pins)
+3. **Let smart defaults handle** positions, dimensions, and colors
+4. **Test and validate** your device
 
-```python
-def my_sensor() -> Device:
-    """Create a My Sensor device template."""
-    return Device(
-        name="My Sensor",
-        width=80.0,
-        height=60.0,
-        color="#4A90E2",
-        pins=[
-            DevicePin("VCC", PinRole.V3_3, position=(5.0, 10.0)),
-            DevicePin("GND", PinRole.GND, position=(5.0, 20.0)),
-            DevicePin("SDA", PinRole.I2C_SDA, position=(5.0, 30.0)),
-            DevicePin("SCL", PinRole.I2C_SCL, position=(5.0, 40.0)),
-        ]
-    )
+#### Example Device Configuration
 
-# Register in DEVICE_REGISTRY
-DEVICE_REGISTRY.register("my_sensor", my_sensor, "My Sensor I2C Module")
+```json
+{
+  "id": "bme280",
+  "name": "BME280 Environmental Sensor",
+  "category": "sensors",
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"}
+  ],
+  "i2c_address": "0x76",
+  "datasheet_url": "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf",
+  "description": "Precision sensor for pressure, temperature and humidity",
+  "notes": "Default I2C address is 0x76, can be changed to 0x77"
+}
 ```
+
+**That's it!** No manual coordinates, no complex calculations - just list your pins.
+
+#### Available Categories
+
+Choose the appropriate category for your device:
+
+- `sensors` - Temperature, light, pressure, motion sensors (color: turquoise)
+- `displays` - LCDs, OLEDs, e-paper displays (color: blue)
+- `leds` - Individual LEDs, LED strips, rings (color: red)
+- `actuators` - Motors, servos, relays (color: orange)
+- `io` - Buttons, switches, encoders (color: gray)
+- `generic` - Generic I2C/SPI/UART devices (color: gray)
+
+#### Smart Defaults
+
+The device loader automatically provides:
+
+- **Pin positions**: Vertical layout (top to bottom) or horizontal layout (left to right)
+- **Device dimensions**: Auto-sized to fit all pins with padding
+- **Colors**: Category-based defaults (see categories above)
+- **Wire colors**: Based on pin roles (I2C=yellow, SPI=cyan, power=red, ground=black)
+
+#### Device Submission Checklist
+
+Before submitting your device, ensure:
+
+- [ ] Created JSON config in appropriate category folder (`device_configs/{category}/your-device.json`)
+- [ ] Used minimal config (let smart defaults work)
+- [ ] Added `i2c_address` field (if applicable)
+- [ ] Added `datasheet_url` with link to manufacturer datasheet
+- [ ] Added `description` explaining what the device does
+- [ ] Added `notes` for setup requirements (pull-up resistors, jumpers, etc.)
+- [ ] Tested device loads correctly:
+  ```bash
+  uv run python -c "from pinviz.devices import get_registry; print(get_registry().create('your-device-id').name)"
+  ```
+- [ ] Created example diagram using the device (optional but encouraged):
+  ```bash
+  # Create example YAML in examples/ directory
+  uv run pinviz render examples/your-device.yaml -o images/your-device.svg
+  ```
+- [ ] All tests passing: `uv run pytest`
+- [ ] Code formatted: `uv run ruff format .` and `uv run ruff check .`
+
+#### Optional: Device Parameters
+
+For device variants (e.g., different LED colors, different chip selects), use parameters:
+
+```json
+{
+  "id": "led",
+  "name": "{color_name} LED",
+  "category": "leds",
+  "pins": [
+    {"name": "+", "role": "GPIO"},
+    {"name": "-", "role": "GND"}
+  ],
+  "parameters": {
+    "color_name": {
+      "type": "string",
+      "default": "Red",
+      "description": "LED color for display name"
+    }
+  }
+}
+```
+
+Use with: `registry.create('led', color_name='Blue')` → Creates "Blue LED"
+
+#### Need Help?
+
+- **Full guide**: See [plans/DEVICE_CONFIG_GUIDE.md](plans/DEVICE_CONFIG_GUIDE.md) for detailed configuration options
+- **Examples**: Browse `src/pinviz/device_configs/` for real device examples
+- **Questions**: Open a [GitHub Discussion](https://github.com/nordstad/PinViz/discussions)
 
 ### Documentation
 

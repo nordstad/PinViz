@@ -1,0 +1,24 @@
+{
+  "id": "button",
+  "name": "Button (Pull-up)",
+  "category": "io",
+  "description": "Push button or switch with pull-up configuration",
+
+  "pins": [
+    {"name": "SIG", "role": "GPIO"},
+    {"name": "GND", "role": "GND"}
+  ],
+
+  "layout": {
+    "pin_spacing": 12.0,
+    "start_y": 15.0
+  },
+
+  "display": {
+    "width": 60.0,
+    "height": 40.0
+  },
+
+  "datasheet_url": "https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header",
+  "notes": "Default pull-up configuration. For pull-down configuration, use the Python factory button_switch(pull_up=False) until JSON conditional pins are supported."
+}

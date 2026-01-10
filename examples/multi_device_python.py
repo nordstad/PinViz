@@ -1,11 +1,13 @@
 """Example: Multiple devices (I2C + SPI) wiring diagram (Pure Python API)."""
 
-from pinviz import Connection, Diagram, SVGRenderer, boards, devices
+from pinviz import Connection, Diagram, SVGRenderer, boards
+from pinviz.devices import get_registry
 
 # Create board and devices
 board = boards.raspberry_pi_5()
-i2c_sensor = devices.generic_i2c_device("OLED_Display", has_int_pin=False)
-spi_sensor = devices.generic_spi_device("Accel_SPI")
+registry = get_registry()
+i2c_sensor = registry.create("i2c_device", name="OLED_Display")
+spi_sensor = registry.create("spi_device", name="Accel_SPI")
 
 # Define connections for I2C device (OLED Display)
 i2c_connections = [

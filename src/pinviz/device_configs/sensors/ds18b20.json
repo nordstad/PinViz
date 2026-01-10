@@ -1,0 +1,25 @@
+{
+  "id": "ds18b20",
+  "name": "DS18B20 Temperature Sensor",
+  "category": "sensors",
+  "description": "DS18B20 waterproof 1-Wire temperature sensor",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "DATA", "role": "GPIO"},
+    {"name": "GND", "role": "GND"}
+  ],
+
+  "layout": {
+    "pin_spacing": 10.0,
+    "start_y": 12.0
+  },
+
+  "display": {
+    "width": 75.0,
+    "height": 45.0
+  },
+
+  "datasheet_url": "https://www.analog.com/media/en/technical-documentation/data-sheets/DS18B20.pdf",
+  "notes": "Requires a 4.7kΩ pull-up resistor between DATA and VCC. The DATA pin connects to any available GPIO pin. Enable 1-Wire in raspi-config and load the w1-gpio kernel module."
+}

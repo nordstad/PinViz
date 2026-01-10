@@ -6,17 +6,14 @@ from pinviz import (
     SVGRenderer,
     WireColor,
     boards,
-    devices,
 )
+from pinviz.devices import get_registry
 
 # Create board and devices
 board = boards.raspberry_pi_5()
-sensor = devices.bh1750_light_sensor()
-ir_ring = devices.ir_led_ring(num_leds=12)
-
-# Override device names
-sensor.name = "BH1750 Light Sensor"
-ir_ring.name = "IR LED Ring"
+registry = get_registry()
+sensor = registry.create("bh1750", name="BH1750 Light Sensor")
+ir_ring = registry.create("ir_led_ring", num_leds=12, name="IR LED Ring")
 
 # Define connections with custom wire colors
 connections = [

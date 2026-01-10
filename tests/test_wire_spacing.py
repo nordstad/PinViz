@@ -1,6 +1,7 @@
 """Tests for wire routing spacing and non-overlap guarantees."""
 
-from pinviz import Connection, Diagram, boards, devices
+from pinviz import Connection, Diagram, boards
+from pinviz.devices import get_registry
 from pinviz.layout import LayoutConfig, LayoutEngine
 from pinviz.model import Point
 
@@ -97,7 +98,7 @@ class TestWireSpacing:
         diagram = Diagram(
             title="Test Diagram",
             board=boards.raspberry_pi_5(),
-            devices=[devices.bh1750_light_sensor()],
+            devices=[get_registry().create("bh1750")],
             connections=[
                 Connection(1, "BH1750", "VCC"),
                 Connection(6, "BH1750", "GND"),
@@ -129,7 +130,7 @@ class TestWireSpacing:
         diagram = Diagram(
             title="Test Diagram",
             board=boards.raspberry_pi_5(),
-            devices=[devices.bh1750_light_sensor()],
+            devices=[get_registry().create("bh1750")],
             connections=[
                 Connection(1, "BH1750", "VCC"),
                 Connection(6, "BH1750", "GND"),
@@ -163,8 +164,8 @@ class TestWireSpacing:
     def test_worst_case_header_breakout(self):
         """Test many wires from adjacent pins to multiple devices."""
         # Create a worst-case scenario: many wires from nearby pins
-        dev1 = devices.generic_i2c_device("Device1")
-        dev2 = devices.generic_i2c_device("Device2")
+        dev1 = get_registry().create("i2c_device", name="Device1")
+        dev2 = get_registry().create("i2c_device", name="Device2")
 
         diagram = Diagram(
             title="Worst Case Test",
@@ -199,11 +200,11 @@ class TestWireSpacing:
         config = LayoutConfig(bundle_spacing=4.0, wire_spacing=8.0)
 
         # Multiple wires from same pin (pin 6 = GND) going to different devices
-        dev1 = devices.bh1750_light_sensor()
+        dev1 = get_registry().create("bh1750")
         dev1.name = "Device1"
-        dev2 = devices.bh1750_light_sensor()
+        dev2 = get_registry().create("bh1750")
         dev2.name = "Device2"
-        dev3 = devices.bh1750_light_sensor()
+        dev3 = get_registry().create("bh1750")
         dev3.name = "Device3"
 
         diagram = Diagram(
@@ -248,7 +249,7 @@ class TestWireSpacing:
         diagram = Diagram(
             title="Deterministic Test",
             board=boards.raspberry_pi_5(),
-            devices=[devices.bh1750_light_sensor()],
+            devices=[get_registry().create("bh1750")],
             connections=[
                 Connection(1, "BH1750", "VCC"),
                 Connection(6, "BH1750", "GND"),

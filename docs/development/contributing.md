@@ -28,13 +28,47 @@ All code must pass:
 - All unit tests
 - Type checking
 
+## Adding Device Configurations
+
+When contributing new device configurations:
+
+1. Use the interactive wizard: `uv run pinviz add-device`
+2. Validate your configuration: `uv run pinviz validate-devices`
+3. Test loading the device programmatically:
+   ```python
+   from pinviz.devices import get_registry
+   registry = get_registry()
+   device = registry.create('your_device_id')
+   ```
+4. Ensure validation passes with no errors
+
+The device validator checks:
+- Schema compliance (required fields, valid types)
+- Pin configuration correctness
+- I2C address format (if applicable)
+- No duplicate device IDs
+
+**Example workflow:**
+
+```bash
+# Create device configuration interactively
+uv run pinviz add-device
+
+# Validate all device configs
+uv run pinviz validate-devices
+
+# Run tests to ensure nothing broke
+uv run pytest
+```
+
 ## Submitting Changes
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
 4. Run tests and linting
-5. Submit a pull request
+5. For device configs, run `pinviz validate-devices`
+6. Submit a pull request
 
 ## Documentation
 

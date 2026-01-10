@@ -1,7 +1,7 @@
 """Tests for validation module."""
 
 from pinviz import boards
-from pinviz.devices import bh1750_light_sensor, generic_i2c_device, simple_led
+from pinviz.devices import get_registry
 from pinviz.model import Connection, Device, DevicePin, Diagram, PinRole, Point
 from pinviz.validation import DiagramValidator, ValidationLevel
 
@@ -12,8 +12,8 @@ class TestDuplicatePinDetection:
     def test_duplicate_gpio_pins(self):
         """Test detection of duplicate GPIO pin usage."""
         board = boards.raspberry_pi_5()
-        led1 = simple_led("LED1")
-        led2 = simple_led("LED2")
+        led1 = get_registry().create("led", color_name="LED1")
+        led2 = get_registry().create("led", color_name="LED2")
 
         # Both LEDs connected to same GPIO pin
         connections = [
@@ -41,18 +41,18 @@ class TestDuplicatePinDetection:
     def test_shared_power_pins_allowed(self):
         """Test that multiple devices can share power/ground pins."""
         board = boards.raspberry_pi_5()
-        sensor1 = bh1750_light_sensor()
-        sensor2 = generic_i2c_device("Sensor2")
+        sensor1 = get_registry().create("bh1750")
+        sensor2 = get_registry().create("i2c_device", name="Sensor2")
 
         connections = [
             # Both sensors share power and ground - this is OK
-            Connection(1, "BH1750", "VCC"),
+            Connection(1, "BH1750 Light Sensor", "VCC"),
             Connection(1, "Sensor2", "VCC"),
-            Connection(6, "BH1750", "GND"),
+            Connection(6, "BH1750 Light Sensor", "GND"),
             Connection(6, "Sensor2", "GND"),
             # Different I2C connections
-            Connection(3, "BH1750", "SDA"),
-            Connection(5, "BH1750", "SCL"),
+            Connection(3, "BH1750 Light Sensor", "SDA"),
+            Connection(5, "BH1750 Light Sensor", "SCL"),
             Connection(27, "Sensor2", "SDA"),
             Connection(28, "Sensor2", "SCL"),
         ]
@@ -74,18 +74,18 @@ class TestDuplicatePinDetection:
     def test_shared_i2c_pins_noted(self):
         """Test that shared I2C pins are noted (not an error)."""
         board = boards.raspberry_pi_5()
-        sensor1 = bh1750_light_sensor()
-        sensor2 = generic_i2c_device("Sensor2")
+        sensor1 = get_registry().create("bh1750")
+        sensor2 = get_registry().create("i2c_device", name="Sensor2")
 
         connections = [
-            Connection(1, "BH1750", "VCC"),
+            Connection(1, "BH1750 Light Sensor", "VCC"),
             Connection(1, "Sensor2", "VCC"),
-            Connection(6, "BH1750", "GND"),
+            Connection(6, "BH1750 Light Sensor", "GND"),
             Connection(6, "Sensor2", "GND"),
             # Both share the same I2C bus (pins 3 and 5)
-            Connection(3, "BH1750", "SDA"),
+            Connection(3, "BH1750 Light Sensor", "SDA"),
             Connection(3, "Sensor2", "SDA"),
-            Connection(5, "BH1750", "SCL"),
+            Connection(5, "BH1750 Light Sensor", "SCL"),
             Connection(5, "Sensor2", "SCL"),
         ]
 
@@ -181,18 +181,18 @@ class TestI2CAddressConflicts:
     def test_duplicate_bh1750_warning(self):
         """Test detection of multiple BH1750 sensors (same default address)."""
         board = boards.raspberry_pi_5()
-        sensor1 = bh1750_light_sensor()
+        sensor1 = get_registry().create("bh1750")
         sensor1.type_id = "bh1750"  # Set type_id for registry lookup
-        sensor2 = bh1750_light_sensor()
+        sensor2 = get_registry().create("bh1750")
         sensor2.name = "BH1750-2"  # Rename to distinguish from first sensor
         sensor2.type_id = "bh1750"  # Set type_id for registry lookup
 
         connections = [
             # First sensor
-            Connection(1, "BH1750", "VCC"),
-            Connection(6, "BH1750", "GND"),
-            Connection(3, "BH1750", "SDA"),
-            Connection(5, "BH1750", "SCL"),
+            Connection(1, "BH1750 Light Sensor", "VCC"),
+            Connection(6, "BH1750 Light Sensor", "GND"),
+            Connection(3, "BH1750 Light Sensor", "SDA"),
+            Connection(5, "BH1750 Light Sensor", "SCL"),
             # Second sensor on same bus
             Connection(1, "BH1750-2", "VCC"),
             Connection(6, "BH1750-2", "GND"),
@@ -222,7 +222,7 @@ class TestConnectionValidity:
     def test_invalid_board_pin_number(self):
         """Test detection of invalid board pin number."""
         board = boards.raspberry_pi_5()
-        led = simple_led("LED")
+        led = get_registry().create("led", color_name="LED")
 
         connections = [
             Connection(99, "LED", "+"),  # Invalid pin number!
@@ -246,7 +246,7 @@ class TestConnectionValidity:
     def test_nonexistent_device(self):
         """Test detection of connection to non-existent device."""
         board = boards.raspberry_pi_5()
-        led = simple_led("LED")
+        led = get_registry().create("led", color_name="LED")
 
         connections = [
             Connection(11, "LED", "+"),
@@ -270,7 +270,7 @@ class TestConnectionValidity:
     def test_nonexistent_device_pin(self):
         """Test detection of connection to non-existent device pin."""
         board = boards.raspberry_pi_5()
-        led = simple_led("LED")
+        led = get_registry().create("led", color_name="LED")
 
         connections = [
             Connection(11, "LED LED", "+"),
@@ -301,8 +301,8 @@ class TestCurrentLimits:
         board = boards.raspberry_pi_5()
 
         # Create multiple devices on same GPIO (likely current issue)
-        led1 = simple_led("LED1")
-        led2 = simple_led("LED2")
+        led1 = get_registry().create("led", color_name="LED1")
+        led2 = get_registry().create("led", color_name="LED2")
 
         connections = [
             Connection(11, "LED1", "+"),  # GPIO17
@@ -332,13 +332,13 @@ class TestValidDiagrams:
     def test_simple_valid_diagram(self):
         """Test that a simple valid diagram passes validation."""
         board = boards.raspberry_pi_5()
-        sensor = bh1750_light_sensor()
+        sensor = get_registry().create("bh1750")
 
         connections = [
-            Connection(1, "BH1750", "VCC"),
-            Connection(6, "BH1750", "GND"),
-            Connection(3, "BH1750", "SDA"),
-            Connection(5, "BH1750", "SCL"),
+            Connection(1, "BH1750 Light Sensor", "VCC"),
+            Connection(6, "BH1750 Light Sensor", "GND"),
+            Connection(3, "BH1750 Light Sensor", "SDA"),
+            Connection(5, "BH1750 Light Sensor", "SCL"),
         ]
 
         diagram = Diagram(
@@ -358,15 +358,15 @@ class TestValidDiagrams:
     def test_multiple_devices_valid(self):
         """Test that multiple properly connected devices pass validation."""
         board = boards.raspberry_pi_5()
-        sensor = bh1750_light_sensor()
-        led = simple_led("Status")
+        sensor = get_registry().create("bh1750")
+        led = get_registry().create("led", color_name="Status")
 
         connections = [
             # Sensor on I2C
-            Connection(1, "BH1750", "VCC"),
-            Connection(6, "BH1750", "GND"),
-            Connection(3, "BH1750", "SDA"),
-            Connection(5, "BH1750", "SCL"),
+            Connection(1, "BH1750 Light Sensor", "VCC"),
+            Connection(6, "BH1750 Light Sensor", "GND"),
+            Connection(3, "BH1750 Light Sensor", "SDA"),
+            Connection(5, "BH1750 Light Sensor", "SCL"),
             # LED on GPIO
             Connection(11, "Status LED", "+"),  # GPIO17
             Connection(9, "Status LED", "-"),

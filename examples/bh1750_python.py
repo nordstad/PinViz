@@ -6,19 +6,20 @@ from pinviz import (
     SVGRenderer,
     WireColor,
     boards,
-    devices,
 )
+from pinviz.devices import get_registry
 
 # Create board and devices
 board = boards.raspberry_pi_5()
-sensor = devices.bh1750_light_sensor()
+registry = get_registry()
+sensor = registry.create("bh1750")
 
 # Define connections with custom wire colors using WireColor enum
 connections = [
-    Connection(1, "BH1750", "VCC", color=WireColor.RED),  # Pin 1 (3V3) to VCC
-    Connection(6, "BH1750", "GND", color=WireColor.BLACK),  # Pin 6 (GND) to GND
-    Connection(5, "BH1750", "SCL", color=WireColor.BLUE),  # Pin 5 (GPIO3/SCL) to SCL
-    Connection(3, "BH1750", "SDA", color=WireColor.GREEN),  # Pin 3 (GPIO2/SDA) to SDA
+    Connection(1, "BH1750 Light Sensor", "VCC", color=WireColor.RED),  # Pin 1 (3V3) to VCC
+    Connection(6, "BH1750 Light Sensor", "GND", color=WireColor.BLACK),  # Pin 6 (GND) to GND
+    Connection(5, "BH1750 Light Sensor", "SCL", color=WireColor.BLUE),  # Pin 5 (GPIO3/SCL) to SCL
+    Connection(3, "BH1750 Light Sensor", "SDA", color=WireColor.GREEN),  # Pin 3 (GPIO2/SDA) to SDA
 ]
 
 # Create diagram

@@ -248,7 +248,7 @@ def test_create_bh1750_example():
     assert diagram is not None
     assert "BH1750" in diagram.title
     assert len(diagram.devices) == 1
-    assert diagram.devices[0].name == "BH1750"
+    assert diagram.devices[0].name == "BH1750 Light Sensor"
     assert len(diagram.connections) == 4
     assert diagram.show_gpio_diagram is False
 
@@ -270,9 +270,9 @@ def test_create_i2c_spi_example():
     assert diagram is not None
     assert "I2C" in diagram.title or "SPI" in diagram.title
     assert len(diagram.devices) == 3
-    # Should have BH1750, SPI device, and LED
+    # Should have BH1750 Light Sensor, SPI device, and LED
     device_names = [d.name for d in diagram.devices]
-    assert "BH1750" in device_names
+    assert any("BH1750" in name for name in device_names)
     assert any("LED" in name for name in device_names)
     assert len(diagram.connections) > 6  # Multiple device connections
     assert diagram.show_gpio_diagram is False

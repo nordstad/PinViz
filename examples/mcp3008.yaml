@@ -1,0 +1,30 @@
+title: "MCP3008 ADC (Analog to Digital Converter)"
+board: "raspberry_pi_5"
+devices:
+  - type: "mcp3008"
+connections:
+  - board_pin: 1   # 3.3V
+    device: "MCP3008 8-Channel ADC"
+    device_pin: "VDD"
+  - board_pin: 1   # 3.3V
+    device: "MCP3008 8-Channel ADC"
+    device_pin: "VREF"
+  - board_pin: 6   # GND
+    device: "MCP3008 8-Channel ADC"
+    device_pin: "AGND"
+  - board_pin: 6   # GND
+    device: "MCP3008 8-Channel ADC"
+    device_pin: "DGND"
+  - board_pin: 19  # GPIO 10 (SPI0 MOSI)
+    device: "MCP3008 8-Channel ADC"
+    device_pin: "DIN"
+  - board_pin: 21  # GPIO 9 (SPI0 MISO)
+    device: "MCP3008 8-Channel ADC"
+    device_pin: "DOUT"
+  - board_pin: 23  # GPIO 11 (SPI0 SCLK)
+    device: "MCP3008 8-Channel ADC"
+    device_pin: "CLK"
+  - board_pin: 24  # GPIO 8 (SPI0 CE0)
+    device: "MCP3008 8-Channel ADC"
+    device_pin: "CS"
+show_legend: true

@@ -1,6 +1,6 @@
 """Tests for layout engine."""
 
-from pinviz import devices
+from pinviz.devices import get_registry
 from pinviz.layout import LayoutConfig, LayoutEngine, RoutedWire
 from pinviz.model import Connection, Diagram, Point
 
@@ -195,8 +195,8 @@ def test_routed_wires_track_endpoints(sample_diagram):
 def test_layout_with_single_device(rpi5_board, bh1750_device):
     """Test layout with a single device."""
     connections = [
-        Connection(1, "BH1750", "VCC"),
-        Connection(6, "BH1750", "GND"),
+        Connection(1, "BH1750 Light Sensor", "VCC"),
+        Connection(6, "BH1750 Light Sensor", "GND"),
     ]
     diagram = Diagram(
         title="Single Device",
@@ -219,8 +219,8 @@ def test_layout_with_multiple_devices(rpi5_board, bh1750_device, led_device):
     led_name = led_device.name
 
     connections = [
-        Connection(1, "BH1750", "VCC"),
-        Connection(6, "BH1750", "GND"),
+        Connection(1, "BH1750 Light Sensor", "VCC"),
+        Connection(6, "BH1750 Light Sensor", "GND"),
         Connection(7, led_name, "+"),
         Connection(9, led_name, "-"),
     ]
@@ -264,7 +264,7 @@ def test_custom_device_spacing(sample_diagram):
     engine = LayoutEngine(config)
 
     # Add second device for spacing test
-    sample_diagram.devices.append(devices.bh1750_light_sensor())
+    sample_diagram.devices.append(get_registry().create("bh1750"))
 
     engine.layout_diagram(sample_diagram)
 

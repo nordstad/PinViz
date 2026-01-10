@@ -44,6 +44,9 @@ pinviz example i2c_spi -o images/i2c_spi.svg
 
 # List available templates
 pinviz list
+
+# Create new device interactively
+pinviz add-device
 ```
 
 ## Architecture
@@ -55,11 +58,17 @@ pinviz list
 - **WireStyle enum**: Defines wire routing styles (orthogonal, curved, mixed)
 
 ### Component Factory Modules
-- **`boards.py`**: Predefined board templates (currently Raspberry Pi 5 with 40-pin GPIO)
+- **`boards.py`**: Board templates loaded from JSON configs in `board_configs/`
   - Pin positions are pre-calculated based on physical GPIO header layout
   - Pins have physical pin numbers (1-40), BCM GPIO numbers, names, and roles
-- **`devices.py`**: Device/module templates (BH1750, IR LED ring, generic I2C/SPI, LED, button)
-  - Each device has named pins with roles and relative positions
+- **`devices/registry.py`**: Device template registry with dual-path support:
+  - **Primary**: JSON configs from `device_configs/` (recommended)
+  - **Fallback**: Python factory functions (backward compatibility, deprecated)
+- **`devices/loader.py`**: JSON device loader with smart defaults system
+  - Auto-calculates pin positions (vertical/horizontal layouts)
+  - Auto-calculates device dimensions based on pin count
+  - Category-based color defaults (sensors=turquoise, LEDs=red, etc.)
+  - Parameter substitution support (e.g., LED colors, device names)
 
 ### Configuration Loading (`config_loader.py`)
 - **ConfigLoader class**: Parses YAML/JSON files into diagram objects
@@ -87,11 +96,11 @@ pinviz list
 ## Key Design Patterns
 
 1. **Separation of concerns**: Model → Layout → Rendering pipeline
-2. **Factory pattern**: `boards.py` and `devices.py` provide factory functions for predefined components
+2. **Registry pattern**: `boards.py` loads from JSON configs; `devices/registry.py` provides device templates from JSON
 3. **Position calculation**: Absolute positions calculated during layout phase; devices/pins use relative positions
 4. **Two-phase wire routing**: Group connections by source pin to calculate offsets, then route each wire
 5. **Color assignment**: Automatic based on pin role, can be overridden per connection
-6. **Configuration-based boards**: Board definitions loaded from JSON files in `src/pinviz/board_configs/`
+6. **Configuration-based**: Board and device definitions loaded from JSON files with smart defaults
 
 ## Board Configuration System
 
@@ -285,6 +294,108 @@ All board configurations are validated against `BoardConfigSchema` in `schemas.p
 - Pin roles must be valid (GPIO, I2C_SDA, PWM, etc.)
 - Layout parameters must be positive numbers
 - Right column X must be greater than left column X
+
+## Device Configuration System
+
+Device definitions are stored in JSON files in `src/pinviz/device_configs/` directory, organized by category (sensors/, leds/, displays/, io/, etc.). This makes it easy to add new devices without writing Python code.
+
+### Device Configuration Structure
+
+**Minimal example** (smart defaults handle everything else):
+```json
+{
+  "id": "bh1750",
+  "name": "BH1750 Light Sensor",
+  "category": "sensors",
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"}
+  ]
+}
+```
+
+**With optional metadata**:
+```json
+{
+  "id": "ds18b20",
+  "name": "DS18B20 Temperature Sensor",
+  "category": "sensors",
+  "description": "DS18B20 waterproof 1-Wire temperature sensor",
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "DATA", "role": "GPIO"},
+    {"name": "GND", "role": "GND"}
+  ],
+  "layout": {
+    "pin_spacing": 10.0,
+    "start_y": 12.0
+  },
+  "display": {
+    "width": 75.0,
+    "height": 45.0
+  },
+  "datasheet_url": "https://www.analog.com/media/en/technical-documentation/data-sheets/DS18B20.pdf",
+  "notes": "Requires a 4.7kΩ pull-up resistor between DATA and VCC."
+}
+```
+
+**With parameters** (for device variants):
+```json
+{
+  "id": "led",
+  "name": "{color_name} LED",
+  "category": "leds",
+  "pins": [
+    {"name": "+", "role": "GPIO"},
+    {"name": "-", "role": "GND"}
+  ],
+  "parameters": {
+    "color_name": {
+      "type": "string",
+      "default": "Red",
+      "description": "LED color for display name"
+    }
+  }
+}
+```
+
+### Smart Defaults
+
+The device loader automatically provides:
+- **Pin positions**: Vertical layout (top to bottom) or horizontal layout (left to right)
+- **Device dimensions**: Auto-sized to fit all pins with padding
+- **Colors**: Category-based defaults (sensors=turquoise, LEDs=red, displays=blue, io=gray)
+- **Wire colors**: Based on pin roles (I2C=yellow, SPI=cyan, power=red, ground=black)
+
+### Using Devices from JSON Configs
+
+```python
+from pinviz.devices import get_registry
+
+# Load device from JSON config (automatic)
+registry = get_registry()
+sensor = registry.create('bh1750')  # Loads from device_configs/sensors/bh1750.json
+
+# With parameters
+led = registry.create('led', color_name='Blue')  # Creates "Blue LED"
+ir_ring = registry.create('ir_led_ring', num_leds=24)  # Creates "IR LED Ring (24)"
+
+# Custom device name
+i2c_dev = registry.create('i2c_device', name='BME280')  # Creates "BME280"
+```
+
+### Adding a New Device
+
+**68% less configuration** compared to Python factory functions:
+
+1. Create JSON file in appropriate category folder (e.g., `src/pinviz/device_configs/sensors/bme280.json`)
+2. Define minimal required fields (id, name, category, pins)
+3. Let smart defaults handle positions, dimensions, and colors
+4. Done! Use with `registry.create('bme280')`
+
+**Note:** All devices now use JSON configs exclusively. Legacy Python factory functions have been removed as of Phase 5 cleanup.
 
 ## Diagram Configuration File Structure
 
