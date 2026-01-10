@@ -1,0 +1,17 @@
+{
+  "id": "ssd1306",
+  "name": "SSD1306 OLED Display",
+  "category": "displays",
+  "description": "128x64 or 128x32 monochrome OLED display module with I2C interface",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"}
+  ],
+
+  "i2c_address": "0x3C",
+  "datasheet_url": "https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf",
+  "notes": "Common I2C addresses: 0x3C (default) or 0x3D. Resolution varies: 128x64 or 128x32 pixels."
+}

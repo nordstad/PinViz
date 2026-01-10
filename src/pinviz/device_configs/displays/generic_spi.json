@@ -1,0 +1,31 @@
+{
+  "id": "spi_device",
+  "name": "{name}",
+  "category": "generic",
+  "description": "Generic SPI device with standard pinout",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCLK", "role": "SPI_SCLK"},
+    {"name": "MOSI", "role": "SPI_MOSI"},
+    {"name": "MISO", "role": "SPI_MISO"},
+    {"name": "CS", "role": "SPI_CE0"}
+  ],
+
+  "parameters": {
+    "name": {
+      "type": "string",
+      "default": "SPI Device",
+      "description": "Device display name"
+    }
+  },
+
+  "display": {
+    "width": 75.0,
+    "height": 60.0,
+    "color": "#3498DB"
+  },
+
+  "datasheet_url": "https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#spi"
+}

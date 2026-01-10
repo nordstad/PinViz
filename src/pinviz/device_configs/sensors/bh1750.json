@@ -1,0 +1,18 @@
+{
+  "id": "bh1750",
+  "name": "BH1750 Light Sensor",
+  "category": "sensors",
+  "description": "BH1750 I2C ambient light sensor",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"},
+    {"name": "ADDR", "role": "GPIO", "optional": true}
+  ],
+
+  "i2c_address": "0x23",
+  "datasheet_url": "https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf",
+  "notes": "I2C address can be changed to 0x5C by setting ADDR pin high"
+}

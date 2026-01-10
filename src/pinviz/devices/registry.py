@@ -1,6 +1,6 @@
-"""Device registry for managing predefined device templates."""
+"""Device registry for managing device templates loaded from JSON configurations."""
 
-from collections.abc import Callable
+import json
 from dataclasses import dataclass
 from typing import Any
 
@@ -15,77 +15,101 @@ class DeviceTemplate:
     name: str
     description: str
     category: str
-    factory: Callable[..., Device]
-    parameters: dict[str, Any] | None = None
     url: str | None = None
     i2c_address: int | None = None  # Default I2C address (7-bit)
 
 
 class DeviceRegistry:
-    """Central registry for device templates."""
+    """Central registry for device templates loaded from JSON configurations."""
 
     def __init__(self):
         self._templates: dict[str, DeviceTemplate] = {}
+        self._scan_device_configs()
 
-    def register(
-        self,
-        type_id: str,
-        name: str,
-        description: str,
-        category: str,
-        factory: Callable[..., Device],
-        parameters: dict[str, Any] | None = None,
-        url: str | None = None,
-        i2c_address: int | None = None,
-    ) -> None:
-        """
-        Register a device template.
+    def _scan_device_configs(self) -> None:
+        """Scan device_configs directory and populate registry metadata."""
+        from .loader import _get_device_config_path
 
-        Args:
-            type_id: Unique identifier for the device type (used in YAML configs)
-            name: Human-readable device name
-            description: Brief description of the device
-            category: Device category (sensors, displays, leds, io, etc.)
-            factory: Factory function that creates the device
-            parameters: Optional dict describing factory parameters
-            url: Optional URL to device documentation or datasheet
-            i2c_address: Optional default I2C address (7-bit) for I2C devices
-        """
-        template = DeviceTemplate(
-            type_id=type_id,
-            name=name,
-            description=description,
-            category=category,
-            factory=factory,
-            parameters=parameters,
-            url=url,
-            i2c_address=i2c_address,
-        )
-        self._templates[type_id.lower()] = template
+        # Try to find device_configs directory
+        try:
+            # Get a path to any config to find the directory
+            test_path = _get_device_config_path("bh1750")
+            configs_dir = test_path.parent.parent
+        except FileNotFoundError:
+            # Can't find configs, skip scanning
+            return
+
+        # Scan all JSON files in all subdirectories
+        for json_file in configs_dir.rglob("*.json"):
+            try:
+                with open(json_file) as f:
+                    config = json.load(f)
+
+                # Extract metadata from JSON config
+                type_id = config.get("id", json_file.stem)
+                name = config.get("name", type_id)
+                description = config.get("description", "")
+                category = config.get("category", "generic")
+                url = config.get("datasheet_url")
+
+                # Parse I2C address if present
+                i2c_address = None
+                i2c_addr_str = config.get("i2c_address")
+                if i2c_addr_str:
+                    # Handle hex strings like "0x3C"
+                    i2c_address = int(i2c_addr_str, 16 if i2c_addr_str.startswith("0x") else 10)
+
+                # Store template metadata
+                template = DeviceTemplate(
+                    type_id=type_id,
+                    name=name,
+                    description=description,
+                    category=category,
+                    url=url,
+                    i2c_address=i2c_address,
+                )
+                self._templates[type_id.lower()] = template
+            except (json.JSONDecodeError, KeyError):
+                # Skip invalid JSON files
+                continue
 
     def get(self, type_id: str) -> DeviceTemplate | None:
-        """Get a device template by type ID."""
+        """Get device template metadata by type ID."""
         return self._templates.get(type_id.lower())
 
     def create(self, type_id: str, **kwargs: Any) -> Device:
         """
-        Create a device instance from a template.
+        Create a device instance from JSON configuration.
 
         Args:
-            type_id: Device type identifier
-            **kwargs: Parameters to pass to the factory function
+            type_id: Device type identifier (matches JSON config filename)
+            **kwargs: Parameters to pass to the config loader (e.g., color_name, num_leds)
 
         Returns:
-            Device instance
+            Device instance with metadata
 
         Raises:
-            ValueError: If device type is not registered
+            ValueError: If device config file not found
         """
-        template = self.get(type_id)
-        if not template:
-            raise ValueError(f"Unknown device type: {type_id}")
+        from .loader import load_device_from_config
 
-        return template.factory(**kwargs)
+        try:
+            device = load_device_from_config(type_id, **kwargs)
+
+            # Enrich device with metadata from registry
+            template = self.get(type_id)
+            if template:
+                device.type_id = template.type_id
+                device.description = template.description
+                device.url = template.url
+                device.category = template.category
+                device.i2c_address = template.i2c_address
+
+            return device
+        except FileNotFoundError:
+            raise ValueError(
+                f"Unknown device type: {type_id}. No JSON configuration found in device_configs/."
+            ) from None
 
     def list_all(self) -> list[DeviceTemplate]:
         """Get all registered device templates."""

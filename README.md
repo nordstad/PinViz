@@ -680,6 +680,55 @@ uv run mkdocs serve
 
 **[→ Full contributing guide](https://nordstad.github.io/PinViz/development/contributing/)**
 
+## ➕ Adding New Devices
+
+PinViz uses a JSON-based device configuration system with smart defaults. Creating a new device takes about 5 minutes:
+
+### Quick Example
+
+Create a JSON file in `src/pinviz/device_configs/{category}/`:
+
+```json
+{
+  "id": "bme280",
+  "name": "BME280 Environmental Sensor",
+  "category": "sensors",
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"}
+  ],
+  "i2c_address": "0x76",
+  "datasheet_url": "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf"
+}
+```
+
+**That's it!** No manual coordinates, no complex calculations - just list your pins.
+
+**Smart defaults automatically handle:**
+- Pin positions (vertical/horizontal layouts)
+- Device dimensions (auto-sized to fit pins)
+- Colors (category-based: sensors=turquoise, LEDs=red, etc.)
+- Wire colors (based on pin roles)
+
+**Available categories:** `sensors`, `displays`, `leds`, `actuators`, `io`, `generic`
+
+**See:** [plans/DEVICE_CONFIG_GUIDE.md](https://github.com/nordstad/PinViz/blob/main/plans/DEVICE_CONFIG_GUIDE.md) for detailed configuration options.
+
+### Using Custom Devices
+
+```python
+from pinviz.devices import get_registry
+
+# Create device from JSON config
+registry = get_registry()
+sensor = registry.create('bme280')  # Loads from device_configs/sensors/bme280.json
+
+# Use with parameters
+led = registry.create('led', color_name='Blue')
+```
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

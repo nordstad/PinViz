@@ -1,0 +1,32 @@
+{
+  "id": "ir_led_ring",
+  "name": "IR LED Ring ({num_leds})",
+  "category": "leds",
+  "description": "IR LED ring module with control pin",
+
+  "pins": [
+    {"name": "VCC", "role": "5V"},
+    {"name": "CTRL", "role": "GPIO"},
+    {"name": "GND", "role": "GND"}
+  ],
+
+  "parameters": {
+    "num_leds": {
+      "type": "integer",
+      "default": 12,
+      "description": "Number of LEDs in the ring"
+    }
+  },
+
+  "layout": {
+    "pin_spacing": 10.0,
+    "start_y": 15.0
+  },
+
+  "display": {
+    "width": 80.0,
+    "height": 50.0
+  },
+
+  "datasheet_url": "https://www.electrokit.com/led-ring-for-raspberry-pi-kamera-ir-leds"
+}
