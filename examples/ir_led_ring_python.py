@@ -1,16 +1,18 @@
 """Example: IR LED ring module wiring diagram (Pure Python API)."""
 
-from pinviz import Connection, Diagram, SVGRenderer, boards, devices
+from pinviz import Connection, Diagram, SVGRenderer, boards
+from pinviz.devices import get_registry
 
 # Create board and devices
 board = boards.raspberry_pi_5()
-led_ring = devices.ir_led_ring(num_leds=12)
+registry = get_registry()
+led_ring = registry.create("ir_led_ring", num_leds=12)
 
 # Define connections
 connections = [
-    Connection(2, "IR_LED_Ring", "VCC"),  # Pin 2 (5V) to VCC
-    Connection(9, "IR_LED_Ring", "GND"),  # Pin 9 (GND) to GND
-    Connection(11, "IR_LED_Ring", "CTRL"),  # Pin 11 (GPIO17) to control pin
+    Connection(2, "IR LED Ring (12)", "VCC"),  # Pin 2 (5V) to VCC
+    Connection(9, "IR LED Ring (12)", "GND"),  # Pin 9 (GND) to GND
+    Connection(11, "IR LED Ring (12)", "CTRL"),  # Pin 11 (GPIO17) to control pin
 ]
 
 # Create diagram
