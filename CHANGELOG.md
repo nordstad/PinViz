@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.8.0] - 2026-01-10
+
+### Added
+- Add Raspberry Pi 4 support and configuration enhancements (https://github.com/nordstad/PinViz/pull/52)
+- Fix missing wires in examples and add validation to example command (https://github.com/nordstad/PinViz/pull/53)
+
+### Changed
+- Migrate from svgwrite to drawsvg (https://github.com/nordstad/PinViz/pull/44)
+- Improve wire clarity with smooth Bezier routing and conflict prevention (https://github.com/nordstad/PinViz/pull/48)
+- Standardize board rendering and improve layout controls (https://github.com/nordstad/PinViz/pull/49)
+- Improve wire connections to device pins (https://github.com/nordstad/PinViz/pull/50)
+- Code quality improvements: test coverage, refactoring, and configuration (https://github.com/nordstad/PinViz/pull/51)
+- Streamline README and organize documentation guides (https://github.com/nordstad/PinViz/pull/54)
+
 ## [0.8.0] - 2026-01-10
 
 ### Added
@@ -312,7 +327,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md for AI assistant context
 - Example configurations and diagrams
 
-[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/nordstad/PinViz/compare/v0.8.0...v0.8.0
 [0.7.0]: https://github.com/nordstad/PinViz/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/nordstad/PinViz/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/nordstad/PinViz/compare/v0.5.1...v0.6.0
