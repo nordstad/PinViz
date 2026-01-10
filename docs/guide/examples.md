@@ -2,6 +2,18 @@
 
 Explore example diagrams and configurations to learn how to use PinViz.
 
+## 🎯 Feature Showcase
+
+Learn PinViz capabilities through these focused examples:
+
+| Feature | Example | What it demonstrates |
+|---------|---------|---------------------|
+| **I2C Sensors** | [BH1750](#bh1750-light-sensor) | Automatic I2C color coding, bus sharing |
+| **Inline Components** | [LED with Resistor](#led-with-resistor) | Resistors, capacitors, diodes on wires |
+| **Multiple Devices** | [Traffic Light](#traffic-light) | Parallel connections, multiple LEDs |
+| **Wire Routing** | [Multi-Device Setup](#multi-device-setup) | Custom wire colors, complex routing |
+| **Different Boards** | [Pi Zero 2 W](#raspberry-pi-zero-2-w) | Compact board layout |
+
 ## Quick Start with Built-in Examples
 
 The fastest way to try PinViz is using the built-in examples:
