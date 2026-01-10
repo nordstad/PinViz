@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-01-10
+
+### Added
+- **Raspberry Pi 4 Support** (https://github.com/nordstad/PinViz/pull/52)
+  - Complete support for Raspberry Pi 4 Model B with 40-pin GPIO header
+  - Board configuration JSON system for easy board addition
+  - Factory function `raspberry_pi_4()` with proper documentation
+  - Board name aliases: `raspberry_pi_4`, `rpi4`, `pi4`
+  - Comprehensive test suite with pinout validation
+  - All Pi boards share identical 40-pin GPIO pinout (Pi 2, 3, 4, 5, Zero 2 W)
+- **User-Facing Documentation Guides** (https://github.com/nordstad/PinViz/pull/54)
+  - Created `guides/` directory for user-facing guides
+  - `guides/ADDING_BOARDS.md` - Step-by-step board addition guide for maintainers
+  - `guides/DEVICE_CONFIG_GUIDE.md` - Device configuration reference
+  - Feature Showcase table in examples documentation linking capabilities to examples
+
+### Changed
+- **Streamlined README** (https://github.com/nordstad/PinViz/pull/54)
+  - Reduced README from 799 to 171 lines (78.6% smaller)
+  - Focus on visual impact: logo, demo GIF, example diagram
+  - Essential information only: installation, quick start, features
+  - All detailed documentation moved to mkdocs
+  - PyPI-compatible image formatting with HTML img tags
+- **Improved Wire Routing** (https://github.com/nordstad/PinViz/pull/53)
+  - Fixed missing wires in example diagrams
+  - Enhanced validation for example command
+  - Better wire connection handling to device pins
+- **Documentation Organization** (https://github.com/nordstad/PinViz/pull/54)
+  - Moved detailed configuration docs from README to mkdocs
+  - Updated all documentation links to reference proper locations
+  - Enhanced examples page with categorized feature showcase
+- **Asset Credits Update**
+  - Updated SVG asset credits to Wikimedia Commons (from FreeSVG.org)
+
+### Fixed
+- Wire connections to device pins properly aligned (https://github.com/nordstad/PinViz/pull/50)
+- Missing wires in example diagrams (https://github.com/nordstad/PinViz/pull/53)
+- Board rendering standardization across different board types (https://github.com/nordstad/PinViz/pull/49)
+
+### Improved
+- Code quality improvements with better test coverage (https://github.com/nordstad/PinViz/pull/51)
+- Refactoring for maintainability
+- Configuration file structure
+
 ## [0.7.0] - 2026-01-07
 
 ### Added
