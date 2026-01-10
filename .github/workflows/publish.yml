@@ -67,7 +67,7 @@ jobs:
           echo "[3/10] Testing board aliases..."
           cat > alias_test.yaml << 'EOF'
           title: "Alias Test"
-          board: "rpizero"
+          board: "rpi4"
           devices:
             - type: "led"
               name: "LED"
@@ -426,7 +426,7 @@ jobs:
           echo "[4/11] Testing board aliases..."
 
           # Test various board aliases
-          for alias in "rpi5" "rpi" "rpizero" "zero" "pizero"; do
+          for alias in "rpi5" "rpi4" "rpi" "pi4"; do
             cat > "test_alias_${alias}.yaml" << EOF
           title: "Alias Test: ${alias}"
           board: "${alias}"
@@ -604,9 +604,9 @@ jobs:
 
           # Test boards
           rpi5 = boards.raspberry_pi_5()
-          rpizero = boards.raspberry_pi_zero_2w()
+          rpi4 = boards.raspberry_pi_4()
           assert len(rpi5.pins) == 40, "Raspberry Pi 5 should have 40 pins"
-          assert len(rpizero.pins) == 40, "Pi Zero 2 W should have 40 pins"
+          assert len(rpi4.pins) == 40, "Raspberry Pi 4 should have 40 pins"
 
           # Test devices
           bh1750 = devices.bh1750_light_sensor()
