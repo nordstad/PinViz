@@ -23,7 +23,9 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 
 ## Example Diagram
 
-![BH1750 Light Sensor](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750.svg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750.svg" alt="BH1750 Light Sensor Wiring Diagram" width="600">
+</p>
 
 ## Features
 
