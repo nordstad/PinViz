@@ -152,8 +152,6 @@ PinViz includes an **MCP (Model Context Protocol) server** that enables natural 
 
 Contributions are welcome! Please see our [Contributing Guide](https://nordstad.github.io/PinViz/development/contributing/) for details.
 
-**Adding new boards:** See [guides/ADDING_BOARDS.md](guides/ADDING_BOARDS.md) for a step-by-step guide (~15-30 minutes for Raspberry Pi boards).
-
 **Adding new devices:** See [guides/DEVICE_CONFIG_GUIDE.md](guides/DEVICE_CONFIG_GUIDE.md) for device configuration details.
 
 ## License
