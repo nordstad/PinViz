@@ -160,7 +160,7 @@ MIT License - See [LICENSE](LICENSE) file for details
 
 ## Credits
 
-Board and GPIO pin SVG assets courtesy of [FreeSVG.org](https://freesvg.org/)
+Board and GPIO pin SVG assets courtesy of [Wikimedia Commons](https://commons.wikimedia.org/)
 
 ## Author
 
