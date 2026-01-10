@@ -1,12 +1,6 @@
 """Additional detailed tests for SVG rendering to improve coverage."""
 
-from pinviz.devices import (
-    bh1750_light_sensor,
-    button_switch,
-    ds18b20_temp_sensor,
-    generic_i2c_device,
-    simple_led,
-)
+from pinviz.devices import get_registry
 from pinviz.layout import LayoutConfig
 from pinviz.model import Component, ComponentType, Connection, Diagram, WireStyle
 from pinviz.render_svg import SVGRenderer
@@ -14,7 +8,7 @@ from pinviz.render_svg import SVGRenderer
 
 def test_render_with_inline_resistor(rpi5_board, temp_output_dir):
     """Test rendering diagram with inline resistor component."""
-    led = simple_led()
+    led = get_registry().create("led")
     resistor = Component(type=ComponentType.RESISTOR, value="220Ω", position=0.6)
 
     connections = [
@@ -40,7 +34,7 @@ def test_render_with_inline_resistor(rpi5_board, temp_output_dir):
 
 def test_render_with_capacitor_component(rpi5_board, temp_output_dir):
     """Test rendering diagram with capacitor component."""
-    device = generic_i2c_device("Sensor")
+    device = get_registry().create("i2c_device", name="Sensor")
     capacitor = Component(type=ComponentType.CAPACITOR, value="100µF", position=0.5)
 
     connections = [
@@ -66,7 +60,7 @@ def test_render_with_capacitor_component(rpi5_board, temp_output_dir):
 
 def test_render_with_diode_component(rpi5_board, temp_output_dir):
     """Test rendering diagram with diode component."""
-    device = generic_i2c_device("Module")
+    device = get_registry().create("i2c_device", name="Module")
     diode = Component(type=ComponentType.DIODE, value="1N4148", position=0.55)
 
     connections = [
@@ -161,7 +155,7 @@ def test_render_with_orthogonal_wire_style(rpi5_board, bh1750_device, temp_outpu
 
 def test_render_with_all_component_types(rpi5_board, temp_output_dir):
     """Test rendering with all component types."""
-    device = generic_i2c_device("Complex Module")
+    device = get_registry().create("i2c_device", name="Complex Module")
 
     resistor = Component(ComponentType.RESISTOR, "470Ω", 0.5)
     capacitor = Component(ComponentType.CAPACITOR, "10µF", 0.6)
@@ -194,11 +188,11 @@ def test_render_with_all_component_types(rpi5_board, temp_output_dir):
 def test_render_large_diagram(rpi5_board, temp_output_dir):
     """Test rendering a diagram with many devices."""
     devices = [
-        bh1750_light_sensor(),
-        ds18b20_temp_sensor(),
-        simple_led("Red"),
-        simple_led("Green"),
-        button_switch(),
+        get_registry().create("bh1750"),
+        get_registry().create("ds18b20"),
+        get_registry().create("led", color_name="Red"),
+        get_registry().create("led", color_name="Green"),
+        get_registry().create("button"),
     ]
 
     connections = [
@@ -232,7 +226,9 @@ def test_render_large_diagram(rpi5_board, temp_output_dir):
 
 def test_render_with_very_long_device_names(rpi5_board, temp_output_dir):
     """Test rendering with long device names."""
-    device = generic_i2c_device("Very Long Device Name That Should Be Handled Properly")
+    device = get_registry().create(
+        "i2c_device", name="Very Long Device Name That Should Be Handled Properly"
+    )
 
     connections = [
         Connection(1, device.name, "VCC"),

@@ -506,11 +506,12 @@ def list_command() -> int:
 def create_bh1750_example():
     """Create BH1750 example diagram."""
     from . import boards
-    from .devices import bh1750_light_sensor
+    from .devices import get_registry
     from .model import Connection, Diagram
 
     board = boards.raspberry_pi_5()
-    sensor = bh1750_light_sensor()
+    registry = get_registry()
+    sensor = registry.create("bh1750")
 
     connections = [
         Connection(1, "BH1750", "VCC"),  # 3V3 to VCC
@@ -530,11 +531,12 @@ def create_bh1750_example():
 def create_ir_led_example() -> Diagram:
     """Create IR LED ring example diagram."""
     from . import boards
-    from .devices import ir_led_ring
+    from .devices import get_registry
     from .model import Connection, Diagram
 
     board = boards.raspberry_pi_5()
-    ir_led = ir_led_ring(12)
+    registry = get_registry()
+    ir_led = registry.create("ir_led_ring", num_leds=12)
 
     connections = [
         Connection(2, "IR LED Ring (12)", "VCC"),  # 5V to VCC
@@ -553,14 +555,15 @@ def create_ir_led_example() -> Diagram:
 def create_i2c_spi_example():
     """Create example with multiple I2C and SPI devices."""
     from . import boards
-    from .devices import bh1750_light_sensor, generic_spi_device, simple_led
+    from .devices import get_registry
     from .model import Connection, Diagram
 
     board = boards.raspberry_pi_5()
+    registry = get_registry()
 
-    bh1750 = bh1750_light_sensor()
-    spi_device = generic_spi_device("OLED Display")
-    led = simple_led("Red")
+    bh1750 = registry.create("bh1750")
+    spi_device = registry.create("spi_device", name="OLED Display")
+    led = registry.create("led", color_name="Red")
 
     connections = [
         # BH1750 I2C sensor

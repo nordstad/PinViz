@@ -426,16 +426,16 @@ devices:
   - type: bh1750
 connections:
   - board_pin: 1
-    device: BH1750
+    device: BH1750 Light Sensor
     device_pin: VCC
   - board_pin: 6
-    device: BH1750
+    device: BH1750 Light Sensor
     device_pin: GND
   - board_pin: 3
-    device: BH1750
+    device: BH1750 Light Sensor
     device_pin: SDA
   - board_pin: 5
-    device: BH1750
+    device: BH1750 Light Sensor
     device_pin: SCL
 """
         )

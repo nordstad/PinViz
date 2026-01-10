@@ -307,6 +307,10 @@ class Device:
         position: Device position in canvas (automatically calculated by layout engine)
         color: Device box fill color as hex code (default: "#4A90E2" blue)
         type_id: Optional device template type ID (for registry lookup)
+        description: Optional device description
+        url: Optional URL to device documentation or datasheet
+        category: Optional device category (sensors, displays, leds, etc.)
+        i2c_address: Optional default I2C address (7-bit integer)
     """
 
     name: str  # Display name (e.g., "BH1750 Light Sensor")
@@ -316,6 +320,12 @@ class Device:
     position: Point = field(default_factory=lambda: Point(0, 0))  # Set by layout engine
     color: str = "#4A90E2"  # Device box color
     type_id: str | None = None  # Optional device template type ID
+
+    # Optional metadata fields (populated from registry or config)
+    description: str | None = None
+    url: str | None = None
+    category: str | None = None
+    i2c_address: int | None = None
 
     def get_pin_by_name(self, name: str) -> DevicePin | None:
         """

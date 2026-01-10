@@ -96,7 +96,7 @@ def test_load_with_predefined_device():
     diagram = loader.load_from_dict(config)
 
     assert len(diagram.devices) == 1
-    assert diagram.devices[0].name == "BH1750"
+    assert diagram.devices[0].name == "BH1750 Light Sensor"
 
 
 def test_load_with_device_name_override():

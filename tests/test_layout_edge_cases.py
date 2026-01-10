@@ -9,7 +9,8 @@ This module tests the layout engine with extreme cases including:
 
 import time
 
-from pinviz import boards, devices
+from pinviz import boards
+from pinviz.devices import get_registry
 from pinviz.layout import LayoutEngine
 from pinviz.model import Connection, Device, DevicePin, Diagram, Point, WireStyle
 
@@ -125,11 +126,11 @@ class TestWireOverlapScenarios:
         board = boards.raspberry_pi_5()
 
         # Create 3 devices
-        device1 = devices.bh1750_light_sensor()
+        device1 = get_registry().create("bh1750")
         device1.name = "Sensor1"
-        device2 = devices.bh1750_light_sensor()
+        device2 = get_registry().create("bh1750")
         device2.name = "Sensor2"
-        device3 = devices.bh1750_light_sensor()
+        device3 = get_registry().create("bh1750")
         device3.name = "Sensor3"
 
         # All connect VCC to pin 1 (should create parallel wires with offset)
@@ -169,7 +170,7 @@ class TestWireOverlapScenarios:
         # Create 10 LED devices
         test_devices = []
         for i in range(10):
-            led = devices.simple_led()
+            led = get_registry().create("led")
             led.name = f"LED{i}"
             test_devices.append(led)
 
@@ -207,13 +208,13 @@ class TestWireStyleDifferences:
     def _create_test_diagram_for_styles(self, style: WireStyle) -> Diagram:
         """Helper to create a diagram with specified wire style."""
         board = boards.raspberry_pi_5()
-        device = devices.bh1750_light_sensor()
+        device = get_registry().create("bh1750")
 
         connections = [
-            Connection(1, "BH1750", "VCC", style=style),
-            Connection(3, "BH1750", "SDA", style=style),
-            Connection(5, "BH1750", "SCL", style=style),
-            Connection(6, "BH1750", "GND", style=style),
+            Connection(1, "BH1750 Light Sensor", "VCC", style=style),
+            Connection(3, "BH1750 Light Sensor", "SDA", style=style),
+            Connection(5, "BH1750 Light Sensor", "SCL", style=style),
+            Connection(6, "BH1750 Light Sensor", "GND", style=style),
         ]
 
         return Diagram(
@@ -275,13 +276,13 @@ class TestWireStyleDifferences:
     def test_different_styles_in_same_diagram(self):
         """Test diagram with different wire styles for different connections."""
         board = boards.raspberry_pi_5()
-        device = devices.bh1750_light_sensor()
+        device = get_registry().create("bh1750")
 
         connections = [
-            Connection(1, "BH1750", "VCC", style=WireStyle.ORTHOGONAL),
-            Connection(3, "BH1750", "SDA", style=WireStyle.CURVED),
-            Connection(5, "BH1750", "SCL", style=WireStyle.MIXED),
-            Connection(6, "BH1750", "GND", style=WireStyle.ORTHOGONAL),
+            Connection(1, "BH1750 Light Sensor", "VCC", style=WireStyle.ORTHOGONAL),
+            Connection(3, "BH1750 Light Sensor", "SDA", style=WireStyle.CURVED),
+            Connection(5, "BH1750 Light Sensor", "SCL", style=WireStyle.MIXED),
+            Connection(6, "BH1750 Light Sensor", "GND", style=WireStyle.ORTHOGONAL),
         ]
 
         diagram = Diagram(
@@ -308,13 +309,13 @@ class TestLayoutPerformance:
     def test_layout_performance_small_diagram(self):
         """Test layout performance with small diagram."""
         board = boards.raspberry_pi_5()
-        device = devices.bh1750_light_sensor()
+        device = get_registry().create("bh1750")
 
         connections = [
-            Connection(1, "BH1750", "VCC"),
-            Connection(3, "BH1750", "SDA"),
-            Connection(5, "BH1750", "SCL"),
-            Connection(6, "BH1750", "GND"),
+            Connection(1, "BH1750 Light Sensor", "VCC"),
+            Connection(3, "BH1750 Light Sensor", "SDA"),
+            Connection(5, "BH1750 Light Sensor", "SCL"),
+            Connection(6, "BH1750 Light Sensor", "GND"),
         ]
 
         diagram = Diagram(
@@ -401,7 +402,7 @@ class TestLayoutEdgeCases:
     def test_single_connection(self):
         """Test layout with just one connection."""
         board = boards.raspberry_pi_5()
-        led = devices.simple_led()
+        led = get_registry().create("led")
         led.name = "LED"
 
         connections = [Connection(11, "LED", "+")]
@@ -423,7 +424,7 @@ class TestLayoutEdgeCases:
     def test_no_connections(self):
         """Test layout with devices but no connections."""
         board = boards.raspberry_pi_5()
-        device = devices.bh1750_light_sensor()
+        device = get_registry().create("bh1750")
 
         diagram = Diagram(
             title="No Connections",

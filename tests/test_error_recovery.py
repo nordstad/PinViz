@@ -12,8 +12,9 @@ import os
 
 import pytest
 
-from pinviz import boards, devices
+from pinviz import boards
 from pinviz.config_loader import ConfigLoader
+from pinviz.devices import get_registry
 from pinviz.model import Connection, Diagram
 from pinviz.render_svg import SVGRenderer
 
@@ -174,7 +175,7 @@ class TestDiskAndPermissionErrors:
     def test_render_to_readonly_directory(self, temp_output_dir):
         """Test rendering to a read-only directory."""
         board = boards.raspberry_pi_5()
-        led = devices.simple_led()
+        led = get_registry().create("led")
         connections = [Connection(11, "LED", "Anode")]
 
         diagram = Diagram(
@@ -202,7 +203,7 @@ class TestDiskAndPermissionErrors:
     def test_render_to_nonexistent_directory(self, temp_output_dir):
         """Test rendering to a directory that doesn't exist."""
         board = boards.raspberry_pi_5()
-        led = devices.simple_led()
+        led = get_registry().create("led")
         connections = [Connection(11, "LED", "Anode")]
 
         diagram = Diagram(
@@ -249,7 +250,7 @@ class TestInvalidFilePaths:
     def test_render_to_invalid_filename(self, temp_output_dir):
         """Test rendering to filename with invalid characters."""
         board = boards.raspberry_pi_5()
-        led = devices.simple_led()
+        led = get_registry().create("led")
         connections = [Connection(11, "LED", "Anode")]
 
         diagram = Diagram(

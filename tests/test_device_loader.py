@@ -46,7 +46,7 @@ def test_load_bh1750_pins():
 
 def test_load_led_from_config_default():
     """Test loading simple LED with default parameters."""
-    device = load_device_from_config("simple_led")
+    device = load_device_from_config("led")
 
     assert device is not None
     assert device.name == "Red LED"  # Default color
@@ -57,7 +57,7 @@ def test_load_led_from_config_default():
 
 def test_load_led_from_config_custom_color():
     """Test loading simple LED with custom color parameter."""
-    device = load_device_from_config("simple_led", color_name="Blue")
+    device = load_device_from_config("led", color_name="Blue")
 
     assert device is not None
     assert device.name == "Blue LED"
@@ -74,27 +74,25 @@ def test_registry_loads_json_device():
     """Test that registry can load devices from JSON configs."""
     registry = get_registry()
 
-    # NOTE: BH1750 is still registered as Python factory in sensors.py during prototype phase.
-    # Registry uses Python factory first (backward compat), then falls back to JSON.
-    # When we complete migration, we'll remove Python registration and this test will use JSON.
+    # All devices now loaded from JSON configs only
     device = registry.create("bh1750")
 
     assert device is not None
-    # Name comes from Python factory, but metadata enriched from registry
-    assert device.name == "BH1750"
+    # Name comes from JSON config
+    assert device.name == "BH1750 Light Sensor"
     assert device.description is not None
     assert device.url is not None
 
 
 def test_registry_loads_python_device_with_metadata():
-    """Test that registry enriches Python-based devices with metadata."""
+    """Test that registry loads devices with full metadata from JSON."""
     registry = get_registry()
 
-    # DS18B20 is registered via Python factory
+    # DS18B20 is loaded from JSON config
     device = registry.create("ds18b20")
 
     assert device is not None
-    assert device.name == "DS18B20"
+    assert device.name == "DS18B20 Temperature Sensor"
     # Metadata should be enriched from registry
     assert device.type_id == "ds18b20"
     assert device.description is not None
@@ -103,10 +101,10 @@ def test_registry_loads_python_device_with_metadata():
 
 
 def test_registry_fallback_to_json():
-    """Test that registry falls back to JSON when Python factory not found."""
+    """Test that registry loads parameterized devices from JSON."""
     registry = get_registry()
 
-    # LED can be loaded from JSON (it's not registered yet in prototype)
+    # LED loaded from JSON with parameter substitution
     device = registry.create("led", color_name="Green")
 
     assert device is not None

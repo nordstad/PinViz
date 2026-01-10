@@ -6,12 +6,7 @@ from pathlib import Path
 import pytest
 
 from pinviz import boards
-from pinviz.devices import (
-    bh1750_light_sensor,
-    button_switch,
-    generic_i2c_device,
-    simple_led,
-)
+from pinviz.devices import get_registry
 from pinviz.model import (
     Board,
     Connection,
@@ -174,22 +169,26 @@ def rpi5_board():
 @pytest.fixture
 def bh1750_device():
     """Get the BH1750 light sensor device."""
-    return bh1750_light_sensor()
+    registry = get_registry()
+    return registry.create("bh1750")
 
 
 @pytest.fixture
 def led_device():
     """Get a simple LED device."""
-    return simple_led()
+    registry = get_registry()
+    return registry.create("led")
 
 
 @pytest.fixture
 def button_device():
     """Get a button device."""
-    return button_switch()
+    registry = get_registry()
+    return registry.create("button")
 
 
 @pytest.fixture
 def generic_i2c_device_fixture():
     """Get a generic I2C device."""
-    return generic_i2c_device()
+    registry = get_registry()
+    return registry.create("i2c_device", name="Generic I2C")

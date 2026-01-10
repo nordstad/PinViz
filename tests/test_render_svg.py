@@ -3,7 +3,7 @@
 import xml.etree.ElementTree as ET
 
 from pinviz import boards
-from pinviz.devices import bh1750_light_sensor, generic_spi_device, simple_led
+from pinviz.devices import get_registry
 from pinviz.layout import LayoutConfig
 from pinviz.model import Connection, Diagram
 from pinviz.render_svg import SVGRenderer
@@ -224,8 +224,9 @@ def test_render_with_custom_device_spacing(temp_output_dir):
     renderer = SVGRenderer(config)
 
     board = boards.raspberry_pi_5()
-    sensor = bh1750_light_sensor()
-    led = simple_led()
+    registry = get_registry()
+    sensor = registry.create("bh1750")
+    led = registry.create("led")
 
     connections = [
         Connection(1, "BH1750", "VCC"),
@@ -291,7 +292,8 @@ def test_render_handles_missing_board_asset(sample_diagram, temp_output_dir):
 def test_render_bh1750_example(temp_output_dir):
     """Test rendering the BH1750 example diagram."""
     board = boards.raspberry_pi_5()
-    sensor = bh1750_light_sensor()
+    registry = get_registry()
+    sensor = registry.create("bh1750")
 
     connections = [
         Connection(1, "BH1750", "VCC"),
@@ -320,9 +322,10 @@ def test_render_bh1750_example(temp_output_dir):
 def test_render_multi_device_example(temp_output_dir):
     """Test rendering a complex multi-device example."""
     board = boards.raspberry_pi_5()
-    sensor = bh1750_light_sensor()
-    spi = generic_spi_device("Display")
-    led = simple_led("Status")
+    registry = get_registry()
+    sensor = registry.create("bh1750")
+    spi = registry.create("spi_device", name="Display")
+    led = registry.create("led", color_name="Status")
 
     connections = [
         # I2C sensor
