@@ -1,0 +1,15 @@
+{
+  "id": "pir",
+  "name": "PIR Motion Sensor",
+  "category": "sensors",
+  "description": "Passive infrared motion detection sensor (HC-SR501)",
+
+  "pins": [
+    {"name": "VCC", "role": "5V"},
+    {"name": "OUT", "role": "GPIO"},
+    {"name": "GND", "role": "GND"}
+  ],
+
+  "datasheet_url": "https://www.mpja.com/download/31227sc.pdf",
+  "notes": "HC-SR501 PIR sensor. Detection range: up to 7 meters. Detection angle: 120 degrees. Has adjustable sensitivity and trigger time. Output is 3.3V compatible despite 5V power requirement"
+}

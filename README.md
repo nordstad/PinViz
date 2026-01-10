@@ -482,7 +482,11 @@ Currently supported boards:
 
 **Sensors:**
 - `bh1750` - BH1750 I2C ambient light sensor ([datasheet](https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf))
+- `bme280` - BME280 environmental sensor (I2C) - temperature, humidity, pressure ([datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf))
+- `dht22` - DHT22 digital temperature/humidity sensor ([datasheet](https://www.sparkfun.com/datasheets/Sensors/Temperature/DHT22.pdf))
 - `ds18b20` - DS18B20 waterproof 1-Wire temperature sensor ([datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/DS18B20.pdf))
+- `hcsr04` - HC-SR04 ultrasonic distance sensor (2cm-400cm range) ([datasheet](https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf))
+- `pir` - PIR motion sensor (HC-SR501) - passive infrared detection ([datasheet](https://www.mpja.com/download/31227sc.pdf))
 
 **LEDs:**
 - `led` - Simple LED with anode/cathode pins ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header))
@@ -490,6 +494,7 @@ Currently supported boards:
 
 **I/O:**
 - `button` - Push button or switch with pull-up/pull-down configuration ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header))
+- `mcp3008` - MCP3008 8-channel 10-bit ADC with SPI interface ([datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/21295d.pdf))
 
 **Generic:**
 - `i2c_device` - Generic I2C device with standard pinout ([docs](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#i2c))

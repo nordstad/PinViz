@@ -1,0 +1,17 @@
+{
+  "id": "bme280",
+  "name": "BME280 Environmental Sensor",
+  "category": "sensors",
+  "description": "Precision sensor for pressure, temperature and humidity",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"}
+  ],
+
+  "i2c_address": "0x76",
+  "datasheet_url": "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf",
+  "notes": "Default I2C address is 0x76, can be changed to 0x77. Measures temperature (-40 to +85°C), humidity (0-100%), and pressure (300-1100 hPa)"
+}

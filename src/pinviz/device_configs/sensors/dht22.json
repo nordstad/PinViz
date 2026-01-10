@@ -1,0 +1,15 @@
+{
+  "id": "dht22",
+  "name": "DHT22 Temperature/Humidity Sensor",
+  "category": "sensors",
+  "description": "Digital temperature and humidity sensor (AM2302)",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "DATA", "role": "GPIO"},
+    {"name": "GND", "role": "GND"}
+  ],
+
+  "datasheet_url": "https://www.sparkfun.com/datasheets/Sensors/Temperature/DHT22.pdf",
+  "notes": "Requires 4.7-10kΩ pull-up resistor on DATA pin. Measures temperature (-40 to +80°C) and humidity (0-100%). Sample rate: once every 2 seconds"
+}

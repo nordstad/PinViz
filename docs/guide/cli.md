@@ -208,6 +208,61 @@ Usage:
 - `io` - Buttons, switches, relays (color: gray)
 - `other` - Custom devices
 
+### Validate Device Configurations
+
+Validate all device configuration files in the library:
+
+```bash
+pinviz validate-devices [--strict]
+```
+
+**Arguments:**
+
+- `--strict` - Treat warnings as errors (exits with code 1)
+
+**Examples:**
+
+```bash
+# Validate all device configurations
+pinviz validate-devices
+
+# Strict mode - warnings cause failure (useful for CI/CD)
+pinviz validate-devices --strict
+```
+
+**Validation checks:**
+
+- **Schema validation**: Ensures all required fields are present
+- **Pin configuration**: Validates pin names, roles, and layout parameters
+- **I2C address format**: Checks I2C address syntax (0xXX format)
+- **Parameter definitions**: Validates parameter types and defaults
+- **Duplicate device IDs**: Ensures no duplicate device identifiers
+
+**Example output:**
+
+```
+Validating device configurations...
+
+✓ Validated 13 device configuration files
+✓ No errors found
+⚠ 1 warning
+
+Warnings:
+  src/pinviz/device_configs/leds/ir_led_ring.json: No datasheet URL provided
+
+Summary:
+  Total files: 13
+  Valid files: 13
+  Errors: 0
+  Warnings: 1
+```
+
+This command is useful for:
+
+- **Contributors**: Validate your device configuration before submitting a PR
+- **CI/CD pipelines**: Add `--strict` mode to fail builds on validation issues
+- **Maintenance**: Quickly check all device configs after schema changes
+
 ## Global Options
 
 - `--help` - Show help message and exit

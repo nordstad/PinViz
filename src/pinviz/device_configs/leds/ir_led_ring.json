@@ -12,7 +12,7 @@
 
   "parameters": {
     "num_leds": {
-      "type": "integer",
+      "type": "int",
       "default": 12,
       "description": "Number of LEDs in the ring"
     }

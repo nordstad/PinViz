@@ -60,6 +60,7 @@ def main() -> int:
             "  pinviz example bh1750                          # Use a built-in example",
             "  pinviz list                                     # List available templates",
             "  pinviz add-device                              # Create a new device interactively",
+            "  pinviz validate-devices                        # Validate all device configs",
             "",
             "For more information, visit: https://github.com/nordstad/PinViz",
         ]
@@ -191,6 +192,18 @@ def main() -> int:
         description="Launch an interactive wizard to create a new device configuration file",
     )
 
+    # Validate-devices command
+    validate_devices_parser = subparsers.add_parser(
+        "validate-devices",
+        help="Validate all device configuration files",
+        description="Check all device JSON files for errors and common issues",
+    )
+    validate_devices_parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Treat warnings as errors (exit with error code if warnings found)",
+    )
+
     args = parser.parse_args()
 
     # Configure logging based on CLI arguments
@@ -210,6 +223,8 @@ def main() -> int:
         return list_command()
     elif args.command == "add-device":
         return add_device_command()
+    elif args.command == "validate-devices":
+        return validate_devices_command(args)
     else:
         parser.print_help()
         return 1
@@ -531,6 +546,79 @@ def add_device_command() -> int:
     except Exception as e:
         log.exception("device_wizard_error", error_type=type(e).__name__, error_message=str(e))
         print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
+def validate_devices_command(args: Any) -> int:
+    """Validate all device configuration files."""
+    log = get_logger(__name__)
+    from .device_validator import validate_devices
+
+    log.info("device_validation_started", strict_mode=args.strict)
+    print("Validating device configurations...")
+    print()
+
+    try:
+        result = validate_devices()
+
+        log.debug(
+            "validation_completed",
+            total_files=result.total_files,
+            valid_files=result.valid_files,
+            errors=result.error_count,
+            warnings=result.warning_count,
+        )
+
+        # Display errors
+        if result.errors:
+            print("Errors:")
+            for error in result.errors:
+                print(f"  {error}")
+            print()
+
+        # Display warnings
+        if result.warnings:
+            print("Warnings:")
+            for warning in result.warnings:
+                print(f"  {warning}")
+            print()
+
+        # Summary
+        print(f"Scanned {result.total_files} device configuration files")
+        print(f"Valid: {result.valid_files}")
+
+        if result.error_count > 0:
+            print(f"Errors: {result.error_count}")
+        if result.warning_count > 0:
+            print(f"Warnings: {result.warning_count}")
+
+        # Exit codes
+        if result.has_errors:
+            log.error("validation_failed", error_count=result.error_count)
+            print("\n❌ Validation failed with errors")
+            return 1
+
+        if result.has_warnings and args.strict:
+            log.warning("strict_mode_warnings_as_errors", warning_count=result.warning_count)
+            print("\n❌ Validation failed: warnings in strict mode")
+            return 1
+
+        if result.has_warnings:
+            log.info("validation_completed_with_warnings", warning_count=result.warning_count)
+            print("\n⚠️  Validation completed with warnings")
+            return 0
+
+        log.info("validation_passed")
+        print("\n✓ All device configurations are valid!")
+        return 0
+
+    except Exception as e:
+        log.exception(
+            "validation_error",
+            error_type=type(e).__name__,
+            error_message=str(e),
+        )
+        print(f"Error during validation: {e}", file=sys.stderr)
         return 1
 
 

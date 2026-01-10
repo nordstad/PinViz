@@ -1,0 +1,16 @@
+{
+  "id": "hcsr04",
+  "name": "HC-SR04 Ultrasonic Distance Sensor",
+  "category": "sensors",
+  "description": "Ultrasonic distance sensor with 2cm-400cm range",
+
+  "pins": [
+    {"name": "VCC", "role": "5V"},
+    {"name": "TRIG", "role": "GPIO"},
+    {"name": "ECHO", "role": "GPIO"},
+    {"name": "GND", "role": "GND"}
+  ],
+
+  "datasheet_url": "https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf",
+  "notes": "ECHO pin outputs 5V signal - use voltage divider (1kΩ + 2kΩ resistors) to step down to 3.3V before connecting to Pi GPIO. Measuring range: 2cm-400cm. Measuring angle: 15 degrees"
+}

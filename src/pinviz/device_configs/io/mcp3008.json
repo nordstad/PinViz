@@ -1,0 +1,20 @@
+{
+  "id": "mcp3008",
+  "name": "MCP3008 8-Channel ADC",
+  "category": "io",
+  "description": "8-channel 10-bit analog-to-digital converter with SPI interface",
+
+  "pins": [
+    {"name": "VDD", "role": "3V3"},
+    {"name": "VREF", "role": "3V3"},
+    {"name": "AGND", "role": "GND"},
+    {"name": "CLK", "role": "SPI_SCLK"},
+    {"name": "DOUT", "role": "SPI_MISO"},
+    {"name": "DIN", "role": "SPI_MOSI"},
+    {"name": "CS", "role": "SPI_CE0"},
+    {"name": "DGND", "role": "GND"}
+  ],
+
+  "datasheet_url": "https://ww1.microchip.com/downloads/en/DeviceDoc/21295d.pdf",
+  "notes": "10-bit resolution ADC (0-1023 values). 8 analog input channels (CH0-CH7). Max sample rate: 200 ksps. Use VREF to set voltage reference (typically 3.3V)"
+}
