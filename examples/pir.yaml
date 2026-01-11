@@ -12,4 +12,3 @@ connections:
   - board_pin: 7   # GPIO 4
     device: "PIR Motion Sensor"
     device_pin: "OUT"
-show_legend: true

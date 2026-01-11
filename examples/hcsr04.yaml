@@ -15,4 +15,3 @@ connections:
   - board_pin: 13  # GPIO 27
     device: "HC-SR04 Ultrasonic Distance Sensor"
     device_pin: "ECHO"
-show_legend: true

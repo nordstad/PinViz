@@ -28,4 +28,3 @@ connections:
     device_pin: "SCL"
     color: "#2196F3"  # Blue
 
-show_legend: true

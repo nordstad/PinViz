@@ -253,7 +253,7 @@ def test_diagram_creation(sample_diagram):
     assert sample_diagram.board.name == "Test Board"
     assert len(sample_diagram.devices) == 1
     assert len(sample_diagram.connections) == 4
-    assert sample_diagram.show_legend is True
+    assert sample_diagram.show_legend is False
 
 
 def test_diagram_default_values(sample_board, sample_device):
@@ -264,7 +264,7 @@ def test_diagram_default_values(sample_board, sample_device):
         devices=[sample_device],
         connections=[],
     )
-    assert diagram.show_legend is True
+    assert diagram.show_legend is False
     assert diagram.show_gpio_diagram is False
     assert diagram.canvas_width == 800.0
     assert diagram.canvas_height == 600.0

@@ -209,7 +209,7 @@ class TestConnectionBuilder:
         assert diagram.board.name == "Raspberry Pi 5"
         assert len(diagram.devices) == 1
         assert len(diagram.connections) == 2
-        assert diagram.show_legend is True
+        assert diagram.show_legend is False
 
     def test_convenience_function(self):
         """Test the convenience function."""

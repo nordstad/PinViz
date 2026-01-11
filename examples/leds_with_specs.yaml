@@ -1,0 +1,62 @@
+title: "Multi-LED Circuit with Specifications"
+board: "raspberry_pi_5"
+
+devices:
+  - type: "led"
+    name: "Red LED"
+    description: "Kingbright WP7113ID, 5mm, Vf: 2.0V, If: 20mA, 625nm"
+    color: "Red"
+
+  - type: "led"
+    name: "Blue LED"
+    description: "Lite-On LTL-4221N, 3mm, Vf: 3.2V, If: 20mA, 470nm"
+    color: "Blue"
+
+  - type: "led"
+    name: "Green LED"
+    description: "Kingbright WP7113SGC, 5mm, Vf: 2.2V, If: 20mA, 525nm"
+    color: "Green"
+
+connections:
+  # Red LED (GPIO17)
+  - board_pin: 11
+    device: "Red LED"
+    device_pin: "+"
+    color: "#FF0000"
+    components:
+      - type: "resistor"
+        value: "150Ω"
+
+  - board_pin: 9
+    device: "Red LED"
+    device_pin: "-"
+    color: "#000000"
+
+  # Blue LED (GPIO27)
+  - board_pin: 13
+    device: "Blue LED"
+    device_pin: "+"
+    color: "#0000FF"
+    components:
+      - type: "resistor"
+        value: "100Ω"
+
+  - board_pin: 14
+    device: "Blue LED"
+    device_pin: "-"
+    color: "#000000"
+
+  # Green LED (GPIO22)
+  - board_pin: 15
+    device: "Green LED"
+    device_pin: "+"
+    color: "#00FF00"
+    components:
+      - type: "resistor"
+        value: "150Ω"
+
+  - board_pin: 20
+    device: "Green LED"
+    device_pin: "-"
+    color: "#000000"
+

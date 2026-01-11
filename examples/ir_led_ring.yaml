@@ -20,4 +20,3 @@ connections:
     device: "IR_LED_Ring"
     device_pin: "CTRL"
 
-show_legend: true

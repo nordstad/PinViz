@@ -1,10 +1,10 @@
-title: "Raspberry Pi 4 - BH1750 Light Sensor (I2C)"
-
-board: "rpi4"
+title: "BH1750 Light Sensor with Specifications"
+board: "raspberry_pi_5"
 
 devices:
   - type: "bh1750"
     name: "BH1750"
+    description: "I2C: 0x23, 16-bit, 1-65535 lux"
 
 connections:
   - board_pin: 1    # 3V3

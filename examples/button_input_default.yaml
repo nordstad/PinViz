@@ -19,4 +19,3 @@ connections:
     device_pin: "GND"
     color: "#000000"  # Black
 
-show_legend: true

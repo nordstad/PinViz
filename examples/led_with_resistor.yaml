@@ -21,4 +21,3 @@ connections:
     device_pin: "-"
     color: "#000000"  # Black wire
 
-show_legend: true

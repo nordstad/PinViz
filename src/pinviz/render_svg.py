@@ -164,7 +164,9 @@ class SVGRenderer:
         for device in diagram.devices:
             self.component_renderer.draw_device_pins(dwg, device)
 
-        # Legend removed per user request - cleaner diagram
+        # Draw device specifications table if legend is enabled
+        if diagram.show_legend:
+            self._draw_device_specs_table(dwg, diagram)
 
         # Save
         log.debug("saving_svg", output_path=str(output_path))
@@ -564,6 +566,186 @@ class SVGRenderer:
             result["opacity"] = attribs["opacity"]
 
         return result
+
+    def _wrap_text(self, text: str, max_width: float, font_size: float) -> list[str]:
+        """
+        Wrap text to fit within max_width.
+
+        Uses character-width estimation to break text into multiple lines.
+
+        Args:
+            text: Text to wrap
+            max_width: Maximum width in pixels
+            font_size: Font size in points
+
+        Returns:
+            List of text lines that fit within max_width
+        """
+        # Approximate character width (varies by font, ~0.55 of font size for Arial)
+        char_width = font_size * 0.55
+        max_chars = int(max_width / char_width)
+
+        if len(text) <= max_chars:
+            return [text]
+
+        # Simple word-based wrapping
+        words = text.split()
+        lines = []
+        current_line = []
+        current_length = 0
+
+        for word in words:
+            word_length = len(word) + (1 if current_line else 0)  # +1 for space
+            if current_length + word_length <= max_chars:
+                current_line.append(word)
+                current_length += word_length
+            else:
+                if current_line:
+                    lines.append(" ".join(current_line))
+                current_line = [word]
+                current_length = len(word)
+
+        if current_line:
+            lines.append(" ".join(current_line))
+
+        return lines if lines else [text]
+
+    def _draw_device_specs_table(self, dwg: draw.Drawing, diagram: Diagram) -> None:
+        """
+        Draw a device specifications table below the diagram.
+
+        Only draws if at least one device has a description.
+
+        Args:
+            dwg: The SVG drawing object
+            diagram: The diagram containing devices
+        """
+        # Filter devices that have descriptions
+        devices_with_specs = [d for d in diagram.devices if d.description]
+        if not devices_with_specs:
+            return
+
+        # Table positioning - below the board
+        table_x = self.layout_config.board_margin_left
+        # Position below board + board name text (if shown)
+        board_bottom = self.layout_config.board_margin_top + diagram.board.height
+        table_y = board_bottom + (40 if diagram.show_board_name else 20)
+
+        # Calculate table width to align with rightmost device
+        # Find the rightmost device edge
+        max_device_x = max(d.position.x + d.width for d in diagram.devices)
+        table_width = max_device_x - table_x
+
+        # Table styling parameters
+        base_row_height = 30
+        line_spacing = 12
+        header_height = 35
+        padding_left = 10
+        padding_right = 10
+        name_column_width = 110  # Reduced from ~140-180
+        desc_column_start = table_x + padding_left + name_column_width
+
+        # Pre-calculate row heights for multi-line descriptions
+        desc_max_width = table_width - name_column_width - padding_left - padding_right
+        row_heights = []
+        for device in devices_with_specs:
+            desc_lines = self._wrap_text(device.description, desc_max_width, 9)
+            # Row height = base height + extra space for additional lines
+            extra_lines = max(0, len(desc_lines) - 1)
+            row_height = base_row_height + (extra_lines * line_spacing)
+            row_heights.append(row_height)
+
+        # Calculate total table height
+        total_table_height = header_height + sum(row_heights)
+
+        # Draw table background
+        dwg.append(
+            draw.Rectangle(
+                table_x,
+                table_y,
+                table_width,
+                total_table_height,
+                fill="#F8F9FA",
+                stroke="#333",
+                stroke_width=1,
+                rx=4,
+                ry=4,
+            )
+        )
+
+        # Draw header
+        dwg.append(
+            draw.Rectangle(
+                table_x,
+                table_y,
+                table_width,
+                header_height,
+                fill="#E9ECEF",
+                stroke="#333",
+                stroke_width=1,
+            )
+        )
+
+        # Header text
+        dwg.append(
+            draw.Text(
+                "Device Specifications",
+                12,
+                table_x + padding_left,
+                table_y + 20,
+                font_family="Arial, sans-serif",
+                font_weight="bold",
+                fill="#333",
+            )
+        )
+
+        # Draw rows
+        y_pos = table_y + header_height
+        for idx, device in enumerate(devices_with_specs):
+            row_height = row_heights[idx]
+
+            # Device name (bold, left column)
+            dwg.append(
+                draw.Text(
+                    device.name,
+                    9,
+                    table_x + padding_left,
+                    y_pos + 20,
+                    font_family="Arial, sans-serif",
+                    font_weight="bold",
+                    fill="#333",
+                )
+            )
+
+            # Device description (right column) - with text wrapping
+            desc_lines = self._wrap_text(device.description, desc_max_width, 9)
+
+            for i, line in enumerate(desc_lines):
+                dwg.append(
+                    draw.Text(
+                        line,
+                        9,
+                        desc_column_start,
+                        y_pos + 20 + (i * line_spacing),
+                        font_family="Arial, sans-serif",
+                        fill="#666",
+                    )
+                )
+
+            # Separator line
+            if device != devices_with_specs[-1]:  # Don't draw line after last row
+                dwg.append(
+                    draw.Line(
+                        table_x,
+                        y_pos + row_height,
+                        table_x + table_width,
+                        y_pos + row_height,
+                        stroke="#DEE2E6",
+                        stroke_width=1,
+                    )
+                )
+
+            y_pos += row_height
 
     def render_to_string(self, diagram: Diagram) -> str:
         """

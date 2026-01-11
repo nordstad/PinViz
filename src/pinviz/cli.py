@@ -56,6 +56,7 @@ def main() -> int:
             "Examples:",
             "  pinviz render diagram.yaml                     # Generate diagram from YAML config",
             "  pinviz render diagram.yaml -o out/wiring.svg   # Specify output path",
+            "  pinviz render diagram.yaml --show-legend       # Include specifications table",
             "  pinviz validate diagram.yaml                   # Validate wiring configuration",
             "  pinviz example bh1750                          # Use a built-in example",
             "  pinviz list                                     # List available templates",
@@ -131,6 +132,11 @@ def main() -> int:
         action="store_true",
         help="Hide the board name in the SVG output",
     )
+    render_parser.add_argument(
+        "--show-legend",
+        action="store_true",
+        help="Show device specifications table below the diagram",
+    )
 
     # Example command
     example_parser = subparsers.add_parser(
@@ -159,6 +165,11 @@ def main() -> int:
         "--no-board-name",
         action="store_true",
         help="Hide the board name in the SVG output",
+    )
+    example_parser.add_argument(
+        "--show-legend",
+        action="store_true",
+        help="Show device specifications table below the diagram",
     )
 
     # Validate command
@@ -241,6 +252,8 @@ def _apply_cli_flags(diagram: Diagram, args: Any) -> None:
         diagram.show_title = False
     if hasattr(args, "no_board_name") and args.no_board_name:
         diagram.show_board_name = False
+    if hasattr(args, "show_legend") and args.show_legend:
+        diagram.show_legend = True
 
 
 def _render_diagram(diagram: Diagram, output_path: Path) -> None:

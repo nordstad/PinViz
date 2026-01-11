@@ -28,4 +28,3 @@ connections:
     device: "Alert LED (Red)"
     device_pin: "-"
 
-show_legend: true

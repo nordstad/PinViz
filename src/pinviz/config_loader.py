@@ -177,7 +177,7 @@ class ConfigLoader:
             board=board,
             devices=diagram_devices,
             connections=connections,
-            show_legend=config.get("show_legend", True),
+            show_legend=config.get("show_legend", False),
             show_gpio_diagram=config.get("show_gpio_diagram", False),
             show_title=config.get("show_title", True),
             show_board_name=config.get("show_board_name", True),
@@ -306,6 +306,10 @@ class ConfigLoader:
                 if device_name and device_type not in ("i2c_device", "i2c", "spi_device", "spi"):
                     device.name = device_name
 
+                # Override device description if specified
+                if "description" in config:
+                    device.description = config["description"]
+
                 return device
 
         raise ValueError(f"Unknown or incomplete device configuration: {config}")
@@ -371,6 +375,7 @@ class ConfigLoader:
             width=config.get("width", 80.0),
             height=config.get("height", 40.0),
             color=config.get("color", "#4A90E2"),
+            description=config.get("description"),
         )
 
     def _load_connection(self, config: dict[str, Any]) -> Connection:

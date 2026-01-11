@@ -763,6 +763,21 @@ class LayoutEngine:
         canvas_width = max_x + self.config.canvas_padding
         canvas_height = max_y + self.config.canvas_padding
 
+        # Add extra space for device specifications table if needed
+        # Table is positioned below the board, so check if it extends beyond current max_y
+        if diagram.show_legend:
+            devices_with_specs = [d for d in diagram.devices if d.description]
+            if devices_with_specs:
+                # Table position: below board + padding
+                board_bottom = self.config.board_margin_top + diagram.board.height
+                table_y = board_bottom + (40 if diagram.show_board_name else 20)
+                # Table height: header (35px) + rows (30px each)
+                table_height = 35 + (len(devices_with_specs) * 30)
+                table_bottom = table_y + table_height + 20  # +20 for bottom padding
+
+                # Ensure canvas is tall enough for the table
+                canvas_height = max(canvas_height, table_bottom + self.config.canvas_padding)
+
         return canvas_width, canvas_height
 
 

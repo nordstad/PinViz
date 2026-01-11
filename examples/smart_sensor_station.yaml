@@ -57,4 +57,3 @@ connections:
     device: "Status LED (Green)"
     device_pin: "-"
 
-show_legend: true

@@ -113,7 +113,6 @@ def sample_diagram(sample_board, sample_device, sample_connections):
         board=sample_board,
         devices=[sample_device],
         connections=sample_connections,
-        show_legend=True,
     )
 
 

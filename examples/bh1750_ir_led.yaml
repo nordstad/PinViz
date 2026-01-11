@@ -38,4 +38,3 @@ connections:
     device_pin: "CTRL"
     color: "#F44336"  # Red
 
-show_legend: true

@@ -63,4 +63,3 @@ connections:
     device_pin: "CS"
     color: "#8B4513"  # Brown
 
-show_legend: true

@@ -23,4 +23,3 @@ connections:
     device: "BH1750"
     device_pin: "SDA"
 
-show_legend: true
