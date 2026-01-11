@@ -127,11 +127,12 @@ def load_board_from_config(config_name: str) -> Board:
 
             if header_side == "top":
                 # Top header: pins 1-20 in a single horizontal row
+                # Note: Pins are in REVERSE order (pin 20 on left, pin 1 on right)
                 header_layout = layout_dict["top_header"]
                 pin_num = pin_config.physical_pin  # 1-20
 
-                # Calculate X position: each pin increments horizontally
-                x_pos = header_layout["start_x"] + ((pin_num - 1) * header_layout["pin_spacing"])
+                # Calculate X position: reversed order (20 - pin_num)
+                x_pos = header_layout["start_x"] + ((20 - pin_num) * header_layout["pin_spacing"])
                 # Fixed Y position for all top header pins
                 y_pos = header_layout["y"]
 
