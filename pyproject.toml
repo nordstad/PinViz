@@ -38,13 +38,15 @@ classifiers = [
 dependencies = [
     "drawsvg~=2.4",
     "pyyaml>=6.0.1",
-    "rich-argparse>=1.5.0",
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "questionary>=2.0.0",
     "mcp>=1.22.0",
     "httpx>=0.28.0",
     "beautifulsoup4>=4.12.0",
     "structlog>=24.1.0",
-    "pydantic>=2.0.0",
-    "questionary>=2.0.0",
 ]
 
 [project.urls]
@@ -100,6 +102,7 @@ dev = [
     "ruff>=0.14.5",
     "twine>=4.0.0",
     "hypothesis>=6.0.0",
+    "platformdirs>=4.0.0",
 ]
 docs = [
     "mkdocs>=1.5.0",

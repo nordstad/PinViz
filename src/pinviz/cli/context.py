@@ -1,0 +1,40 @@
+"""Application context for CLI commands."""
+
+from dataclasses import dataclass, field
+
+import structlog
+from rich.console import Console
+
+from ..devices import DeviceRegistry, get_registry
+from .config import CliConfig
+
+
+@dataclass
+class AppContext:
+    """Shared application context for CLI commands.
+
+    Provides centralized access to configuration, logging, console output,
+    and device registry for all CLI commands. This enables dependency injection
+    and consistent behavior across the CLI.
+
+    Attributes:
+        config: CLI configuration loaded from environment/files
+        console: Rich console for formatted output
+        logger: Structured logger instance
+        registry: Device registry for template access
+
+    Example:
+        >>> from pinviz.cli.config import load_config
+        >>> ctx = AppContext(config=load_config())
+        >>> ctx.logger.info("command_started", command="render")
+        >>> ctx.console.print("[green]Success![/green]")
+    """
+
+    config: CliConfig
+    console: Console = field(default_factory=Console)
+    logger: structlog.stdlib.BoundLogger = field(init=False)
+    registry: DeviceRegistry = field(default_factory=get_registry)
+
+    def __post_init__(self):
+        """Initialize logger after dataclass construction."""
+        self.logger = structlog.get_logger(__name__)
