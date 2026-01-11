@@ -111,7 +111,9 @@ def load_board_from_config(config_name: str) -> Board:
 
     # Check if this is a dual-header board (like Pico) or single-header (like Pi 5)
     layout_dict = config.layout if isinstance(config.layout, dict) else config.layout.__dict__
-    is_dual_header = "top_header" in layout_dict and "bottom_header" in layout_dict
+    is_dual_header = (
+        layout_dict.get("top_header") is not None and layout_dict.get("bottom_header") is not None
+    )
 
     if is_dual_header:
         # Dual-header board (e.g., Raspberry Pi Pico)
