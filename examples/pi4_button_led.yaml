@@ -37,4 +37,3 @@ connections:
     device_pin: "-"
     color: "#000000"  # Black
 
-show_legend: true

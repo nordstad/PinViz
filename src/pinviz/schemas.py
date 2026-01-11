@@ -141,6 +141,7 @@ class CustomDeviceSchema(BaseModel):
         width: Device width in SVG units
         height: Device height in SVG units
         color: Device color as hex code
+        description: Optional device description/specifications
     """
 
     name: Annotated[str, Field(min_length=1, max_length=100, description="Device name")]
@@ -150,6 +151,7 @@ class CustomDeviceSchema(BaseModel):
     color: Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$", description="Hex color code")] = (
         "#4A90E2"
     )
+    description: Annotated[str, Field(max_length=200)] | None = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -172,6 +174,7 @@ class PredefinedDeviceSchema(BaseModel):
     Attributes:
         type: Device type from registry
         name: Optional device name override
+        description: Optional device description/specifications
         num_leds: Number of LEDs (for ir_led_ring type)
         has_interrupt: Whether device has interrupt pin (for i2c_device type)
         has_int_pin: Alias for has_interrupt
@@ -181,6 +184,7 @@ class PredefinedDeviceSchema(BaseModel):
 
     type: Annotated[str, Field(description="Device type from registry")]
     name: Annotated[str, Field(min_length=1, max_length=100)] | None = None
+    description: Annotated[str, Field(max_length=200)] | None = None
     # Device-specific parameters
     num_leds: Annotated[int, Field(ge=1, le=100)] | None = None  # for ir_led_ring
     has_interrupt: bool | None = None  # for i2c_device

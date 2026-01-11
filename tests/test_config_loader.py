@@ -81,7 +81,7 @@ def test_load_minimal_config():
     assert diagram.title == "Minimal"
     assert len(diagram.devices) == 0
     assert len(diagram.connections) == 0
-    assert diagram.show_legend is True
+    assert diagram.show_legend is False
 
 
 def test_load_with_predefined_device():

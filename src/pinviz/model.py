@@ -456,7 +456,7 @@ class Diagram:
         board: The Raspberry Pi board
         devices: List of all devices to be connected
         connections: List of all wire connections
-        show_legend: Whether to show the wire color legend (default: True)
+        show_legend: Whether to show the device specifications table (default: False)
         show_gpio_diagram: Whether to show the GPIO pin reference diagram (default: False)
         show_title: Whether to show the diagram title (default: True)
         show_board_name: Whether to show the board name (default: True)
@@ -488,7 +488,7 @@ class Diagram:
     board: Board
     devices: list[Device]
     connections: list[Connection]
-    show_legend: bool = True
+    show_legend: bool = False
     show_gpio_diagram: bool = False
     show_title: bool = True
     show_board_name: bool = True

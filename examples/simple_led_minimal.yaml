@@ -25,6 +25,5 @@ connections:
     device_pin: "-"
     color: "#000000"
 
-show_legend: true
 show_title: false
 show_board_name: false

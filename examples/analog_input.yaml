@@ -32,4 +32,3 @@ connections:
     device: "ADC Chip"
     device_pin: "CS"
 
-show_legend: true

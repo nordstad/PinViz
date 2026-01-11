@@ -15,4 +15,3 @@ connections:
   - board_pin: 5   # GPIO 3 (I2C1 SCL)
     device: "BME280 Environmental Sensor"
     device_pin: "SCL"
-show_legend: true

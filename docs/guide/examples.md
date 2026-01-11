@@ -25,6 +25,9 @@ pinviz list
 pinviz example bh1750 -o bh1750.svg
 pinviz example ir_led -o ir_led.svg
 pinviz example i2c_spi -o i2c_spi.svg
+
+# Include device specifications table (--show-legend flag)
+pinviz render examples/leds_with_specs.yaml --show-legend
 ```
 
 All example configurations are available in the [`examples/`](https://github.com/nordstad/PinViz/tree/main/examples) directory.
@@ -64,7 +67,6 @@ connections:
     device: "BH1750"
     device_pin: "SDA"
 
-show_legend: true
 ```
 
 **Generate:**
@@ -110,7 +112,6 @@ connections:
     device_pin: "-"
     color: "#000000"  # Black wire
 
-show_legend: true
 ```
 
 **Generate:**
@@ -191,7 +192,6 @@ connections:
     device_pin: "-"
     color: "#000000"
 
-show_legend: true
 ```
 
 **Generate:**
@@ -261,7 +261,6 @@ connections:
     device_pin: "CTRL"
     color: "#F44336"  # Red
 
-show_legend: true
 ```
 
 **Generate:**
@@ -279,6 +278,53 @@ pinviz render examples/bh1750_ir_led.yaml -o multi_device.svg
 - I2C sensor + GPIO-controlled device
 - Custom color palette for wire differentiation
 - Multiple power and ground connections
+
+---
+
+### Device Specifications Table
+
+Add a specifications table to your diagrams using the `--show-legend` CLI flag. This displays detailed information about each device below the diagram.
+
+**Example with specifications:**
+
+```bash
+# Generate diagram with specifications table
+pinviz render examples/leds_with_specs.yaml --show-legend -o leds_with_specs.svg
+```
+
+The specifications table automatically includes device descriptions when defined in your YAML:
+
+```yaml
+title: "Multi-LED Circuit"
+board: "raspberry_pi_5"
+
+devices:
+  - type: "led"
+    name: "Red LED"
+    description: "Kingbright WP7113ID, 5mm, Vf: 2.0V, If: 20mA, 625nm"
+    color: "Red"
+
+  - type: "led"
+    name: "Blue LED"
+    description: "Lite-On LTL-4221N, 3mm, Vf: 3.2V, If: 20mA, 470nm"
+    color: "Blue"
+
+connections:
+  # ... connections here ...
+```
+
+**Features:**
+- Automatically displays device specifications below the diagram
+- Clean, table-based layout
+- Text wrapping for long descriptions
+- Only shown when `--show-legend` flag is used
+- Device descriptions are optional in YAML
+
+**When to use:**
+- Documentation that requires component details
+- Projects with multiple similar devices
+- Technical specifications needed for assembly
+- Part numbers and electrical characteristics
 
 ---
 

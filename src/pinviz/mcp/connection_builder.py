@@ -59,7 +59,6 @@ class ConnectionBuilder:
             board=board,
             devices=devices,
             connections=connections,
-            show_legend=True,
         )
 
         return diagram

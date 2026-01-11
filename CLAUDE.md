@@ -443,3 +443,5 @@ renderer.render(diagram, "output.svg")
 - All measurements are in SVG units (typically pixels)
 - Always run ruff format and check before committing Python code.
 - Make sure that the mkdocs are updated after doing changes ("docs" dir)
+- Save dev plans to "plans" dir not commited to git
+- Keep the project root dir clean, just essential files should be stored here

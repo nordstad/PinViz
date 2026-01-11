@@ -27,4 +27,3 @@ connections:
   - board_pin: 24  # GPIO 8 (SPI0 CE0)
     device: "MCP3008 8-Channel ADC"
     device_pin: "CS"
-show_legend: true

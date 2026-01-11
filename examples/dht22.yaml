@@ -12,4 +12,3 @@ connections:
   - board_pin: 7   # GPIO 4
     device: "DHT22 Temperature/Humidity Sensor"
     device_pin: "DATA"
-show_legend: true
