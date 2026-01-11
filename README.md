@@ -37,6 +37,10 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - 🐍 **Python API**: Create diagrams programmatically with Python code
 - 🤖 **MCP Server**: Generate diagrams from natural language with AI assistants
 - 📦 **SVG Output**: Scalable, high-quality vector graphics
+- ✨ **Modern CLI**: Rich terminal output with progress indicators and colored messages
+- 🔧 **JSON Output**: Machine-readable output for CI/CD integration
+- ⚙️ **Configuration Management**: TOML config file support with precedence rules
+- 🚀 **Shell Completion**: Auto-complete for bash, zsh, and fish shells
 
 ## Installation
 
@@ -128,6 +132,78 @@ diagram = Diagram(
 
 renderer = SVGRenderer()
 renderer.render(diagram, "output.svg")
+```
+
+## CLI Commands
+
+PinViz provides a modern CLI with rich terminal output and machine-readable JSON support.
+
+### Rendering Diagrams
+
+```bash
+# Generate diagram from YAML config
+pinviz render examples/bh1750.yaml -o output.svg
+
+# With JSON output for CI/CD
+pinviz render examples/bh1750.yaml --json
+# Output: {"status": "success", "output_path": "output.svg", "validation": {...}}
+```
+
+### Validation
+
+```bash
+# Validate diagram configuration
+pinviz validate examples/bh1750.yaml
+
+# Strict mode (warnings as errors)
+pinviz validate examples/bh1750.yaml --strict
+
+# Machine-readable output
+pinviz validate examples/bh1750.yaml --json
+```
+
+### List Templates
+
+```bash
+# List all boards, devices, and examples
+pinviz list
+
+# JSON output for programmatic use
+pinviz list --json
+```
+
+### Configuration Management
+
+```bash
+# Create config file (~/.config/pinviz/config.toml)
+pinviz config init
+
+# View current configuration
+pinviz config show
+
+# Edit config file
+pinviz config edit
+```
+
+### Shell Completion
+
+```bash
+# Install shell completion (bash, zsh, fish)
+pinviz completion install
+
+# Show completion script
+pinviz completion show
+```
+
+### Global Options
+
+All commands support these global options:
+
+```bash
+--log-level [DEBUG|INFO|WARNING|ERROR]  # Set logging verbosity
+--log-format [console|json]            # Log output format
+--version                              # Show version
+--help                                 # Show help
 ```
 
 ## MCP Server (AI-Powered)
