@@ -36,11 +36,13 @@ from pydantic import (
 VALID_BOARD_NAMES = {
     "raspberry_pi_5",
     "raspberry_pi_4",
+    "raspberry_pi_pico",
     "raspberry_pi",
     "rpi5",
     "rpi4",
     "pi4",
     "rpi",
+    "pico",
 }
 
 # Valid device types from the device registry
@@ -456,12 +458,14 @@ class BoardPinConfigSchema(BaseModel):
         name: Pin name/label (e.g., "GPIO2", "3V3", "GND")
         role: Pin function/role (e.g., "GPIO", "I2C_SDA", "POWER_3V3")
         gpio_bcm: BCM GPIO number (null for power/ground pins)
+        header: Header side for dual-header boards ("left" or "right", optional)
     """
 
     physical_pin: Annotated[int, Field(ge=1, description="Physical pin number")]
     name: Annotated[str, Field(min_length=1, max_length=50, description="Pin name")]
     role: Annotated[str, Field(description="Pin role/function")]
     gpio_bcm: int | None = None
+    header: str | None = None  # "left" or "right" for dual-header boards
 
     model_config = ConfigDict(extra="forbid")
 
@@ -483,30 +487,65 @@ class BoardLayoutConfigSchema(BaseModel):
     Defines the physical layout parameters for positioning GPIO header pins
     in the SVG rendering. These values should align with the board's SVG asset.
 
+    Supports two layout modes:
+    1. Single-header (Raspberry Pi): left_col_x, right_col_x, start_y, row_spacing
+    2. Dual-header (Pico): left_header and right_header objects with their own layout params
+
     Attributes:
-        left_col_x: X-coordinate for left column (odd pins: 1, 3, 5, ...)
-        right_col_x: X-coordinate for right column (even pins: 2, 4, 6, ...)
-        start_y: Starting Y-coordinate for the first row (pins 1 and 2)
-        row_spacing: Vertical spacing between rows
+        left_col_x: X-coordinate for left column (single-header only)
+        right_col_x: X-coordinate for right column (single-header only)
+        start_y: Starting Y-coordinate (single-header only)
+        row_spacing: Vertical spacing between rows (single-header only)
+        left_header: Layout for left physical header (dual-header only)
+        right_header: Layout for right physical header (dual-header only)
     """
 
-    left_col_x: Annotated[float, Field(gt=0, description="X position for left column (odd pins)")]
-    right_col_x: Annotated[
-        float, Field(gt=0, description="X position for right column (even pins)")
+    # Single-header layout (optional for dual-header boards)
+    left_col_x: Annotated[
+        float | None, Field(None, gt=0, description="X position for left column (odd pins)")
     ]
-    start_y: Annotated[float, Field(gt=0, description="Starting Y position for first row")]
-    row_spacing: Annotated[float, Field(gt=0, description="Vertical spacing between rows")]
+    right_col_x: Annotated[
+        float | None, Field(None, gt=0, description="X position for right column (even pins)")
+    ]
+    start_y: Annotated[
+        float | None, Field(None, gt=0, description="Starting Y position for first row")
+    ]
+    row_spacing: Annotated[
+        float | None, Field(None, gt=0, description="Vertical spacing between rows")
+    ]
 
-    model_config = ConfigDict(extra="forbid")
+    # Dual-header layout (for boards like Pico with pins on both sides)
+    left_header: dict | None = None
+    right_header: dict | None = None
+
+    model_config = ConfigDict(extra="allow")  # Allow extra fields for flexibility
 
     @model_validator(mode="after")
-    def validate_column_positions(self):
-        """Ensure right column is to the right of left column."""
-        if self.right_col_x <= self.left_col_x:
+    def validate_layout_mode(self):
+        """Ensure either single-header or dual-header layout is defined."""
+        has_single_header = all(
+            [
+                self.left_col_x is not None,
+                self.right_col_x is not None,
+                self.start_y is not None,
+                self.row_spacing is not None,
+            ]
+        )
+        has_dual_header = self.left_header is not None and self.right_header is not None
+
+        if not has_single_header and not has_dual_header:
+            raise ValueError(
+                "Layout must define either single-header "
+                "(left_col_x, right_col_x, start_y, row_spacing) "
+                "or dual-header (left_header, right_header) configuration"
+            )
+
+        if has_single_header and self.right_col_x <= self.left_col_x:
             raise ValueError(
                 f"right_col_x ({self.right_col_x}) must be greater than "
                 f"left_col_x ({self.left_col_x})"
             )
+
         return self
 
 

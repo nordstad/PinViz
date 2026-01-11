@@ -211,6 +211,7 @@ class ConfigLoader:
         Supported names:
             - "raspberry_pi_5", "rpi5": Raspberry Pi 5
             - "raspberry_pi_4", "rpi4", "pi4": Raspberry Pi 4 Model B
+            - "raspberry_pi_pico", "pico": Raspberry Pi Pico
             - "raspberry_pi", "rpi": Latest Raspberry Pi (currently Pi 5)
         """
         board_loaders = {
@@ -221,6 +222,9 @@ class ConfigLoader:
             "raspberry_pi_4": boards.raspberry_pi_4,
             "rpi4": boards.raspberry_pi_4,
             "pi4": boards.raspberry_pi_4,
+            # Raspberry Pi Pico
+            "raspberry_pi_pico": boards.raspberry_pi_pico,
+            "pico": boards.raspberry_pi_pico,
             # Aliases
             "raspberry_pi": boards.raspberry_pi,
             "rpi": boards.raspberry_pi,

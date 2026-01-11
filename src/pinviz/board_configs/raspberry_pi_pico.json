@@ -1,0 +1,67 @@
+{
+  "name": "Raspberry Pi Pico",
+  "svg_asset": "pico_mod.svg",
+  "width": 249.0,
+  "height": 101.0,
+  "header_offset": {
+    "x": 0,
+    "y": 0
+  },
+  "layout": {
+    "left_header": {
+      "left_col_x": 20.0,
+      "right_col_x": 32.0,
+      "start_y": 15.0,
+      "row_spacing": 12.0
+    },
+    "right_header": {
+      "left_col_x": 217.0,
+      "right_col_x": 229.0,
+      "start_y": 15.0,
+      "row_spacing": 12.0
+    }
+  },
+  "pins": [
+    {"physical_pin": 1, "name": "GP0", "role": "GPIO", "gpio_bcm": 0, "header": "left"},
+    {"physical_pin": 2, "name": "GP1", "role": "GPIO", "gpio_bcm": 1, "header": "left"},
+    {"physical_pin": 3, "name": "GND", "role": "GND", "gpio_bcm": null, "header": "left"},
+    {"physical_pin": 4, "name": "GP2", "role": "GPIO", "gpio_bcm": 2, "header": "left"},
+    {"physical_pin": 5, "name": "GP3", "role": "GPIO", "gpio_bcm": 3, "header": "left"},
+    {"physical_pin": 6, "name": "GP4", "role": "GPIO", "gpio_bcm": 4, "header": "left"},
+    {"physical_pin": 7, "name": "GP5", "role": "GPIO", "gpio_bcm": 5, "header": "left"},
+    {"physical_pin": 8, "name": "GND", "role": "GND", "gpio_bcm": null, "header": "left"},
+    {"physical_pin": 9, "name": "GP6", "role": "GPIO", "gpio_bcm": 6, "header": "left"},
+    {"physical_pin": 10, "name": "GP7", "role": "GPIO", "gpio_bcm": 7, "header": "left"},
+    {"physical_pin": 11, "name": "GP8", "role": "GPIO", "gpio_bcm": 8, "header": "left"},
+    {"physical_pin": 12, "name": "GP9", "role": "GPIO", "gpio_bcm": 9, "header": "left"},
+    {"physical_pin": 13, "name": "GND", "role": "GND", "gpio_bcm": null, "header": "left"},
+    {"physical_pin": 14, "name": "GP10", "role": "GPIO", "gpio_bcm": 10, "header": "left"},
+    {"physical_pin": 15, "name": "GP11", "role": "GPIO", "gpio_bcm": 11, "header": "left"},
+    {"physical_pin": 16, "name": "GP12", "role": "GPIO", "gpio_bcm": 12, "header": "left"},
+    {"physical_pin": 17, "name": "GP13", "role": "GPIO", "gpio_bcm": 13, "header": "left"},
+    {"physical_pin": 18, "name": "GND", "role": "GND", "gpio_bcm": null, "header": "left"},
+    {"physical_pin": 19, "name": "GP14", "role": "GPIO", "gpio_bcm": 14, "header": "left"},
+    {"physical_pin": 20, "name": "GP15", "role": "GPIO", "gpio_bcm": 15, "header": "left"},
+
+    {"physical_pin": 21, "name": "GP16", "role": "GPIO", "gpio_bcm": 16, "header": "right"},
+    {"physical_pin": 22, "name": "GP17", "role": "GPIO", "gpio_bcm": 17, "header": "right"},
+    {"physical_pin": 23, "name": "GND", "role": "GND", "gpio_bcm": null, "header": "right"},
+    {"physical_pin": 24, "name": "GP18", "role": "GPIO", "gpio_bcm": 18, "header": "right"},
+    {"physical_pin": 25, "name": "GP19", "role": "GPIO", "gpio_bcm": 19, "header": "right"},
+    {"physical_pin": 26, "name": "GP20", "role": "GPIO", "gpio_bcm": 20, "header": "right"},
+    {"physical_pin": 27, "name": "GP21", "role": "GPIO", "gpio_bcm": 21, "header": "right"},
+    {"physical_pin": 28, "name": "GND", "role": "GND", "gpio_bcm": null, "header": "right"},
+    {"physical_pin": 29, "name": "GP22", "role": "GPIO", "gpio_bcm": 22, "header": "right"},
+    {"physical_pin": 30, "name": "RUN", "role": "GPIO", "gpio_bcm": null, "header": "right"},
+    {"physical_pin": 31, "name": "GP26", "role": "GPIO", "gpio_bcm": 26, "header": "right"},
+    {"physical_pin": 32, "name": "GP27", "role": "GPIO", "gpio_bcm": 27, "header": "right"},
+    {"physical_pin": 33, "name": "GND", "role": "GND", "gpio_bcm": null, "header": "right"},
+    {"physical_pin": 34, "name": "GP28", "role": "GPIO", "gpio_bcm": 28, "header": "right"},
+    {"physical_pin": 35, "name": "ADC_VREF", "role": "GPIO", "gpio_bcm": null, "header": "right"},
+    {"physical_pin": 36, "name": "3V3", "role": "3V3", "gpio_bcm": null, "header": "right"},
+    {"physical_pin": 37, "name": "3V3_EN", "role": "3V3", "gpio_bcm": null, "header": "right"},
+    {"physical_pin": 38, "name": "GND", "role": "GND", "gpio_bcm": null, "header": "right"},
+    {"physical_pin": 39, "name": "VSYS", "role": "5V", "gpio_bcm": null, "header": "right"},
+    {"physical_pin": 40, "name": "VBUS", "role": "5V", "gpio_bcm": null, "header": "right"}
+  ]
+}

@@ -1,0 +1,32 @@
+title: "Pico Pin Position Test"
+board: "raspberry_pi_pico"
+show_legend: true
+
+devices:
+  - type: "led"
+    name: "LED Left"
+  - type: "led"
+    name: "LED Right"
+
+connections:
+  # Test left header (pin 1 = GP0)
+  - board_pin: 1
+    device: "LED Left"
+    device_pin: "+"
+    color: "#FF0000"
+
+  - board_pin: 3
+    device: "LED Left"
+    device_pin: "-"
+    color: "#000000"
+
+  # Test right header (pin 36 = 3V3)
+  - board_pin: 36
+    device: "LED Right"
+    device_pin: "+"
+    color: "#FF8C00"
+
+  - board_pin: 38
+    device: "LED Right"
+    device_pin: "-"
+    color: "#000000"
