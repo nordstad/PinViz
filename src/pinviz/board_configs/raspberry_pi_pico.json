@@ -10,15 +10,13 @@
   "layout": {
     "top_header": {
       "start_x": 30.0,
-      "column_spacing": 20.0,
-      "top_row_y": 10.0,
-      "bottom_row_y": 22.0
+      "pin_spacing": 10.0,
+      "y": 15.0
     },
     "bottom_header": {
       "start_x": 30.0,
-      "column_spacing": 20.0,
-      "top_row_y": 79.0,
-      "bottom_row_y": 91.0
+      "pin_spacing": 10.0,
+      "y": 86.0
     }
   },
   "pins": [

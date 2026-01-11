@@ -491,14 +491,17 @@ class BoardLayoutConfigSchema(BaseModel):
     1. Single-header (Raspberry Pi): Vertical layout with left_col_x, right_col_x,
        start_y, row_spacing
     2. Dual-header (Pico): Horizontal layout with top_header and bottom_header
+       Each header is a single row of pins running left-to-right
 
     Attributes:
         left_col_x: X-coordinate for left column (single-header vertical layout only)
         right_col_x: X-coordinate for right column (single-header vertical layout only)
         start_y: Starting Y-coordinate (single-header vertical layout only)
         row_spacing: Vertical spacing between rows (single-header vertical layout only)
-        top_header: Layout for top physical header (dual-header horizontal layout)
-        bottom_header: Layout for bottom physical header (dual-header horizontal layout)
+        top_header: Layout for top edge header (dual-header horizontal layout)
+                    Dict with: start_x, pin_spacing, y
+        bottom_header: Layout for bottom edge header (dual-header horizontal layout)
+                       Dict with: start_x, pin_spacing, y
     """
 
     # Single-header vertical layout (Raspberry Pi)

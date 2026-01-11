@@ -115,8 +115,9 @@ def load_board_from_config(config_name: str) -> Board:
 
     if is_dual_header:
         # Dual-header board (e.g., Raspberry Pi Pico)
-        # Horizontal pin layout: pins run left-to-right on top and bottom edges
-        # Each header has 2 rows (top row = odd pins, bottom row = even pins)
+        # Horizontal pin layout: single row of pins along top and bottom edges
+        # Top header: pins 1-20 running left-to-right in one row
+        # Bottom header: pins 21-40 running left-to-right in one row
         for pin_config in config.pins:
             header_side = (
                 pin_config.header
@@ -125,38 +126,24 @@ def load_board_from_config(config_name: str) -> Board:
             )
 
             if header_side == "top":
-                # Top header: pins 1-20 running horizontally
-                # Layout: 2 rows × 10 columns
-                # Odd pins (1,3,5...19) in top row, Even pins (2,4,6...20) in bottom row
+                # Top header: pins 1-20 in a single horizontal row
                 header_layout = layout_dict["top_header"]
-                pin_num = pin_config.physical_pin
+                pin_num = pin_config.physical_pin  # 1-20
 
-                # Calculate column position (0-9 for pins 1-20)
-                column = (pin_num - 1) // 2  # Pins 1-2 in col 0, 3-4 in col 1, etc.
-                x_pos = header_layout["start_x"] + (column * header_layout["column_spacing"])
-
-                # Determine row (top or bottom within the header)
-                if pin_num % 2 == 1:  # Odd pins in top row
-                    y_pos = header_layout["top_row_y"]
-                else:  # Even pins in bottom row
-                    y_pos = header_layout["bottom_row_y"]
+                # Calculate X position: each pin increments horizontally
+                x_pos = header_layout["start_x"] + ((pin_num - 1) * header_layout["pin_spacing"])
+                # Fixed Y position for all top header pins
+                y_pos = header_layout["y"]
 
             elif header_side == "bottom":
-                # Bottom header: pins 21-40 running horizontally
-                # Layout: 2 rows × 10 columns
-                # Odd pins (21,23,25...39) in top row, Even pins (22,24,26...40) in bottom row
+                # Bottom header: pins 21-40 in a single horizontal row
                 header_layout = layout_dict["bottom_header"]
-                pin_num = pin_config.physical_pin
+                pin_num = pin_config.physical_pin  # 21-40
 
-                # Calculate column position (0-9 for pins 21-40)
-                column = (pin_num - 21) // 2  # Pins 21-22 in col 0, 23-24 in col 1, etc.
-                x_pos = header_layout["start_x"] + (column * header_layout["column_spacing"])
-
-                # Determine row (top or bottom within the header)
-                if pin_num % 2 == 1:  # Odd pins in top row
-                    y_pos = header_layout["top_row_y"]
-                else:  # Even pins in bottom row
-                    y_pos = header_layout["bottom_row_y"]
+                # Calculate X position: each pin increments horizontally
+                x_pos = header_layout["start_x"] + ((pin_num - 21) * header_layout["pin_spacing"])
+                # Fixed Y position for all bottom header pins
+                y_pos = header_layout["y"]
             else:
                 raise ValueError(
                     f"Pin {pin_config.physical_pin} has invalid header side: {header_side}. "
