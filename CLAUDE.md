@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This project uses `uv` as the package manager and build tool.
 
 ### Setup and Build
+
 ```bash
 # Install dependencies (including dev dependencies)
 uv sync --dev
@@ -20,6 +21,7 @@ uv run pinviz <command>
 ```
 
 ### Code Quality
+
 ```bash
 # Lint and format with ruff
 uv run ruff check .
@@ -37,27 +39,232 @@ The main CLI entry point is `pinviz`:
 # Generate diagram from YAML config
 pinviz render examples/bh1750.yaml -o output.svg
 
+# Generate with validation and JSON output
+pinviz render examples/bh1750.yaml -o output.svg --json
+
+# Validate configuration
+pinviz validate examples/bh1750.yaml
+pinviz validate examples/bh1750.yaml --strict --json
+
+# Validate all device configs
+pinviz validate-devices
+pinviz validate-devices --json
+
 # Generate built-in examples
 pinviz example bh1750 -o images/bh1750.svg
-pinviz example ir_led -o images/ir_led.svg
+pinviz example ir_led -o images/ir_led.svg --json
 pinviz example i2c_spi -o images/i2c_spi.svg
 
 # List available templates
 pinviz list
+pinviz list --json
 
 # Create new device interactively
 pinviz add-device
+
+# Configuration management
+pinviz config show      # Display current config
+pinviz config path      # Show config file location
+pinviz config init      # Create default config
+pinviz config edit      # Edit config file
+
+# Shell completion
+pinviz completion install    # Install shell completion
+pinviz completion show       # Show completion script
+pinviz completion uninstall  # Uninstall shell completion
+```
+
+## CLI Architecture
+
+The CLI uses a modern, modular architecture built with **Typer** (type-hint-based CLI) and **Rich** (beautiful terminal output).
+
+### Structure
+
+```text
+src/pinviz/cli/
+├── __init__.py           # Main Typer app, global options, version
+├── config.py             # CLI configuration with TOML support
+├── context.py            # AppContext for dependency injection
+├── output.py             # Rich output helpers + JSON schemas
+└── commands/
+    ├── __init__.py       # Command exports
+    ├── render.py         # Render diagram from config
+    ├── validate.py       # Validate diagram + validate-devices
+    ├── example.py        # Generate built-in examples
+    ├── list.py           # List available templates
+    ├── device.py         # Interactive device wizard
+    ├── config.py         # Config management (show, init, edit, path)
+    └── completion.py     # Shell completion (install, show, uninstall)
+```
+
+### Key Features
+
+- **Type-safe CLI**: Uses Python type hints for automatic validation
+- **Rich output**: Progress indicators, tables, panels, and color-coded messages
+- **JSON output**: All commands support `--json` flag for machine-readable output
+- **Configuration management**: TOML config file support with `pinviz config` commands
+- **Shell completion**: Auto-complete for bash/zsh/fish shells
+- **Modular commands**: Each command in a separate file for maintainability
+- **Global options**: `--log-level`, `--log-format`, `--version` available for all commands
+- **Consistent error handling**: Rich tracebacks with `show_locals` support
+
+### Adding a New Command
+
+1. Create a new file in `src/pinviz/cli/commands/` (e.g., `mycommand.py`)
+
+2. Define a command function with Typer annotations:
+
+   ```python
+   import typer
+   from typing import Annotated
+   from rich.console import Console
+
+   console = Console()
+
+   def my_command(
+       input_file: Annotated[str, typer.Argument(help="Input file path")],
+       output: Annotated[str | None, typer.Option("-o", "--output", help="Output path")] = None,
+       verbose: Annotated[bool, typer.Option("--verbose", help="Verbose output")] = False,
+   ) -> None:
+       """
+       Brief description of what this command does.
+
+       Longer description with more details about usage and behavior.
+       """
+       console.print(f"Processing {input_file}...")
+       # Command implementation
+   ```
+
+3. Register the command in `src/pinviz/cli/__init__.py`:
+
+   ```python
+   from .commands import mycommand
+
+   app.command(name="my-command")(mycommand.my_command)
+   ```
+
+4. Add tests in `tests/test_cli.py`:
+
+   ```python
+   def test_my_command(cli_runner):
+       """Test my-command functionality."""
+       result = cli_runner.invoke(app, ["my-command", "input.txt"])
+       assert result.exit_code == 0
+   ```
+
+### Testing Commands
+
+Use Typer's `CliRunner` for testing:
+
+```python
+from typer.testing import CliRunner
+from pinviz.cli import app
+
+runner = CliRunner()
+result = runner.invoke(app, ["render", "config.yaml"])
+assert result.exit_code == 0
+assert "Rendering diagram" in result.output
+```
+
+### JSON Output
+
+All commands support `--json` flag for machine-readable output:
+
+```bash
+# Render command
+pinviz render config.yaml --json
+# Output: {"status": "success", "output_path": "config.svg", "validation": {...}}
+
+# Validate command
+pinviz validate config.yaml --json
+# Output: {"status": "success", "validation": {...}, "issues": [...]}
+
+# List command
+pinviz list --json
+# Output: {"status": "success", "boards": [...], "devices": [...], "examples": [...]}
+
+# Example command
+pinviz example bh1750 --json
+# Output: {"status": "success", "example_name": "bh1750", "output_path": "out/bh1750.svg"}
+```
+
+#### JSON Schemas
+
+All JSON output is validated using Pydantic models in `src/pinviz/cli/output.py`:
+
+- `RenderOutputJson` - Render command output
+- `ValidateOutputJson` - Validate command output
+- `ValidateDevicesOutputJson` - Device validation output
+- `ExampleOutputJson` - Example command output
+- `ListOutputJson` - List command output
+
+### Configuration Management
+
+PinViz uses a TOML configuration file with proper precedence:
+
+1. **CLI arguments** (highest priority)
+2. **Environment variables** (`PINVIZ_*` prefix)
+3. **Config file** (`~/.config/pinviz/config.toml`)
+4. **Defaults** (lowest priority)
+
+```bash
+# Create default config
+pinviz config init
+
+# View current config
+pinviz config show
+
+# Get config file path
+pinviz config path
+
+# Edit config file
+pinviz config edit
+```
+
+**Example config.toml:**
+
+```toml
+# Logging verbosity: DEBUG, INFO, WARNING, ERROR
+log_level = "WARNING"
+
+# Log output format: console or json
+log_format = "console"
+
+# Default output directory
+output_dir = "./out"
+```
+
+### Shell Completion
+
+Install shell completion for better command-line experience:
+
+```bash
+# Auto-detect shell and install
+pinviz completion install
+
+# Specify shell explicitly
+pinviz completion install --shell bash
+pinviz completion install --shell zsh
+pinviz completion install --shell fish
+
+# Show completion script
+pinviz completion show
+
+# Uninstall completion
+pinviz completion uninstall
 ```
 
 ## Architecture
 
 ### Core Data Model (`model.py`)
+
 - **Immutable entities**: Uses dataclasses for `Board`, `Device`, `HeaderPin`, `DevicePin`, `Connection`, `Diagram`
 - **PinRole enum**: Defines pin functions (GPIO, I2C, SPI, UART, PWM, power, ground)
 - **DEFAULT_COLORS dict**: Maps pin roles to wire colors for automatic color assignment
 - **WireStyle enum**: Defines wire routing styles (orthogonal, curved, mixed)
 
 ### Component Factory Modules
+
 - **`boards.py`**: Board templates loaded from JSON configs in `board_configs/`
   - Pin positions are pre-calculated based on physical GPIO header layout
   - Pins have physical pin numbers (1-40), BCM GPIO numbers, names, and roles
@@ -71,12 +278,14 @@ pinviz add-device
   - Parameter substitution support (e.g., LED colors, device names)
 
 ### Configuration Loading (`config_loader.py`)
+
 - **ConfigLoader class**: Parses YAML/JSON files into diagram objects
 - Supports both predefined device types (by name) and custom device definitions
 - Board selection by name alias (e.g., "raspberry_pi_5", "rpi5", "rpi")
 - Auto-assigns wire colors based on pin roles if not specified
 
 ### Layout Engine (`layout.py`)
+
 - **LayoutEngine class**: Positions devices and routes wires algorithmically
 - **Device positioning**: Stacks devices vertically on the right side of the board
 - **Wire routing**: Orthogonal routing with rounded corners
@@ -86,6 +295,7 @@ pinviz add-device
 - **LayoutConfig**: Configurable spacing, margins, corner radius
 
 ### SVG Rendering (`render_svg.py`)
+
 - **SVGRenderer class**: Converts diagram objects to SVG files using `drawsvg`
 - Embeds external board SVG assets by parsing and inlining elements
 - Draws devices as colored rounded rectangles with pin markers
@@ -290,6 +500,7 @@ uv run ruff check .
 ### Board Configuration Validation
 
 All board configurations are validated against `BoardConfigSchema` in `schemas.py`:
+
 - Pin numbers must be sequential (1, 2, 3, ...)
 - Pin roles must be valid (GPIO, I2C_SDA, PWM, etc.)
 - Layout parameters must be positive numbers
@@ -302,6 +513,7 @@ Device definitions are stored in JSON files in `src/pinviz/device_configs/` dire
 ### Device Configuration Structure
 
 **Minimal example** (smart defaults handle everything else):
+
 ```json
 {
   "id": "bh1750",
@@ -317,6 +529,7 @@ Device definitions are stored in JSON files in `src/pinviz/device_configs/` dire
 ```
 
 **With optional metadata**:
+
 ```json
 {
   "id": "ds18b20",
@@ -342,6 +555,7 @@ Device definitions are stored in JSON files in `src/pinviz/device_configs/` dire
 ```
 
 **With parameters** (for device variants):
+
 ```json
 {
   "id": "led",
@@ -364,6 +578,7 @@ Device definitions are stored in JSON files in `src/pinviz/device_configs/` dire
 ### Smart Defaults
 
 The device loader automatically provides:
+
 - **Pin positions**: Vertical layout (top to bottom) or horizontal layout (left to right)
 - **Device dimensions**: Auto-sized to fit all pins with padding
 - **Colors**: Category-based defaults (sensors=turquoise, LEDs=red, displays=blue, io=gray)
@@ -400,6 +615,7 @@ i2c_dev = registry.create('i2c_device', name='BME280')  # Creates "BME280"
 ## Diagram Configuration File Structure
 
 YAML/JSON format:
+
 ```yaml
 title: "Diagram Title"
 board: "raspberry_pi_5"  # or "rpi5", "rpi"
@@ -422,6 +638,7 @@ show_legend: true
 ## Python API Structure
 
 Programmatic API example:
+
 ```python
 from pinviz import boards, devices, Connection, Diagram, SVGRenderer
 

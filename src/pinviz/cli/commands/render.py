@@ -12,7 +12,15 @@ from ...render_svg import SVGRenderer
 from ...validation import DiagramValidator, ValidationLevel
 from ..config import load_config
 from ..context import AppContext
-from ..output import print_error, print_success, print_validation_issues, print_warning
+from ..output import (
+    RenderOutputJson,
+    get_validation_summary,
+    output_json,
+    print_error,
+    print_success,
+    print_validation_issues,
+    print_warning,
+)
 
 console = Console()
 
@@ -139,19 +147,15 @@ def render_command(
             renderer.render(diagram, output_path)
             progress.update(task, completed=True)
 
-        print_success(f"Diagram generated: {output_path}", console)
-
-        if json_output:
-
-            result = {
-                "status": "success",
-                "output_path": str(output_path),
-                "validation": {
-                    "errors": len([i for i in issues if i.level == ValidationLevel.ERROR]),
-                    "warnings": len([i for i in issues if i.level == ValidationLevel.WARNING]),
-                },
-            }
-            console.print_json(data=result)
+        if not json_output:
+            print_success(f"Diagram generated: {output_path}", console)
+        else:
+            result = RenderOutputJson(
+                status="success",
+                output_path=str(output_path),
+                validation=get_validation_summary(issues),
+            )
+            output_json(result, console)
 
         log.info("diagram_generated", output_path=str(output_path))
 
@@ -160,5 +164,16 @@ def render_command(
         raise
     except Exception as e:
         log.exception("render_failed", config_path=str(config_file), error=str(e))
-        print_error(str(e), console)
+
+        if json_output:
+            result = RenderOutputJson(
+                status="error",
+                output_path=None,
+                validation=get_validation_summary([]),
+                errors=[str(e)],
+            )
+            output_json(result, console)
+        else:
+            print_error(str(e), console)
+
         raise typer.Exit(code=1)  # noqa: B904

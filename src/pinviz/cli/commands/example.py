@@ -14,7 +14,14 @@ from ...render_svg import SVGRenderer
 from ...validation import DiagramValidator, ValidationLevel
 from ..config import load_config
 from ..context import AppContext
-from ..output import print_error, print_success, print_validation_issues, print_warning
+from ..output import (
+    ExampleOutputJson,
+    output_json,
+    print_error,
+    print_success,
+    print_validation_issues,
+    print_warning,
+)
 
 console = Console()
 
@@ -131,6 +138,13 @@ def example_command(
             help="Show device specifications table below the diagram",
         ),
     ] = False,
+    json_output: Annotated[
+        bool,
+        typer.Option(
+            "--json",
+            help="Output machine-readable JSON status",
+        ),
+    ] = False,
 ) -> None:
     """
     Generate a built-in example diagram.
@@ -148,8 +162,17 @@ def example_command(
 
     # Validate example name
     if name not in ["bh1750", "ir_led", "i2c_spi"]:
-        print_error(f"Unknown example: {name}", console)
-        console.print("\nAvailable examples: [cyan]bh1750, ir_led, i2c_spi[/cyan]")
+        if json_output:
+            result = ExampleOutputJson(
+                status="error",
+                example_name=name,
+                output_path=None,
+                errors=[f"Unknown example: {name}. Available: bh1750, ir_led, i2c_spi"],
+            )
+            output_json(result, console)
+        else:
+            print_error(f"Unknown example: {name}", console)
+            console.print("\nAvailable examples: [cyan]bh1750, ir_led, i2c_spi[/cyan]")
         raise typer.Exit(code=1)  # noqa: B904
 
     # Determine output path
@@ -233,7 +256,16 @@ def example_command(
             renderer.render(diagram, output_path)
             progress.update(task, completed=True)
 
-        print_success(f"Example generated: {output_path}", console)
+        if json_output:
+            result = ExampleOutputJson(
+                status="success",
+                example_name=name,
+                output_path=str(output_path),
+            )
+            output_json(result, console)
+        else:
+            print_success(f"Example generated: {output_path}", console)
+
         log.info("example_generated", example_name=name, output_path=str(output_path))
 
     except typer.Exit:
@@ -246,5 +278,16 @@ def example_command(
             error_type=type(e).__name__,
             error_message=str(e),
         )
-        print_error(str(e), console)
+
+        if json_output:
+            result = ExampleOutputJson(
+                status="error",
+                example_name=name,
+                output_path=None,
+                errors=[str(e)],
+            )
+            output_json(result, console)
+        else:
+            print_error(str(e), console)
+
         raise typer.Exit(code=1)  # noqa: B904

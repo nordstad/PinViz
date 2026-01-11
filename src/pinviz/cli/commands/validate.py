@@ -11,7 +11,17 @@ from ...device_validator import validate_devices
 from ...validation import DiagramValidator, ValidationLevel
 from ..config import load_config
 from ..context import AppContext
-from ..output import print_error, print_success, print_validation_issues, print_warning
+from ..output import (
+    ValidateDevicesOutputJson,
+    ValidateOutputJson,
+    format_validation_issues_json,
+    get_validation_summary,
+    output_json,
+    print_error,
+    print_success,
+    print_validation_issues,
+    print_warning,
+)
 
 console = Console()
 
@@ -34,6 +44,13 @@ def validate_command(
             help="Treat warnings as errors (exit with error code if warnings found)",
         ),
     ] = False,
+    json_output: Annotated[
+        bool,
+        typer.Option(
+            "--json",
+            help="Output machine-readable JSON status",
+        ),
+    ] = False,
 ) -> None:
     """
     Validate a diagram configuration.
@@ -51,7 +68,9 @@ def validate_command(
 
     try:
         log.info("validation_started", config_path=str(config_file), strict_mode=strict)
-        console.print(f"Validating configuration: [cyan]{config_file}[/cyan]")
+
+        if not json_output:
+            console.print(f"Validating configuration: [cyan]{config_file}[/cyan]")
 
         diagram = load_diagram(config_file)
 
@@ -66,9 +85,18 @@ def validate_command(
 
         if not issues:
             log.info("validation_passed", config_path=str(config_file))
-            console.print()
-            print_success("Validation passed! No issues found.", console)
-            print_success("Current limits OK", console)
+
+            if json_output:
+                result = ValidateOutputJson(
+                    status="success",
+                    validation=get_validation_summary([]),
+                    issues=None,
+                )
+                output_json(result, console)
+            else:
+                console.print()
+                print_success("Validation passed! No issues found.", console)
+                print_success("Current limits OK", console)
             return
 
         # Categorize issues
@@ -82,19 +110,29 @@ def validate_command(
             warnings=len(warnings),
         )
 
-        # Display all issues
-        print_validation_issues(issues, console)
-
-        # Summary
-        console.print()
         error_count = len(errors)
         warning_count = len(warnings)
 
-        if error_count > 0 or warning_count > 0:
-            console.print(
-                f"Found [red]{error_count}[/red] error(s), "
-                f"[yellow]{warning_count}[/yellow] warning(s)"
+        # Output results
+        if json_output:
+            status = "error" if errors else ("warning" if warnings else "success")
+            result = ValidateOutputJson(
+                status=status,
+                validation=get_validation_summary(issues),
+                issues=format_validation_issues_json(issues),
             )
+            output_json(result, console)
+        else:
+            # Display all issues
+            print_validation_issues(issues, console)
+
+            # Summary
+            console.print()
+            if error_count > 0 or warning_count > 0:
+                console.print(
+                    f"Found [red]{error_count}[/red] error(s), "
+                    f"[yellow]{warning_count}[/yellow] warning(s)"
+                )
 
         # Return appropriate exit code
         if errors:
@@ -103,7 +141,8 @@ def validate_command(
 
         if warnings and strict:
             log.warning("strict_mode_warnings_as_errors", warning_count=warning_count)
-            print_error("Treating warnings as errors (--strict mode)", console)
+            if not json_output:
+                print_error("Treating warnings as errors (--strict mode)", console)
             raise typer.Exit(code=1)  # noqa: B904  # noqa: B904
 
         log.info("validation_completed_with_warnings", warning_count=warning_count)
@@ -117,7 +156,18 @@ def validate_command(
             error_type=type(e).__name__,
             error_message=str(e),
         )
-        print_error(str(e), console)
+
+        if json_output:
+            result = ValidateOutputJson(
+                status="error",
+                validation=get_validation_summary([]),
+                issues=None,
+                errors=[str(e)],
+            )
+            output_json(result, console)
+        else:
+            print_error(str(e), console)
+
         raise typer.Exit(code=1)  # noqa: B904
 
 
@@ -127,6 +177,13 @@ def validate_devices_command(
         typer.Option(
             "--strict",
             help="Treat warnings as errors (exit with error code if warnings found)",
+        ),
+    ] = False,
+    json_output: Annotated[
+        bool,
+        typer.Option(
+            "--json",
+            help="Output machine-readable JSON status",
         ),
     ] = False,
 ) -> None:
@@ -145,8 +202,10 @@ def validate_devices_command(
     log = ctx.logger
 
     log.info("device_validation_started", strict_mode=strict)
-    console.print("Validating device configurations...")
-    console.print()
+
+    if not json_output:
+        console.print("Validating device configurations...")
+        console.print()
 
     try:
         result = validate_devices()
@@ -159,49 +218,69 @@ def validate_devices_command(
             warnings=result.warning_count,
         )
 
-        # Display errors
-        if result.errors:
-            console.print("[bold red]Errors:[/bold red]")
-            for error in result.errors:
-                console.print(f"  [red]•[/red] {error}")
+        # Output results
+        if json_output:
+            status = (
+                "error" if result.has_errors else ("warning" if result.has_warnings else "success")
+            )
+            json_result = ValidateDevicesOutputJson(
+                status=status,
+                total_files=result.total_files,
+                valid_files=result.valid_files,
+                error_count=result.error_count,
+                warning_count=result.warning_count,
+                errors=[str(e) for e in result.errors] if result.errors else None,
+                warnings=[str(w) for w in result.warnings] if result.warnings else None,
+            )
+            output_json(json_result, console)
+        else:
+            # Display errors
+            if result.errors:
+                console.print("[bold red]Errors:[/bold red]")
+                for error in result.errors:
+                    console.print(f"  [red]•[/red] {error}")
+                console.print()
+
+            # Display warnings
+            if result.warnings:
+                console.print("[bold yellow]Warnings:[/bold yellow]")
+                for warning in result.warnings:
+                    console.print(f"  [yellow]•[/yellow] {warning}")
+                console.print()
+
+            # Summary
+            console.print(f"Scanned [cyan]{result.total_files}[/cyan] device configuration files")
+            console.print(f"Valid: [green]{result.valid_files}[/green]")
+
+            if result.error_count > 0:
+                console.print(f"Errors: [red]{result.error_count}[/red]")
+            if result.warning_count > 0:
+                console.print(f"Warnings: [yellow]{result.warning_count}[/yellow]")
+
             console.print()
-
-        # Display warnings
-        if result.warnings:
-            console.print("[bold yellow]Warnings:[/bold yellow]")
-            for warning in result.warnings:
-                console.print(f"  [yellow]•[/yellow] {warning}")
-            console.print()
-
-        # Summary
-        console.print(f"Scanned [cyan]{result.total_files}[/cyan] device configuration files")
-        console.print(f"Valid: [green]{result.valid_files}[/green]")
-
-        if result.error_count > 0:
-            console.print(f"Errors: [red]{result.error_count}[/red]")
-        if result.warning_count > 0:
-            console.print(f"Warnings: [yellow]{result.warning_count}[/yellow]")
-
-        console.print()
 
         # Exit codes
         if result.has_errors:
             log.error("validation_failed", error_count=result.error_count)
-            print_error("Validation failed with errors", console)
+            if not json_output:
+                print_error("Validation failed with errors", console)
             raise typer.Exit(code=1)  # noqa: B904  # noqa: B904
 
         if result.has_warnings and strict:
             log.warning("strict_mode_warnings_as_errors", warning_count=result.warning_count)
-            print_error("Validation failed: warnings in strict mode", console)
+            if not json_output:
+                print_error("Validation failed: warnings in strict mode", console)
             raise typer.Exit(code=1)  # noqa: B904  # noqa: B904
 
         if result.has_warnings:
             log.info("validation_completed_with_warnings", warning_count=result.warning_count)
-            print_warning("Validation completed with warnings", console)
+            if not json_output:
+                print_warning("Validation completed with warnings", console)
             return
 
         log.info("validation_passed")
-        print_success("All device configurations are valid!", console)
+        if not json_output:
+            print_success("All device configurations are valid!", console)
 
     except typer.Exit:
         raise
@@ -211,5 +290,18 @@ def validate_devices_command(
             error_type=type(e).__name__,
             error_message=str(e),
         )
-        print_error(f"Error during validation: {e}", console)
+
+        if json_output:
+            json_result = ValidateDevicesOutputJson(
+                status="error",
+                total_files=0,
+                valid_files=0,
+                error_count=1,
+                warning_count=0,
+                errors=[str(e)],
+            )
+            output_json(json_result, console)
+        else:
+            print_error(f"Error during validation: {e}", console)
+
         raise typer.Exit(code=1)  # noqa: B904
