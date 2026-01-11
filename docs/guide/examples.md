@@ -292,10 +292,16 @@ Add a specifications table to your diagrams using the `--show-legend` CLI flag. 
 pinviz render examples/leds_with_specs.yaml --show-legend -o leds_with_specs.svg
 ```
 
-The specifications table automatically includes device descriptions when defined in your YAML:
+**Result:**
+
+![Multi-LED Circuit with Specifications](https://raw.githubusercontent.com/nordstad/PinViz/main/images/leds_with_specs.svg)
+
+**Configuration:** [`examples/leds_with_specs.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/leds_with_specs.yaml)
+
+The specifications table is triggered by the `--show-legend` CLI flag and automatically includes device descriptions when defined in your YAML:
 
 ```yaml
-title: "Multi-LED Circuit"
+title: "Multi-LED Circuit with Specifications"
 board: "raspberry_pi_5"
 
 devices:
@@ -309,18 +315,33 @@ devices:
     description: "Lite-On LTL-4221N, 3mm, Vf: 3.2V, If: 20mA, 470nm"
     color: "Blue"
 
+  - type: "led"
+    name: "Green LED"
+    description: "Kingbright WP7113SGC, 5mm, Vf: 2.2V, If: 20mA, 525nm"
+    color: "Green"
+
 connections:
-  # ... connections here ...
+  # Red LED (GPIO17)
+  - board_pin: 11
+    device: "Red LED"
+    device_pin: "+"
+    color: "#FF0000"
+    components:
+      - type: "resistor"
+        value: "150Ω"
+  # ... additional connections ...
 ```
 
-**Features:**
-- Automatically displays device specifications below the diagram
-- Clean, table-based layout
-- Text wrapping for long descriptions
-- Only shown when `--show-legend` flag is used
-- Device descriptions are optional in YAML
+**Key Features:**
+
+- **CLI Flag**: Use `--show-legend` flag to enable the specifications table
+- **Automatic Layout**: Displays device descriptions in a clean table below the diagram
+- **Text Wrapping**: Long descriptions wrap properly for readability
+- **Optional Metadata**: Device descriptions in YAML are optional; table only appears if descriptions exist
+- **Part Details**: Perfect for documenting part numbers, electrical specs, and technical characteristics
 
 **When to use:**
+
 - Documentation that requires component details
 - Projects with multiple similar devices
 - Technical specifications needed for assembly
@@ -363,6 +384,7 @@ Have a cool diagram to share? We'd love to include it!
 Submit your example as a pull request to the [`examples/`](https://github.com/nordstad/PinViz/tree/main/examples) directory.
 
 **What makes a good example:**
+
 - Clear, well-commented configuration
 - Demonstrates a specific feature or pattern
 - Real-world use case or common scenario
