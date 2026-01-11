@@ -111,11 +111,12 @@ def load_board_from_config(config_name: str) -> Board:
 
     # Check if this is a dual-header board (like Pico) or single-header (like Pi 5)
     layout_dict = config.layout if isinstance(config.layout, dict) else config.layout.__dict__
-    is_dual_header = "left_header" in layout_dict and "right_header" in layout_dict
+    is_dual_header = "top_header" in layout_dict and "bottom_header" in layout_dict
 
     if is_dual_header:
         # Dual-header board (e.g., Raspberry Pi Pico)
-        # Pins are divided between left and right physical headers
+        # Horizontal pin layout: pins run left-to-right on top and bottom edges
+        # Each header has 2 rows (top row = odd pins, bottom row = even pins)
         for pin_config in config.pins:
             header_side = (
                 pin_config.header
@@ -123,34 +124,43 @@ def load_board_from_config(config_name: str) -> Board:
                 else getattr(pin_config, "header", None)
             )
 
-            if header_side == "left":
-                # Left header: pins 1-20
-                header_layout = layout_dict["left_header"]
-                pin_index = pin_config.physical_pin - 1  # 0-indexed
-                row = pin_index
-                y_pos = header_layout["start_y"] + (row * header_layout["row_spacing"])
+            if header_side == "top":
+                # Top header: pins 1-20 running horizontally
+                # Layout: 2 rows × 10 columns
+                # Odd pins (1,3,5...19) in top row, Even pins (2,4,6...20) in bottom row
+                header_layout = layout_dict["top_header"]
+                pin_num = pin_config.physical_pin
 
-                # Alternate between left and right columns within the header
-                if pin_config.physical_pin % 2 == 1:  # Odd pins (1, 3, 5...) on left column
-                    x_pos = header_layout["left_col_x"]
-                else:  # Even pins (2, 4, 6...) on right column
-                    x_pos = header_layout["right_col_x"]
+                # Calculate column position (0-9 for pins 1-20)
+                column = (pin_num - 1) // 2  # Pins 1-2 in col 0, 3-4 in col 1, etc.
+                x_pos = header_layout["start_x"] + (column * header_layout["column_spacing"])
 
-            elif header_side == "right":
-                # Right header: pins 21-40
-                header_layout = layout_dict["right_header"]
-                pin_index = pin_config.physical_pin - 21  # 0-indexed from pin 21
-                row = pin_index
-                y_pos = header_layout["start_y"] + (row * header_layout["row_spacing"])
+                # Determine row (top or bottom within the header)
+                if pin_num % 2 == 1:  # Odd pins in top row
+                    y_pos = header_layout["top_row_y"]
+                else:  # Even pins in bottom row
+                    y_pos = header_layout["bottom_row_y"]
 
-                # Alternate between left and right columns within the header
-                if pin_config.physical_pin % 2 == 1:  # Odd pins (21, 23, 25...) on left column
-                    x_pos = header_layout["left_col_x"]
-                else:  # Even pins (22, 24, 26...) on right column
-                    x_pos = header_layout["right_col_x"]
+            elif header_side == "bottom":
+                # Bottom header: pins 21-40 running horizontally
+                # Layout: 2 rows × 10 columns
+                # Odd pins (21,23,25...39) in top row, Even pins (22,24,26...40) in bottom row
+                header_layout = layout_dict["bottom_header"]
+                pin_num = pin_config.physical_pin
+
+                # Calculate column position (0-9 for pins 21-40)
+                column = (pin_num - 21) // 2  # Pins 21-22 in col 0, 23-24 in col 1, etc.
+                x_pos = header_layout["start_x"] + (column * header_layout["column_spacing"])
+
+                # Determine row (top or bottom within the header)
+                if pin_num % 2 == 1:  # Odd pins in top row
+                    y_pos = header_layout["top_row_y"]
+                else:  # Even pins in bottom row
+                    y_pos = header_layout["bottom_row_y"]
             else:
                 raise ValueError(
-                    f"Pin {pin_config.physical_pin} has invalid header side: {header_side}"
+                    f"Pin {pin_config.physical_pin} has invalid header side: {header_side}. "
+                    f"Expected 'top' or 'bottom'."
                 )
 
             pin_positions[pin_config.physical_pin] = Point(x_pos, y_pos)

@@ -488,19 +488,20 @@ class BoardLayoutConfigSchema(BaseModel):
     in the SVG rendering. These values should align with the board's SVG asset.
 
     Supports two layout modes:
-    1. Single-header (Raspberry Pi): left_col_x, right_col_x, start_y, row_spacing
-    2. Dual-header (Pico): left_header and right_header objects with their own layout params
+    1. Single-header (Raspberry Pi): Vertical layout with left_col_x, right_col_x,
+       start_y, row_spacing
+    2. Dual-header (Pico): Horizontal layout with top_header and bottom_header
 
     Attributes:
-        left_col_x: X-coordinate for left column (single-header only)
-        right_col_x: X-coordinate for right column (single-header only)
-        start_y: Starting Y-coordinate (single-header only)
-        row_spacing: Vertical spacing between rows (single-header only)
-        left_header: Layout for left physical header (dual-header only)
-        right_header: Layout for right physical header (dual-header only)
+        left_col_x: X-coordinate for left column (single-header vertical layout only)
+        right_col_x: X-coordinate for right column (single-header vertical layout only)
+        start_y: Starting Y-coordinate (single-header vertical layout only)
+        row_spacing: Vertical spacing between rows (single-header vertical layout only)
+        top_header: Layout for top physical header (dual-header horizontal layout)
+        bottom_header: Layout for bottom physical header (dual-header horizontal layout)
     """
 
-    # Single-header layout (optional for dual-header boards)
+    # Single-header vertical layout (Raspberry Pi)
     left_col_x: Annotated[
         float | None, Field(None, gt=0, description="X position for left column (odd pins)")
     ]
@@ -514,9 +515,9 @@ class BoardLayoutConfigSchema(BaseModel):
         float | None, Field(None, gt=0, description="Vertical spacing between rows")
     ]
 
-    # Dual-header layout (for boards like Pico with pins on both sides)
-    left_header: dict | None = None
-    right_header: dict | None = None
+    # Dual-header horizontal layout (Pico-style: pins on top/bottom edges)
+    top_header: dict | None = None
+    bottom_header: dict | None = None
 
     model_config = ConfigDict(extra="allow")  # Allow extra fields for flexibility
 
@@ -531,13 +532,13 @@ class BoardLayoutConfigSchema(BaseModel):
                 self.row_spacing is not None,
             ]
         )
-        has_dual_header = self.left_header is not None and self.right_header is not None
+        has_dual_header = self.top_header is not None and self.bottom_header is not None
 
         if not has_single_header and not has_dual_header:
             raise ValueError(
                 "Layout must define either single-header "
                 "(left_col_x, right_col_x, start_y, row_spacing) "
-                "or dual-header (left_header, right_header) configuration"
+                "or dual-header (top_header, bottom_header) configuration"
             )
 
         if has_single_header and self.right_col_x <= self.left_col_x:
