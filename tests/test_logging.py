@@ -1,11 +1,13 @@
 """Tests for structured logging functionality."""
 
 import logging
-import sys
-from unittest.mock import patch
 
-from pinviz.cli import main
+from typer.testing import CliRunner
+
+from pinviz.cli import app
 from pinviz.logging_config import configure_logging, get_logger
+
+runner = CliRunner()
 
 
 class TestLoggingConfiguration:
@@ -91,7 +93,7 @@ class TestLoggingConfiguration:
 class TestCLILoggingFlags:
     """Test CLI logging flags."""
 
-    def test_default_log_level_warning(self, tmp_path, capsys):
+    def test_default_log_level_warning(self, tmp_path):
         """Test default log level is WARNING (minimal output)."""
         config_file = tmp_path / "test.yaml"
         config_file.write_text(
@@ -112,18 +114,16 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with patch.object(
-            sys,
-            "argv",
-            ["pinviz", "render", str(config_file), "-o", str(output_file)],
-        ):
-            result = main()
+        result = runner.invoke(
+            app,
+            ["render", str(config_file), "-o", str(output_file)],
+        )
 
-        assert result == 0
-        # At WARNING level, should see minimal logs
-        captured = capsys.readouterr()
-        # User-facing messages still present
-        assert "Loading configuration" in captured.out
+        assert result.exit_code == 0
+        assert output_file.exists()
+        # At WARNING level, should see minimal logs (Rich progress is transient)
+        # Success message still present
+        assert "Diagram generated" in result.stdout
 
     def test_log_level_info_flag(self, tmp_path, caplog):
         """Test --log-level INFO flag produces more output."""
@@ -146,13 +146,10 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with (
-            caplog.at_level(logging.INFO),
-            patch.object(
-                sys,
-                "argv",
+        with caplog.at_level(logging.INFO):
+            result = runner.invoke(
+                app,
                 [
-                    "pinviz",
                     "--log-level",
                     "INFO",
                     "render",
@@ -160,11 +157,9 @@ connections:
                     "-o",
                     str(output_file),
                 ],
-            ),
-        ):
-            result = main()
+            )
 
-        assert result == 0
+        assert result.exit_code == 0
         # Verify INFO level logs were emitted
         info_events = [r.message for r in caplog.records if r.levelname == "INFO"]
         assert len(info_events) > 0
@@ -190,13 +185,10 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with (
-            caplog.at_level(logging.DEBUG),
-            patch.object(
-                sys,
-                "argv",
+        with caplog.at_level(logging.DEBUG):
+            result = runner.invoke(
+                app,
                 [
-                    "pinviz",
                     "--log-level",
                     "DEBUG",
                     "render",
@@ -204,11 +196,9 @@ connections:
                     "-o",
                     str(output_file),
                 ],
-            ),
-        ):
-            result = main()
+            )
 
-        assert result == 0
+        assert result.exit_code == 0
         # Verify DEBUG level logs were emitted
         debug_events = [r.message for r in caplog.records if r.levelname == "DEBUG"]
         assert len(debug_events) > 0
@@ -234,11 +224,9 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with patch.object(
-            sys,
-            "argv",
+        result = runner.invoke(
+            app,
             [
-                "pinviz",
                 "--log-level",
                 "INFO",
                 "--log-format",
@@ -248,11 +236,10 @@ connections:
                 "-o",
                 str(output_file),
             ],
-        ):
-            result = main()
+        )
 
         # Command should succeed with json format
-        assert result == 0
+        assert result.exit_code == 0
         assert output_file.exists()
 
     def test_log_format_console_flag(self, tmp_path):
@@ -276,11 +263,9 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with patch.object(
-            sys,
-            "argv",
+        result = runner.invoke(
+            app,
             [
-                "pinviz",
                 "--log-level",
                 "INFO",
                 "--log-format",
@@ -290,11 +275,10 @@ connections:
                 "-o",
                 str(output_file),
             ],
-        ):
-            result = main()
+        )
 
         # Command should succeed with console format
-        assert result == 0
+        assert result.exit_code == 0
         assert output_file.exists()
 
 
@@ -322,13 +306,10 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with (
-            caplog.at_level(logging.INFO),
-            patch.object(
-                sys,
-                "argv",
+        with caplog.at_level(logging.INFO):
+            result = runner.invoke(
+                app,
                 [
-                    "pinviz",
                     "--log-level",
                     "INFO",
                     "render",
@@ -336,11 +317,9 @@ connections:
                     "-o",
                     str(output_file),
                 ],
-            ),
-        ):
-            result = main()
+            )
 
-        assert result == 0
+        assert result.exit_code == 0
         # Verify that INFO level logs were emitted during rendering
         assert len([r for r in caplog.records if r.levelname == "INFO"]) > 0
 
@@ -363,23 +342,18 @@ connections:
 """
         )
 
-        with (
-            caplog.at_level(logging.INFO),
-            patch.object(
-                sys,
-                "argv",
+        with caplog.at_level(logging.INFO):
+            result = runner.invoke(
+                app,
                 [
-                    "pinviz",
                     "--log-level",
                     "INFO",
                     "validate",
                     str(config_file),
                 ],
-            ),
-        ):
-            result = main()
+            )
 
-        assert result == 0
+        assert result.exit_code == 0
         # Verify validation logging occurred
         assert len([r for r in caplog.records if r.levelname == "INFO"]) > 0
 
@@ -388,13 +362,10 @@ connections:
         # Non-existent file
         config_file = tmp_path / "nonexistent.yaml"
 
-        with (
-            caplog.at_level(logging.ERROR),
-            patch.object(
-                sys,
-                "argv",
+        with caplog.at_level(logging.ERROR):
+            result = runner.invoke(
+                app,
                 [
-                    "pinviz",
                     "--log-level",
                     "ERROR",
                     "render",
@@ -402,14 +373,12 @@ connections:
                     "-o",
                     "/tmp/out.svg",
                 ],
-            ),
-        ):
-            result = main()
+            )
 
-        assert result == 1
-        # Should have error logs
-        error_records = [r for r in caplog.records if r.levelname == "ERROR"]
-        assert len(error_records) > 0
+        # Typer validates file existence before calling the command
+        assert result.exit_code != 0
+        # Note: Typer's file validation happens before command execution
+        # so structured logging may not capture this error
 
 
 class TestLoggingIntegration:
@@ -442,11 +411,9 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with patch.object(
-            sys,
-            "argv",
+        result = runner.invoke(
+            app,
             [
-                "pinviz",
                 "--log-level",
                 "DEBUG",
                 "--log-format",
@@ -456,10 +423,9 @@ connections:
                 "-o",
                 str(output_file),
             ],
-        ):
-            result = main()
+        )
 
-        assert result == 0
+        assert result.exit_code == 0
         assert output_file.exists()
 
         # Verify SVG is valid
@@ -492,13 +458,10 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with (
-            caplog.at_level(logging.ERROR),
-            patch.object(
-                sys,
-                "argv",
+        with caplog.at_level(logging.ERROR):
+            result = runner.invoke(
+                app,
                 [
-                    "pinviz",
                     "--log-level",
                     "INFO",
                     "render",
@@ -506,12 +469,10 @@ connections:
                     "-o",
                     str(output_file),
                 ],
-            ),
-        ):
-            result = main()
+            )
 
         # Should fail due to pin conflict
-        assert result == 1
+        assert result.exit_code == 1
         # Should have error logs from validation
         error_records = [r for r in caplog.records if r.levelname == "ERROR"]
         assert len(error_records) > 0
@@ -520,13 +481,10 @@ connections:
         """Test example command works with logging enabled."""
         output_file = tmp_path / "example.svg"
 
-        with (
-            caplog.at_level(logging.DEBUG),
-            patch.object(
-                sys,
-                "argv",
+        with caplog.at_level(logging.DEBUG):
+            result = runner.invoke(
+                app,
                 [
-                    "pinviz",
                     "--log-level",
                     "DEBUG",
                     "example",
@@ -534,11 +492,9 @@ connections:
                     "-o",
                     str(output_file),
                 ],
-            ),
-        ):
-            result = main()
+            )
 
-        assert result == 0
+        assert result.exit_code == 0
         assert output_file.exists()
         # Should have logging from example generation
         assert len(caplog.records) > 0
