@@ -13,22 +13,18 @@ if [ $? -eq 0 ]; then
     echo "   2. Edit pin positions in: src/pinviz/board_configs/raspberry_pi_pico.json"
     echo "   3. Run: ./iterate_pico.sh again"
     echo ""
-    echo "🎯 Key positions to adjust (single row per edge):"
-    echo "   TOP HEADER (pins 1-20 in one row):"
-    echo "     - start_x: 30.0 (X position of first pin)"
-    echo "     - pin_spacing: 10.0 (horizontal spacing between pins)"
-    echo "     - y: 15.0 (fixed Y position for all top pins)"
+    echo "🎯 Current pin positions (single row per edge):"
+    echo "   TOP HEADER (pins 20-1, left to right - REVERSED):"
+    echo "     - start_x: 8.0"
+    echo "     - pin_spacing: 12.0"
+    echo "     - y: 6.5"
     echo ""
-    echo "   BOTTOM HEADER (pins 21-40 in one row):"
-    echo "     - start_x: 30.0 (X position of first pin)"
-    echo "     - pin_spacing: 10.0 (horizontal spacing between pins)"
-    echo "     - y: 86.0 (fixed Y position for all bottom pins)"
+    echo "   BOTTOM HEADER (pins 21-40, left to right - NORMAL):"
+    echo "     - start_x: 8.0"
+    echo "     - pin_spacing: 12.0"
+    echo "     - y: 94.0"
     echo ""
-
-    # Open in default browser on macOS
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        open out/test_pico.svg
-    fi
+ 
 else
     echo "❌ Error rendering diagram"
     exit 1
