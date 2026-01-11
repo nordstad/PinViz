@@ -6,11 +6,11 @@ import sys
 from pathlib import Path
 
 import typer
-from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
 
-console = Console()
+from ..config import load_config
+from ..context import AppContext
 
 
 def detect_shell() -> str | None:
@@ -21,12 +21,10 @@ def detect_shell() -> str | None:
         Shell name (bash, zsh, fish) or None if not detected
     """
     shell_path = os.environ.get("SHELL", "")
-    if "bash" in shell_path:
-        return "bash"
-    elif "zsh" in shell_path:
-        return "zsh"
-    elif "fish" in shell_path:
-        return "fish"
+    shell_name = Path(shell_path).name if shell_path else ""
+
+    if shell_name in ("bash", "zsh", "fish"):
+        return shell_name
     return None
 
 
@@ -71,23 +69,25 @@ def completion_install_command(
         pinviz completion install
         pinviz completion install --shell bash
     """
+    ctx = AppContext(config=load_config())
+
     # Detect shell if not specified
     if shell is None:
         shell = detect_shell()
         if shell is None:
-            console.print("[red]Error:[/red] Could not detect shell")
-            console.print("[dim]Specify shell manually with --shell (bash, zsh, or fish)[/dim]")
+            ctx.console.print("[red]Error:[/red] Could not detect shell")
+            ctx.console.print("[dim]Specify shell manually with --shell (bash, zsh, or fish)[/dim]")
             raise typer.Exit(1)
-        console.print(f"[dim]Detected shell: {shell}[/dim]")
+        ctx.console.print(f"[dim]Detected shell: {shell}[/dim]")
 
     # Validate shell
     if shell not in ("bash", "zsh", "fish"):
-        console.print(f"[red]Error:[/red] Unsupported shell: {shell}")
-        console.print("[dim]Supported shells: bash, zsh, fish[/dim]")
+        ctx.console.print(f"[red]Error:[/red] Unsupported shell: {shell}")
+        ctx.console.print("[dim]Supported shells: bash, zsh, fish[/dim]")
         raise typer.Exit(1)
 
-    console.print()
-    console.print(f"[cyan]Installing completion for {shell}...[/cyan]")
+    ctx.console.print()
+    ctx.console.print(f"[cyan]Installing completion for {shell}...[/cyan]")
 
     # Determine config file
     home = Path.home()
@@ -111,19 +111,19 @@ def completion_install_command(
             )
             if result.returncode == 0:
                 config_file.write_text(result.stdout, encoding="utf-8")
-                console.print(
+                ctx.console.print(
                     f"[green]✓[/green] Completion installed to: [cyan]{config_file}[/cyan]"
                 )
-                console.print(
+                ctx.console.print(
                     "[dim]Restart your shell or run: source ~/.config/fish/config.fish[/dim]"
                 )
-                console.print()
+                ctx.console.print()
                 return
             else:
-                console.print("[red]Error:[/red] Failed to generate fish completion script")
+                ctx.console.print("[red]Error:[/red] Failed to generate fish completion script")
                 raise typer.Exit(1)
         except Exception as e:
-            console.print(f"[red]Error:[/red] {e}")
+            ctx.console.print(f"[red]Error:[/red] {e}")
             raise typer.Exit(1) from None
         return
 
@@ -131,8 +131,8 @@ def completion_install_command(
     if config_file.exists():
         content = config_file.read_text(encoding="utf-8")
         if completion_line in content:
-            console.print(f"[yellow]⚠[/yellow]  Completion already installed in {config_file}")
-            console.print()
+            ctx.console.print(f"[yellow]⚠[/yellow]  Completion already installed in {config_file}")
+            ctx.console.print()
             return
 
     # Add completion line to config file
@@ -140,12 +140,12 @@ def completion_install_command(
         with open(config_file, "a", encoding="utf-8") as f:
             f.write(f"\n# pinviz completion\n{completion_line}\n")
 
-        console.print(f"[green]✓[/green] Completion installed to: [cyan]{config_file}[/cyan]")
-        console.print(f"[dim]Restart your shell or run: source {config_file}[/dim]")
-        console.print()
+        ctx.console.print(f"[green]✓[/green] Completion installed to: [cyan]{config_file}[/cyan]")
+        ctx.console.print(f"[dim]Restart your shell or run: source {config_file}[/dim]")
+        ctx.console.print()
 
     except Exception as e:
-        console.print(f"[red]Error:[/red] Failed to install completion: {e}")
+        ctx.console.print(f"[red]Error:[/red] Failed to install completion: {e}")
         raise typer.Exit(1) from None
 
 
@@ -167,38 +167,40 @@ def completion_show_command(
         pinviz completion show
         pinviz completion show --shell bash
     """
+    ctx = AppContext(config=load_config())
+
     # Detect shell if not specified
     if shell is None:
         shell = detect_shell()
         if shell is None:
-            console.print("[red]Error:[/red] Could not detect shell")
-            console.print("[dim]Specify shell manually with --shell (bash, zsh, or fish)[/dim]")
+            ctx.console.print("[red]Error:[/red] Could not detect shell")
+            ctx.console.print("[dim]Specify shell manually with --shell (bash, zsh, or fish)[/dim]")
             raise typer.Exit(1)
 
     # Validate shell
     if shell not in ("bash", "zsh", "fish"):
-        console.print(f"[red]Error:[/red] Unsupported shell: {shell}")
-        console.print("[dim]Supported shells: bash, zsh, fish[/dim]")
+        ctx.console.print(f"[red]Error:[/red] Unsupported shell: {shell}")
+        ctx.console.print("[dim]Supported shells: bash, zsh, fish[/dim]")
         raise typer.Exit(1)
 
-    console.print()
+    ctx.console.print()
 
     # Show completion script
     if shell in ("bash", "zsh"):
         script = f'eval "$(pinviz --show-completion {shell})"'
-        console.print(
+        ctx.console.print(
             Panel(
                 Syntax(script, "bash", theme="monokai"),
                 title=f"Completion Script for {shell}",
                 border_style="cyan",
             )
         )
-        console.print()
-        console.print("[dim]Add this line to your shell config file:[/dim]")
+        ctx.console.print()
+        ctx.console.print("[dim]Add this line to your shell config file:[/dim]")
         if shell == "bash":
-            console.print(f"[cyan]  echo '{script}' >> ~/.bashrc[/cyan]")
+            ctx.console.print(f"[cyan]  echo '{script}' >> ~/.bashrc[/cyan]")
         else:
-            console.print(f"[cyan]  echo '{script}' >> ~/.zshrc[/cyan]")
+            ctx.console.print(f"[cyan]  echo '{script}' >> ~/.zshrc[/cyan]")
     elif shell == "fish":
         try:
             result = subprocess.run(
@@ -208,23 +210,23 @@ def completion_show_command(
                 check=False,
             )
             if result.returncode == 0:
-                console.print(
+                ctx.console.print(
                     Panel(
                         Syntax(result.stdout, "fish", theme="monokai", line_numbers=True),
                         title="Completion Script for fish",
                         border_style="cyan",
                     )
                 )
-                console.print()
-                console.print("[dim]Save this to: ~/.config/fish/completions/pinviz.fish[/dim]")
+                ctx.console.print()
+                ctx.console.print("[dim]Save this to: ~/.config/fish/completions/pinviz.fish[/dim]")
             else:
-                console.print("[red]Error:[/red] Failed to generate fish completion script")
+                ctx.console.print("[red]Error:[/red] Failed to generate fish completion script")
                 raise typer.Exit(1)
         except Exception as e:
-            console.print(f"[red]Error:[/red] {e}")
+            ctx.console.print(f"[red]Error:[/red] {e}")
             raise typer.Exit(1) from None
 
-    console.print()
+    ctx.console.print()
 
 
 def completion_uninstall_command(
@@ -244,20 +246,22 @@ def completion_uninstall_command(
         pinviz completion uninstall
         pinviz completion uninstall --shell bash
     """
+    ctx = AppContext(config=load_config())
+
     # Detect shell if not specified
     if shell is None:
         shell = detect_shell()
         if shell is None:
-            console.print("[red]Error:[/red] Could not detect shell")
-            console.print("[dim]Specify shell manually with --shell[/dim]")
+            ctx.console.print("[red]Error:[/red] Could not detect shell")
+            ctx.console.print("[dim]Specify shell manually with --shell[/dim]")
             raise typer.Exit(1)
 
     # Validate shell
     if shell not in ("bash", "zsh", "fish"):
-        console.print(f"[red]Error:[/red] Unsupported shell: {shell}")
+        ctx.console.print(f"[red]Error:[/red] Unsupported shell: {shell}")
         raise typer.Exit(1)
 
-    console.print(f"[cyan]Uninstalling completion for {shell}...[/cyan]")
+    ctx.console.print(f"[cyan]Uninstalling completion for {shell}...[/cyan]")
 
     home = Path.home()
     if shell == "bash":
@@ -270,22 +274,22 @@ def completion_uninstall_command(
         config_file = home / ".config" / "fish" / "completions" / "pinviz.fish"
         if config_file.exists():
             config_file.unlink()
-            console.print(f"[green]✓[/green] Removed: [cyan]{config_file}[/cyan]")
+            ctx.console.print(f"[green]✓[/green] Removed: [cyan]{config_file}[/cyan]")
         else:
-            console.print("[yellow]⚠[/yellow]  Completion not installed")
-        console.print()
+            ctx.console.print("[yellow]⚠[/yellow]  Completion not installed")
+        ctx.console.print()
         return
 
     # Remove completion line from config file
     if not config_file.exists():
-        console.print(f"[yellow]⚠[/yellow]  Config file not found: {config_file}")
-        console.print()
+        ctx.console.print(f"[yellow]⚠[/yellow]  Config file not found: {config_file}")
+        ctx.console.print()
         return
 
     content = config_file.read_text(encoding="utf-8")
     if completion_line not in content:
-        console.print("[yellow]⚠[/yellow]  Completion not installed")
-        console.print()
+        ctx.console.print("[yellow]⚠[/yellow]  Completion not installed")
+        ctx.console.print()
         return
 
     # Remove the line and surrounding comments
@@ -304,5 +308,5 @@ def completion_uninstall_command(
             new_lines.append(line)
 
     config_file.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
-    console.print(f"[green]✓[/green] Completion uninstalled from: [cyan]{config_file}[/cyan]")
-    console.print()
+    ctx.console.print(f"[green]✓[/green] Completion uninstalled from: [cyan]{config_file}[/cyan]")
+    ctx.console.print()

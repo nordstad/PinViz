@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from rich.console import Console
 
 from ...config_loader import load_diagram
 from ...device_validator import validate_devices
@@ -22,8 +21,6 @@ from ..output import (
     print_validation_issues,
     print_warning,
 )
-
-console = Console()
 
 
 def validate_command(
@@ -70,7 +67,7 @@ def validate_command(
         log.info("validation_started", config_path=str(config_file), strict_mode=strict)
 
         if not json_output:
-            console.print(f"Validating configuration: [cyan]{config_file}[/cyan]")
+            ctx.console.print(f"Validating configuration: [cyan]{config_file}[/cyan]")
 
         diagram = load_diagram(config_file)
 
@@ -92,11 +89,11 @@ def validate_command(
                     validation=get_validation_summary([]),
                     issues=None,
                 )
-                output_json(result, console)
+                output_json(result, ctx.console)
             else:
-                console.print()
-                print_success("Validation passed! No issues found.", console)
-                print_success("Current limits OK", console)
+                ctx.console.print()
+                print_success("Validation passed! No issues found.", ctx.console)
+                print_success("Current limits OK", ctx.console)
             return
 
         # Categorize issues
@@ -121,15 +118,15 @@ def validate_command(
                 validation=get_validation_summary(issues),
                 issues=format_validation_issues_json(issues),
             )
-            output_json(result, console)
+            output_json(result, ctx.console)
         else:
             # Display all issues
-            print_validation_issues(issues, console)
+            print_validation_issues(issues, ctx.console)
 
             # Summary
-            console.print()
+            ctx.console.print()
             if error_count > 0 or warning_count > 0:
-                console.print(
+                ctx.console.print(
                     f"Found [red]{error_count}[/red] error(s), "
                     f"[yellow]{warning_count}[/yellow] warning(s)"
                 )
@@ -137,13 +134,13 @@ def validate_command(
         # Return appropriate exit code
         if errors:
             log.error("validation_failed", error_count=error_count)
-            raise typer.Exit(code=1)  # noqa: B904  # noqa: B904
+            raise typer.Exit(code=1)
 
         if warnings and strict:
             log.warning("strict_mode_warnings_as_errors", warning_count=warning_count)
             if not json_output:
-                print_error("Treating warnings as errors (--strict mode)", console)
-            raise typer.Exit(code=1)  # noqa: B904  # noqa: B904
+                print_error("Treating warnings as errors (--strict mode)", ctx.console)
+            raise typer.Exit(code=1)
 
         log.info("validation_completed_with_warnings", warning_count=warning_count)
 
@@ -164,11 +161,11 @@ def validate_command(
                 issues=None,
                 errors=[str(e)],
             )
-            output_json(result, console)
+            output_json(result, ctx.console)
         else:
-            print_error(str(e), console)
+            print_error(str(e), ctx.console)
 
-        raise typer.Exit(code=1)  # noqa: B904
+        raise typer.Exit(code=1) from None
 
 
 def validate_devices_command(
@@ -204,8 +201,8 @@ def validate_devices_command(
     log.info("device_validation_started", strict_mode=strict)
 
     if not json_output:
-        console.print("Validating device configurations...")
-        console.print()
+        ctx.console.print("Validating device configurations...")
+        ctx.console.print()
 
     try:
         result = validate_devices()
@@ -232,55 +229,57 @@ def validate_devices_command(
                 errors=[str(e) for e in result.errors] if result.errors else None,
                 warnings=[str(w) for w in result.warnings] if result.warnings else None,
             )
-            output_json(json_result, console)
+            output_json(json_result, ctx.console)
         else:
             # Display errors
             if result.errors:
-                console.print("[bold red]Errors:[/bold red]")
+                ctx.console.print("[bold red]Errors:[/bold red]")
                 for error in result.errors:
-                    console.print(f"  [red]•[/red] {error}")
-                console.print()
+                    ctx.console.print(f"  [red]•[/red] {error}")
+                ctx.console.print()
 
             # Display warnings
             if result.warnings:
-                console.print("[bold yellow]Warnings:[/bold yellow]")
+                ctx.console.print("[bold yellow]Warnings:[/bold yellow]")
                 for warning in result.warnings:
-                    console.print(f"  [yellow]•[/yellow] {warning}")
-                console.print()
+                    ctx.console.print(f"  [yellow]•[/yellow] {warning}")
+                ctx.console.print()
 
             # Summary
-            console.print(f"Scanned [cyan]{result.total_files}[/cyan] device configuration files")
-            console.print(f"Valid: [green]{result.valid_files}[/green]")
+            ctx.console.print(
+                f"Scanned [cyan]{result.total_files}[/cyan] device configuration files"
+            )
+            ctx.console.print(f"Valid: [green]{result.valid_files}[/green]")
 
             if result.error_count > 0:
-                console.print(f"Errors: [red]{result.error_count}[/red]")
+                ctx.console.print(f"Errors: [red]{result.error_count}[/red]")
             if result.warning_count > 0:
-                console.print(f"Warnings: [yellow]{result.warning_count}[/yellow]")
+                ctx.console.print(f"Warnings: [yellow]{result.warning_count}[/yellow]")
 
-            console.print()
+            ctx.console.print()
 
         # Exit codes
         if result.has_errors:
             log.error("validation_failed", error_count=result.error_count)
             if not json_output:
-                print_error("Validation failed with errors", console)
-            raise typer.Exit(code=1)  # noqa: B904  # noqa: B904
+                print_error("Validation failed with errors", ctx.console)
+            raise typer.Exit(code=1)
 
         if result.has_warnings and strict:
             log.warning("strict_mode_warnings_as_errors", warning_count=result.warning_count)
             if not json_output:
-                print_error("Validation failed: warnings in strict mode", console)
-            raise typer.Exit(code=1)  # noqa: B904  # noqa: B904
+                print_error("Validation failed: warnings in strict mode", ctx.console)
+            raise typer.Exit(code=1)
 
         if result.has_warnings:
             log.info("validation_completed_with_warnings", warning_count=result.warning_count)
             if not json_output:
-                print_warning("Validation completed with warnings", console)
+                print_warning("Validation completed with warnings", ctx.console)
             return
 
         log.info("validation_passed")
         if not json_output:
-            print_success("All device configurations are valid!", console)
+            print_success("All device configurations are valid!", ctx.console)
 
     except typer.Exit:
         raise
@@ -300,8 +299,8 @@ def validate_devices_command(
                 warning_count=0,
                 errors=[str(e)],
             )
-            output_json(json_result, console)
+            output_json(json_result, ctx.console)
         else:
-            print_error(f"Error during validation: {e}", console)
+            print_error(f"Error during validation: {e}", ctx.console)
 
-        raise typer.Exit(code=1)  # noqa: B904
+        raise typer.Exit(code=1) from None

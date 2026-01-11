@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from ...config_loader import load_diagram
@@ -21,8 +20,6 @@ from ..output import (
     print_validation_issues,
     print_warning,
 )
-
-console = Console()
 
 
 def render_command(
@@ -95,7 +92,7 @@ def render_command(
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
-            console=console,
+            console=ctx.console,
             transient=True,
         ) as progress:
             # Load config
@@ -128,18 +125,20 @@ def render_command(
                 warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
 
                 if errors:
-                    print_validation_issues(issues, console)
+                    print_validation_issues(issues, ctx.console)
                     print_error(
                         f"Found {len(errors)} error(s). Cannot generate diagram.",
-                        console,
+                        ctx.console,
                     )
-                    raise typer.Exit(code=1)  # noqa: B904  # noqa: B904
+                    raise typer.Exit(code=1)
 
                 # Show warnings but continue
                 if warnings:
-                    print_validation_issues(issues, console)
-                    print_warning(f"Found {len(warnings)} warning(s). Review carefully.", console)
-                    console.print()
+                    print_validation_issues(issues, ctx.console)
+                    print_warning(
+                        f"Found {len(warnings)} warning(s). Review carefully.", ctx.console
+                    )
+                    ctx.console.print()
 
             # Render
             task = progress.add_task("Rendering SVG...", total=None)
@@ -148,14 +147,14 @@ def render_command(
             progress.update(task, completed=True)
 
         if not json_output:
-            print_success(f"Diagram generated: {output_path}", console)
+            print_success(f"Diagram generated: {output_path}", ctx.console)
         else:
             result = RenderOutputJson(
                 status="success",
                 output_path=str(output_path),
                 validation=get_validation_summary(issues),
             )
-            output_json(result, console)
+            output_json(result, ctx.console)
 
         log.info("diagram_generated", output_path=str(output_path))
 
@@ -172,8 +171,8 @@ def render_command(
                 validation=get_validation_summary([]),
                 errors=[str(e)],
             )
-            output_json(result, console)
+            output_json(result, ctx.console)
         else:
-            print_error(str(e), console)
+            print_error(str(e), ctx.console)
 
-        raise typer.Exit(code=1)  # noqa: B904
+        raise typer.Exit(code=1) from None

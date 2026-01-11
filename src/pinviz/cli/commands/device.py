@@ -3,14 +3,11 @@
 import asyncio
 
 import typer
-from rich.console import Console
 
 from ...device_wizard import main as wizard_main
 from ..config import load_config
 from ..context import AppContext
 from ..output import print_error
-
-console = Console()
 
 
 def add_device_command() -> None:
@@ -37,12 +34,12 @@ def add_device_command() -> None:
             raise typer.Exit(code=exit_code)
 
     except KeyboardInterrupt:
-        console.print("\n")
-        print_error("Wizard cancelled by user", console)
+        ctx.console.print("\n")
+        print_error("Wizard cancelled by user", ctx.console)
         log.info("device_wizard_cancelled")
-        raise typer.Exit(code=1)  # noqa: B904
+        raise typer.Exit(code=1) from None
 
     except Exception as e:
         log.exception("device_wizard_error", error_type=type(e).__name__, error_message=str(e))
-        print_error(str(e), console)
-        raise typer.Exit(code=1)  # noqa: B904
+        print_error(str(e), ctx.console)
+        raise typer.Exit(code=1) from None

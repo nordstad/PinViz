@@ -1,6 +1,6 @@
 """Rich output helpers for consistent CLI UX."""
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel
 from rich.console import Console
@@ -142,7 +142,7 @@ class ValidationIssueJson(BaseModel):
 class RenderOutputJson(BaseModel):
     """JSON output for render command."""
 
-    status: str
+    status: Literal["success", "error"]
     output_path: str | None = None
     validation: ValidationSummary
     errors: list[str] | None = None
@@ -151,7 +151,7 @@ class RenderOutputJson(BaseModel):
 class ValidateOutputJson(BaseModel):
     """JSON output for validate command."""
 
-    status: str
+    status: Literal["success", "error", "warning"]
     validation: ValidationSummary
     issues: list[ValidationIssueJson] | None = None
     errors: list[str] | None = None
@@ -176,7 +176,7 @@ class BoardInfo(BaseModel):
 class ListOutputJson(BaseModel):
     """JSON output for list command."""
 
-    status: str
+    status: Literal["success"]
     boards: list[BoardInfo]
     devices: list[DeviceInfo]
     examples: list[dict[str, str]]
@@ -185,7 +185,7 @@ class ListOutputJson(BaseModel):
 class ExampleOutputJson(BaseModel):
     """JSON output for example command."""
 
-    status: str
+    status: Literal["success", "error"]
     example_name: str
     output_path: str | None = None
     errors: list[str] | None = None
@@ -194,7 +194,7 @@ class ExampleOutputJson(BaseModel):
 class ValidateDevicesOutputJson(BaseModel):
     """JSON output for validate-devices command."""
 
-    status: str
+    status: Literal["success", "error", "warning"]
     total_files: int
     valid_files: int
     error_count: int

@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from ... import boards
@@ -22,8 +21,6 @@ from ..output import (
     print_validation_issues,
     print_warning,
 )
-
-console = Console()
 
 
 def create_bh1750_example() -> Diagram:
@@ -169,11 +166,11 @@ def example_command(
                 output_path=None,
                 errors=[f"Unknown example: {name}. Available: bh1750, ir_led, i2c_spi"],
             )
-            output_json(result, console)
+            output_json(result, ctx.console)
         else:
-            print_error(f"Unknown example: {name}", console)
-            console.print("\nAvailable examples: [cyan]bh1750, ir_led, i2c_spi[/cyan]")
-        raise typer.Exit(code=1)  # noqa: B904
+            print_error(f"Unknown example: {name}", ctx.console)
+            ctx.console.print("\nAvailable examples: [cyan]bh1750, ir_led, i2c_spi[/cyan]")
+        raise typer.Exit(code=1)
 
     # Determine output path
     if output:
@@ -189,7 +186,7 @@ def example_command(
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
-            console=console,
+            console=ctx.console,
             transient=True,
         ) as progress:
             task = progress.add_task(f"Generating example: {name}...", total=None)
@@ -234,21 +231,23 @@ def example_command(
                 # Show validation issues
                 if errors or warnings:
                     progress.stop()
-                    print_validation_issues(issues, console)
+                    print_validation_issues(issues, ctx.console)
 
                 # Fail on errors
                 if errors:
                     log.error("example_validation_failed", error_count=len(errors))
-                    print_error(f"Found {len(errors)} error(s). Cannot generate example.", console)
-                    raise typer.Exit(code=1)  # noqa: B904
+                    print_error(
+                        f"Found {len(errors)} error(s). Cannot generate example.", ctx.console
+                    )
+                    raise typer.Exit(code=1)
 
                 if warnings:
                     log.warning("example_validation_warnings", warning_count=len(warnings))
                     print_warning(
                         f"Found {len(warnings)} warning(s). Review the example carefully.",
-                        console,
+                        ctx.console,
                     )
-                    console.print()
+                    ctx.console.print()
                     progress.start()
 
             # Render
@@ -262,9 +261,9 @@ def example_command(
                 example_name=name,
                 output_path=str(output_path),
             )
-            output_json(result, console)
+            output_json(result, ctx.console)
         else:
-            print_success(f"Example generated: {output_path}", console)
+            print_success(f"Example generated: {output_path}", ctx.console)
 
         log.info("example_generated", example_name=name, output_path=str(output_path))
 
@@ -286,8 +285,8 @@ def example_command(
                 output_path=None,
                 errors=[str(e)],
             )
-            output_json(result, console)
+            output_json(result, ctx.console)
         else:
-            print_error(str(e), console)
+            print_error(str(e), ctx.console)
 
-        raise typer.Exit(code=1)  # noqa: B904
+        raise typer.Exit(code=1) from None

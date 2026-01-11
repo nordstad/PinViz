@@ -3,14 +3,11 @@
 from typing import Annotated
 
 import typer
-from rich.console import Console
 from rich.table import Table
 
 from ..config import load_config
 from ..context import AppContext
 from ..output import BoardInfo, DeviceInfo, ListOutputJson, output_json
-
-console = Console()
 
 
 def list_command(
@@ -82,14 +79,14 @@ def list_command(
             devices=all_devices,
             examples=examples,
         )
-        output_json(result, console)
+        output_json(result, ctx.console)
     else:
         # Display boards
-        console.print("\n[bold cyan]Available Boards:[/bold cyan]")
-        console.print("  • raspberry_pi_5 (aliases: [dim]rpi5, rpi[/dim])")
-        console.print()
+        ctx.console.print("\n[bold cyan]Available Boards:[/bold cyan]")
+        ctx.console.print("  • raspberry_pi_5 (aliases: [dim]rpi5, rpi[/dim])")
+        ctx.console.print()
 
-        console.print("[bold cyan]Available Device Templates:[/bold cyan]")
+        ctx.console.print("[bold cyan]Available Device Templates:[/bold cyan]")
 
         for category in sorted(categories):
             devices = registry.list_by_category(category)
@@ -114,11 +111,11 @@ def list_command(
                     doc_link,
                 )
 
-            console.print(table)
-            console.print()
+            ctx.console.print(table)
+            ctx.console.print()
 
         # Display examples
-        console.print("[bold cyan]Available Examples:[/bold cyan]")
+        ctx.console.print("[bold cyan]Available Examples:[/bold cyan]")
 
         examples_table = Table(show_header=True, header_style="bold magenta", border_style="dim")
         examples_table.add_column("Name", style="cyan", no_wrap=True)
@@ -127,7 +124,7 @@ def list_command(
         for example in examples:
             examples_table.add_row(example["name"], example["description"])
 
-        console.print(examples_table)
-        console.print()
+        ctx.console.print(examples_table)
+        ctx.console.print()
 
     log.info("templates_listed")
