@@ -12,7 +12,6 @@ Learn PinViz capabilities through these focused examples:
 | **Inline Components** | [LED with Resistor](#led-with-resistor) | Resistors, capacitors, diodes on wires |
 | **Multiple Devices** | [Traffic Light](#traffic-light) | Parallel connections, multiple LEDs |
 | **Wire Routing** | [Multi-Device Setup](#multi-device-setup) | Custom wire colors, complex routing |
-| **Different Boards** | [Pi Zero 2 W](#raspberry-pi-zero-2-w) | Compact board layout |
 
 ## Quick Start with Built-in Examples
 
@@ -76,7 +75,7 @@ pinviz example bh1750 -o bh1750.svg
 
 **Result:**
 
-![BH1750 Light Sensor](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/bh1750_without_gpio.svg)
+![BH1750 Light Sensor](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750.svg)
 
 ---
 
@@ -283,55 +282,6 @@ pinviz render examples/bh1750_ir_led.yaml -o multi_device.svg
 
 ---
 
-### Raspberry Pi Zero 2 W
-
-Same BH1750 sensor on the compact Pi Zero board layout.
-
-**Configuration:** [`examples/pi_zero_bh1750.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/pi_zero_bh1750.yaml)
-
-```yaml
-title: "BH1750 Light Sensor - Pi Zero 2 W"
-board: "raspberry_pi_zero_2w"
-
-devices:
-  - type: "bh1750"
-    name: "BH1750"
-
-connections:
-  - board_pin: 1
-    device: "BH1750"
-    device_pin: "VCC"
-  - board_pin: 6
-    device: "BH1750"
-    device_pin: "GND"
-  - board_pin: 5
-    device: "BH1750"
-    device_pin: "SCL"
-  - board_pin: 3
-    device: "BH1750"
-    device_pin: "SDA"
-
-show_legend: true
-```
-
-**Generate:**
-
-```bash
-pinviz render examples/pi_zero_bh1750.yaml -o pi_zero.svg
-```
-
-**Result:**
-
-![Pi Zero BH1750](https://raw.githubusercontent.com/nordstad/PinViz/main/images/examples/pi_zero_bh1750_without_gpio.svg)
-
-**Key Features:**
-- Compact Raspberry Pi Zero 2 W board
-- Same 40-pin GPIO header pinout as Pi 5
-- Smaller form factor visualization
-- Identical connections work across boards
-
----
-
 ## More Examples
 
 All example files (YAML and Python) are available in the repository:
@@ -349,7 +299,6 @@ All example files (YAML and Python) are available in the repository:
 - `ir_led_ring.yaml` / `ir_led_ring_python.py` - IR LED ring module
 - `multi_device.yaml` / `multi_device_python.py` - Multiple I2C devices
 - `ds18b20_temp.yaml` / `ds18b20_temp_python.py` - 1-Wire temperature sensor
-- `pi_zero_bh1750.yaml` - Pi Zero board example
 
 ---
 

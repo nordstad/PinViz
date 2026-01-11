@@ -10,7 +10,7 @@ This guide walks you through adding support for a new board type to PinViz. The 
 
 ## Quick Start (Raspberry Pi Boards)
 
-**All modern Raspberry Pi boards (Pi 2, 3, 4, 5, Zero 2 W) share the identical 40-pin GPIO pinout.** This means you can copy the pin configuration from an existing board and only update the board name and SVG asset.
+**All modern Raspberry Pi boards (Pi 2, 3, 4, 5) share the identical 40-pin GPIO pinout.** This means you can copy the pin configuration from an existing board and only update the board name and SVG asset.
 
 ### Example: Adding Raspberry Pi 4
 
@@ -148,7 +148,7 @@ def raspberry_pi_4() -> Board:
     """
     Create a Raspberry Pi 4 Model B board with 40-pin GPIO header.
 
-    Uses standard 40-pin GPIO pinout (same as Pi 2, 3, 5, Zero 2 W).
+    Uses standard 40-pin GPIO pinout (same as Pi 2, 3, 5).
     All GPIO pins operate at 3.3V logic levels and are NOT 5V tolerant.
 
     Pin layout (physical pin numbers):
