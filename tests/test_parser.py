@@ -114,6 +114,41 @@ class TestPromptParser:
 
         assert result.board == "raspberry_pi_5"
 
+    def test_board_alias_pi4(self):
+        """Test board alias 'pi4' recognition."""
+        parser = PromptParser()
+        result = parser.parse("connect LED to pi4")
+
+        assert result.board == "raspberry_pi_4"
+
+    def test_board_alias_rpi4(self):
+        """Test board alias 'rpi4' recognition."""
+        parser = PromptParser()
+        result = parser.parse("wire sensor to rpi4")
+
+        assert result.board == "raspberry_pi_4"
+
+    def test_board_alias_pico(self):
+        """Test board alias 'pico' recognition."""
+        parser = PromptParser()
+        result = parser.parse("connect LED to pico")
+
+        assert result.board == "raspberry_pi_pico"
+
+    def test_board_alias_raspberry_pi_pico(self):
+        """Test board alias 'raspberry pi pico' recognition."""
+        parser = PromptParser()
+        result = parser.parse("wire BME280 to raspberry pi pico")
+
+        assert result.board == "raspberry_pi_pico"
+
+    def test_board_alias_rpi_pico(self):
+        """Test board alias 'rpi pico' recognition."""
+        parser = PromptParser()
+        result = parser.parse("connect sensor to rpi pico")
+
+        assert result.board == "raspberry_pi_pico"
+
     def test_clean_device_name_removes_articles(self):
         """Test that articles are removed from device names."""
         parser = PromptParser()

@@ -33,7 +33,7 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - 🎨 **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - 🎯 **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
 - ⚡ **Inline Components**: Add resistors, capacitors, and diodes directly on wires
-- 🔌 **Built-in Templates**: Pre-configured boards (Raspberry Pi 4 & 5) and common devices
+- 🔌 **Built-in Templates**: Pre-configured boards (Raspberry Pi 4, 5 & Pico) and common devices
 - 🐍 **Python API**: Create diagrams programmatically with Python code
 - 🤖 **MCP Server**: Generate diagrams from natural language with AI assistants
 - 📦 **SVG Output**: Scalable, high-quality vector graphics

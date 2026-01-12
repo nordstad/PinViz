@@ -209,7 +209,7 @@ def test_render_diagram_with_gpio_diagram(sample_diagram, temp_output_dir):
 
 def test_render_with_custom_margins(sample_diagram, temp_output_dir):
     """Test rendering with custom margin configuration."""
-    config = LayoutConfig(board_margin_left=100.0, board_margin_top=100.0)
+    config = LayoutConfig(board_margin_left=100.0, board_margin_top_base=100.0)
     renderer = SVGRenderer(config)
 
     output_path = temp_output_dir / "custom_margins.svg"

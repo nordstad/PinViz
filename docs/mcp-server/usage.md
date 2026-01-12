@@ -585,7 +585,8 @@ Result:
 
 6. **Board aliases**
    - "raspberry pi 5" / "rpi5" / "pi5" → Raspberry Pi 5
-   - "raspberry pi 4" / "rpi4" / "pi4" → Raspberry Pi 4 (future)
+   - "raspberry pi 4" / "rpi4" / "pi4" → Raspberry Pi 4
+   - "raspberry pi pico" / "pico" / "rpi pico" → Raspberry Pi Pico
 
 ### Parsing Method: Hybrid Approach
 

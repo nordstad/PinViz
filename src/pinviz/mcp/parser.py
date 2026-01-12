@@ -110,6 +110,18 @@ class PromptParser:
         "raspberry_pi_5": "raspberry_pi_5",
         "pi 5": "raspberry_pi_5",
         "pi5": "raspberry_pi_5",
+        # Raspberry Pi 4
+        "rpi4": "raspberry_pi_4",
+        "rpi 4": "raspberry_pi_4",
+        "raspberry pi 4": "raspberry_pi_4",
+        "raspberry_pi_4": "raspberry_pi_4",
+        "pi 4": "raspberry_pi_4",
+        "pi4": "raspberry_pi_4",
+        # Raspberry Pi Pico
+        "pico": "raspberry_pi_pico",
+        "raspberry pi pico": "raspberry_pi_pico",
+        "raspberry_pi_pico": "raspberry_pi_pico",
+        "rpi pico": "raspberry_pi_pico",
     }
 
     def __init__(self, use_llm: bool = False):

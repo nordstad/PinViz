@@ -1,0 +1,27 @@
+title: "Raspberry Pi Pico - Simple LED"
+
+# Example showing LED connection on Raspberry Pi Pico
+# Uses GP0 (pin 1) for GPIO control and GND (pin 3)
+
+board: "raspberry_pi_pico"
+
+devices:
+  - type: "led"
+    color: "Green"
+    name: "Status LED"
+
+connections:
+  # LED Anode to GP0 via 220Ω resistor
+  - board_pin: 1   # GP0 (top header, rightmost pin)
+    device: "Status LED"
+    device_pin: "+"
+    color: "#00FF00"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  # LED Cathode to Ground
+  - board_pin: 3   # GND (top header)
+    device: "Status LED"
+    device_pin: "-"
+    color: "#000000"
