@@ -1,8 +1,5 @@
 """Validate command implementation."""
 
-from pathlib import Path
-from typing import Annotated
-
 import typer
 
 from ...config_loader import load_diagram
@@ -10,44 +7,24 @@ from ...device_validator import validate_devices
 from ...validation import DiagramValidator, ValidationLevel
 from ..config import load_config
 from ..context import AppContext
+from ..decorators import handle_command_exception
 from ..output import (
     ValidateDevicesOutputJson,
     ValidateOutputJson,
-    format_validation_issues_json,
     get_validation_summary,
     output_json,
     print_error,
     print_success,
-    print_validation_issues,
     print_warning,
 )
+from ..types import ConfigFileArg, JsonOption, StrictOption
+from ..validation_output import ValidationResult
 
 
 def validate_command(
-    config_file: Annotated[
-        Path,
-        typer.Argument(
-            help="Path to YAML or JSON configuration file",
-            exists=True,
-            file_okay=True,
-            dir_okay=False,
-            readable=True,
-        ),
-    ],
-    strict: Annotated[
-        bool,
-        typer.Option(
-            "--strict",
-            help="Treat warnings as errors (exit with error code if warnings found)",
-        ),
-    ] = False,
-    json_output: Annotated[
-        bool,
-        typer.Option(
-            "--json",
-            help="Output machine-readable JSON status",
-        ),
-    ] = False,
+    config_file: ConfigFileArg,
+    strict: StrictOption = False,
+    json_output: JsonOption = False,
 ) -> None:
     """
     Validate a diagram configuration.
@@ -80,109 +57,58 @@ def validate_command(
         validator = DiagramValidator()
         issues = validator.validate(diagram)
 
+        # Log validation results
         if not issues:
             log.info("validation_passed", config_path=str(config_file))
-
-            if json_output:
-                result = ValidateOutputJson(
-                    status="success",
-                    validation=get_validation_summary([]),
-                    issues=None,
-                )
-                output_json(result, ctx.console)
-            else:
-                ctx.console.print()
-                print_success("Validation passed! No issues found.", ctx.console)
-                print_success("Current limits OK", ctx.console)
-            return
-
-        # Categorize issues
-        errors = [i for i in issues if i.level == ValidationLevel.ERROR]
-        warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
-
-        log.info(
-            "validation_issues_found",
-            total_issues=len(issues),
-            errors=len(errors),
-            warnings=len(warnings),
-        )
-
-        error_count = len(errors)
-        warning_count = len(warnings)
-
-        # Output results
-        if json_output:
-            status = "error" if errors else ("warning" if warnings else "success")
-            result = ValidateOutputJson(
-                status=status,
-                validation=get_validation_summary(issues),
-                issues=format_validation_issues_json(issues),
-            )
-            output_json(result, ctx.console)
         else:
-            # Display all issues
-            print_validation_issues(issues, ctx.console)
+            errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+            warnings = [i for i in issues if i.level == ValidationLevel.WARNING]
+            log.info(
+                "validation_issues_found",
+                total_issues=len(issues),
+                errors=len(errors),
+                warnings=len(warnings),
+            )
 
-            # Summary
-            ctx.console.print()
-            if error_count > 0 or warning_count > 0:
-                ctx.console.print(
-                    f"Found [red]{error_count}[/red] error(s), "
-                    f"[yellow]{warning_count}[/yellow] warning(s)"
-                )
+        # Use ValidationResult for output and exit handling
+        result = ValidationResult(issues=issues, strict=strict, config_path=str(config_file))
 
-        # Return appropriate exit code
-        if errors:
-            log.error("validation_failed", error_count=error_count)
-            raise typer.Exit(code=1)
+        if json_output:
+            result.output_json(ctx.console)
+        else:
+            result.output_console(ctx.console)
 
-        if warnings and strict:
-            log.warning("strict_mode_warnings_as_errors", warning_count=warning_count)
-            if not json_output:
-                print_error("Treating warnings as errors (--strict mode)", ctx.console)
-            raise typer.Exit(code=1)
+        if result.exit_code != 0:
+            if result.errors:
+                log.error("validation_failed", error_count=len(result.errors))
+            elif result.warnings and strict:
+                log.warning("strict_mode_warnings_as_errors", warning_count=len(result.warnings))
+            raise typer.Exit(code=result.exit_code)
 
-        log.info("validation_completed_with_warnings", warning_count=warning_count)
+        if result.warnings:
+            log.info("validation_completed_with_warnings", warning_count=len(result.warnings))
 
     except typer.Exit:
         raise
     except Exception as e:
-        log.exception(
-            "validation_error",
-            config_path=str(config_file),
-            error_type=type(e).__name__,
-            error_message=str(e),
-        )
-
-        if json_output:
-            result = ValidateOutputJson(
+        handle_command_exception(
+            e,
+            "validation",
+            ctx.console,
+            log,
+            json_output,
+            lambda msg: ValidateOutputJson(
                 status="error",
                 validation=get_validation_summary([]),
                 issues=None,
-                errors=[str(e)],
-            )
-            output_json(result, ctx.console)
-        else:
-            print_error(str(e), ctx.console)
-
-        raise typer.Exit(code=1) from None
+                errors=[msg],
+            ),
+        )
 
 
 def validate_devices_command(
-    strict: Annotated[
-        bool,
-        typer.Option(
-            "--strict",
-            help="Treat warnings as errors (exit with error code if warnings found)",
-        ),
-    ] = False,
-    json_output: Annotated[
-        bool,
-        typer.Option(
-            "--json",
-            help="Output machine-readable JSON status",
-        ),
-    ] = False,
+    strict: StrictOption = False,
+    json_output: JsonOption = False,
 ) -> None:
     """
     Validate all device configuration files.
@@ -284,23 +210,18 @@ def validate_devices_command(
     except typer.Exit:
         raise
     except Exception as e:
-        log.exception(
-            "validation_error",
-            error_type=type(e).__name__,
-            error_message=str(e),
-        )
-
-        if json_output:
-            json_result = ValidateDevicesOutputJson(
+        handle_command_exception(
+            e,
+            "device_validation",
+            ctx.console,
+            log,
+            json_output,
+            lambda msg: ValidateDevicesOutputJson(
                 status="error",
                 total_files=0,
                 valid_files=0,
                 error_count=1,
                 warning_count=0,
-                errors=[str(e)],
-            )
-            output_json(json_result, ctx.console)
-        else:
-            print_error(f"Error during validation: {e}", ctx.console)
-
-        raise typer.Exit(code=1) from None
+                errors=[msg],
+            ),
+        )

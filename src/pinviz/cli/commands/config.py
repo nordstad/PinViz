@@ -12,6 +12,7 @@ from ..config import (
     load_toml_config,
 )
 from ..context import AppContext
+from ..types import ForceOption
 
 
 def config_show_command() -> None:
@@ -91,12 +92,7 @@ def config_path_command() -> None:
 
 
 def config_init_command(
-    force: bool = typer.Option(
-        False,
-        "--force",
-        "-f",
-        help="Overwrite existing config file",
-    ),
+    force: ForceOption = False,
 ) -> None:
     """
     Create a default configuration file.

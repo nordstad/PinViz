@@ -6,7 +6,7 @@ import structlog
 from rich.console import Console
 
 from ..devices import DeviceRegistry, get_registry
-from .config import CliConfig
+from .config import CliConfig, load_config
 
 
 @dataclass
@@ -38,3 +38,28 @@ class AppContext:
     def __post_init__(self):
         """Initialize logger after dataclass construction."""
         self.logger = structlog.get_logger(__name__)
+
+
+def get_app_context() -> AppContext:
+    """Factory function for creating AppContext instances.
+
+    Creates and returns a new AppContext instance with loaded configuration.
+    This is called as a default factory for commands to reduce boilerplate.
+
+    Returns:
+        AppContext: Configured application context
+
+    Example:
+        >>> def my_command(
+        ...     ctx: AppContextDep = None,
+        ... ) -> None:
+        ...     # ctx is automatically created via get_app_context()
+        ...     ctx.logger.info("command_started")
+    """
+    return AppContext(config=load_config())
+
+
+# For now, we'll just use manual context creation in commands
+# Future enhancement: could explore custom Typer callback for DI
+# AppContextDep is kept as a type alias for consistency
+AppContextDep = AppContext

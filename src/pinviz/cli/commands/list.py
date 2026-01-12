@@ -5,6 +5,7 @@ from typing import Annotated
 import typer
 from rich.table import Table
 
+from ...boards import get_available_boards
 from ..config import load_config
 from ..context import AppContext
 from ..output import BoardInfo, DeviceInfo, ListOutputJson, output_json
@@ -36,12 +37,14 @@ def list_command(
 
     log.info("listing_templates")
 
-    # Collect board information
+    # Collect board information dynamically
+    available_boards = get_available_boards()
     boards = [
         BoardInfo(
-            name="raspberry_pi_5",
-            aliases=["rpi5", "rpi"],
+            name=board["name"],
+            aliases=board["aliases"],
         )
+        for board in available_boards
     ]
 
     # List devices by category
@@ -83,7 +86,9 @@ def list_command(
     else:
         # Display boards
         ctx.console.print("\n[bold cyan]Available Boards:[/bold cyan]")
-        ctx.console.print("  • raspberry_pi_5 (aliases: [dim]rpi5, rpi[/dim])")
+        for board in boards:
+            aliases_str = ", ".join(board.aliases) if board.aliases else "none"
+            ctx.console.print(f"  • {board.name} (aliases: [dim]{aliases_str}[/dim])")
         ctx.console.print()
 
         ctx.console.print("[bold cyan]Available Device Templates:[/bold cyan]")
