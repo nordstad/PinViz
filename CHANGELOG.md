@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.0] - 2026-01-13
 
 ### Added
-- **Raspberry Pi Pico Support** - Dual-sided board support with horizontal pin layout (https://github.com/nordstad/PinViz/pull/61)
+- **Raspberry Pi Pico Support** - Raspberry Pi Pico board support with horizontal pin layout (https://github.com/nordstad/PinViz/pull/61)
   - Complete support for Raspberry Pi Pico with dual 20-pin headers (40 pins total)
   - New dual-header layout system for boards with GPIO pins on multiple edges
   - Horizontal pin positioning (single row per header) vs traditional vertical columns
