@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-01-13
+
 ### Added
-- **Raspberry Pi Pico Support** - Dual-sided board support with horizontal pin layout
+- **Raspberry Pi Pico Support** - Dual-sided board support with horizontal pin layout (https://github.com/nordstad/PinViz/pull/61)
   - Complete support for Raspberry Pi Pico with dual 20-pin headers (40 pins total)
   - New dual-header layout system for boards with GPIO pins on multiple edges
   - Horizontal pin positioning (single row per header) vs traditional vertical columns
@@ -21,26 +23,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Example diagrams: `examples/pico_led.yaml`, `examples/pico_bme280.yaml`, and `examples/pico_leds_with_specs.yaml`
   - Documentation for dual-sided board configuration in `CLAUDE.md`
   - Pico multi-LED example with specifications table demonstrating `--show-legend` flag
-- **Extended Schema Support** for dual-sided boards
+- **Extended Schema Support** for dual-sided boards (https://github.com/nordstad/PinViz/pull/61)
   - `BoardLayoutConfigSchema` now supports `top_header` and `bottom_header` configurations
   - `BoardPinConfigSchema` includes optional `header` field for pin placement
   - Board detection logic automatically identifies dual-header vs single-header layouts
   - Pattern established for future boards (ESP32, Arduino Nano, etc.)
-- **MCP Server Support** for Raspberry Pi Pico and Pi 4
+- **MCP Server Support** for Raspberry Pi Pico and Pi 4 (https://github.com/nordstad/PinViz/pull/61)
   - Added board aliases to MCP parser: `pico`, `raspberry pi pico`, `rpi pico` → `raspberry_pi_pico`
   - Added board aliases for Pi 4: `pi4`, `rpi4`, `raspberry pi 4` → `raspberry_pi_4`
   - 5 new parser tests for board alias recognition (Pi 4 and Pico)
   - Updated MCP documentation with all supported board aliases
   - MCP server now supports natural language prompts like "Connect LED to pico"
+- **Dynamic Board Discovery** in CLI list command (https://github.com/nordstad/PinViz/pull/62)
+  - Added `get_available_boards()` function that automatically discovers boards from `board_configs/`
+  - No need to manually update CLI when adding new boards
+  - Automatically displays all boards: Pi 4, Pi 5, and Pico with their aliases
 
 ### Changed
-- **Improved Wire Colors** in Pico BME280 example for better visibility
+- **Improved Wire Colors** in Pico BME280 example for better visibility (https://github.com/nordstad/PinViz/pull/61)
   - Changed I2C wire colors from yellow to blue (#2196F3) and orange (#FF9800)
   - Yellow wires were hard to see against white background
   - New colors provide better contrast and readability in documentation
+- **Enhanced Exception Handling** in completion commands (https://github.com/nordstad/PinViz/pull/62)
+  - Replaced broad `except Exception` with specific exception types
+  - Added `subprocess.SubprocessError`, `FileNotFoundError`, `PermissionError`, `OSError`
+  - Provides actionable error messages with troubleshooting hints
+- **Dependency Updates**
+  - Bump pydantic from 2.12.4 to 2.12.5 (https://github.com/nordstad/PinViz/pull/57)
+  - Bump ruff from 0.14.10 to 0.14.11 (https://github.com/nordstad/PinViz/pull/58)
+  - Bump platformdirs from 4.5.0 to 4.5.1 (https://github.com/nordstad/PinViz/pull/59)
 
 ### Fixed
-- **Layout Spacing Issues** - Fixed title overlap and specs table positioning (#Issue)
+- **Layout Spacing Issues** - Fixed title overlap and specs table positioning (https://github.com/nordstad/PinViz/pull/61)
   - Dynamic board margin calculation based on whether title is shown
   - Title now has proper spacing (title_height + title_margin) above board and wires
   - Specs table positioned relative to bottommost device with configurable margin
@@ -49,6 +63,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Prevents wires from overlapping with title text
   - Prevents devices from being too close to specifications table
   - All layout spacing now calculated dynamically for proper visual separation
+
+### Tests
+- **Comprehensive ValidationResult Tests** (https://github.com/nordstad/PinViz/pull/62)
+  - Added 9 new test cases for `ValidationResult` class
+  - Tests cover success/error/warning scenarios in strict and non-strict modes
+  - Tests validate console and JSON output formatting
+  - Increased total test count from 33 to 41 tests
 
 
 ## [0.8.1] - 2026-01-11
