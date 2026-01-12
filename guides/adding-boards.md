@@ -1,18 +1,12 @@
-# Adding New Boards to PinViz
+# Adding a New Board
 
-This guide walks you through adding support for new boards to PinViz. The process takes approximately 15-30 minutes for Raspberry Pi boards with 40-pin GPIO headers.
+Board definitions are stored in JSON files in `src/pinviz/board_configs/` directory.
 
-## Overview
+**Quick Summary:** For Raspberry Pi boards with 40-pin GPIO headers, you can copy an existing board's pin configuration since they all share the same GPIO pinout. This takes ~15-30 minutes.
 
-PinViz uses a JSON-based board configuration system that makes it easy to add new board types without modifying Python code. Board definitions are stored in `src/pinviz/board_configs/` directory.
+## Standard Board Configuration
 
-## Quick Summary
-
-For Raspberry Pi boards with 40-pin GPIO headers, you can copy an existing board's pin configuration since they all share the same GPIO pinout. This significantly simplifies the process.
-
-## Board Configuration Structure
-
-A board configuration JSON file contains:
+### Board JSON Structure
 
 ```json
 {
@@ -35,12 +29,54 @@ A board configuration JSON file contains:
 }
 ```
 
+## Dual-Sided Board Configuration (Pico-style)
+
+Boards with GPIO pins on multiple edges (like Raspberry Pi Pico) use horizontal pin rows instead of vertical columns.
+
+```json
+{
+  "name": "Raspberry Pi Pico",
+  "svg_asset": "pico_mod.svg",
+  "width": 249.0,
+  "height": 101.0,
+  "header_offset": {"x": 0, "y": 0},
+  "layout": {
+    "top_header": {
+      "start_x": 8.0,
+      "pin_spacing": 12.0,
+      "y": 6.5
+    },
+    "bottom_header": {
+      "start_x": 8.0,
+      "pin_spacing": 12.0,
+      "y": 94.0
+    }
+  },
+  "pins": [
+    {"physical_pin": 1, "name": "GP0", "role": "GPIO", "gpio_bcm": 0, "header": "top"},
+    {"physical_pin": 2, "name": "GP1", "role": "GPIO", "gpio_bcm": 1, "header": "top"},
+    ...
+    {"physical_pin": 21, "name": "GP16", "role": "GPIO", "gpio_bcm": 16, "header": "bottom"},
+    ...
+  ]
+}
+```
+
+**Key Differences:**
+
+1. **Layout Structure**: Uses `top_header` and `bottom_header` instead of `left_col_x`/`right_col_x`
+2. **Pin Positioning**: Horizontal rows (X increments, Y fixed per header) instead of vertical columns
+3. **Header Field**: Each pin requires a `"header"` field indicating `"top"` or `"bottom"`
+4. **Pin Numbering**:
+   - Top header: pins 1-20 (pin 20 on left, pin 1 on right - **reversed order**)
+   - Bottom header: pins 21-40 (pin 21 on left, pin 40 on right - normal order)
+
 ## Step-by-Step Guide
 
 ### Step 1: Create or Obtain SVG Asset
 
-1. Place your SVG file in `src/pinviz/assets/` (e.g., `raspberry_pi_4.svg`)
-2. **Important:** For pin alignment, use similar viewBox dimensions to existing boards
+1. Place SVG file in `src/pinviz/assets/` (e.g., `raspberry_pi_4.svg`)
+2. **Important:** For pin alignment, the SVG should have similar viewBox dimensions to existing boards
    - Check existing SVG: `head -5 src/pinviz/assets/pi_5_mod.svg | grep viewBox`
    - Pi 5 uses: `viewBox="0 0 206 308"` - use same dimensions for consistent pin spacing
 
@@ -55,7 +91,7 @@ A board configuration JSON file contains:
 
 ### Step 3: Add Factory Function
 
-In `src/pinviz/boards.py`, add a factory function:
+In `src/pinviz/boards.py`, add:
 
 ```python
 def raspberry_pi_4() -> Board:
@@ -90,7 +126,7 @@ board_loaders = {
 }
 ```
 
-Also update the docstring to document the supported board names.
+Also update the docstring with supported names.
 
 ### Step 5: Update Schema Validation
 
@@ -110,7 +146,7 @@ VALID_BOARD_NAMES = {
 
 ### Step 6: Add Tests
 
-In `tests/test_boards.py`, add comprehensive tests:
+In `tests/test_boards.py`, add:
 
 ```python
 def test_raspberry_pi_4_board_creation():
@@ -138,7 +174,7 @@ def test_raspberry_pi_4_identical_pinout_to_pi5():
         assert pi4_pin.name == pi5_pin.name
 ```
 
-In `tests/test_config_loader.py`, add alias tests:
+In `tests/test_config_loader.py`, add:
 
 ```python
 @pytest.mark.parametrize(
@@ -166,7 +202,7 @@ def test_load_raspberry_pi_4_by_name(board_name):
 # Test the new board
 uv run python -c "from pinviz import boards; print(boards.raspberry_pi_4().name)"
 
-# Run specific tests
+# Run tests
 uv run pytest tests/test_boards.py::test_raspberry_pi_4_board_creation -v
 uv run pytest tests/test_config_loader.py::test_load_raspberry_pi_4_by_name -v
 
@@ -178,9 +214,7 @@ uv run ruff format .
 uv run ruff check .
 ```
 
-## Implementation Checklist
-
-Use this checklist to ensure you've completed all steps:
+## Checklist
 
 - [ ] SVG asset created/obtained in `src/pinviz/assets/`
 - [ ] Board configuration JSON created in `src/pinviz/board_configs/`
@@ -201,62 +235,3 @@ All board configurations are validated against `BoardConfigSchema` in `schemas.p
 - Pin roles must be valid (GPIO, I2C_SDA, PWM, etc.)
 - Layout parameters must be positive numbers
 - Right column X must be greater than left column X
-
-## Configuration Reference
-
-### Pin Roles
-
-Supported pin roles for automatic color assignment:
-
-- `3V3`, `5V` - Power rails
-- `GND` - Ground
-- `GPIO` - General purpose I/O
-- `I2C_SDA`, `I2C_SCL` - I2C bus
-- `SPI_MOSI`, `SPI_MISO`, `SPI_SCLK`, `SPI_CE0`, `SPI_CE1` - SPI bus
-- `UART_TX`, `UART_RX` - UART serial
-- `PWM` - PWM output
-
-### Layout Parameters
-
-- `left_col_x`, `right_col_x`: X coordinates for left and right pin columns
-- `start_y`: Y coordinate for the first pin
-- `row_spacing`: Vertical spacing between pins
-
-## Troubleshooting
-
-### Issue: Pin Alignment is Off
-
-**Solution:** Ensure your SVG viewBox dimensions match existing boards (typically `0 0 206 308`). Different viewBox dimensions will cause misalignment.
-
-### Issue: Tests Fail with Pin Role Mismatch
-
-**Solution:** Verify that your pin configuration matches the physical board. For Raspberry Pi boards, copy the exact pin configuration from an existing 40-pin board.
-
-### Issue: Schema Validation Errors
-
-**Solution:** Run `uv run pytest tests/test_schemas.py -v` to see specific validation errors. Common issues:
-
-- Non-sequential pin numbers
-- Invalid pin roles
-- Negative layout parameters
-
-## Need Help?
-
-- Check existing board configurations in `src/pinviz/board_configs/` for examples
-- Review the full architecture documentation in `CLAUDE.md`
-- Open an issue on GitHub: <https://github.com/nordstad/PinViz/issues>
-- Refer to the API documentation: <https://nordstad.github.io/PinViz/api/>
-
-## Contributing Your Board
-
-Once you've successfully added a new board:
-
-1. Test it thoroughly with multiple example configurations
-2. Generate example diagrams and save them to `out/` directory
-3. Submit a pull request with:
-   - Board configuration JSON
-   - Factory function and tests
-   - Example diagrams
-   - Updated documentation
-
-See [Contributing Guide](https://nordstad.github.io/PinViz/development/contributing/) for full details.

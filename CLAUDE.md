@@ -10,19 +10,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This project uses `uv` as the package manager and build tool.
 
-### Setup and Build
-
 ```bash
 # Install dependencies (including dev dependencies)
 uv sync --dev
 
 # Run the CLI tool
 uv run pinviz <command>
-```
 
-### Code Quality
-
-```bash
 # Lint and format with ruff
 uv run ruff check .
 uv run ruff format .
@@ -31,561 +25,133 @@ uv run ruff format .
 uv run pytest
 ```
 
-## CLI Commands
-
-The main CLI entry point is `pinviz`:
+## CLI Commands Reference
 
 ```bash
-# Generate diagram from YAML config
-pinviz render examples/bh1750.yaml -o output.svg
+# Render diagrams
+pinviz render config.yaml -o output.svg [--json]
 
-# Generate with validation and JSON output
-pinviz render examples/bh1750.yaml -o output.svg --json
+# Validate configurations
+pinviz validate config.yaml [--strict] [--json]
+pinviz validate-devices [--json]
 
-# Validate configuration
-pinviz validate examples/bh1750.yaml
-pinviz validate examples/bh1750.yaml --strict --json
-
-# Validate all device configs
-pinviz validate-devices
-pinviz validate-devices --json
-
-# Generate built-in examples
-pinviz example bh1750 -o images/bh1750.svg
-pinviz example ir_led -o images/ir_led.svg --json
-pinviz example i2c_spi -o images/i2c_spi.svg
+# Generate examples
+pinviz example bh1750 -o out/bh1750.svg [--json]
 
 # List available templates
-pinviz list
-pinviz list --json
+pinviz list [--json]
 
-# Create new device interactively
+# Add new device interactively
 pinviz add-device
 
 # Configuration management
-pinviz config show      # Display current config
-pinviz config path      # Show config file location
-pinviz config init      # Create default config
-pinviz config edit      # Edit config file
+pinviz config [show|path|init|edit]
 
 # Shell completion
-pinviz completion install    # Install shell completion
-pinviz completion show       # Show completion script
-pinviz completion uninstall  # Uninstall shell completion
+pinviz completion [install|show|uninstall]
 ```
 
-## CLI Architecture
-
-The CLI uses a modern, modular architecture built with **Typer** (type-hint-based CLI) and **Rich** (beautiful terminal output).
-
-### Structure
-
-```text
-src/pinviz/cli/
-├── __init__.py           # Main Typer app, global options, version
-├── config.py             # CLI configuration with TOML support
-├── context.py            # AppContext for dependency injection
-├── output.py             # Rich output helpers + JSON schemas
-└── commands/
-    ├── __init__.py       # Command exports
-    ├── render.py         # Render diagram from config
-    ├── validate.py       # Validate diagram + validate-devices
-    ├── example.py        # Generate built-in examples
-    ├── list.py           # List available templates
-    ├── device.py         # Interactive device wizard
-    ├── config.py         # Config management (show, init, edit, path)
-    └── completion.py     # Shell completion (install, show, uninstall)
-```
-
-### Key Features
-
-- **Type-safe CLI**: Uses Python type hints for automatic validation
-- **Rich output**: Progress indicators, tables, panels, and color-coded messages
-- **JSON output**: All commands support `--json` flag for machine-readable output
-- **Configuration management**: TOML config file support with `pinviz config` commands
-- **Shell completion**: Auto-complete for bash/zsh/fish shells
-- **Modular commands**: Each command in a separate file for maintainability
-- **Global options**: `--log-level`, `--log-format`, `--version` available for all commands
-- **Consistent error handling**: Rich tracebacks with `show_locals` support
-
-### Adding a New Command
-
-1. Create a new file in `src/pinviz/cli/commands/` (e.g., `mycommand.py`)
-
-2. Define a command function with Typer annotations:
-
-   ```python
-   import typer
-   from typing import Annotated
-   from rich.console import Console
-
-   console = Console()
-
-   def my_command(
-       input_file: Annotated[str, typer.Argument(help="Input file path")],
-       output: Annotated[str | None, typer.Option("-o", "--output", help="Output path")] = None,
-       verbose: Annotated[bool, typer.Option("--verbose", help="Verbose output")] = False,
-   ) -> None:
-       """
-       Brief description of what this command does.
-
-       Longer description with more details about usage and behavior.
-       """
-       console.print(f"Processing {input_file}...")
-       # Command implementation
-   ```
-
-3. Register the command in `src/pinviz/cli/__init__.py`:
-
-   ```python
-   from .commands import mycommand
-
-   app.command(name="my-command")(mycommand.my_command)
-   ```
-
-4. Add tests in `tests/test_cli.py`:
-
-   ```python
-   def test_my_command(cli_runner):
-       """Test my-command functionality."""
-       result = cli_runner.invoke(app, ["my-command", "input.txt"])
-       assert result.exit_code == 0
-   ```
-
-### Testing Commands
-
-Use Typer's `CliRunner` for testing:
-
-```python
-from typer.testing import CliRunner
-from pinviz.cli import app
-
-runner = CliRunner()
-result = runner.invoke(app, ["render", "config.yaml"])
-assert result.exit_code == 0
-assert "Rendering diagram" in result.output
-```
-
-### JSON Output
-
-All commands support `--json` flag for machine-readable output:
-
-```bash
-# Render command
-pinviz render config.yaml --json
-# Output: {"status": "success", "output_path": "config.svg", "validation": {...}}
-
-# Validate command
-pinviz validate config.yaml --json
-# Output: {"status": "success", "validation": {...}, "issues": [...]}
-
-# List command
-pinviz list --json
-# Output: {"status": "success", "boards": [...], "devices": [...], "examples": [...]}
-
-# Example command
-pinviz example bh1750 --json
-# Output: {"status": "success", "example_name": "bh1750", "output_path": "out/bh1750.svg"}
-```
-
-#### JSON Schemas
-
-All JSON output is validated using Pydantic models in `src/pinviz/cli/output.py`:
-
-- `RenderOutputJson` - Render command output
-- `ValidateOutputJson` - Validate command output
-- `ValidateDevicesOutputJson` - Device validation output
-- `ExampleOutputJson` - Example command output
-- `ListOutputJson` - List command output
-
-### Configuration Management
-
-PinViz uses a TOML configuration file with proper precedence:
-
-1. **CLI arguments** (highest priority)
-2. **Environment variables** (`PINVIZ_*` prefix)
-3. **Config file** (`~/.config/pinviz/config.toml`)
-4. **Defaults** (lowest priority)
-
-```bash
-# Create default config
-pinviz config init
-
-# View current config
-pinviz config show
-
-# Get config file path
-pinviz config path
-
-# Edit config file
-pinviz config edit
-```
-
-**Example config.toml:**
-
-```toml
-# Logging verbosity: DEBUG, INFO, WARNING, ERROR
-log_level = "WARNING"
-
-# Log output format: console or json
-log_format = "console"
-
-# Default output directory
-output_dir = "./out"
-```
-
-### Shell Completion
-
-Install shell completion for better command-line experience:
-
-```bash
-# Auto-detect shell and install
-pinviz completion install
-
-# Specify shell explicitly
-pinviz completion install --shell bash
-pinviz completion install --shell zsh
-pinviz completion install --shell fish
-
-# Show completion script
-pinviz completion show
-
-# Uninstall completion
-pinviz completion uninstall
-```
+**Global options:** `--log-level`, `--log-format`, `--version`
 
 ## Architecture
 
-### Core Data Model (`model.py`)
+### Core Components
 
-- **Immutable entities**: Uses dataclasses for `Board`, `Device`, `HeaderPin`, `DevicePin`, `Connection`, `Diagram`
-- **PinRole enum**: Defines pin functions (GPIO, I2C, SPI, UART, PWM, power, ground)
-- **DEFAULT_COLORS dict**: Maps pin roles to wire colors for automatic color assignment
-- **WireStyle enum**: Defines wire routing styles (orthogonal, curved, mixed)
+1. **Data Model** (`model.py`): Immutable dataclasses for `Board`, `Device`, `Connection`, `Diagram`
+2. **Board System** (`boards.py`, `board_configs/`): Board templates loaded from JSON configs
+3. **Device System** (`devices/registry.py`, `device_configs/`): Device templates from JSON with smart defaults
+4. **Config Loader** (`config_loader.py`): Parses YAML/JSON into diagram objects
+5. **Layout Engine** (`layout.py`): Positions devices and routes wires algorithmically
+6. **SVG Renderer** (`render_svg.py`): Converts diagrams to SVG using `drawsvg`
+7. **CLI** (`cli/`): Modular Typer-based CLI with Rich output and JSON support
 
-### Component Factory Modules
-
-- **`boards.py`**: Board templates loaded from JSON configs in `board_configs/`
-  - Pin positions are pre-calculated based on physical GPIO header layout
-  - Pins have physical pin numbers (1-40), BCM GPIO numbers, names, and roles
-- **`devices/registry.py`**: Device template registry with dual-path support:
-  - **Primary**: JSON configs from `device_configs/` (recommended)
-  - **Fallback**: Python factory functions (backward compatibility, deprecated)
-- **`devices/loader.py`**: JSON device loader with smart defaults system
-  - Auto-calculates pin positions (vertical/horizontal layouts)
-  - Auto-calculates device dimensions based on pin count
-  - Category-based color defaults (sensors=turquoise, LEDs=red, etc.)
-  - Parameter substitution support (e.g., LED colors, device names)
-
-### Configuration Loading (`config_loader.py`)
-
-- **ConfigLoader class**: Parses YAML/JSON files into diagram objects
-- Supports both predefined device types (by name) and custom device definitions
-- Board selection by name alias (e.g., "raspberry_pi_5", "rpi5", "rpi")
-- Auto-assigns wire colors based on pin roles if not specified
-
-### Layout Engine (`layout.py`)
-
-- **LayoutEngine class**: Positions devices and routes wires algorithmically
-- **Device positioning**: Stacks devices vertically on the right side of the board
-- **Wire routing**: Orthogonal routing with rounded corners
-  - Wires routed through a "rail" to the right of the GPIO header
-  - Parallel wires from the same pin get automatic offset to prevent overlap
-  - Path calculation handles three routing styles: orthogonal, curved, mixed
-- **LayoutConfig**: Configurable spacing, margins, corner radius
-
-### SVG Rendering (`render_svg.py`)
-
-- **SVGRenderer class**: Converts diagram objects to SVG files using `drawsvg`
-- Embeds external board SVG assets by parsing and inlining elements
-- Draws devices as colored rounded rectangles with pin markers
-- Draws wires as paths with rounded corners using bezier curves
-- Auto-generates legend showing wire colors and their meanings
-- Fallback rendering if board SVG asset is missing
-
-## Key Design Patterns
+### Key Design Patterns
 
 1. **Separation of concerns**: Model → Layout → Rendering pipeline
-2. **Registry pattern**: `boards.py` loads from JSON configs; `devices/registry.py` provides device templates from JSON
-3. **Position calculation**: Absolute positions calculated during layout phase; devices/pins use relative positions
-4. **Two-phase wire routing**: Group connections by source pin to calculate offsets, then route each wire
-5. **Color assignment**: Automatic based on pin role, can be overridden per connection
-6. **Configuration-based**: Board and device definitions loaded from JSON files with smart defaults
+2. **Registry pattern**: JSON-based configs for boards and devices
+3. **Position calculation**: Absolute positions in layout phase; devices/pins use relative
+4. **Two-phase wire routing**: Group by source pin, calculate offsets, then route
+5. **Color assignment**: Automatic based on pin role, overridable per connection
+6. **Configuration-based**: Board/device definitions in JSON with smart defaults
+
+### Configuration File Structure
+
+```yaml
+title: "Diagram Title"
+board: "raspberry_pi_5"  # or "rpi5", "rpi4", "rpi"
+devices:
+  - type: "bh1750"  # Predefined device type
+    name: "Optional Override Name"
+  - name: "Custom Device"  # Inline custom device
+    pins:
+      - name: "VCC"
+        role: "3V3"
+connections:
+  - board_pin: 1  # Physical pin number (1-40)
+    device: "Device Name"
+    device_pin: "Pin Name"
+    color: "#FF0000"  # Optional
+    style: "mixed"  # Optional: orthogonal, curved, mixed
+show_legend: true
+```
+
+### Python API
+
+```python
+from pinviz import boards, devices, Connection, Diagram, SVGRenderer
+
+board = boards.raspberry_pi_5()
+sensor = devices.bh1750_light_sensor()
+connections = [Connection(1, "BH1750", "VCC"), ...]
+diagram = Diagram(title="...", board=board, devices=[sensor], connections=connections)
+
+renderer = SVGRenderer()
+renderer.render(diagram, "output.svg")
+```
 
 ## Board Configuration System
 
-Board definitions are stored in JSON files in `src/pinviz/board_configs/` directory. This makes it easy to add new board types without modifying Python code.
+Board definitions are JSON files in `src/pinviz/board_configs/`.
 
-### Board Configuration Structure
+**Standard boards** (Pi 4, Pi 5): Vertical columns with 2 pins per row
 
 ```json
 {
   "name": "Raspberry Pi 5",
   "svg_asset": "pi_5_mod.svg",
-  "width": 205.42,
-  "height": 307.46,
-  "header_offset": {"x": 23.715, "y": 5.156},
   "layout": {
     "left_col_x": 187.1,
     "right_col_x": 199.1,
     "start_y": 16.2,
     "row_spacing": 12.0
   },
-  "pins": [
-    {"physical_pin": 1, "name": "3V3", "role": "3V3", "gpio_bcm": null},
-    {"physical_pin": 2, "name": "5V", "role": "5V", "gpio_bcm": null},
-    ...
-  ]
+  "pins": [...]
 }
 ```
 
-### Dual-Sided Board Configuration (Pico-style)
-
-Boards with GPIO pins on multiple edges (like Raspberry Pi Pico) use a different layout structure with horizontal pin rows instead of vertical columns.
-
-**Dual-Sided Configuration Structure:**
+**Dual-sided boards** (Pico): Horizontal rows on top and bottom edges
 
 ```json
 {
   "name": "Raspberry Pi Pico",
-  "svg_asset": "pico_mod.svg",
-  "width": 249.0,
-  "height": 101.0,
-  "header_offset": {"x": 0, "y": 0},
   "layout": {
-    "top_header": {
-      "start_x": 8.0,
-      "pin_spacing": 12.0,
-      "y": 6.5
-    },
-    "bottom_header": {
-      "start_x": 8.0,
-      "pin_spacing": 12.0,
-      "y": 94.0
-    }
+    "top_header": {"start_x": 8.0, "pin_spacing": 12.0, "y": 6.5},
+    "bottom_header": {"start_x": 8.0, "pin_spacing": 12.0, "y": 94.0}
   },
   "pins": [
     {"physical_pin": 1, "name": "GP0", "role": "GPIO", "gpio_bcm": 0, "header": "top"},
-    {"physical_pin": 2, "name": "GP1", "role": "GPIO", "gpio_bcm": 1, "header": "top"},
-    ...
-    {"physical_pin": 21, "name": "GP16", "role": "GPIO", "gpio_bcm": 16, "header": "bottom"},
     ...
   ]
 }
 ```
 
-**Key Differences from Standard Boards:**
-
-1. **Layout Structure**: Uses `top_header` and `bottom_header` instead of `left_col_x`/`right_col_x`
-2. **Pin Positioning**: Horizontal rows (X increments, Y fixed per header) instead of vertical columns
-3. **Header Field**: Each pin requires a `"header"` field indicating `"top"` or `"bottom"`
-4. **Pin Numbering**:
-   - Top header: pins 1-20 (pin 20 on left, pin 1 on right - **reversed order**)
-   - Bottom header: pins 21-40 (pin 21 on left, pin 40 on right - normal order)
-
-**Pin Order Details:**
-
-The Pico has a **reversed pin order on the top header** (physical pins 1-20):
-- Pin 20 is leftmost (smallest X coordinate)
-- Pin 1 is rightmost (largest X coordinate)
-- Position calculation: `x = start_x + ((20 - pin_num) * pin_spacing)`
-
-The bottom header (pins 21-40) uses normal left-to-right ordering:
-- Pin 21 is leftmost
-- Pin 40 is rightmost
-- Position calculation: `x = start_x + ((pin_num - 21) * pin_spacing)`
-
-**Usage Example:**
-
-```yaml
-title: "Pico LED Example"
-board: "raspberry_pi_pico"  # or "pico"
-devices:
-  - type: "led"
-    name: "Status LED"
-connections:
-  - board_pin: 1    # GP0 (top header, rightmost)
-    device: "Status LED"
-    device_pin: "+"
-  - board_pin: 3    # GND (top header)
-    device: "Status LED"
-    device_pin: "-"
-```
-
-### Adding a New Board
-
-**Quick Summary:** For Raspberry Pi boards with 40-pin GPIO headers, you can copy an existing board's pin configuration since they all share the same GPIO pinout. This takes ~15-30 minutes.
-
-#### Step 1: Create or Obtain SVG Asset
-
-1. Place SVG file in `src/pinviz/assets/` (e.g., `raspberry_pi_4.svg`)
-2. **Important:** For pin alignment, the SVG should have similar viewBox dimensions to existing boards
-   - Check existing SVG: `head -5 src/pinviz/assets/pi_5_mod.svg | grep viewBox`
-   - Pi 5 uses: `viewBox="0 0 206 308"` - use same dimensions for consistent pin spacing
-
-#### Step 2: Create Board Configuration JSON
-
-1. Create `src/pinviz/board_configs/raspberry_pi_4.json`
-2. **For Raspberry Pi boards:** Copy from `raspberry_pi_5.json` and update:
-   - `name`: "Raspberry Pi 4 Model B"
-   - `svg_asset`: "pi_4_mod.svg"
-   - Keep `width`, `height`, `layout`, and `pins` identical (they share the same GPIO pinout)
-3. **For non-Raspberry Pi boards:** Define all pins manually with proper layout parameters
-
-#### Step 3: Add Factory Function
-
-In `src/pinviz/boards.py`, add:
-
-```python
-def raspberry_pi_4() -> Board:
-    """
-    Create a Raspberry Pi 4 Model B board with 40-pin GPIO header.
-
-    Uses standard 40-pin GPIO pinout (same as Pi 2, 3, 5, Zero 2 W).
-    All GPIO pins operate at 3.3V logic levels and are NOT 5V tolerant.
-
-    Returns:
-        Board: Configured Raspberry Pi 4 Model B board with all pins positioned
-    """
-    return load_board_from_config("raspberry_pi_4")
-```
-
-#### Step 4: Add Board Name Aliases
-
-In `src/pinviz/config_loader.py`, update `_load_board_by_name()`:
-
-```python
-board_loaders = {
-    # Raspberry Pi 5
-    "raspberry_pi_5": boards.raspberry_pi_5,
-    "rpi5": boards.raspberry_pi_5,
-    # Raspberry Pi 4 - ADD THESE LINES
-    "raspberry_pi_4": boards.raspberry_pi_4,
-    "rpi4": boards.raspberry_pi_4,
-    "pi4": boards.raspberry_pi_4,
-    # Aliases
-    "raspberry_pi": boards.raspberry_pi,
-    "rpi": boards.raspberry_pi,
-}
-```
-
-Also update the docstring with supported names.
-
-#### Step 5: Update Schema Validation
-
-In `src/pinviz/schemas.py`, update `VALID_BOARD_NAMES`:
-
-```python
-VALID_BOARD_NAMES = {
-    "raspberry_pi_5",
-    "raspberry_pi_4",  # ADD THIS LINE
-    "raspberry_pi",
-    "rpi5",
-    "rpi4",            # ADD THIS LINE
-    "pi4",             # ADD THIS LINE
-    "rpi",
-}
-```
-
-#### Step 6: Add Tests
-
-In `tests/test_boards.py`, add:
-
-```python
-def test_raspberry_pi_4_board_creation():
-    """Test creating a Raspberry Pi 4 board."""
-    board = boards.raspberry_pi_4()
-    assert board is not None
-    assert board.name == "Raspberry Pi 4 Model B"
-
-def test_raspberry_pi_4_has_40_pins():
-    """Test that Raspberry Pi 4 has 40 GPIO pins."""
-    board = boards.raspberry_pi_4()
-    assert len(board.pins) == 40
-
-def test_raspberry_pi_4_identical_pinout_to_pi5():
-    """Test that Raspberry Pi 4 has identical GPIO pinout to Pi 5."""
-    pi4 = boards.raspberry_pi_4()
-    pi5 = boards.raspberry_pi_5()
-
-    for pin_num in range(1, 41):
-        pi4_pin = pi4.get_pin_by_number(pin_num)
-        pi5_pin = pi5.get_pin_by_number(pin_num)
-
-        assert pi4_pin.role == pi5_pin.role
-        assert pi4_pin.gpio_bcm == pi5_pin.gpio_bcm
-        assert pi4_pin.name == pi5_pin.name
-```
-
-In `tests/test_config_loader.py`, add:
-
-```python
-@pytest.mark.parametrize(
-    "board_name",
-    ["raspberry_pi_4", "rpi4", "pi4", "RPI4", "PI4"],
-)
-def test_load_raspberry_pi_4_by_name(board_name):
-    """Test loading Raspberry Pi 4 board by various name aliases."""
-    config = {
-        "title": "Test",
-        "board": board_name,
-        "devices": [],
-        "connections": [],
-    }
-    loader = ConfigLoader()
-    diagram = loader.load_from_dict(config)
-
-    assert diagram.board is not None
-    assert diagram.board.name == "Raspberry Pi 4 Model B"
-```
-
-#### Step 7: Verify and Test
-
-```bash
-# Test the new board
-uv run python -c "from pinviz import boards; print(boards.raspberry_pi_4().name)"
-
-# Run tests
-uv run pytest tests/test_boards.py::test_raspberry_pi_4_board_creation -v
-uv run pytest tests/test_config_loader.py::test_load_raspberry_pi_4_by_name -v
-
-# Run full test suite
-uv run pytest
-
-# Format and lint
-uv run ruff format .
-uv run ruff check .
-```
-
-#### Checklist
-
-- [ ] SVG asset created/obtained in `src/pinviz/assets/`
-- [ ] Board configuration JSON created in `src/pinviz/board_configs/`
-- [ ] Factory function added to `src/pinviz/boards.py`
-- [ ] Board aliases added to `src/pinviz/config_loader.py`
-- [ ] Schema validation updated in `src/pinviz/schemas.py`
-- [ ] Tests added to `tests/test_boards.py`
-- [ ] Alias tests added to `tests/test_config_loader.py`
-- [ ] All tests passing (477+ tests)
-- [ ] Code formatted with ruff
-- [ ] Example diagrams generated in `out/` directory
-
-### Board Configuration Validation
-
-All board configurations are validated against `BoardConfigSchema` in `schemas.py`:
-
-- Pin numbers must be sequential (1, 2, 3, ...)
-- Pin roles must be valid (GPIO, I2C_SDA, PWM, etc.)
-- Layout parameters must be positive numbers
-- Right column X must be greater than left column X
+**Important:** Pico top header has **reversed pin order** (pin 20 left, pin 1 right).
 
 ## Device Configuration System
 
-Device definitions are stored in JSON files in `src/pinviz/device_configs/` directory, organized by category (sensors/, leds/, displays/, io/, etc.). This makes it easy to add new devices without writing Python code.
+Device definitions are JSON files in `src/pinviz/device_configs/` organized by category (sensors/, leds/, displays/, io/).
 
-### Device Configuration Structure
-
-**Minimal example** (smart defaults handle everything else):
+**Minimal device** (smart defaults auto-calculate positions, dimensions, colors):
 
 ```json
 {
@@ -601,138 +167,49 @@ Device definitions are stored in JSON files in `src/pinviz/device_configs/` dire
 }
 ```
 
-**With optional metadata**:
+**Smart defaults:**
 
-```json
-{
-  "id": "ds18b20",
-  "name": "DS18B20 Temperature Sensor",
-  "category": "sensors",
-  "description": "DS18B20 waterproof 1-Wire temperature sensor",
-  "pins": [
-    {"name": "VCC", "role": "3V3"},
-    {"name": "DATA", "role": "GPIO"},
-    {"name": "GND", "role": "GND"}
-  ],
-  "layout": {
-    "pin_spacing": 10.0,
-    "start_y": 12.0
-  },
-  "display": {
-    "width": 75.0,
-    "height": 45.0
-  },
-  "datasheet_url": "https://www.analog.com/media/en/technical-documentation/data-sheets/DS18B20.pdf",
-  "notes": "Requires a 4.7kΩ pull-up resistor between DATA and VCC."
-}
-```
+- Pin positions: Vertical/horizontal layout auto-calculated
+- Device dimensions: Auto-sized based on pins
+- Colors: Category-based (sensors=turquoise, LEDs=red, displays=blue, io=gray)
+- Wire colors: Role-based (I2C=yellow, SPI=cyan, power=red, ground=black)
 
-**With parameters** (for device variants):
+## CLI Architecture
 
-```json
-{
-  "id": "led",
-  "name": "{color_name} LED",
-  "category": "leds",
-  "pins": [
-    {"name": "+", "role": "GPIO"},
-    {"name": "-", "role": "GND"}
-  ],
-  "parameters": {
-    "color_name": {
-      "type": "string",
-      "default": "Red",
-      "description": "LED color for display name"
-    }
-  }
-}
-```
+Built with **Typer** (type-hint CLI) and **Rich** (terminal output).
 
-### Smart Defaults
-
-The device loader automatically provides:
-
-- **Pin positions**: Vertical layout (top to bottom) or horizontal layout (left to right)
-- **Device dimensions**: Auto-sized to fit all pins with padding
-- **Colors**: Category-based defaults (sensors=turquoise, LEDs=red, displays=blue, io=gray)
-- **Wire colors**: Based on pin roles (I2C=yellow, SPI=cyan, power=red, ground=black)
-
-### Using Devices from JSON Configs
-
-```python
-from pinviz.devices import get_registry
-
-# Load device from JSON config (automatic)
-registry = get_registry()
-sensor = registry.create('bh1750')  # Loads from device_configs/sensors/bh1750.json
-
-# With parameters
-led = registry.create('led', color_name='Blue')  # Creates "Blue LED"
-ir_ring = registry.create('ir_led_ring', num_leds=24)  # Creates "IR LED Ring (24)"
-
-# Custom device name
-i2c_dev = registry.create('i2c_device', name='BME280')  # Creates "BME280"
-```
-
-### Adding a New Device
-
-**68% less configuration** compared to Python factory functions:
-
-1. Create JSON file in appropriate category folder (e.g., `src/pinviz/device_configs/sensors/bme280.json`)
-2. Define minimal required fields (id, name, category, pins)
-3. Let smart defaults handle positions, dimensions, and colors
-4. Done! Use with `registry.create('bme280')`
-
-**Note:** All devices now use JSON configs exclusively. Legacy Python factory functions have been removed as of Phase 5 cleanup.
-
-## Diagram Configuration File Structure
-
-YAML/JSON format:
-
-```yaml
-title: "Diagram Title"
-board: "raspberry_pi_5"  # or "rpi5", "rpi"
-devices:
-  - type: "bh1750"  # Predefined device type
-    name: "Optional Override Name"
-  - name: "Custom Device"  # Custom device definition
-    pins:
-      - name: "VCC"
-        role: "3V3"
-connections:
-  - board_pin: 1  # Physical pin number (1-40)
-    device: "Device Name"
-    device_pin: "Pin Name"
-    color: "#FF0000"  # Optional override
-    style: "mixed"  # Optional: orthogonal, curved, mixed
-show_legend: true
-```
-
-## Python API Structure
-
-Programmatic API example:
-
-```python
-from pinviz import boards, devices, Connection, Diagram, SVGRenderer
-
-board = boards.raspberry_pi_5()
-sensor = devices.bh1750_light_sensor()
-connections = [Connection(1, "BH1750", "VCC"), ...]
-diagram = Diagram(title="...", board=board, devices=[sensor], connections=connections)
-
-renderer = SVGRenderer()
-renderer.render(diagram, "output.svg")
-```
+**Structure:** `src/pinviz/cli/` - Modular commands in separate files
+**Features:** JSON output (`--json`), TOML config, shell completion, structured logging
+**Testing:** Use `typer.testing.CliRunner` for command tests
 
 ## Important Implementation Notes
 
-- Pin numbers in connections are physical pin numbers (1-40), not BCM GPIO numbers
-- Wire routing uses a "rail" system: horizontal from pin → vertical along rail → horizontal to device
-- The layout engine mutates device positions but connections reference devices by name
-- Board SVG assets are packaged in `src/pinviz/assets/` directory with the module
-- All measurements are in SVG units (typically pixels)
-- Always run ruff format and check before committing Python code.
-- Make sure that the mkdocs are updated after doing changes ("docs" dir)
-- Save dev plans to "plans" dir not commited to git
-- Keep the project root dir clean, just essential files should be stored here
-- Always check that the mcp support new features/updates
+- **Pin numbers**: Physical pin numbers (1-40), not BCM GPIO numbers
+- **Wire routing**: "Rail" system - horizontal from pin → vertical along rail → horizontal to device
+- **Layout mutability**: Layout engine mutates device positions; connections reference by name
+- **Asset location**: Board SVG assets in `src/pinviz/assets/` (packaged with module)
+- **Measurements**: All in SVG units (typically pixels)
+- **Code quality**: Always run `ruff format .` and `ruff check .` before committing
+- **Documentation**: Update mkdocs (in `docs/` dir) after changes
+- **Planning**: Save dev plans to `plans/` dir (not committed to git)
+- **Project cleanliness**: Keep root dir clean, essential files only
+- **MCP support**: Check MCP compatibility for new features/updates
+
+## Detailed Guides
+
+For step-by-step instructions, see the `guides/` directory:
+
+- **[guides/cli-development.md](guides/cli-development.md)** - Adding CLI commands, JSON schemas, testing
+- **[guides/adding-boards.md](guides/adding-boards.md)** - Adding new board types (standard and dual-sided)
+- **[guides/adding-devices.md](guides/adding-devices.md)** - Adding device templates with smart defaults
+- **[guides/publishing.md](guides/publishing.md)** - Publishing to PyPI (tag-only workflow)
+
+## Quick Reference
+
+**Supported boards:** `raspberry_pi_5`, `raspberry_pi_4`, `raspberry_pi_pico`, `rpi5`, `rpi4`, `pico`, `rpi`
+
+**Pin roles:** `GPIO`, `3V3`, `5V`, `GND`, `I2C_SDA`, `I2C_SCL`, `SPI_MOSI`, `SPI_MISO`, `SPI_SCLK`, `SPI_CE0`, `SPI_CE1`, `UART_TX`, `UART_RX`, `PWM`
+
+**Wire styles:** `orthogonal` (default), `curved`, `mixed`
+
+**Device categories:** `sensors`, `leds`, `displays`, `io`, `communication`, `power`
