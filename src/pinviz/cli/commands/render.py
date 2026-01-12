@@ -1,16 +1,13 @@
 """Render command implementation."""
 
-from pathlib import Path
-from typing import Annotated
-
 import typer
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from ...config_loader import load_diagram
 from ...render_svg import SVGRenderer
 from ...validation import DiagramValidator, ValidationLevel
 from ..config import load_config
 from ..context import AppContext
+from ..decorators import handle_command_exception, progress_indicator
 from ..output import (
     RenderOutputJson,
     get_validation_summary,
@@ -20,55 +17,23 @@ from ..output import (
     print_validation_issues,
     print_warning,
 )
+from ..types import (
+    ConfigFileArg,
+    JsonOption,
+    NoBoardNameOption,
+    NoTitleOption,
+    OutputOption,
+    ShowLegendOption,
+)
 
 
 def render_command(
-    config_file: Annotated[
-        Path,
-        typer.Argument(
-            help="Path to YAML or JSON configuration file",
-            exists=True,
-            file_okay=True,
-            dir_okay=False,
-            readable=True,
-        ),
-    ],
-    output: Annotated[
-        Path | None,
-        typer.Option(
-            "--output",
-            "-o",
-            help="Output SVG file path (default: <config>.svg)",
-        ),
-    ] = None,
-    no_title: Annotated[
-        bool,
-        typer.Option(
-            "--no-title",
-            help="Hide the diagram title in the SVG output",
-        ),
-    ] = False,
-    no_board_name: Annotated[
-        bool,
-        typer.Option(
-            "--no-board-name",
-            help="Hide the board name in the SVG output",
-        ),
-    ] = False,
-    show_legend: Annotated[
-        bool,
-        typer.Option(
-            "--show-legend",
-            help="Show device specifications table below the diagram",
-        ),
-    ] = False,
-    json_output: Annotated[
-        bool,
-        typer.Option(
-            "--json",
-            help="Output machine-readable JSON status",
-        ),
-    ] = False,
+    config_file: ConfigFileArg,
+    output: OutputOption = None,
+    no_title: NoTitleOption = False,
+    no_board_name: NoBoardNameOption = False,
+    show_legend: ShowLegendOption = False,
+    json_output: JsonOption = False,
 ) -> None:
     """
     Render a diagram from a configuration file.
@@ -89,12 +54,7 @@ def render_command(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=ctx.console,
-            transient=True,
-        ) as progress:
+        with progress_indicator(ctx.console, "") as progress:
             # Load config
             task = progress.add_task("Loading configuration...", total=None)
             diagram = load_diagram(config_file)
@@ -162,17 +122,16 @@ def render_command(
         # Re-raise Typer exits (for error codes)
         raise
     except Exception as e:
-        log.exception("render_failed", config_path=str(config_file), error=str(e))
-
-        if json_output:
-            result = RenderOutputJson(
+        handle_command_exception(
+            e,
+            "render",
+            ctx.console,
+            log,
+            json_output,
+            lambda msg: RenderOutputJson(
                 status="error",
                 output_path=None,
                 validation=get_validation_summary([]),
-                errors=[str(e)],
-            )
-            output_json(result, ctx.console)
-        else:
-            print_error(str(e), ctx.console)
-
-        raise typer.Exit(code=1) from None
+                errors=[msg],
+            ),
+        )

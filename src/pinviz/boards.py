@@ -318,3 +318,63 @@ def raspberry_pi() -> Board:
         Raspberry Pi
     """
     return raspberry_pi_5()
+
+
+def get_available_boards() -> list[dict[str, str | list[str]]]:
+    """
+    Get a list of all available board configurations.
+
+    Scans the board_configs directory and returns metadata for each board
+    including its canonical name and aliases.
+
+    Returns:
+        List of dictionaries with board information:
+        - name: Canonical board configuration name (e.g., "raspberry_pi_5")
+        - display_name: Human-readable board name (e.g., "Raspberry Pi 5")
+        - aliases: List of alternative names for the board
+
+    Examples:
+        >>> boards_info = get_available_boards()
+        >>> for board in boards_info:
+        ...     print(f"{board['name']}: {board['aliases']}")
+        raspberry_pi_5: ['rpi5', 'rpi']
+        raspberry_pi_4: ['rpi4', 'pi4']
+        raspberry_pi_pico: ['pico']
+
+    Note:
+        This function dynamically discovers boards from the board_configs
+        directory, so it will automatically include any newly added boards.
+    """
+    # Map of board config names to their aliases
+    # This could be extracted to a separate config file if needed
+    board_aliases = {
+        "raspberry_pi_5": ["rpi5", "rpi"],
+        "raspberry_pi_4": ["rpi4", "pi4"],
+        "raspberry_pi_pico": ["pico"],
+    }
+
+    boards_list = []
+    module_dir = Path(__file__).parent
+    config_dir = module_dir / "board_configs"
+
+    if config_dir.exists():
+        for config_file in sorted(config_dir.glob("*.json")):
+            board_name = config_file.stem  # e.g., "raspberry_pi_5"
+
+            # Load the config to get the display name
+            try:
+                with open(config_file) as f:
+                    config_dict = json.load(f)
+                display_name = config_dict.get("name", board_name)
+            except (json.JSONDecodeError, OSError):
+                display_name = board_name
+
+            boards_list.append(
+                {
+                    "name": board_name,
+                    "display_name": display_name,
+                    "aliases": board_aliases.get(board_name, []),
+                }
+            )
+
+    return boards_list

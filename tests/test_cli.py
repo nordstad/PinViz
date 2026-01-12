@@ -189,8 +189,11 @@ def test_example_command_unknown_example():
 
 def test_example_command_handles_exception():
     """Test that example command handles exceptions gracefully."""
-    with patch("pinviz.cli.commands.example.create_bh1750_example") as mock_create:
-        mock_create.side_effect = Exception("Test error")
+    with patch("pinviz.cli.commands.example.EXAMPLE_REGISTRY") as mock_registry:
+        # Mock the registry to raise an exception
+        mock_factory = Mock(side_effect=Exception("Test error"))
+        mock_registry.__getitem__.return_value = mock_factory
+        mock_registry.__contains__.return_value = True  # Pretend bh1750 is valid
         result = runner.invoke(
             app,
             ["example", "bh1750"],
@@ -300,6 +303,35 @@ def test_render_help():
     assert "CONFIG_FILE" in result.stdout
 
 
+def test_h_flag():
+    """Test -h flag (shorthand for --help)."""
+    result = runner.invoke(app, ["-h"])
+    assert result.exit_code == 0
+    assert "Usage:" in result.stdout
+    assert "Commands" in result.stdout
+
+
+def test_render_h_flag():
+    """Test render -h (shorthand for --help)."""
+    result = runner.invoke(app, ["render", "-h"])
+    assert result.exit_code == 0
+    assert "CONFIG_FILE" in result.stdout
+
+
+def test_config_h_flag():
+    """Test config -h (shorthand for --help on subcommand group)."""
+    result = runner.invoke(app, ["config", "-h"])
+    assert result.exit_code == 0
+    assert "Manage configuration settings" in result.stdout
+
+
+def test_completion_h_flag():
+    """Test completion -h (shorthand for --help on subcommand group)."""
+    result = runner.invoke(app, ["completion", "-h"])
+    assert result.exit_code == 0
+    assert "Manage shell completion" in result.stdout
+
+
 def test_render_with_json_output(sample_yaml_config, temp_output_dir):
     """Test render command with --json flag."""
     output_file = temp_output_dir / "test_json.svg"
@@ -329,3 +361,145 @@ def test_validate_command_strict(sample_yaml_config):
     )
     # Should succeed if no warnings
     assert result.exit_code in [0, 1]  # Depends on validation results
+
+
+# Tests for ValidationResult class
+def test_validation_result_no_issues():
+    """Test ValidationResult with no issues returns success."""
+    from pinviz.cli.validation_output import ValidationResult, ValidationStatus
+
+    result = ValidationResult(issues=[], strict=False)
+    assert result.status == ValidationStatus.SUCCESS
+    assert result.exit_code == 0
+    assert len(result.errors) == 0
+    assert len(result.warnings) == 0
+
+
+def test_validation_result_with_errors():
+    """Test ValidationResult with errors returns error status."""
+    from pinviz.cli.validation_output import ValidationResult, ValidationStatus
+    from pinviz.validation import ValidationIssue, ValidationLevel
+
+    issues = [
+        ValidationIssue(level=ValidationLevel.ERROR, message="Test error 1"),
+        ValidationIssue(level=ValidationLevel.ERROR, message="Test error 2"),
+    ]
+    result = ValidationResult(issues=issues, strict=False)
+
+    assert result.status == ValidationStatus.ERROR
+    assert result.exit_code == 1
+    assert len(result.errors) == 2
+    assert len(result.warnings) == 0
+
+
+def test_validation_result_with_warnings_non_strict():
+    """Test ValidationResult with warnings in non-strict mode returns warning status."""
+    from pinviz.cli.validation_output import ValidationResult, ValidationStatus
+    from pinviz.validation import ValidationIssue, ValidationLevel
+
+    issues = [
+        ValidationIssue(level=ValidationLevel.WARNING, message="Test warning"),
+    ]
+    result = ValidationResult(issues=issues, strict=False)
+
+    assert result.status == ValidationStatus.WARNING
+    assert result.exit_code == 0  # Non-strict mode, warnings don't fail
+    assert len(result.errors) == 0
+    assert len(result.warnings) == 1
+
+
+def test_validation_result_with_warnings_strict():
+    """Test ValidationResult with warnings in strict mode returns error status."""
+    from pinviz.cli.validation_output import ValidationResult, ValidationStatus
+    from pinviz.validation import ValidationIssue, ValidationLevel
+
+    issues = [
+        ValidationIssue(level=ValidationLevel.WARNING, message="Test warning"),
+    ]
+    result = ValidationResult(issues=issues, strict=True)
+
+    assert result.status == ValidationStatus.ERROR
+    assert result.exit_code == 1  # Strict mode, warnings treated as errors
+    assert len(result.errors) == 0
+    assert len(result.warnings) == 1
+
+
+def test_validation_result_mixed_issues_non_strict():
+    """Test ValidationResult with mixed errors and warnings in non-strict mode."""
+    from pinviz.cli.validation_output import ValidationResult, ValidationStatus
+    from pinviz.validation import ValidationIssue, ValidationLevel
+
+    issues = [
+        ValidationIssue(level=ValidationLevel.ERROR, message="Test error"),
+        ValidationIssue(level=ValidationLevel.WARNING, message="Test warning 1"),
+        ValidationIssue(level=ValidationLevel.WARNING, message="Test warning 2"),
+    ]
+    result = ValidationResult(issues=issues, strict=False)
+
+    assert result.status == ValidationStatus.ERROR  # Errors take precedence
+    assert result.exit_code == 1
+    assert len(result.errors) == 1
+    assert len(result.warnings) == 2
+
+
+def test_validation_result_console_output_no_issues():
+    """Test ValidationResult console output with no issues."""
+    from io import StringIO
+
+    from rich.console import Console
+
+    from pinviz.cli.validation_output import ValidationResult
+
+    result = ValidationResult(issues=[], strict=False)
+
+    # Capture console output
+    output = StringIO()
+    console = Console(file=output, force_terminal=True)
+    result.output_console(console)
+
+    output_str = output.getvalue()
+    assert "Validation passed" in output_str or "No issues found" in output_str
+
+
+def test_validation_result_json_output_no_issues():
+    """Test ValidationResult JSON output with no issues."""
+    from io import StringIO
+
+    from rich.console import Console
+
+    from pinviz.cli.validation_output import ValidationResult
+
+    result = ValidationResult(issues=[], strict=False)
+
+    # Capture console output
+    output = StringIO()
+    console = Console(file=output, force_terminal=False)
+    result.output_json(console)
+
+    output_str = output.getvalue()
+    assert "success" in output_str
+
+
+def test_validation_result_json_output_with_issues():
+    """Test ValidationResult JSON output with issues."""
+    from io import StringIO
+
+    from rich.console import Console
+
+    from pinviz.cli.validation_output import ValidationResult
+    from pinviz.validation import ValidationIssue, ValidationLevel
+
+    issues = [
+        ValidationIssue(level=ValidationLevel.ERROR, message="Test error"),
+        ValidationIssue(level=ValidationLevel.WARNING, message="Test warning"),
+    ]
+    result = ValidationResult(issues=issues, strict=False)
+
+    # Capture console output
+    output = StringIO()
+    console = Console(file=output, force_terminal=False)
+    result.output_json(console)
+
+    output_str = output.getvalue()
+    assert "error" in output_str.lower()
+    assert "warning" in output_str.lower()

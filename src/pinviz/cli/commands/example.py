@@ -1,10 +1,10 @@
 """Example command implementation."""
 
+from collections.abc import Callable
 from pathlib import Path
 from typing import Annotated
 
 import typer
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from ... import boards
 from ...devices import get_registry
@@ -13,6 +13,7 @@ from ...render_svg import SVGRenderer
 from ...validation import DiagramValidator, ValidationLevel
 from ..config import load_config
 from ..context import AppContext
+from ..decorators import handle_command_exception, progress_indicator
 from ..output import (
     ExampleOutputJson,
     output_json,
@@ -21,6 +22,7 @@ from ..output import (
     print_validation_issues,
     print_warning,
 )
+from ..types import JsonOption, NoBoardNameOption, NoTitleOption, OutputOption, ShowLegendOption
 
 
 def create_bh1750_example() -> Diagram:
@@ -99,6 +101,23 @@ def create_i2c_spi_example() -> Diagram:
     )
 
 
+# Example registry: maps example names to factory functions
+EXAMPLE_REGISTRY: dict[str, Callable[[], Diagram]] = {
+    "bh1750": create_bh1750_example,
+    "ir_led": create_ir_led_example,
+    "i2c_spi": create_i2c_spi_example,
+}
+
+
+def get_available_examples() -> list[str]:
+    """Get list of available example names.
+
+    Returns:
+        Sorted list of example names
+    """
+    return sorted(EXAMPLE_REGISTRY.keys())
+
+
 def example_command(
     name: Annotated[
         str,
@@ -106,42 +125,11 @@ def example_command(
             help="Example name: bh1750, ir_led, i2c_spi",
         ),
     ],
-    output: Annotated[
-        Path | None,
-        typer.Option(
-            "--output",
-            "-o",
-            help="Output SVG file path (default: ./out/<name>.svg)",
-        ),
-    ] = None,
-    no_title: Annotated[
-        bool,
-        typer.Option(
-            "--no-title",
-            help="Hide the diagram title in the SVG output",
-        ),
-    ] = False,
-    no_board_name: Annotated[
-        bool,
-        typer.Option(
-            "--no-board-name",
-            help="Hide the board name in the SVG output",
-        ),
-    ] = False,
-    show_legend: Annotated[
-        bool,
-        typer.Option(
-            "--show-legend",
-            help="Show device specifications table below the diagram",
-        ),
-    ] = False,
-    json_output: Annotated[
-        bool,
-        typer.Option(
-            "--json",
-            help="Output machine-readable JSON status",
-        ),
-    ] = False,
+    output: OutputOption = None,
+    no_title: NoTitleOption = False,
+    no_board_name: NoBoardNameOption = False,
+    show_legend: ShowLegendOption = False,
+    json_output: JsonOption = False,
 ) -> None:
     """
     Generate a built-in example diagram.
@@ -158,18 +146,20 @@ def example_command(
     log = ctx.logger
 
     # Validate example name
-    if name not in ["bh1750", "ir_led", "i2c_spi"]:
+    available = get_available_examples()
+    if name not in EXAMPLE_REGISTRY:
+        available_str = ", ".join(available)
         if json_output:
             result = ExampleOutputJson(
                 status="error",
                 example_name=name,
                 output_path=None,
-                errors=[f"Unknown example: {name}. Available: bh1750, ir_led, i2c_spi"],
+                errors=[f"Unknown example: {name}. Available: {available_str}"],
             )
             output_json(result, ctx.console)
         else:
             print_error(f"Unknown example: {name}", ctx.console)
-            ctx.console.print("\nAvailable examples: [cyan]bh1750, ir_led, i2c_spi[/cyan]")
+            ctx.console.print(f"\nAvailable examples: [cyan]{available_str}[/cyan]")
         raise typer.Exit(code=1)
 
     # Determine output path
@@ -183,21 +173,12 @@ def example_command(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=ctx.console,
-            transient=True,
-        ) as progress:
+        with progress_indicator(ctx.console, "") as progress:
             task = progress.add_task(f"Generating example: {name}...", total=None)
 
-            # Create the example diagram
-            if name == "bh1750":
-                diagram = create_bh1750_example()
-            elif name == "ir_led":
-                diagram = create_ir_led_example()
-            elif name == "i2c_spi":
-                diagram = create_i2c_spi_example()
+            # Create the example diagram using the registry
+            example_factory = EXAMPLE_REGISTRY[name]
+            diagram = example_factory()
 
             log.debug(
                 "example_diagram_created",
@@ -270,23 +251,16 @@ def example_command(
     except typer.Exit:
         raise
     except Exception as e:
-        log.exception(
-            "example_generation_failed",
-            example_name=name,
-            output_path=str(output_path),
-            error_type=type(e).__name__,
-            error_message=str(e),
-        )
-
-        if json_output:
-            result = ExampleOutputJson(
+        handle_command_exception(
+            e,
+            "example_generation",
+            ctx.console,
+            log,
+            json_output,
+            lambda msg: ExampleOutputJson(
                 status="error",
                 example_name=name,
                 output_path=None,
-                errors=[str(e)],
-            )
-            output_json(result, ctx.console)
-        else:
-            print_error(str(e), ctx.console)
-
-        raise typer.Exit(code=1) from None
+                errors=[msg],
+            ),
+        )

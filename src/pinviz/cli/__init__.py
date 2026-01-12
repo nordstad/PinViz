@@ -21,6 +21,7 @@ app = typer.Typer(
     rich_markup_mode="rich",
     add_completion=True,
     pretty_exceptions_enable=True,
+    context_settings={"help_option_names": ["-h", "--help"]},
 )
 
 
@@ -102,6 +103,7 @@ config_app = typer.Typer(
     name="config",
     help="Manage configuration settings",
     no_args_is_help=True,
+    context_settings={"help_option_names": ["-h", "--help"]},
 )
 config_app.command(name="show")(config_cmd.config_show_command)
 config_app.command(name="path")(config_cmd.config_path_command)
@@ -114,6 +116,7 @@ completion_app = typer.Typer(
     name="completion",
     help="Manage shell completion",
     no_args_is_help=True,
+    context_settings={"help_option_names": ["-h", "--help"]},
 )
 completion_app.command(name="install")(completion_cmd.completion_install_command)
 completion_app.command(name="show")(completion_cmd.completion_show_command)

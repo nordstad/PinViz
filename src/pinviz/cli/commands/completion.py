@@ -11,6 +11,7 @@ from rich.syntax import Syntax
 
 from ..config import load_config
 from ..context import AppContext
+from ..types import ShellOption
 
 
 def detect_shell() -> str | None:
@@ -52,12 +53,7 @@ def get_completion_script(shell: str) -> str:
 
 
 def completion_install_command(
-    shell: str | None = typer.Option(
-        None,
-        "--shell",
-        "-s",
-        help="Shell to install completion for (bash, zsh, fish). Auto-detected if not specified.",
-    ),
+    shell: ShellOption = None,
 ) -> None:
     """
     Install shell completion for pinviz.
@@ -121,9 +117,16 @@ def completion_install_command(
                 return
             else:
                 ctx.console.print("[red]Error:[/red] Failed to generate fish completion script")
+                if result.stderr:
+                    ctx.console.print(f"[dim]{result.stderr}[/dim]")
                 raise typer.Exit(1)
-        except Exception as e:
-            ctx.console.print(f"[red]Error:[/red] {e}")
+        except subprocess.SubprocessError as e:
+            ctx.console.print(f"[red]Error:[/red] Failed to run completion script: {e}")
+            ctx.console.print("[dim]Make sure pinviz is properly installed[/dim]")
+            raise typer.Exit(1) from None
+        except OSError as e:
+            ctx.console.print(f"[red]Error:[/red] Failed to write completion file: {e}")
+            ctx.console.print(f"[dim]Check permissions for {config_file}[/dim]")
             raise typer.Exit(1) from None
         return
 
@@ -144,18 +147,18 @@ def completion_install_command(
         ctx.console.print(f"[dim]Restart your shell or run: source {config_file}[/dim]")
         ctx.console.print()
 
-    except Exception as e:
-        ctx.console.print(f"[red]Error:[/red] Failed to install completion: {e}")
+    except PermissionError:
+        ctx.console.print(f"[red]Error:[/red] Permission denied writing to {config_file}")
+        ctx.console.print(f"[dim]Try: sudo chown $USER {config_file}[/dim]")
+        raise typer.Exit(1) from None
+    except OSError as e:
+        ctx.console.print(f"[red]Error:[/red] Failed to write to config file: {e}")
+        ctx.console.print(f"[dim]Check that {config_file} is writable[/dim]")
         raise typer.Exit(1) from None
 
 
 def completion_show_command(
-    shell: str | None = typer.Option(
-        None,
-        "--shell",
-        "-s",
-        help="Shell to show completion for (bash, zsh, fish). Auto-detected if not specified.",
-    ),
+    shell: ShellOption = None,
 ) -> None:
     """
     Display the completion script for your shell.
@@ -221,21 +224,23 @@ def completion_show_command(
                 ctx.console.print("[dim]Save this to: ~/.config/fish/completions/pinviz.fish[/dim]")
             else:
                 ctx.console.print("[red]Error:[/red] Failed to generate fish completion script")
+                if result.stderr:
+                    ctx.console.print(f"[dim]{result.stderr}[/dim]")
                 raise typer.Exit(1)
-        except Exception as e:
-            ctx.console.print(f"[red]Error:[/red] {e}")
+        except subprocess.SubprocessError as e:
+            ctx.console.print(f"[red]Error:[/red] Failed to run completion script: {e}")
+            ctx.console.print("[dim]Make sure pinviz is properly installed[/dim]")
+            raise typer.Exit(1) from None
+        except FileNotFoundError as e:
+            ctx.console.print(f"[red]Error:[/red] Python executable not found: {e}")
+            ctx.console.print("[dim]Check your Python installation[/dim]")
             raise typer.Exit(1) from None
 
     ctx.console.print()
 
 
 def completion_uninstall_command(
-    shell: str | None = typer.Option(
-        None,
-        "--shell",
-        "-s",
-        help="Shell to uninstall completion from. Auto-detected if not specified.",
-    ),
+    shell: ShellOption = None,
 ) -> None:
     """
     Uninstall shell completion for pinviz.
