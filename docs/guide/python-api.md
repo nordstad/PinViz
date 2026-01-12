@@ -2,6 +2,12 @@
 
 Programmatic usage of PinViz.
 
+## Demo
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/python_api_demo.gif" alt="PinViz Python API Demo" width="800">
+</p>
+
 ## Basic Usage
 
 ```python

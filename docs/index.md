@@ -25,18 +25,6 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
   <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/quick_demo.gif" alt="PinViz Quick Demo" width="800">
 </p>
 
-### Python API Demo
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/python_api_demo.gif" alt="PinViz Python API Demo" width="800">
-</p>
-
-### Custom Device Demo
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/custom_device_demo.gif" alt="PinViz Custom Device Demo" width="800">
-</p>
-
 ## Features
 
 - **Declarative Configuration**: Define diagrams using YAML or JSON
@@ -52,23 +40,42 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 
 ## Example Diagrams
 
-### LED with Resistor
+### Raspberry Pi 5 - Multi-LED with Specifications
 
-Simple LED circuit with inline current-limiting resistor:
+Three LEDs with inline resistors and detailed component specifications:
 
-![LED with Resistor](https://raw.githubusercontent.com/nordstad/PinViz/main/images/led_with_resistor.svg)
+![Multi-LED with Specifications](https://raw.githubusercontent.com/nordstad/PinViz/main/images/leds_with_specs.svg)
 
-### Multi-Device Setup
+**Key features:** Raspberry Pi 5 board, inline resistors, specification table
+with part numbers
 
-BH1750 light sensor + IR LED ring with custom wire colors:
+### Raspberry Pi 4 - I2C + SPI Combo
 
-![BH1750 + IR LED Ring](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750_ir_led.svg)
+OLED display (I2C) and accelerometer (SPI) demonstrating multiple protocol
+buses:
 
-### Traffic Light
+![Pi 4 I2C + SPI](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pi4_i2c_spi_combo.svg)
 
-Three LEDs with individual resistors:
+**Key features:** Raspberry Pi 4 board, I2C and SPI protocols, multi-device
+setup
 
-![Traffic Light](https://raw.githubusercontent.com/nordstad/PinViz/main/images/traffic_light.svg)
+### Raspberry Pi Pico - LEDs with Specifications
+
+Three LEDs on Pico's dual-sided header with component specifications:
+
+![Pico Multi-LED with Specs](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pico_leds_with_specs.svg)
+
+**Key features:** Raspberry Pi Pico board, horizontal pin layout,
+specification table
+
+### Minimal Diagram - No Headers
+
+Clean diagram without title and board name labels:
+
+![Simple LED Minimal](https://raw.githubusercontent.com/nordstad/PinViz/main/images/simple_led_minimal.svg)
+
+**Key features:** Minimal layout with `show_title: false` and
+`show_board_name: false`
 
 ## Quick Start
 

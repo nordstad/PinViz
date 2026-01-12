@@ -2,6 +2,12 @@
 
 Explore example diagrams and configurations to learn how to use PinViz.
 
+## Demo - Custom Device Creation
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/custom_device_demo.gif" alt="PinViz Custom Device Demo" width="800">
+</p>
+
 ## 🎯 Feature Showcase
 
 Learn PinViz capabilities through these focused examples:
