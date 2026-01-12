@@ -9,11 +9,18 @@ def test_layout_config_defaults():
     """Test that LayoutConfig has sensible defaults."""
     config = LayoutConfig()
     assert config.board_margin_left == 40.0
-    assert config.board_margin_top == 80.0  # Increased to prevent title overlap
+    assert config.board_margin_top_base == 40.0
+    assert config.title_height == 40.0
+    assert config.title_margin == 50.0  # Increased to prevent wire overlap with title
+    assert config.specs_table_top_margin == 30.0
     assert config.device_area_left == 450.0
     assert config.device_spacing_vertical == 20.0
     assert config.rail_offset == 40.0
     assert config.corner_radius == 5.0
+
+    # Test dynamic board margin calculation
+    assert config.get_board_margin_top(show_title=False) == 40.0  # Base only
+    assert config.get_board_margin_top(show_title=True) == 130.0  # 40 + 40 + 50
 
 
 def test_layout_config_custom_values():
@@ -134,11 +141,14 @@ def test_canvas_size_includes_board(sample_diagram):
     canvas_width, canvas_height, _ = engine.layout_diagram(sample_diagram)
 
     # Canvas should be at least as large as board + margins + padding
+    # Use dynamic board margin based on whether title is shown
+    board_margin_top = engine.config.get_board_margin_top(sample_diagram.show_title)
+
     expected_min_width = (
         engine.config.board_margin_left + sample_diagram.board.width + engine.config.canvas_padding
     )
     expected_min_height = (
-        engine.config.board_margin_top + sample_diagram.board.height + engine.config.canvas_padding
+        board_margin_top + sample_diagram.board.height + engine.config.canvas_padding
     )
     assert canvas_width >= expected_min_width
     assert canvas_height >= expected_min_height

@@ -339,6 +339,79 @@ Board definitions are stored in JSON files in `src/pinviz/board_configs/` direct
 }
 ```
 
+### Dual-Sided Board Configuration (Pico-style)
+
+Boards with GPIO pins on multiple edges (like Raspberry Pi Pico) use a different layout structure with horizontal pin rows instead of vertical columns.
+
+**Dual-Sided Configuration Structure:**
+
+```json
+{
+  "name": "Raspberry Pi Pico",
+  "svg_asset": "pico_mod.svg",
+  "width": 249.0,
+  "height": 101.0,
+  "header_offset": {"x": 0, "y": 0},
+  "layout": {
+    "top_header": {
+      "start_x": 8.0,
+      "pin_spacing": 12.0,
+      "y": 6.5
+    },
+    "bottom_header": {
+      "start_x": 8.0,
+      "pin_spacing": 12.0,
+      "y": 94.0
+    }
+  },
+  "pins": [
+    {"physical_pin": 1, "name": "GP0", "role": "GPIO", "gpio_bcm": 0, "header": "top"},
+    {"physical_pin": 2, "name": "GP1", "role": "GPIO", "gpio_bcm": 1, "header": "top"},
+    ...
+    {"physical_pin": 21, "name": "GP16", "role": "GPIO", "gpio_bcm": 16, "header": "bottom"},
+    ...
+  ]
+}
+```
+
+**Key Differences from Standard Boards:**
+
+1. **Layout Structure**: Uses `top_header` and `bottom_header` instead of `left_col_x`/`right_col_x`
+2. **Pin Positioning**: Horizontal rows (X increments, Y fixed per header) instead of vertical columns
+3. **Header Field**: Each pin requires a `"header"` field indicating `"top"` or `"bottom"`
+4. **Pin Numbering**:
+   - Top header: pins 1-20 (pin 20 on left, pin 1 on right - **reversed order**)
+   - Bottom header: pins 21-40 (pin 21 on left, pin 40 on right - normal order)
+
+**Pin Order Details:**
+
+The Pico has a **reversed pin order on the top header** (physical pins 1-20):
+- Pin 20 is leftmost (smallest X coordinate)
+- Pin 1 is rightmost (largest X coordinate)
+- Position calculation: `x = start_x + ((20 - pin_num) * pin_spacing)`
+
+The bottom header (pins 21-40) uses normal left-to-right ordering:
+- Pin 21 is leftmost
+- Pin 40 is rightmost
+- Position calculation: `x = start_x + ((pin_num - 21) * pin_spacing)`
+
+**Usage Example:**
+
+```yaml
+title: "Pico LED Example"
+board: "raspberry_pi_pico"  # or "pico"
+devices:
+  - type: "led"
+    name: "Status LED"
+connections:
+  - board_pin: 1    # GP0 (top header, rightmost)
+    device: "Status LED"
+    device_pin: "+"
+  - board_pin: 3    # GND (top header)
+    device: "Status LED"
+    device_pin: "-"
+```
+
 ### Adding a New Board
 
 **Quick Summary:** For Raspberry Pi boards with 40-pin GPIO headers, you can copy an existing board's pin configuration since they all share the same GPIO pinout. This takes ~15-30 minutes.
@@ -662,3 +735,4 @@ renderer.render(diagram, "output.svg")
 - Make sure that the mkdocs are updated after doing changes ("docs" dir)
 - Save dev plans to "plans" dir not commited to git
 - Keep the project root dir clean, just essential files should be stored here
+- Always check that the mcp support new features/updates

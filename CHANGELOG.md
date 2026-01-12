@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Raspberry Pi Pico Support** - Dual-sided board support with horizontal pin layout
+  - Complete support for Raspberry Pi Pico with dual 20-pin headers (40 pins total)
+  - New dual-header layout system for boards with GPIO pins on multiple edges
+  - Horizontal pin positioning (single row per header) vs traditional vertical columns
+  - Reversed pin order on top header (pin 20 on left, pin 1 on right)
+  - Factory function `raspberry_pi_pico()` with comprehensive documentation
+  - Board name aliases: `raspberry_pi_pico`, `pico`
+  - JSON configuration in `board_configs/raspberry_pi_pico.json`
+  - 15 new comprehensive tests for Pico board functionality
+  - 4 new tests for Pico board alias support
+  - Example diagrams: `examples/pico_led.yaml`, `examples/pico_bme280.yaml`, and `examples/pico_leds_with_specs.yaml`
+  - Documentation for dual-sided board configuration in `CLAUDE.md`
+  - Pico multi-LED example with specifications table demonstrating `--show-legend` flag
+- **Extended Schema Support** for dual-sided boards
+  - `BoardLayoutConfigSchema` now supports `top_header` and `bottom_header` configurations
+  - `BoardPinConfigSchema` includes optional `header` field for pin placement
+  - Board detection logic automatically identifies dual-header vs single-header layouts
+  - Pattern established for future boards (ESP32, Arduino Nano, etc.)
+- **MCP Server Support** for Raspberry Pi Pico and Pi 4
+  - Added board aliases to MCP parser: `pico`, `raspberry pi pico`, `rpi pico` → `raspberry_pi_pico`
+  - Added board aliases for Pi 4: `pi4`, `rpi4`, `raspberry pi 4` → `raspberry_pi_4`
+  - 5 new parser tests for board alias recognition (Pi 4 and Pico)
+  - Updated MCP documentation with all supported board aliases
+  - MCP server now supports natural language prompts like "Connect LED to pico"
+
+### Changed
+- **Improved Wire Colors** in Pico BME280 example for better visibility
+  - Changed I2C wire colors from yellow to blue (#2196F3) and orange (#FF9800)
+  - Yellow wires were hard to see against white background
+  - New colors provide better contrast and readability in documentation
+
+### Fixed
+- **Layout Spacing Issues** - Fixed title overlap and specs table positioning (#Issue)
+  - Dynamic board margin calculation based on whether title is shown
+  - Title now has proper spacing (title_height + title_margin) above board and wires
+  - Specs table positioned relative to bottommost device with configurable margin
+  - Added `specs_table_top_margin` parameter to LayoutConfig (default: 30px)
+  - Renamed `board_margin_top` to `board_margin_top_base` with dynamic calculation
+  - Prevents wires from overlapping with title text
+  - Prevents devices from being too close to specifications table
+  - All layout spacing now calculated dynamically for proper visual separation
 
 
 ## [0.8.1] - 2026-01-11

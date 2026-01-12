@@ -1,0 +1,26 @@
+# Minimal Pico example - no title or board name
+# Demonstrates show_title and show_board_name flags
+
+board: "raspberry_pi_pico"
+show_title: false
+show_board_name: false
+
+devices:
+  - type: "led"
+    name: "LED"
+    color: "Red"
+
+connections:
+  # LED on GP0
+  - board_pin: 1   # GP0 (top header)
+    device: "LED"
+    device_pin: "+"
+    color: "#FF0000"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  - board_pin: 3   # GND (top header)
+    device: "LED"
+    device_pin: "-"
+    color: "#000000"

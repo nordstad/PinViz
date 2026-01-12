@@ -331,3 +331,207 @@ def test_load_board_from_config_pi4():
     assert board.name == "Raspberry Pi 4 Model B"
     assert len(board.pins) == 40
     assert board.svg_asset_path.endswith("pi_4_mod.svg")
+
+
+# Raspberry Pi Pico Tests
+def test_raspberry_pi_pico_board_creation():
+    """Test creating a Raspberry Pi Pico board."""
+    board = boards.raspberry_pi_pico()
+    assert board is not None
+    assert board.name == "Raspberry Pi Pico"
+
+
+def test_raspberry_pi_pico_has_40_pins():
+    """Test that Raspberry Pi Pico has 40 GPIO pins."""
+    board = boards.raspberry_pi_pico()
+    assert len(board.pins) == 40
+
+
+def test_raspberry_pi_pico_pin_numbers():
+    """Test that all pin numbers 1-40 are present."""
+    board = boards.raspberry_pi_pico()
+    pin_numbers = {pin.number for pin in board.pins}
+    assert pin_numbers == set(range(1, 41))
+
+
+def test_raspberry_pi_pico_power_pins():
+    """Test power pin roles on Pico."""
+    board = boards.raspberry_pi_pico()
+
+    # 3V3 pins (36, 37)
+    pin36 = board.get_pin_by_number(36)
+    pin37 = board.get_pin_by_number(37)
+    assert pin36.role == PinRole.POWER_3V3
+    assert pin37.role == PinRole.POWER_3V3
+    assert pin36.name == "3V3"
+    assert pin37.name == "3V3_EN"
+
+    # 5V pins (VSYS=39, VBUS=40)
+    pin39 = board.get_pin_by_number(39)
+    pin40 = board.get_pin_by_number(40)
+    assert pin39.role == PinRole.POWER_5V
+    assert pin40.role == PinRole.POWER_5V
+    assert pin39.name == "VSYS"
+    assert pin40.name == "VBUS"
+
+
+def test_raspberry_pi_pico_ground_pins():
+    """Test ground pin roles on Pico."""
+    board = boards.raspberry_pi_pico()
+    # Ground pins: 3, 8, 13, 18, 23, 28, 33, 38
+    ground_pins = [3, 8, 13, 18, 23, 28, 33, 38]
+    for pin_num in ground_pins:
+        pin = board.get_pin_by_number(pin_num)
+        assert pin.role == PinRole.GROUND, f"Pin {pin_num} should be GROUND"
+        assert pin.name == "GND"
+        assert pin.gpio_bcm is None
+
+
+def test_raspberry_pi_pico_gpio_pins():
+    """Test GPIO pins on Pico (GP0-GP28)."""
+    board = boards.raspberry_pi_pico()
+
+    # Test a few GPIO pins
+    # GP0 (pin 1)
+    pin1 = board.get_pin_by_number(1)
+    assert pin1.role == PinRole.GPIO
+    assert pin1.name == "GP0"
+    assert pin1.gpio_bcm == 0
+
+    # GP15 (pin 20)
+    pin20 = board.get_pin_by_number(20)
+    assert pin20.role == PinRole.GPIO
+    assert pin20.name == "GP15"
+    assert pin20.gpio_bcm == 15
+
+    # GP16 (pin 21)
+    pin21 = board.get_pin_by_number(21)
+    assert pin21.role == PinRole.GPIO
+    assert pin21.name == "GP16"
+    assert pin21.gpio_bcm == 16
+
+    # GP28 (pin 34)
+    pin34 = board.get_pin_by_number(34)
+    assert pin34.role == PinRole.GPIO
+    assert pin34.name == "GP28"
+    assert pin34.gpio_bcm == 28
+
+
+def test_raspberry_pi_pico_all_pins_have_positions():
+    """Test that all Pico pins have position information."""
+    board = boards.raspberry_pi_pico()
+    for pin in board.pins:
+        assert pin.position is not None
+        assert pin.position.x >= 0
+        assert pin.position.y >= 0
+
+
+def test_raspberry_pi_pico_horizontal_layout():
+    """Test that Pico has horizontal pin layout (single row per header)."""
+    board = boards.raspberry_pi_pico()
+
+    # Top header (pins 1-20) should all have same Y coordinate
+    top_pins = [board.get_pin_by_number(i) for i in range(1, 21)]
+    top_y_coords = {pin.position.y for pin in top_pins}
+    assert len(top_y_coords) == 1, "Top header pins should all have same Y coordinate"
+    assert list(top_y_coords)[0] == pytest.approx(6.5, abs=0.1)
+
+    # Bottom header (pins 21-40) should all have same Y coordinate
+    bottom_pins = [board.get_pin_by_number(i) for i in range(21, 41)]
+    bottom_y_coords = {pin.position.y for pin in bottom_pins}
+    assert len(bottom_y_coords) == 1, "Bottom header pins should all have same Y coordinate"
+    assert list(bottom_y_coords)[0] == pytest.approx(94.0, abs=0.1)
+
+
+def test_raspberry_pi_pico_top_header_reversed_order():
+    """Test that top header pins are in reversed order (pin 20 on left, pin 1 on right)."""
+    board = boards.raspberry_pi_pico()
+
+    # Pin 20 should be leftmost (smallest X)
+    pin20 = board.get_pin_by_number(20)
+    pin1 = board.get_pin_by_number(1)
+
+    assert pin20.position.x < pin1.position.x, "Pin 20 should be left of pin 1"
+
+    # Pin positions should decrease as pin numbers increase (reversed)
+    for i in range(1, 20):
+        pin_lower = board.get_pin_by_number(i)
+        pin_higher = board.get_pin_by_number(i + 1)
+        assert pin_lower.position.x > pin_higher.position.x, (
+            f"Pin {i} should be right of pin {i + 1} (reversed order)"
+        )
+
+
+def test_raspberry_pi_pico_bottom_header_normal_order():
+    """Test that bottom header pins are in normal order (pin 21 on left, pin 40 on right)."""
+    board = boards.raspberry_pi_pico()
+
+    # Pin 21 should be leftmost (smallest X)
+    pin21 = board.get_pin_by_number(21)
+    pin40 = board.get_pin_by_number(40)
+
+    assert pin21.position.x < pin40.position.x, "Pin 21 should be left of pin 40"
+
+    # Pin positions should increase as pin numbers increase (normal order)
+    for i in range(21, 40):
+        pin_lower = board.get_pin_by_number(i)
+        pin_higher = board.get_pin_by_number(i + 1)
+        assert pin_lower.position.x < pin_higher.position.x, (
+            f"Pin {i} should be left of pin {i + 1} (normal order)"
+        )
+
+
+def test_raspberry_pi_pico_pin_spacing():
+    """Test that Pico pins have consistent spacing."""
+    board = boards.raspberry_pi_pico()
+
+    # Test top header spacing
+    pin1 = board.get_pin_by_number(1)
+    pin2 = board.get_pin_by_number(2)
+    top_spacing = abs(pin1.position.x - pin2.position.x)
+    assert top_spacing == pytest.approx(12.0, abs=0.1), "Pin spacing should be 12.0"
+
+    # Test bottom header spacing
+    pin21 = board.get_pin_by_number(21)
+    pin22 = board.get_pin_by_number(22)
+    bottom_spacing = abs(pin21.position.x - pin22.position.x)
+    assert bottom_spacing == pytest.approx(12.0, abs=0.1), "Pin spacing should be 12.0"
+
+
+def test_raspberry_pi_pico_board_dimensions():
+    """Test Pico board dimensions."""
+    board = boards.raspberry_pi_pico()
+    assert board.width == pytest.approx(249.0, abs=0.1)
+    assert board.height == pytest.approx(101.0, abs=0.1)
+
+
+def test_raspberry_pi_pico_svg_asset_path():
+    """Test that SVG asset path is set for Pico."""
+    board = boards.raspberry_pi_pico()
+    assert board.svg_asset_path is not None
+    assert "pico_mod.svg" in board.svg_asset_path
+
+
+def test_load_board_from_config_pico():
+    """Test loading Raspberry Pi Pico configuration from JSON file."""
+    board = boards.load_board_from_config("raspberry_pi_pico")
+    assert board.name == "Raspberry Pi Pico"
+    assert len(board.pins) == 40
+    assert board.svg_asset_path.endswith("pico_mod.svg")
+
+
+def test_raspberry_pi_pico_special_pins():
+    """Test special pins on Pico (RUN, ADC_VREF)."""
+    board = boards.raspberry_pi_pico()
+
+    # RUN pin (pin 30)
+    run_pin = board.get_pin_by_number(30)
+    assert run_pin.name == "RUN"
+    assert run_pin.role == PinRole.GPIO
+    assert run_pin.gpio_bcm is None
+
+    # ADC_VREF pin (pin 35)
+    adc_pin = board.get_pin_by_number(35)
+    assert adc_pin.name == "ADC_VREF"
+    assert adc_pin.role == PinRole.GPIO
+    assert adc_pin.gpio_bcm is None

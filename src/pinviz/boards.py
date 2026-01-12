@@ -107,19 +107,63 @@ def load_board_from_config(config_name: str) -> Board:
         raise ValueError(f"Invalid board configuration in {config_path}: {e}") from e
 
     # Calculate pin positions based on layout parameters
-    # Standard Raspberry Pi GPIO has 2 vertical columns with rows:
-    # - Left column (odd pins): 1, 3, 5, ..., N-1 (top to bottom)
-    # - Right column (even pins): 2, 4, 6, ..., N (top to bottom)
     pin_positions = {}
-    num_rows = len(config.pins) // 2  # 20 rows for 40-pin header
 
-    for row in range(num_rows):
-        y_pos = config.layout.start_y + (row * config.layout.row_spacing)
-        odd_pin = (row * 2) + 1  # Physical pins 1, 3, 5, ...
-        even_pin = (row * 2) + 2  # Physical pins 2, 4, 6, ...
+    # Check if this is a dual-header board (like Pico) or single-header (like Pi 5)
+    layout_dict = config.layout if isinstance(config.layout, dict) else config.layout.__dict__
+    is_dual_header = (
+        layout_dict.get("top_header") is not None and layout_dict.get("bottom_header") is not None
+    )
 
-        pin_positions[odd_pin] = Point(config.layout.left_col_x, y_pos)  # Left column
-        pin_positions[even_pin] = Point(config.layout.right_col_x, y_pos)  # Right column
+    if is_dual_header:
+        # Dual-header board (e.g., Raspberry Pi Pico)
+        # Horizontal pin layout: single row of pins along top and bottom edges
+        # Top header: pins 1-20 running left-to-right in one row
+        # Bottom header: pins 21-40 running left-to-right in one row
+        for pin_config in config.pins:
+            header_side = getattr(pin_config, "header", None)
+
+            if header_side == "top":
+                # Top header: pins 1-20 in a single horizontal row
+                # Note: Pins are in REVERSE order (pin 20 on left, pin 1 on right)
+                header_layout = layout_dict["top_header"]
+                pin_num = pin_config.physical_pin  # 1-20
+
+                # Calculate X position: reversed order (20 - pin_num)
+                x_pos = header_layout["start_x"] + ((20 - pin_num) * header_layout["pin_spacing"])
+                # Fixed Y position for all top header pins
+                y_pos = header_layout["y"]
+
+            elif header_side == "bottom":
+                # Bottom header: pins 21-40 in a single horizontal row
+                header_layout = layout_dict["bottom_header"]
+                pin_num = pin_config.physical_pin  # 21-40
+
+                # Calculate X position: each pin increments horizontally
+                x_pos = header_layout["start_x"] + ((pin_num - 21) * header_layout["pin_spacing"])
+                # Fixed Y position for all bottom header pins
+                y_pos = header_layout["y"]
+            else:
+                raise ValueError(
+                    f"Pin {pin_config.physical_pin} has invalid header side: {header_side}. "
+                    f"Expected 'top' or 'bottom'."
+                )
+
+            pin_positions[pin_config.physical_pin] = Point(x_pos, y_pos)
+    else:
+        # Single-header board (e.g., Raspberry Pi 5)
+        # Standard Raspberry Pi GPIO has 2 vertical columns with rows:
+        # - Left column (odd pins): 1, 3, 5, ..., N-1 (top to bottom)
+        # - Right column (even pins): 2, 4, 6, ..., N (top to bottom)
+        num_rows = len(config.pins) // 2  # 20 rows for 40-pin header
+
+        for row in range(num_rows):
+            y_pos = layout_dict["start_y"] + (row * layout_dict["row_spacing"])
+            odd_pin = (row * 2) + 1  # Physical pins 1, 3, 5, ...
+            even_pin = (row * 2) + 2  # Physical pins 2, 4, 6, ...
+
+            pin_positions[odd_pin] = Point(layout_dict["left_col_x"], y_pos)  # Left column
+            pin_positions[even_pin] = Point(layout_dict["right_col_x"], y_pos)  # Right column
 
     # Create HeaderPin objects from configuration
     pins = []
@@ -218,6 +262,42 @@ def raspberry_pi_4() -> Board:
         permanently damage the board. Use level shifters for 5V devices.
     """
     return load_board_from_config("raspberry_pi_4")
+
+
+def raspberry_pi_pico() -> Board:
+    """
+    Create a Raspberry Pi Pico board with dual 20-pin GPIO headers.
+
+    The Pico has a unique dual-sided layout with 40 pins total:
+    - Top header: pins 1-20 (single row along top edge)
+    - Bottom header: pins 21-40 (single row along bottom edge)
+
+    Unlike the standard Raspberry Pi, the Pico uses RP2040 microcontroller
+    with GP0-GP28 GPIO pins instead of BCM numbering.
+
+    This function loads the board definition from a JSON configuration file
+    (raspberry_pi_pico.json) which specifies the dual-header layout.
+
+    Pin layout (physical pin numbers):
+    - Top header: pins 1-20 (pin 20 on left, pin 1 on right - reversed order)
+    - Bottom header: pins 21-40 (pin 21 on left, pin 40 on right - normal order)
+
+    Returns:
+        Board: Configured Raspberry Pi Pico board with all pins positioned
+
+    Examples:
+        >>> board = raspberry_pi_pico()
+        >>> print(board.name)
+        Raspberry Pi Pico
+        >>> print(len(board.pins))
+        40
+
+    Note:
+        The Pico operates at 3.3V logic levels. Some pins support 5V input
+        with appropriate voltage dividers. Check the Pico datasheet for
+        specific pin capabilities.
+    """
+    return load_board_from_config("raspberry_pi_pico")
 
 
 # Alias for convenience

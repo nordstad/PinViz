@@ -93,6 +93,9 @@ class SVGRenderer:
             connection_count=len(diagram.connections),
         )
 
+        # Calculate dynamic board margin based on whether title is shown
+        board_margin_top = self.layout_config.get_board_margin_top(diagram.show_title)
+
         # Calculate layout
         log.debug("calculating_layout")
         canvas_width, canvas_height, routed_wires = self.layout_engine.layout_diagram(diagram)
@@ -126,11 +129,11 @@ class SVGRenderer:
 
         # Draw board
         log.debug("drawing_board", board_name=diagram.board.name)
-        self._draw_board(dwg, diagram.board, diagram.show_board_name)
+        self._draw_board(dwg, diagram.board, board_margin_top, diagram.show_board_name)
 
         # Draw GPIO pin numbers on the header
         x = self.layout_config.board_margin_left
-        y = self.layout_config.board_margin_top
+        y = board_margin_top
         self._draw_gpio_pin_numbers(dwg, diagram.board, x, y)
 
         # Draw wires first so they appear behind devices
@@ -166,14 +169,16 @@ class SVGRenderer:
 
         # Draw device specifications table if legend is enabled
         if diagram.show_legend:
-            self._draw_device_specs_table(dwg, diagram)
+            self._draw_device_specs_table(dwg, diagram, board_margin_top)
 
         # Save
         log.debug("saving_svg", output_path=str(output_path))
         dwg.save_svg(str(output_path))
         log.info("render_completed", output_path=str(output_path))
 
-    def _draw_board(self, dwg: draw.Drawing, board: Board, show_board_name: bool = True) -> None:
+    def _draw_board(
+        self, dwg: draw.Drawing, board: Board, board_margin_top: float, show_board_name: bool = True
+    ) -> None:
         """
         Draw the Raspberry Pi board with GPIO pins.
 
@@ -183,10 +188,11 @@ class SVGRenderer:
         Args:
             dwg: The SVG drawing object
             board: The board to render
+            board_margin_top: Top margin for the board
             show_board_name: Whether to display the board name label (default: True)
         """
         x = self.layout_config.board_margin_left
-        y = self.layout_config.board_margin_top
+        y = board_margin_top
 
         # NEW: Use standardized BoardRenderer if layout is defined
         if board.layout is not None:
@@ -610,26 +616,37 @@ class SVGRenderer:
 
         return lines if lines else [text]
 
-    def _draw_device_specs_table(self, dwg: draw.Drawing, diagram: Diagram) -> None:
+    def _draw_device_specs_table(
+        self, dwg: draw.Drawing, diagram: Diagram, board_margin_top: float
+    ) -> None:
         """
         Draw a device specifications table below the diagram.
 
         Only draws if at least one device has a description.
+        Positioned below the bottommost element (device or board) with proper spacing.
 
         Args:
             dwg: The SVG drawing object
             diagram: The diagram containing devices
+            board_margin_top: Top margin of the board
         """
         # Filter devices that have descriptions
         devices_with_specs = [d for d in diagram.devices if d.description]
         if not devices_with_specs:
             return
 
-        # Table positioning - below the board
+        # Table positioning - below the bottommost element
         table_x = self.layout_config.board_margin_left
-        # Position below board + board name text (if shown)
-        board_bottom = self.layout_config.board_margin_top + diagram.board.height
-        table_y = board_bottom + (40 if diagram.show_board_name else 20)
+
+        # Find the bottommost element (devices or board)
+        board_bottom = board_margin_top + diagram.board.height
+        device_bottom = (
+            max(d.position.y + d.height for d in diagram.devices) if diagram.devices else 0
+        )
+        max_bottom = max(board_bottom, device_bottom)
+
+        # Position table below the bottommost element + margin
+        table_y = max_bottom + self.layout_config.specs_table_top_margin
 
         # Calculate table width to align with rightmost device
         # Find the rightmost device edge

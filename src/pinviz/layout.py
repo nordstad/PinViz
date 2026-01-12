@@ -16,7 +16,9 @@ class LayoutConfig:
 
     Attributes:
         board_margin_left: Left margin before board (default: 40.0)
-        board_margin_top: Top margin before board (default: 40.0)
+        board_margin_top_base: Base top margin before board (default: 80.0)
+        title_height: Height reserved for title text (default: 40.0)
+        title_margin: Margin below title before wires can start (default: 50.0)
         device_area_left: X position where devices start (default: 450.0)
         device_spacing_vertical: Vertical space between stacked devices (default: 20.0)
         device_margin_top: Top margin for first device (default: 60.0)
@@ -31,10 +33,13 @@ class LayoutConfig:
         pin_number_y_offset: Vertical offset for pin number circles (default: 12.0)
         gpio_diagram_width: Width of GPIO reference diagram (default: 125.0)
         gpio_diagram_margin: Margin around GPIO reference diagram (default: 40.0)
+        specs_table_top_margin: Margin above specs table from bottom element (default: 30.0)
     """
 
     board_margin_left: float = 40.0
-    board_margin_top: float = 80.0  # Increased to prevent wire overlap with title
+    board_margin_top_base: float = 40.0  # Base margin (used when no title)
+    title_height: float = 40.0  # Space reserved for title
+    title_margin: float = 50.0  # Margin below title (prevents wire overlap)
     device_area_left: float = 450.0  # Start of device area
     device_spacing_vertical: float = 20.0  # Space between devices
     device_margin_top: float = 60.0
@@ -49,6 +54,13 @@ class LayoutConfig:
     pin_number_y_offset: float = 12.0  # Y offset for pin number circles
     gpio_diagram_width: float = 125.0  # Width of GPIO pin diagram
     gpio_diagram_margin: float = 40.0  # Margin around GPIO diagram
+    specs_table_top_margin: float = 30.0  # Margin above specs table
+
+    def get_board_margin_top(self, show_title: bool) -> float:
+        """Calculate actual board top margin based on whether title is shown."""
+        if show_title:
+            return self.board_margin_top_base + self.title_height + self.title_margin
+        return self.board_margin_top_base
 
 
 @dataclass
@@ -197,6 +209,9 @@ class LayoutEngine:
         Returns:
             Tuple of (canvas_width, canvas_height, routed_wires)
         """
+        # Calculate actual board margin based on whether title is shown
+        self._board_margin_top = self.config.get_board_margin_top(diagram.show_title)
+
         # Position devices vertically on the right side
         self._position_devices(diagram.devices)
 
@@ -267,7 +282,7 @@ class LayoutEngine:
             # (board position is offset by margins)
             from_pos = Point(
                 self.config.board_margin_left + board_pin.position.x,
-                self.config.board_margin_top + board_pin.position.y,
+                self._board_margin_top + board_pin.position.y,
             )
 
             # Calculate absolute position of device pin
@@ -744,7 +759,7 @@ class LayoutEngine:
         """
         # Find the rightmost and bottommost elements
         max_x = self.config.board_margin_left + diagram.board.width
-        max_y = self.config.board_margin_top + diagram.board.height
+        max_y = self._board_margin_top + diagram.board.height
 
         # Check devices
         for device in diagram.devices:
@@ -764,16 +779,24 @@ class LayoutEngine:
         canvas_height = max_y + self.config.canvas_padding
 
         # Add extra space for device specifications table if needed
-        # Table is positioned below the board, so check if it extends beyond current max_y
+        # Table is positioned below the bottommost element (device or board)
         if diagram.show_legend:
             devices_with_specs = [d for d in diagram.devices if d.description]
             if devices_with_specs:
-                # Table position: below board + padding
-                board_bottom = self.config.board_margin_top + diagram.board.height
-                table_y = board_bottom + (40 if diagram.show_board_name else 20)
-                # Table height: header (35px) + rows (30px each)
-                table_height = 35 + (len(devices_with_specs) * 30)
-                table_bottom = table_y + table_height + 20  # +20 for bottom padding
+                # Find the bottommost element
+                board_bottom = self._board_margin_top + diagram.board.height
+                device_bottom = max_y  # Already calculated above from devices
+                max_bottom = max(board_bottom, device_bottom)
+
+                # Table position: below bottommost element + margin
+                table_y = max_bottom + self.config.specs_table_top_margin
+
+                # Table height: header (35px) + rows (varies with multiline descriptions)
+                # Use realistic estimate matching render_svg.py base row height
+                header_height = 35
+                base_row_height = 30  # Base height per row (single line)
+                table_height = header_height + (len(devices_with_specs) * base_row_height)
+                table_bottom = table_y + table_height
 
                 # Ensure canvas is tall enough for the table
                 canvas_height = max(canvas_height, table_bottom + self.config.canvas_padding)

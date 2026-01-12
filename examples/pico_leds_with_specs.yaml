@@ -1,0 +1,66 @@
+title: "Raspberry Pi Pico - Multi-LED Circuit with Specifications"
+
+# Example showing multiple LEDs with detailed specifications
+# Demonstrates the show_legend flag for specs table
+
+board: "raspberry_pi_pico"
+show_legend: true
+
+devices:
+  - type: "led"
+    name: "Red LED"
+    description: "Kingbright WP7113ID, 5mm, Vf: 2.0V, If: 20mA, 625nm"
+    color: "Red"
+
+  - type: "led"
+    name: "Green LED"
+    description: "Kingbright WP7113SGC, 5mm, Vf: 2.2V, If: 20mA, 525nm"
+    color: "Green"
+
+  - type: "led"
+    name: "Blue LED"
+    description: "Lite-On LTL-4221N, 3mm, Vf: 3.2V, If: 20mA, 470nm"
+    color: "Blue"
+
+connections:
+  # Red LED (GP0)
+  - board_pin: 1   # GP0 (top header)
+    device: "Red LED"
+    device_pin: "+"
+    color: "#FF0000"
+    components:
+      - type: "resistor"
+        value: "150Ω"
+
+  - board_pin: 3   # GND (top header)
+    device: "Red LED"
+    device_pin: "-"
+    color: "#000000"
+
+  # Green LED (GP1)
+  - board_pin: 2   # GP1 (top header)
+    device: "Green LED"
+    device_pin: "+"
+    color: "#00FF00"
+    components:
+      - type: "resistor"
+        value: "150Ω"
+
+  - board_pin: 8   # GND (top header)
+    device: "Green LED"
+    device_pin: "-"
+    color: "#000000"
+
+  # Blue LED (GP2)
+  - board_pin: 4   # GP2 (top header)
+    device: "Blue LED"
+    device_pin: "+"
+    color: "#0000FF"
+    components:
+      - type: "resistor"
+        value: "100Ω"
+
+  - board_pin: 13  # GND (top header)
+    device: "Blue LED"
+    device_pin: "-"
+    color: "#000000"

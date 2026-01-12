@@ -1,0 +1,35 @@
+title: "Raspberry Pi Pico - BME280 Sensor"
+
+# Example showing BME280 temperature/humidity/pressure sensor on Pico
+# Uses I2C0: GP4 (SDA) and GP5 (SCL)
+
+board: "raspberry_pi_pico"
+
+devices:
+  - type: "bme280"
+    name: "BME280"
+
+connections:
+  # VCC to 3.3V
+  - board_pin: 36  # 3V3 (bottom header)
+    device: "BME280"
+    device_pin: "VCC"
+    color: "#FF0000"
+
+  # GND to Ground
+  - board_pin: 38  # GND (bottom header)
+    device: "BME280"
+    device_pin: "GND"
+    color: "#000000"
+
+  # SDA to GP4 (I2C0 SDA)
+  - board_pin: 6   # GP4 (top header)
+    device: "BME280"
+    device_pin: "SDA"
+    color: "#2196F3"  # Blue - visible against white background
+
+  # SCL to GP5 (I2C0 SCL)
+  - board_pin: 7   # GP5 (top header)
+    device: "BME280"
+    device_pin: "SCL"
+    color: "#FF9800"  # Orange - visible against white background
