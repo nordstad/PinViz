@@ -121,11 +121,7 @@ def load_board_from_config(config_name: str) -> Board:
         # Top header: pins 1-20 running left-to-right in one row
         # Bottom header: pins 21-40 running left-to-right in one row
         for pin_config in config.pins:
-            header_side = (
-                pin_config.header
-                if hasattr(pin_config, "header")
-                else getattr(pin_config, "header", None)
-            )
+            header_side = getattr(pin_config, "header", None)
 
             if header_side == "top":
                 # Top header: pins 1-20 in a single horizontal row
@@ -273,8 +269,8 @@ def raspberry_pi_pico() -> Board:
     Create a Raspberry Pi Pico board with dual 20-pin GPIO headers.
 
     The Pico has a unique dual-sided layout with 40 pins total:
-    - Left header: pins 1-20 (top to bottom)
-    - Right header: pins 21-40 (top to bottom)
+    - Top header: pins 1-20 (single row along top edge)
+    - Bottom header: pins 21-40 (single row along bottom edge)
 
     Unlike the standard Raspberry Pi, the Pico uses RP2040 microcontroller
     with GP0-GP28 GPIO pins instead of BCM numbering.
@@ -283,8 +279,8 @@ def raspberry_pi_pico() -> Board:
     (raspberry_pi_pico.json) which specifies the dual-header layout.
 
     Pin layout (physical pin numbers):
-    - Left side: 1-20 (two columns, pins 1,3,5... on left, 2,4,6... on right)
-    - Right side: 21-40 (two columns, pins 21,23,25... on left, 22,24,26... on right)
+    - Top header: pins 1-20 (pin 20 on left, pin 1 on right - reversed order)
+    - Bottom header: pins 21-40 (pin 21 on left, pin 40 on right - normal order)
 
     Returns:
         Board: Configured Raspberry Pi Pico board with all pins positioned

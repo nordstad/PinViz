@@ -458,14 +458,14 @@ class BoardPinConfigSchema(BaseModel):
         name: Pin name/label (e.g., "GPIO2", "3V3", "GND")
         role: Pin function/role (e.g., "GPIO", "I2C_SDA", "POWER_3V3")
         gpio_bcm: BCM GPIO number (null for power/ground pins)
-        header: Header side for dual-header boards ("left" or "right", optional)
+        header: Header side for dual-header boards ("top" or "bottom", optional)
     """
 
     physical_pin: Annotated[int, Field(ge=1, description="Physical pin number")]
     name: Annotated[str, Field(min_length=1, max_length=50, description="Pin name")]
     role: Annotated[str, Field(description="Pin role/function")]
     gpio_bcm: int | None = None
-    header: str | None = None  # "left" or "right" for dual-header boards
+    header: str | None = None  # "top" or "bottom" for dual-header boards
 
     model_config = ConfigDict(extra="forbid")
 
@@ -479,6 +479,14 @@ class BoardPinConfigSchema(BaseModel):
                 f"Invalid pin role '{v}'. Must be one of: {', '.join(sorted(VALID_PIN_ROLES))}"
             )
         return role_upper
+
+    @field_validator("header")
+    @classmethod
+    def validate_header(cls, v: str | None) -> str | None:
+        """Validate header side for dual-header boards."""
+        if v is not None and v not in {"top", "bottom"}:
+            raise ValueError(f"Invalid header side '{v}'. Must be 'top' or 'bottom'")
+        return v
 
 
 class BoardLayoutConfigSchema(BaseModel):
