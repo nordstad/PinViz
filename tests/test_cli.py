@@ -300,6 +300,35 @@ def test_render_help():
     assert "CONFIG_FILE" in result.stdout
 
 
+def test_h_flag():
+    """Test -h flag (shorthand for --help)."""
+    result = runner.invoke(app, ["-h"])
+    assert result.exit_code == 0
+    assert "Usage:" in result.stdout
+    assert "Commands" in result.stdout
+
+
+def test_render_h_flag():
+    """Test render -h (shorthand for --help)."""
+    result = runner.invoke(app, ["render", "-h"])
+    assert result.exit_code == 0
+    assert "CONFIG_FILE" in result.stdout
+
+
+def test_config_h_flag():
+    """Test config -h (shorthand for --help on subcommand group)."""
+    result = runner.invoke(app, ["config", "-h"])
+    assert result.exit_code == 0
+    assert "Manage configuration settings" in result.stdout
+
+
+def test_completion_h_flag():
+    """Test completion -h (shorthand for --help on subcommand group)."""
+    result = runner.invoke(app, ["completion", "-h"])
+    assert result.exit_code == 0
+    assert "Manage shell completion" in result.stdout
+
+
 def test_render_with_json_output(sample_yaml_config, temp_output_dir):
     """Test render command with --json flag."""
     output_file = temp_output_dir / "test_json.svg"
