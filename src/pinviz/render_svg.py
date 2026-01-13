@@ -229,52 +229,18 @@ class SVGRenderer:
                 board_width = board.width
                 board_height = board.height
 
-            except FileNotFoundError:
-                # SVG asset file not found - use fallback rendering
+            except (FileNotFoundError, ET.ParseError, PermissionError, OSError) as e:
+                # SVG asset loading failed - use fallback rendering
+                # Handles: file not found, parse errors, permission issues, I/O errors
+                error_type = type(e).__name__
                 log.warning(
-                    "svg_file_not_found",
-                    path=board.svg_asset_path,
-                    board=board.name,
-                )
-                print(f"Warning: SVG file not found at {board.svg_asset_path}, using fallback")
-                self.component_renderer.draw_board_fallback(dwg, board, x, y)
-                board_width = board.width
-                board_height = board.height
-
-            except ET.ParseError as e:
-                # SVG file is malformed or invalid XML - use fallback rendering
-                log.warning(
-                    "svg_parse_error",
+                    "svg_load_failed",
+                    error_type=error_type,
                     error=str(e),
                     path=board.svg_asset_path,
                     board=board.name,
                 )
-                print(f"Warning: Could not parse SVG file ({e}), using fallback")
-                self.component_renderer.draw_board_fallback(dwg, board, x, y)
-                board_width = board.width
-                board_height = board.height
-
-            except PermissionError:
-                # No permission to read SVG file - use fallback rendering
-                log.warning(
-                    "svg_permission_denied",
-                    path=board.svg_asset_path,
-                    board=board.name,
-                )
-                print(f"Warning: Permission denied reading {board.svg_asset_path}, using fallback")
-                self.component_renderer.draw_board_fallback(dwg, board, x, y)
-                board_width = board.width
-                board_height = board.height
-
-            except OSError as e:
-                # Other I/O errors (disk full, network issues, etc.) - use fallback rendering
-                log.warning(
-                    "svg_io_error",
-                    error=str(e),
-                    path=board.svg_asset_path,
-                    board=board.name,
-                )
-                print(f"Warning: I/O error reading SVG file ({e}), using fallback")
+                print(f"Warning: Could not load SVG ({error_type}: {e}), using fallback")
                 self.component_renderer.draw_board_fallback(dwg, board, x, y)
                 board_width = board.width
                 board_height = board.height

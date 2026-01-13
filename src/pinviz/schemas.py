@@ -288,7 +288,7 @@ class ConnectionSchema(BaseModel):
         components: Optional inline components
     """
 
-    board_pin: Annotated[int, Field(ge=1, description="Board pin number")]
+    board_pin: Annotated[int, Field(ge=1, le=40, description="Board pin number (1-40)")]
     device: Annotated[str, Field(min_length=1, max_length=100, description="Device name")]
     device_pin: Annotated[str, Field(min_length=1, max_length=50, description="Device pin name")]
     color: (
