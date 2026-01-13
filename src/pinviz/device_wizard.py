@@ -12,34 +12,34 @@ from .devices import get_registry
 
 # Available device categories
 CATEGORIES = [
-    Choice("sensors", "Sensors (temperature, light, motion, etc.)"),
-    Choice("leds", "LEDs and lighting"),
-    Choice("displays", "Displays (OLED, LCD, etc.)"),
-    Choice("io", "Input/Output (buttons, switches, etc.)"),
-    Choice("other", "Other"),
+    Choice(title="Sensors (temperature, light, motion, etc.)", value="sensors"),
+    Choice(title="LEDs and lighting", value="leds"),
+    Choice(title="Displays (OLED, LCD, etc.)", value="displays"),
+    Choice(title="Input/Output (buttons, switches, etc.)", value="io"),
+    Choice(title="Other", value="other"),
 ]
 
 # Common pin roles with descriptions
 PIN_ROLES = [
-    Choice("3V3", "3.3V power supply (PinRole.POWER_3V3)"),
-    Choice("5V", "5V power supply (PinRole.POWER_5V)"),
-    Choice("GND", "Ground (PinRole.GROUND)"),
-    Choice("GPIO", "General Purpose I/O (PinRole.GPIO)"),
-    Choice("I2C_SDA", "I2C Serial Data (PinRole.I2C_SDA)"),
-    Choice("I2C_SCL", "I2C Serial Clock (PinRole.I2C_SCL)"),
-    Choice("SPI_MOSI", "SPI Master Out Slave In (PinRole.SPI_MOSI)"),
-    Choice("SPI_MISO", "SPI Master In Slave Out (PinRole.SPI_MISO)"),
-    Choice("SPI_SCLK", "SPI Serial Clock (PinRole.SPI_SCLK)"),
-    Choice("SPI_CE0", "SPI Chip Enable 0 (PinRole.SPI_CE0)"),
-    Choice("SPI_CE1", "SPI Chip Enable 1 (PinRole.SPI_CE1)"),
-    Choice("UART_TX", "UART Transmit (PinRole.UART_TX)"),
-    Choice("UART_RX", "UART Receive (PinRole.UART_RX)"),
-    Choice("PWM", "Pulse Width Modulation (PinRole.PWM)"),
-    Choice("PCM_CLK", "PCM Audio Clock (PinRole.PCM_CLK)"),
-    Choice("PCM_FS", "PCM Frame Sync (PinRole.PCM_FS)"),
-    Choice("PCM_DIN", "PCM Data In (PinRole.PCM_DIN)"),
-    Choice("PCM_DOUT", "PCM Data Out (PinRole.PCM_DOUT)"),
-    Choice("I2C_EEPROM", "I2C EEPROM (PinRole.I2C_EEPROM)"),
+    Choice(title="3.3V power supply (PinRole.POWER_3V3)", value="3V3"),
+    Choice(title="5V power supply (PinRole.POWER_5V)", value="5V"),
+    Choice(title="Ground (PinRole.GROUND)", value="GND"),
+    Choice(title="General Purpose I/O (PinRole.GPIO)", value="GPIO"),
+    Choice(title="I2C Serial Data (PinRole.I2C_SDA)", value="I2C_SDA"),
+    Choice(title="I2C Serial Clock (PinRole.I2C_SCL)", value="I2C_SCL"),
+    Choice(title="SPI Master Out Slave In (PinRole.SPI_MOSI)", value="SPI_MOSI"),
+    Choice(title="SPI Master In Slave Out (PinRole.SPI_MISO)", value="SPI_MISO"),
+    Choice(title="SPI Serial Clock (PinRole.SPI_SCLK)", value="SPI_SCLK"),
+    Choice(title="SPI Chip Enable 0 (PinRole.SPI_CE0)", value="SPI_CE0"),
+    Choice(title="SPI Chip Enable 1 (PinRole.SPI_CE1)", value="SPI_CE1"),
+    Choice(title="UART Transmit (PinRole.UART_TX)", value="UART_TX"),
+    Choice(title="UART Receive (PinRole.UART_RX)", value="UART_RX"),
+    Choice(title="Pulse Width Modulation (PinRole.PWM)", value="PWM"),
+    Choice(title="PCM Audio Clock (PinRole.PCM_CLK)", value="PCM_CLK"),
+    Choice(title="PCM Frame Sync (PinRole.PCM_FS)", value="PCM_FS"),
+    Choice(title="PCM Data In (PinRole.PCM_DIN)", value="PCM_DIN"),
+    Choice(title="PCM Data Out (PinRole.PCM_DOUT)", value="PCM_DOUT"),
+    Choice(title="I2C EEPROM (PinRole.I2C_EEPROM)", value="I2C_EEPROM"),
 ]
 
 # Pin name patterns for auto-suggestion
@@ -207,11 +207,11 @@ def get_role_choices_for_pin(pin_name: str, detected_i2c: bool = False) -> list[
 
         # Add suggested roles first with ⭐ marker and context
         for role in suggested_roles:
-            # Note: Choice.title = short name (1st param), .value = description (2nd param)
-            matching_choice = next((c for c in PIN_ROLES if c.title == role), None)
+            # Find matching choice to get the base description
+            matching_choice = next((c for c in PIN_ROLES if c.value == role), None)
             if matching_choice:
                 # Build description with context
-                base_desc = matching_choice.value.split("(")[0].strip()
+                base_desc = matching_choice.title.split("(")[0].strip()
 
                 # Add context based on role and whether I2C was detected
                 context = ""
@@ -225,16 +225,16 @@ def get_role_choices_for_pin(pin_name: str, detected_i2c: bool = False) -> list[
 
                 choices.append(
                     Choice(
-                        role,
-                        f"⭐ {base_desc}{context} (suggested)",
+                        title=f"⭐ {base_desc}{context} (suggested)",
+                        value=role,
                     )
                 )
 
         # Add separator
-        choices.append(Choice("separator", "─" * 40, disabled=True))
+        choices.append(Choice(title="─" * 40, value="separator", disabled=True))
 
         # Add remaining roles (not already suggested)
-        choices.extend([c for c in PIN_ROLES if c.title not in suggested_roles])
+        choices.extend([c for c in PIN_ROLES if c.value not in suggested_roles])
 
         return choices
 
