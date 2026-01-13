@@ -262,14 +262,17 @@ class LayoutEngine:
         """
         wire_data: list[WireData] = []
 
+        # Build device lookup dictionary for O(1) access (performance optimization)
+        device_by_name = {device.name: device for device in diagram.devices}
+
         for conn in diagram.connections:
             # Find board pin by physical pin number
             board_pin = diagram.board.get_pin_by_number(conn.board_pin)
             if not board_pin or not board_pin.position:
                 continue
 
-            # Find the target device by name
-            device = next((d for d in diagram.devices if d.name == conn.device_name), None)
+            # Find the target device by name (using O(1) dictionary lookup)
+            device = device_by_name.get(conn.device_name)
             if not device:
                 continue
 
@@ -659,6 +662,99 @@ class LayoutEngine:
 
         return adjustments
 
+    def _calculate_connection_points(self, to_pos: Point) -> tuple[Point, Point]:
+        """
+        Calculate connection and extended end points for wire routing.
+
+        Args:
+            to_pos: Target position (device pin)
+
+        Returns:
+            Tuple of (connection_point, extended_end)
+        """
+        # Create a point slightly before the device pin for the curve to end
+        connection_point = Point(to_pos.x - self.constants.STRAIGHT_SEGMENT_LENGTH, to_pos.y)
+
+        # Extend the final point slightly beyond pin center so wire visually penetrates the pin
+        extended_end = Point(to_pos.x + self.constants.WIRE_PIN_EXTENSION, to_pos.y)
+
+        return connection_point, extended_end
+
+    def _calculate_gentle_arc_path(
+        self,
+        from_pos: Point,
+        rail_x: float,
+        y_offset: float,
+        connection_point: Point,
+        extended_end: Point,
+    ) -> list[Point]:
+        """
+        Calculate gentle horizontal arc path for wires with similar Y positions.
+
+        Args:
+            from_pos: Starting position (board pin)
+            rail_x: X position for the vertical routing rail
+            y_offset: Vertical offset for the curve path
+            connection_point: Point where curve ends
+            extended_end: Final point with pin extension
+
+        Returns:
+            List of points defining the gentle arc path
+        """
+        # Control point 1 - strong fan out
+        ctrl1 = Point(
+            rail_x * self.constants.GENTLE_ARC_CTRL1_RAIL_RATIO
+            + from_pos.x * self.constants.GENTLE_ARC_CTRL1_START_RATIO,
+            from_pos.y + y_offset * self.constants.GENTLE_ARC_CTRL1_OFFSET_RATIO,
+        )
+        # Control point 2 - converge to connection point
+        ctrl2_x = (
+            rail_x * self.constants.GENTLE_ARC_CTRL2_RAIL_RATIO
+            + connection_point.x * self.constants.GENTLE_ARC_CTRL2_END_RATIO
+        )
+        ctrl2_y = connection_point.y + y_offset * self.constants.GENTLE_ARC_CTRL2_OFFSET_RATIO
+        ctrl2 = Point(ctrl2_x, ctrl2_y)
+        return [from_pos, ctrl1, ctrl2, connection_point, extended_end]
+
+    def _calculate_s_curve_path(
+        self,
+        from_pos: Point,
+        rail_x: float,
+        y_offset: float,
+        connection_point: Point,
+        extended_end: Point,
+    ) -> list[Point]:
+        """
+        Calculate smooth S-curve path for wires with vertical separation.
+
+        Args:
+            from_pos: Starting position (board pin)
+            rail_x: X position for the vertical routing rail
+            y_offset: Vertical offset for the curve path
+            connection_point: Point where curve ends
+            extended_end: Final point with pin extension
+
+        Returns:
+            List of points defining the S-curve path
+        """
+        # Control point 1: starts from board, curves toward rail with dramatic fan out
+        ctrl1_x = from_pos.x + (rail_x - from_pos.x) * self.constants.S_CURVE_CTRL1_RATIO
+        ctrl1_y = from_pos.y + y_offset * self.constants.S_CURVE_CTRL1_OFFSET_RATIO
+
+        # Control point 2: approaches connection point from rail with gentle convergence
+        ctrl2_x = (
+            connection_point.x + (rail_x - connection_point.x) * self.constants.S_CURVE_CTRL2_RATIO
+        )
+        ctrl2_y = connection_point.y + y_offset * self.constants.S_CURVE_CTRL2_OFFSET_RATIO
+
+        return [
+            from_pos,
+            Point(ctrl1_x, ctrl1_y),  # Control point 1
+            Point(ctrl2_x, ctrl2_y),  # Control point 2
+            connection_point,  # End of curve
+            extended_end,  # Straight segment penetrating into pin
+        ]
+
     def _calculate_wire_path_device_zone(
         self,
         from_pos: Point,
@@ -684,58 +780,22 @@ class LayoutEngine:
         Returns:
             List of points defining the wire path with Bezier control points
         """
-        # Calculate smooth curve path with gentle arcs
-        # Use intermediate points to create natural-looking Bezier curves
+        # Calculate connection points
+        connection_point, extended_end = self._calculate_connection_points(to_pos)
 
+        # Choose curve type based on vertical distance
         dy = to_pos.y - from_pos.y
 
-        # Add a straight segment at the end for better visual pin connection
-        # Create a point slightly before the device pin for the curve to end
-        connection_point = Point(to_pos.x - self.constants.STRAIGHT_SEGMENT_LENGTH, to_pos.y)
-
-        # Extend the final point slightly beyond pin center so wire visually penetrates the pin
-        # The wire has stroke-width=3, so extending helps visual connection
-        extended_end = Point(to_pos.x + self.constants.WIRE_PIN_EXTENSION, to_pos.y)
-
-        # Create a smooth S-curve or gentle arc path using rail_x for routing
-        # Apply stronger y_offset at the beginning to fan out wires dramatically
         if abs(dy) < self.constants.SIMILAR_Y_THRESHOLD:
-            # Wires at similar Y - gentle horizontal arc through rail
-            # Control point 1 - strong fan out
-            ctrl1 = Point(
-                rail_x * self.constants.GENTLE_ARC_CTRL1_RAIL_RATIO
-                + from_pos.x * self.constants.GENTLE_ARC_CTRL1_START_RATIO,
-                from_pos.y + y_offset * self.constants.GENTLE_ARC_CTRL1_OFFSET_RATIO,
+            # Wires at similar Y - use gentle horizontal arc
+            return self._calculate_gentle_arc_path(
+                from_pos, rail_x, y_offset, connection_point, extended_end
             )
-            # Control point 2 - converge to connection point
-            ctrl2_x = (
-                rail_x * self.constants.GENTLE_ARC_CTRL2_RAIL_RATIO
-                + connection_point.x * self.constants.GENTLE_ARC_CTRL2_END_RATIO
-            )
-            ctrl2_y = connection_point.y + y_offset * self.constants.GENTLE_ARC_CTRL2_OFFSET_RATIO
-            ctrl2 = Point(ctrl2_x, ctrl2_y)
-            return [from_pos, ctrl1, ctrl2, connection_point, extended_end]
         else:
-            # Wires with vertical separation - smooth S-curve
-            # Use 4 control points for a single smooth cubic Bezier
-            # Control point 1: starts from board, curves toward rail with dramatic fan out
-            ctrl1_x = from_pos.x + (rail_x - from_pos.x) * self.constants.S_CURVE_CTRL1_RATIO
-            ctrl1_y = from_pos.y + y_offset * self.constants.S_CURVE_CTRL1_OFFSET_RATIO
-
-            # Control point 2: approaches connection point from rail with gentle convergence
-            ctrl2_x = (
-                connection_point.x
-                + (rail_x - connection_point.x) * self.constants.S_CURVE_CTRL2_RATIO
+            # Wires with vertical separation - use smooth S-curve
+            return self._calculate_s_curve_path(
+                from_pos, rail_x, y_offset, connection_point, extended_end
             )
-            ctrl2_y = connection_point.y + y_offset * self.constants.S_CURVE_CTRL2_OFFSET_RATIO
-
-            return [
-                from_pos,
-                Point(ctrl1_x, ctrl1_y),  # Control point 1
-                Point(ctrl2_x, ctrl2_y),  # Control point 2
-                connection_point,  # End of curve
-                extended_end,  # Straight segment penetrating into pin
-            ]
 
     def _calculate_canvas_size(
         self, diagram: Diagram, routed_wires: list[RoutedWire]

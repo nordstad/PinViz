@@ -203,12 +203,15 @@ class DiagramValidator:
         """
         issues: list[ValidationIssue] = []
 
+        # Build device lookup dictionary for O(1) access (performance optimization)
+        device_by_name = {device.name: device for device in diagram.devices}
+
         for conn in diagram.connections:
             board_pin = diagram.board.get_pin_by_number(conn.board_pin)
             if not board_pin:
                 continue
 
-            device = next((d for d in diagram.devices if d.name == conn.device_name), None)
+            device = device_by_name.get(conn.device_name)
             if not device:
                 continue
 
@@ -271,11 +274,14 @@ class DiagramValidator:
         # Get registry for device metadata lookups
         registry = get_registry()
 
+        # Build device lookup dictionary for O(1) access (performance optimization)
+        device_by_name = {device.name: device for device in diagram.devices}
+
         # Check for address conflicts using registry metadata
         address_usage: dict[int, list[str]] = {}
         for device_name in i2c_device_names:
-            # Find the device object
-            device = next((d for d in diagram.devices if d.name == device_name), None)
+            # Find the device object (using O(1) dictionary lookup)
+            device = device_by_name.get(device_name)
             if not device:
                 continue
 
@@ -345,6 +351,9 @@ class DiagramValidator:
         """Check if all connections reference valid pins and devices."""
         issues: list[ValidationIssue] = []
 
+        # Build device lookup dictionary for O(1) access (performance optimization)
+        device_by_name = {device.name: device for device in diagram.devices}
+
         for i, conn in enumerate(diagram.connections, 1):
             # Check board pin exists
             board_pin = diagram.board.get_pin_by_number(conn.board_pin)
@@ -358,8 +367,8 @@ class DiagramValidator:
                 )
                 continue
 
-            # Check device exists
-            device = next((d for d in diagram.devices if d.name == conn.device_name), None)
+            # Check device exists (using O(1) dictionary lookup)
+            device = device_by_name.get(conn.device_name)
             if not device:
                 issues.append(
                     ValidationIssue(

@@ -25,7 +25,10 @@ import json
 from dataclasses import dataclass
 from typing import Any
 
+from ..logging_config import get_logger
 from ..model import Device
+
+log = get_logger(__name__)
 
 
 @dataclass
@@ -99,8 +102,22 @@ class DeviceRegistry:
                     i2c_address=i2c_address,
                 )
                 self._templates[type_id.lower()] = template
-            except (json.JSONDecodeError, KeyError):
-                # Skip invalid JSON files
+            except json.JSONDecodeError as e:
+                # Skip invalid JSON files but log warning
+                log.warning(
+                    "invalid_device_config_json",
+                    file=str(json_file),
+                    error=str(e),
+                    line=e.lineno if hasattr(e, "lineno") else None,
+                )
+                continue
+            except KeyError as e:
+                # Skip configs with missing required fields but log warning
+                log.warning(
+                    "invalid_device_config_schema",
+                    file=str(json_file),
+                    error=f"Missing required field: {e}",
+                )
                 continue
 
     def get(self, type_id: str) -> DeviceTemplate | None:
