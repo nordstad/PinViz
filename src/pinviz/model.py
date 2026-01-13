@@ -82,7 +82,7 @@ class WireColor(str, Enum):
         PINK: Pink (#FF69B4)
         CYAN: Cyan (#00CED1)
         MAGENTA: Magenta (#FF00FF)
-        LIME: Lime (#00FF00)
+        LIME: Lime (#32CD32)
         TURQUOISE: Turquoise (#40E0D0)
     """
 
@@ -99,7 +99,7 @@ class WireColor(str, Enum):
     PINK = "#FF69B4"
     CYAN = "#00CED1"
     MAGENTA = "#FF00FF"
-    LIME = "#00FF00"
+    LIME = "#32CD32"
     TURQUOISE = "#40E0D0"
 
 

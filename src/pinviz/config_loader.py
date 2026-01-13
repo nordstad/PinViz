@@ -25,6 +25,9 @@ from .schemas import validate_config
 
 log = get_logger(__name__)
 
+# Maximum config file size in bytes (10MB)
+MAX_CONFIG_FILE_SIZE = 10 * 1024 * 1024
+
 
 class ConfigLoader:
     """
@@ -61,6 +64,21 @@ class ConfigLoader:
         if not path.exists():
             log.error("config_file_not_found", config_path=str(path))
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
+
+        # Validate file size to prevent memory issues
+        file_size = path.stat().st_size
+        if file_size > MAX_CONFIG_FILE_SIZE:
+            log.error(
+                "config_file_too_large",
+                config_path=str(path),
+                size_bytes=file_size,
+                max_bytes=MAX_CONFIG_FILE_SIZE,
+            )
+            max_mb = MAX_CONFIG_FILE_SIZE // (1024 * 1024)
+            raise ValueError(
+                f"Config file too large: {file_size} bytes "
+                f"(maximum: {MAX_CONFIG_FILE_SIZE} bytes / {max_mb}MB)"
+            )
 
         # Load file based on extension
         if path.suffix in [".yaml", ".yml"]:
