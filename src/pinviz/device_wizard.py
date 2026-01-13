@@ -1,6 +1,7 @@
 """Interactive device configuration wizard for pinviz."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -40,6 +41,205 @@ PIN_ROLES = [
     Choice("PCM_DOUT", "PCM Data Out (PinRole.PCM_DOUT)"),
     Choice("I2C_EEPROM", "I2C EEPROM (PinRole.I2C_EEPROM)"),
 ]
+
+# Pin name patterns for auto-suggestion
+# Maps common pin name patterns to suggested roles
+# IMPORTANT: More specific patterns must come BEFORE generic patterns
+# due to first-match-wins strategy
+PIN_NAME_HINTS: dict[tuple[str, ...], list[str]] = {
+    # Special case: explicit voltage pins (MUST come before generic power pins)
+    ("3v3", "3.3v", "vcc_3v3"): ["3V3"],
+    ("5v", "vcc_5v"): ["5V"],
+    # Power pins (variable voltage inputs like VIN, VCC)
+    ("vin", "vcc", "v+", "vdd", "vbus"): ["5V", "3V3"],
+    # Ground pins (removed "g" to avoid false matches like "gpio")
+    ("gnd", "ground", "v-", "vss"): ["GND"],
+    # I2C pins
+    ("sda", "sdio", "sdi_i2c"): ["I2C_SDA"],
+    ("scl", "sck_i2c", "scl_i2c"): ["I2C_SCL"],
+    # SPI pins
+    ("mosi", "copi"): ["SPI_MOSI"],
+    ("miso", "cipo"): ["SPI_MISO"],
+    # Ambiguous SPI data pins (perspective-dependent)
+    ("sdi",): ["SPI_MISO", "SPI_MOSI"],  # Could be either depending on device perspective
+    ("sdo",): ["SPI_MOSI", "SPI_MISO"],  # Could be either depending on device perspective
+    ("din",): ["SPI_MISO", "SPI_MOSI"],  # Could be either depending on device perspective
+    ("dout",): ["SPI_MOSI", "SPI_MISO"],  # Could be either depending on device perspective
+    ("sck", "sclk", "sck_spi"): ["SPI_SCLK"],
+    ("clk",): ["SPI_SCLK", "PWM", "GPIO"],  # Ambiguous - could be SPI, PWM, or generic clock
+    ("cs", "ce", "ce0", "ss"): ["SPI_CE0"],
+    ("ce1",): ["SPI_CE1"],
+    # UART pins
+    ("tx", "txd", "uart_tx", "serial_tx", "txd0"): ["UART_TX"],
+    ("rx", "rxd", "uart_rx", "serial_rx", "rxd0"): ["UART_RX"],
+    # PWM pins
+    ("pwm",): ["PWM"],
+}
+
+# Contextual hints for ambiguous pin names
+# Provides inline help when users enter certain pin names
+PIN_CONTEXT_HINTS: dict[tuple[str, ...], str] = {
+    # Power input pins
+    ("vin", "vcc", "vdd", "vbus"): (
+        "💡 VIN/VCC accepts flexible power (3-5V). For Raspberry Pi, typically use 3V3."
+    ),
+    ("vbat",): ("💡 Battery backup power - different from VIN, usually for RTC or backup memory."),
+    # Power output pins
+    ("3vo", "3v3_out", "vout"): (
+        "💡 Voltage output - this pin PROVIDES 3.3V, don't connect it to power."
+    ),
+    ("ioref",): ("💡 I/O reference voltage indicator - OUTPUT pin showing logic level (Arduino)."),
+    # I2C address selection pins
+    ("addr", "address", "a0", "a1", "a2", "sa0", "ad0", "ado"): (
+        "💡 Address pin for I2C - usually tied to GND or 3V3 to set device address."
+    ),
+    # SPI chip select
+    ("cs", "ss"): ("💡 Chip Select / Slave Select for SPI - connect to GPIO or SPI_CE0/CE1."),
+    # SPI data pins with perspective ambiguity
+    ("din", "dout", "sdi", "sdo"): (
+        "💡 Data In/Out - for SPI: DIN=MOSI, DOUT=MISO; may vary by device perspective."
+    ),
+    # Display control pins
+    ("dc", "d/c", "rs"): (
+        "💡 Data/Command pin for displays - connect to GPIO to control display mode."
+    ),
+    # Clock pins
+    ("clk",): ("💡 Clock signal - for SPI use SPI_SCLK, otherwise connect to GPIO."),
+    # Enable/control pins
+    ("en", "enable", "chip_enable"): (
+        "💡 Enable/Chip Enable - controls when device is active (usually tie to 3V3)."
+    ),
+    ("ce",): ("💡 Chip Enable - for SPI use SPI_CE0/CE1, otherwise tie to 3V3 or GPIO."),
+    ("run",): ("💡 Run/Enable pin for microcontrollers - tie to 3V3 or use for reset control."),
+    ("shdn", "shutdown"): (
+        "💡 Shutdown control - tie to 3V3 for normal operation, GND to shutdown."
+    ),
+    # Reset pins
+    ("rst", "reset", "res"): (
+        "💡 Reset pin - usually pulled high to 3V3 or controlled by a GPIO pin."
+    ),
+    # Interrupt/status pins
+    ("int", "interrupt", "irq"): ("💡 Interrupt pin - connects to a GPIO pin to signal events."),
+    ("drdy", "rdy", "busy"): (
+        "💡 Data Ready/Busy status pin - connect to GPIO to read device status."
+    ),
+    # Boot mode pins
+    ("boot", "boot0"): ("💡 Boot mode selection - usually tie to GND for normal operation."),
+    # Ground variations
+    ("agnd", "dgnd"): ("💡 Analog/Digital Ground - connect BOTH to GND (star ground if possible)."),
+    # Write protect
+    ("wp",): ("💡 Write Protect pin - tie to GND to allow writes, 3V3 to protect (EEPROMs/flash)."),
+    # No connect / test pins
+    ("nc",): ("💡 No Connect - leave unconnected (do NOT wire this pin)."),
+    ("test",): ("💡 Factory test pin - leave unconnected for normal operation."),
+}
+
+
+def get_context_hint_for_pin(pin_name: str) -> str | None:
+    """Get contextual hint for a pin name if available.
+
+    Args:
+        pin_name: The name of the pin to get context hint for
+
+    Returns:
+        Hint string if available, None otherwise
+    """
+    pin_lower = pin_name.lower().strip()
+
+    # Check if pin matches any hint patterns
+    for patterns, hint in PIN_CONTEXT_HINTS.items():
+        for pattern in patterns:
+            # Use same word boundary matching as role suggestions
+            # Allow digits after pattern to match "SCL1", "SDA2", etc.
+            regex = r"(?:^|[_\-])" + re.escape(pattern) + r"(?:[_\-\d]|$)"
+            if re.search(regex, pin_lower):
+                return hint
+    return None
+
+
+def get_role_choices_for_pin(pin_name: str, detected_i2c: bool = False) -> list[Choice]:
+    """Get role choices with suggestions prioritized based on pin name.
+
+    Uses word boundary matching to avoid false positives. Patterns must appear
+    as complete words (at start/end or separated by underscore/hyphen), not as
+    arbitrary substrings within other words.
+
+    Pattern matching uses first-match-wins strategy: patterns are checked in the
+    order defined in PIN_NAME_HINTS, so pattern order determines priority when
+    multiple patterns could match. More specific patterns should be defined before
+    more generic ones.
+
+    Args:
+        pin_name: The name of the pin to get role choices for
+        detected_i2c: Whether I2C pins have already been configured
+
+    Returns:
+        List of Choice objects with suggested roles marked and placed first
+
+    Examples:
+        >>> get_role_choices_for_pin("VIN")  # Matches - suggests 5V, 3V3
+        >>> get_role_choices_for_pin("SDA")  # Matches - suggests I2C_SDA
+        >>> get_role_choices_for_pin("SCL1")  # Matches with numbers - suggests I2C_SCL
+        >>> get_role_choices_for_pin("DISCONNECT")  # No match - contains "sco" but not as word
+    """
+    pin_lower = pin_name.lower().strip()
+
+    # Find matching suggestions using word boundary matching
+    # Patterns are checked in order; first match wins
+    suggested_roles: list[str] = []
+    for patterns, roles in PIN_NAME_HINTS.items():
+        for pattern in patterns:
+            # Match pattern as whole word or separated by underscore/hyphen
+            # Regex: (?:^|[_\-]) = start of string or underscore/hyphen
+            #        pattern = the literal pattern to match
+            #        (?:[_\-\d]|$) = underscore/hyphen/digit or end of string
+            # This allows matching "SCL1", "SDA2", "UART2_TX", etc.
+            regex = r"(?:^|[_\-])" + re.escape(pattern) + r"(?:[_\-\d]|$)"
+            if re.search(regex, pin_lower):
+                suggested_roles = roles
+                break
+        if suggested_roles:
+            break
+
+    # If we have suggestions, reorder the choices
+    if suggested_roles:
+        choices: list[Choice] = []
+
+        # Add suggested roles first with ⭐ marker and context
+        for role in suggested_roles:
+            # Note: Choice.title = short name (1st param), .value = description (2nd param)
+            matching_choice = next((c for c in PIN_ROLES if c.title == role), None)
+            if matching_choice:
+                # Build description with context
+                base_desc = matching_choice.value.split("(")[0].strip()
+
+                # Add context based on role and whether I2C was detected
+                context = ""
+                if role == "3V3":
+                    if detected_i2c:
+                        context = " - recommended for I2C devices on Raspberry Pi"
+                    else:
+                        context = " - for Raspberry Pi 3.3V rail"
+                elif role == "5V":
+                    context = " - for Arduino/5V power sources"
+
+                choices.append(
+                    Choice(
+                        role,
+                        f"⭐ {base_desc}{context} (suggested)",
+                    )
+                )
+
+        # Add separator
+        choices.append(Choice("separator", "─" * 40, disabled=True))
+
+        # Add remaining roles (not already suggested)
+        choices.extend([c for c in PIN_ROLES if c.title not in suggested_roles])
+
+        return choices
+
+    # No suggestions, return original list
+    return list(PIN_ROLES)
 
 
 def validate_device_id(device_id: str) -> bool:
@@ -189,9 +389,20 @@ async def run_wizard() -> dict | None:
             if pin_name is None:
                 return None
 
+            # Show contextual hint if available
+            hint = get_context_hint_for_pin(pin_name)
+            if hint:
+                print(f"  {hint}")
+
+            # Detect if we've already seen I2C pins
+            detected_i2c = any(pin["role"] in ["I2C_SDA", "I2C_SCL"] for pin in pins)
+
+            # Get role choices with suggestions based on pin name
+            role_choices = get_role_choices_for_pin(pin_name, detected_i2c=detected_i2c)
+
             pin_role = await questionary.select(
                 "  Role:",
-                choices=PIN_ROLES,
+                choices=role_choices,
             ).ask_async()
 
             if pin_role is None:
@@ -270,6 +481,73 @@ async def run_wizard() -> dict | None:
         return None
 
 
+def print_wiring_summary(config: dict) -> None:
+    """Print a helpful wiring summary for the configured device.
+
+    Args:
+        config: Device configuration dict with pins
+    """
+    pins = config.get("pins", [])
+    if not pins:
+        return
+
+    # Detect device characteristics
+    has_i2c = any(pin["role"] in ["I2C_SDA", "I2C_SCL"] for pin in pins)
+    has_spi = any(
+        pin["role"] in ["SPI_MOSI", "SPI_MISO", "SPI_SCLK", "SPI_CE0", "SPI_CE1"] for pin in pins
+    )
+    has_uart = any(pin["role"] in ["UART_TX", "UART_RX"] for pin in pins)
+
+    # Raspberry Pi pin mapping
+    rpi_pins = {
+        "3V3": "Pin 1 or 17",
+        "5V": "Pin 2 or 4",
+        "GND": "Pin 6, 9, 14, 20, 25, 30, 34, or 39",
+        "I2C_SDA": "Pin 3 (GPIO 2)",
+        "I2C_SCL": "Pin 5 (GPIO 3)",
+        "SPI_MOSI": "Pin 19 (GPIO 10)",
+        "SPI_MISO": "Pin 21 (GPIO 9)",
+        "SPI_SCLK": "Pin 23 (GPIO 11)",
+        "SPI_CE0": "Pin 24 (GPIO 8)",
+        "SPI_CE1": "Pin 26 (GPIO 7)",
+        "UART_TX": "Pin 8 (GPIO 14)",
+        "UART_RX": "Pin 10 (GPIO 15)",
+    }
+
+    print("\n" + "=" * 60)
+    print("📋 Quick Wiring Guide for Raspberry Pi")
+    print("=" * 60)
+    print(f"\n{'Device Pin':<15} {'Role':<12} {'Connect To'}")
+    print("-" * 60)
+
+    for pin in pins:
+        pin_name = pin["name"]
+        pin_role = pin["role"]
+        rpi_connection = rpi_pins.get(pin_role, "See GPIO pinout")
+
+        print(f"{pin_name:<15} {pin_role:<12} {rpi_connection}")
+
+    # Add protocol-specific tips
+    if has_i2c:
+        i2c_addr = config.get("i2c_address", "")
+        print("\n💡 I2C Device Tips:")
+        print("   • Enable I2C: sudo raspi-config → Interface Options → I2C")
+        print("   • Test connection: i2cdetect -y 1")
+        if i2c_addr:
+            print(f"   • Expected address: {i2c_addr}")
+
+    if has_spi:
+        print("\n💡 SPI Device Tips:")
+        print("   • Enable SPI: sudo raspi-config → Interface Options → SPI")
+
+    if has_uart:
+        print("\n💡 UART Device Tips:")
+        print("   • Enable serial: sudo raspi-config → Interface Options → Serial")
+        print("   • Disable console over serial if needed")
+
+    print("\n" + "=" * 60 + "\n")
+
+
 def save_device_config(config: dict, output_path: Path | None = None) -> Path:
     """Save device configuration to JSON file.
 
@@ -341,7 +619,11 @@ async def main() -> int:
         print("\n🔍 Testing device configuration...")
         if test_device_config(config["id"]):
             print(f"\n🎉 Success! Device '{config['id']}' is ready to use.")
-            print("\nUsage:")
+
+            # Show wiring summary
+            print_wiring_summary(config)
+
+            print("Usage:")
             print(f"  Python: registry.create('{config['id']}')")
             print(f'  YAML:   type: "{config["id"]}"')
             return 0
