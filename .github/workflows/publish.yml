@@ -551,7 +551,7 @@ jobs:
           valid_config = {
               'title': 'API Test',
               'board': 'rpi5',
-              'devices': [{'type': 'i2c', 'name': 'Sensor'}],
+              'devices': [{'type': 'i2c_device', 'name': 'Sensor'}],
               'connections': [
                   {'board_pin': 1, 'device': 'Sensor', 'device_pin': 'VCC'},
                   {'board_pin': 3, 'device': 'Sensor', 'device_pin': 'SDA'},
