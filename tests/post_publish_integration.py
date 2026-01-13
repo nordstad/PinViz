@@ -71,9 +71,9 @@ def test_device_templates():
 
     for device_id, expected_pins in required_devices.items():
         device = registry.create(device_id)
-        assert (
-            len(device.pins) == expected_pins
-        ), f"{device_id} should have {expected_pins} pins, got {len(device.pins)}"
+        assert len(device.pins) == expected_pins, (
+            f"{device_id} should have {expected_pins} pins, got {len(device.pins)}"
+        )
 
     print("✓ All device templates functional")
 
