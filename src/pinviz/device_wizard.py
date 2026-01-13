@@ -41,6 +41,78 @@ PIN_ROLES = [
     Choice("I2C_EEPROM", "I2C EEPROM (PinRole.I2C_EEPROM)"),
 ]
 
+# Pin name patterns for auto-suggestion
+# Maps common pin name patterns to suggested roles
+PIN_NAME_HINTS: dict[tuple[str, ...], list[str]] = {
+    # Power pins (variable voltage inputs like VIN, VCC)
+    ("vin", "vcc", "v+", "vdd", "vbus"): ["5V", "3V3"],
+    # Ground pins (removed "g" to avoid false matches like "gpio")
+    ("gnd", "ground", "v-", "vss"): ["GND"],
+    # I2C pins
+    ("sda", "sdio", "sdi_i2c"): ["I2C_SDA"],
+    ("scl", "sck_i2c", "scl_i2c"): ["I2C_SCL"],
+    # SPI pins
+    ("mosi", "sdi", "copi", "dout"): ["SPI_MOSI"],
+    ("miso", "sdo", "cipo", "din"): ["SPI_MISO"],
+    ("sck", "sclk", "clk", "sck_spi"): ["SPI_SCLK"],
+    ("cs", "ce", "ce0", "ss"): ["SPI_CE0"],
+    ("ce1",): ["SPI_CE1"],
+    # UART pins
+    ("tx", "txd", "uart_tx"): ["UART_TX"],
+    ("rx", "rxd", "uart_rx"): ["UART_RX"],
+    # PWM pins
+    ("pwm",): ["PWM"],
+    # Special case: explicit voltage pins
+    ("3v3", "3.3v", "vcc_3v3"): ["3V3"],
+    ("5v", "vcc_5v"): ["5V"],
+}
+
+
+def get_role_choices_for_pin(pin_name: str) -> list[Choice]:
+    """Get role choices with suggestions prioritized based on pin name.
+
+    Args:
+        pin_name: The name of the pin to get role choices for
+
+    Returns:
+        List of Choice objects with suggested roles marked and placed first
+    """
+    pin_lower = pin_name.lower().strip()
+
+    # Find matching suggestions
+    suggested_roles: list[str] = []
+    for patterns, roles in PIN_NAME_HINTS.items():
+        if any(pattern in pin_lower for pattern in patterns):
+            suggested_roles = roles
+            break
+
+    # If we have suggestions, reorder the choices
+    if suggested_roles:
+        choices: list[Choice] = []
+
+        # Add suggested roles first with ⭐ marker
+        for role in suggested_roles:
+            # Note: Choice.title = short name (1st param), .value = description (2nd param)
+            matching_choice = next((c for c in PIN_ROLES if c.title == role), None)
+            if matching_choice:
+                choices.append(
+                    Choice(
+                        role,
+                        f"⭐ {matching_choice.value.split('(')[0].strip()} (suggested)",
+                    )
+                )
+
+        # Add separator
+        choices.append(Choice("separator", "─" * 40, disabled=True))
+
+        # Add remaining roles (not already suggested)
+        choices.extend([c for c in PIN_ROLES if c.title not in suggested_roles])
+
+        return choices
+
+    # No suggestions, return original list
+    return list(PIN_ROLES)
+
 
 def validate_device_id(device_id: str) -> bool:
     """Validate device ID format.
@@ -189,9 +261,12 @@ async def run_wizard() -> dict | None:
             if pin_name is None:
                 return None
 
+            # Get role choices with suggestions based on pin name
+            role_choices = get_role_choices_for_pin(pin_name)
+
             pin_role = await questionary.select(
                 "  Role:",
-                choices=PIN_ROLES,
+                choices=role_choices,
             ).ask_async()
 
             if pin_role is None:
