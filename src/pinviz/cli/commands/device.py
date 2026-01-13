@@ -33,6 +33,10 @@ def add_device_command() -> None:
         if exit_code != 0:
             raise typer.Exit(code=exit_code)
 
+    except typer.Exit:
+        # Let typer.Exit propagate - it's a normal exit mechanism, not an error
+        raise
+
     except KeyboardInterrupt:
         ctx.console.print("\n")
         print_error("Wizard cancelled by user", ctx.console)
