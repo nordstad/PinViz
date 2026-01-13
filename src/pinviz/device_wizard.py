@@ -1,6 +1,7 @@
 """Interactive device configuration wizard for pinviz."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -71,19 +72,37 @@ PIN_NAME_HINTS: dict[tuple[str, ...], list[str]] = {
 def get_role_choices_for_pin(pin_name: str) -> list[Choice]:
     """Get role choices with suggestions prioritized based on pin name.
 
+    Uses word boundary matching to avoid false positives. Patterns must appear
+    as complete words (at start/end or separated by underscore/hyphen), not as
+    arbitrary substrings within other words.
+
     Args:
         pin_name: The name of the pin to get role choices for
 
     Returns:
         List of Choice objects with suggested roles marked and placed first
+
+    Examples:
+        >>> get_role_choices_for_pin("VIN")  # Matches - suggests 5V, 3V3
+        >>> get_role_choices_for_pin("SDA")  # Matches - suggests I2C_SDA
+        >>> get_role_choices_for_pin("DISCONNECT")  # No match - contains "sco" but not as word
     """
     pin_lower = pin_name.lower().strip()
 
-    # Find matching suggestions
+    # Find matching suggestions using word boundary matching
+    # Patterns are checked in order; first match wins
     suggested_roles: list[str] = []
     for patterns, roles in PIN_NAME_HINTS.items():
-        if any(pattern in pin_lower for pattern in patterns):
-            suggested_roles = roles
+        for pattern in patterns:
+            # Match pattern as whole word or separated by underscore/hyphen
+            # Regex: (?:^|[_\-]) = start of string or underscore/hyphen
+            #        pattern = the literal pattern to match
+            #        (?:[_\-]|$) = underscore/hyphen or end of string
+            regex = r"(?:^|[_\-])" + re.escape(pattern) + r"(?:[_\-]|$)"
+            if re.search(regex, pin_lower):
+                suggested_roles = roles
+                break
+        if suggested_roles:
             break
 
     # If we have suggestions, reorder the choices
