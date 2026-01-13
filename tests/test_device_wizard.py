@@ -2,7 +2,7 @@
 
 import pytest
 
-from pinviz.device_wizard import get_role_choices_for_pin
+from pinviz.device_wizard import get_context_hint_for_pin, get_role_choices_for_pin
 
 
 class TestPinRoleSuggestions:
@@ -315,3 +315,77 @@ class TestAllRolesStillAccessible:
         choices = get_role_choices_for_pin("GPIO4")
         # Should have all ~19 roles
         assert len(choices) >= 19
+
+
+class TestContextHints:
+    """Test context hints for ambiguous pins."""
+
+    def test_vin_has_context_hint(self):
+        """VIN should return a helpful context hint."""
+        hint = get_context_hint_for_pin("VIN")
+        assert hint is not None
+        assert "VIN/VCC" in hint
+        assert "3V3" in hint
+        assert "Raspberry Pi" in hint
+
+    def test_vcc_has_context_hint(self):
+        """VCC should return a helpful context hint."""
+        hint = get_context_hint_for_pin("VCC")
+        assert hint is not None
+        assert "VIN/VCC" in hint
+
+    def test_addr_has_context_hint(self):
+        """ADDR should return I2C address hint."""
+        hint = get_context_hint_for_pin("ADDR")
+        assert hint is not None
+        assert "Address" in hint
+        assert "I2C" in hint
+
+    def test_3vo_has_context_hint(self):
+        """3VO should warn it's an output."""
+        hint = get_context_hint_for_pin("3VO")
+        assert hint is not None
+        assert "output" in hint.lower()
+        assert "PROVIDES" in hint
+
+    def test_enable_has_context_hint(self):
+        """Enable pins should have context hint."""
+        hint = get_context_hint_for_pin("EN")
+        assert hint is not None
+        assert "Enable" in hint
+
+    def test_generic_pin_no_hint(self):
+        """Generic pins should not have context hints."""
+        hint = get_context_hint_for_pin("GPIO1")
+        assert hint is None
+
+        hint = get_context_hint_for_pin("D0")
+        assert hint is None
+
+
+class TestEnhancedRoleDescriptions:
+    """Test that role descriptions include helpful context."""
+
+    def test_3v3_context_without_i2c(self):
+        """3V3 suggestion should have Raspberry Pi context."""
+        choices = get_role_choices_for_pin("VIN", detected_i2c=False)
+        # Find the 3V3 choice
+        v3_choice = next((c for c in choices if c.title == "3V3"), None)
+        assert v3_choice is not None
+        assert "Raspberry Pi" in v3_choice.value
+
+    def test_3v3_context_with_i2c(self):
+        """3V3 suggestion should mention I2C when I2C is detected."""
+        choices = get_role_choices_for_pin("VIN", detected_i2c=True)
+        # Find the 3V3 choice
+        v3_choice = next((c for c in choices if c.title == "3V3"), None)
+        assert v3_choice is not None
+        assert "I2C" in v3_choice.value
+
+    def test_5v_context(self):
+        """5V suggestion should have Arduino context."""
+        choices = get_role_choices_for_pin("VIN", detected_i2c=False)
+        # Find the 5V choice
+        v5_choice = next((c for c in choices if c.title == "5V"), None)
+        assert v5_choice is not None
+        assert "Arduino" in v5_choice.value or "5V" in v5_choice.value

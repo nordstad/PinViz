@@ -68,8 +68,50 @@ PIN_NAME_HINTS: dict[tuple[str, ...], list[str]] = {
     ("5v", "vcc_5v"): ["5V"],
 }
 
+# Contextual hints for ambiguous pin names
+# Provides inline help when users enter certain pin names
+PIN_CONTEXT_HINTS: dict[tuple[str, ...], str] = {
+    ("vin", "vcc", "vdd", "vbus"): (
+        "💡 VIN/VCC accepts flexible power (3-5V). For Raspberry Pi, typically use 3V3."
+    ),
+    ("addr", "address", "a0", "a1", "a2"): (
+        "💡 Address pin for I2C - usually tied to GND or 3V3 to set device address."
+    ),
+    ("en", "enable", "ce", "chip_enable"): (
+        "💡 Enable/Chip Enable - controls when device is active (usually tie to 3V3)."
+    ),
+    ("rst", "reset", "res"): (
+        "💡 Reset pin - usually pulled high to 3V3 or controlled by a GPIO pin."
+    ),
+    ("int", "interrupt", "irq"): ("💡 Interrupt pin - connects to a GPIO pin to signal events."),
+    ("3vo", "3v3_out", "vout"): (
+        "💡 Voltage output - this pin PROVIDES 3.3V, don't connect it to power."
+    ),
+}
 
-def get_role_choices_for_pin(pin_name: str) -> list[Choice]:
+
+def get_context_hint_for_pin(pin_name: str) -> str | None:
+    """Get contextual hint for a pin name if available.
+
+    Args:
+        pin_name: The name of the pin to get context hint for
+
+    Returns:
+        Hint string if available, None otherwise
+    """
+    pin_lower = pin_name.lower().strip()
+
+    # Check if pin matches any hint patterns
+    for patterns, hint in PIN_CONTEXT_HINTS.items():
+        for pattern in patterns:
+            # Use same word boundary matching as role suggestions
+            regex = r"(?:^|[_\-])" + re.escape(pattern) + r"(?:[_\-]|$)"
+            if re.search(regex, pin_lower):
+                return hint
+    return None
+
+
+def get_role_choices_for_pin(pin_name: str, detected_i2c: bool = False) -> list[Choice]:
     """Get role choices with suggestions prioritized based on pin name.
 
     Uses word boundary matching to avoid false positives. Patterns must appear
@@ -109,15 +151,28 @@ def get_role_choices_for_pin(pin_name: str) -> list[Choice]:
     if suggested_roles:
         choices: list[Choice] = []
 
-        # Add suggested roles first with ⭐ marker
+        # Add suggested roles first with ⭐ marker and context
         for role in suggested_roles:
             # Note: Choice.title = short name (1st param), .value = description (2nd param)
             matching_choice = next((c for c in PIN_ROLES if c.title == role), None)
             if matching_choice:
+                # Build description with context
+                base_desc = matching_choice.value.split("(")[0].strip()
+
+                # Add context based on role and whether I2C was detected
+                context = ""
+                if role == "3V3":
+                    if detected_i2c:
+                        context = " - recommended for I2C devices on Raspberry Pi"
+                    else:
+                        context = " - for Raspberry Pi 3.3V rail"
+                elif role == "5V":
+                    context = " - for Arduino/5V power sources"
+
                 choices.append(
                     Choice(
                         role,
-                        f"⭐ {matching_choice.value.split('(')[0].strip()} (suggested)",
+                        f"⭐ {base_desc}{context} (suggested)",
                     )
                 )
 
@@ -280,8 +335,16 @@ async def run_wizard() -> dict | None:
             if pin_name is None:
                 return None
 
+            # Show contextual hint if available
+            hint = get_context_hint_for_pin(pin_name)
+            if hint:
+                print(f"  {hint}")
+
+            # Detect if we've already seen I2C pins
+            detected_i2c = any(pin["role"] in ["I2C_SDA", "I2C_SCL"] for pin in pins)
+
             # Get role choices with suggestions based on pin name
-            role_choices = get_role_choices_for_pin(pin_name)
+            role_choices = get_role_choices_for_pin(pin_name, detected_i2c=detected_i2c)
 
             pin_role = await questionary.select(
                 "  Role:",
@@ -364,6 +427,73 @@ async def run_wizard() -> dict | None:
         return None
 
 
+def print_wiring_summary(config: dict) -> None:
+    """Print a helpful wiring summary for the configured device.
+
+    Args:
+        config: Device configuration dict with pins
+    """
+    pins = config.get("pins", [])
+    if not pins:
+        return
+
+    # Detect device characteristics
+    has_i2c = any(pin["role"] in ["I2C_SDA", "I2C_SCL"] for pin in pins)
+    has_spi = any(
+        pin["role"] in ["SPI_MOSI", "SPI_MISO", "SPI_SCLK", "SPI_CE0", "SPI_CE1"] for pin in pins
+    )
+    has_uart = any(pin["role"] in ["UART_TX", "UART_RX"] for pin in pins)
+
+    # Raspberry Pi pin mapping
+    rpi_pins = {
+        "3V3": "Pin 1 or 17",
+        "5V": "Pin 2 or 4",
+        "GND": "Pin 6, 9, 14, 20, 25, 30, 34, or 39",
+        "I2C_SDA": "Pin 3 (GPIO 2)",
+        "I2C_SCL": "Pin 5 (GPIO 3)",
+        "SPI_MOSI": "Pin 19 (GPIO 10)",
+        "SPI_MISO": "Pin 21 (GPIO 9)",
+        "SPI_SCLK": "Pin 23 (GPIO 11)",
+        "SPI_CE0": "Pin 24 (GPIO 8)",
+        "SPI_CE1": "Pin 26 (GPIO 7)",
+        "UART_TX": "Pin 8 (GPIO 14)",
+        "UART_RX": "Pin 10 (GPIO 15)",
+    }
+
+    print("\n" + "=" * 60)
+    print("📋 Quick Wiring Guide for Raspberry Pi")
+    print("=" * 60)
+    print(f"\n{'Device Pin':<15} {'Role':<12} {'Connect To'}")
+    print("-" * 60)
+
+    for pin in pins:
+        pin_name = pin["name"]
+        pin_role = pin["role"]
+        rpi_connection = rpi_pins.get(pin_role, "See GPIO pinout")
+
+        print(f"{pin_name:<15} {pin_role:<12} {rpi_connection}")
+
+    # Add protocol-specific tips
+    if has_i2c:
+        i2c_addr = config.get("i2c_address", "")
+        print("\n💡 I2C Device Tips:")
+        print("   • Enable I2C: sudo raspi-config → Interface Options → I2C")
+        print("   • Test connection: i2cdetect -y 1")
+        if i2c_addr:
+            print(f"   • Expected address: {i2c_addr}")
+
+    if has_spi:
+        print("\n💡 SPI Device Tips:")
+        print("   • Enable SPI: sudo raspi-config → Interface Options → SPI")
+
+    if has_uart:
+        print("\n💡 UART Device Tips:")
+        print("   • Enable serial: sudo raspi-config → Interface Options → Serial")
+        print("   • Disable console over serial if needed")
+
+    print("\n" + "=" * 60 + "\n")
+
+
 def save_device_config(config: dict, output_path: Path | None = None) -> Path:
     """Save device configuration to JSON file.
 
@@ -435,7 +565,11 @@ async def main() -> int:
         print("\n🔍 Testing device configuration...")
         if test_device_config(config["id"]):
             print(f"\n🎉 Success! Device '{config['id']}' is ready to use.")
-            print("\nUsage:")
+
+            # Show wiring summary
+            print_wiring_summary(config)
+
+            print("Usage:")
             print(f"  Python: registry.create('{config['id']}')")
             print(f'  YAML:   type: "{config["id"]}"')
             return 0
