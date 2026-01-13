@@ -1,0 +1,37 @@
+name: Validate Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate-post-publish-tests:
+    name: Validate Post-Publish Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Python
+        run: uv python install 3.13
+
+      - name: Validate post-publish tests
+        run: |
+          echo "Running validation script to ensure post-publish tests are correct..."
+          ./scripts/validate-post-publish-tests.sh
+
+      - name: Check workflow uses shared tests
+        run: |
+          if ! grep -q "tests/post_publish_integration.py" .github/workflows/publish.yml; then
+            echo "ERROR: Publish workflow doesn't use shared test file"
+            echo "The workflow should run: uv run python tests/post_publish_integration.py"
+            exit 1
+          fi
+          echo "✓ Workflow uses shared test file"
