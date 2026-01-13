@@ -96,11 +96,7 @@ echo ""
 
 # Test 3: Device templates (matches workflow exactly)
 echo "Test 3: Device templates (registry API)..."
-uv run python << 'EOPY' || {
-    echo -e "${RED}✗ Device templates test failed${NC}"
-    echo "This matches the test in .github/workflows/publish.yml line 601-629"
-    exit 1
-}
+uv run python << 'EOPY'
 from pinviz import boards
 from pinviz.devices import get_registry
 
@@ -124,6 +120,12 @@ assert len(ds18b20.pins) == 3, "DS18B20 should have 3 pins"
 
 print("✓ All templates functional")
 EOPY
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}✗ Device templates test failed${NC}"
+    echo "This matches the test in .github/workflows/publish.yml line 601-629"
+    exit 1
+fi
 echo -e "${GREEN}✓ Device templates work${NC}"
 echo ""
 
