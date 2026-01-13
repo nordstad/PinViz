@@ -13,100 +13,100 @@ class TestPinRoleSuggestions:
         choices = get_role_choices_for_pin("VIN")
         assert len(choices) > 0
         # First two should be the suggested power roles
-        assert choices[0].title in ["5V", "3V3"]
-        assert choices[1].title in ["5V", "3V3"]
-        assert "suggested" in choices[0].value
-        assert "suggested" in choices[1].value
+        assert choices[0].value in ["5V", "3V3"]
+        assert choices[1].value in ["5V", "3V3"]
+        assert "suggested" in choices[0].title
+        assert "suggested" in choices[1].title
 
     def test_power_pin_vcc_suggests_both_voltages(self):
         """VCC should suggest both 5V and 3V3."""
         choices = get_role_choices_for_pin("VCC")
-        assert choices[0].title in ["5V", "3V3"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["5V", "3V3"]
+        assert "suggested" in choices[0].title
 
     def test_power_pin_vdd_suggests_both_voltages(self):
         """VDD should suggest both 5V and 3V3."""
         choices = get_role_choices_for_pin("VDD")
-        assert choices[0].title in ["5V", "3V3"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["5V", "3V3"]
+        assert "suggested" in choices[0].title
 
     def test_explicit_3v3_pin_suggests_3v3(self):
         """Explicit 3V3 pin should suggest 3V3 only."""
         choices = get_role_choices_for_pin("3V3")
-        assert choices[0].title == "3V3"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "3V3"
+        assert "suggested" in choices[0].title
 
     def test_explicit_5v_pin_suggests_5v(self):
         """Explicit 5V pin should suggest 5V only."""
         choices = get_role_choices_for_pin("5V")
-        assert choices[0].title == "5V"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "5V"
+        assert "suggested" in choices[0].title
 
     def test_ground_pin_gnd_suggests_ground(self):
         """GND should suggest ground role."""
         choices = get_role_choices_for_pin("GND")
-        assert choices[0].title == "GND"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "GND"
+        assert "suggested" in choices[0].title
 
     def test_ground_pin_ground_suggests_ground(self):
         """GROUND should suggest ground role."""
         choices = get_role_choices_for_pin("GROUND")
-        assert choices[0].title == "GND"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "GND"
+        assert "suggested" in choices[0].title
 
     def test_i2c_sda_pin_suggests_i2c_sda(self):
         """SDA should suggest I2C_SDA role."""
         choices = get_role_choices_for_pin("SDA")
-        assert choices[0].title == "I2C_SDA"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "I2C_SDA"
+        assert "suggested" in choices[0].title
 
     def test_i2c_scl_pin_suggests_i2c_scl(self):
         """SCL should suggest I2C_SCL role."""
         choices = get_role_choices_for_pin("SCL")
-        assert choices[0].title == "I2C_SCL"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "I2C_SCL"
+        assert "suggested" in choices[0].title
 
     def test_spi_mosi_pin_suggests_spi_mosi(self):
         """MOSI should suggest SPI_MOSI role."""
         choices = get_role_choices_for_pin("MOSI")
-        assert choices[0].title == "SPI_MOSI"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "SPI_MOSI"
+        assert "suggested" in choices[0].title
 
     def test_spi_miso_pin_suggests_spi_miso(self):
         """MISO should suggest SPI_MISO role."""
         choices = get_role_choices_for_pin("MISO")
-        assert choices[0].title == "SPI_MISO"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "SPI_MISO"
+        assert "suggested" in choices[0].title
 
     def test_spi_sclk_pin_suggests_spi_sclk(self):
         """SCLK should suggest SPI_SCLK role."""
         choices = get_role_choices_for_pin("SCLK")
-        assert choices[0].title == "SPI_SCLK"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "SPI_SCLK"
+        assert "suggested" in choices[0].title
 
     def test_spi_cs_pin_suggests_spi_ce0(self):
         """CS should suggest SPI_CE0 role."""
         choices = get_role_choices_for_pin("CS")
-        assert choices[0].title == "SPI_CE0"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "SPI_CE0"
+        assert "suggested" in choices[0].title
 
     def test_uart_tx_pin_suggests_uart_tx(self):
         """TX should suggest UART_TX role."""
         choices = get_role_choices_for_pin("TX")
-        assert choices[0].title == "UART_TX"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "UART_TX"
+        assert "suggested" in choices[0].title
 
     def test_uart_rx_pin_suggests_uart_rx(self):
         """RX should suggest UART_RX role."""
         choices = get_role_choices_for_pin("RX")
-        assert choices[0].title == "UART_RX"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "UART_RX"
+        assert "suggested" in choices[0].title
 
     def test_pwm_pin_suggests_pwm(self):
         """PWM should suggest PWM role."""
         choices = get_role_choices_for_pin("PWM")
-        assert choices[0].title == "PWM"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "PWM"
+        assert "suggested" in choices[0].title
 
 
 class TestCaseInsensitivity:
@@ -119,8 +119,8 @@ class TestCaseInsensitivity:
     def test_sda_case_variations(self, pin_name):
         """SDA in any case should suggest I2C_SDA."""
         choices = get_role_choices_for_pin(pin_name)
-        assert choices[0].title == "I2C_SDA"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "I2C_SDA"
+        assert "suggested" in choices[0].title
 
     @pytest.mark.parametrize(
         "pin_name",
@@ -129,8 +129,8 @@ class TestCaseInsensitivity:
     def test_vin_case_variations(self, pin_name):
         """VIN in any case should suggest power roles."""
         choices = get_role_choices_for_pin(pin_name)
-        assert choices[0].title in ["5V", "3V3"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["5V", "3V3"]
+        assert "suggested" in choices[0].title
 
 
 class TestWhitespaceHandling:
@@ -139,20 +139,20 @@ class TestWhitespaceHandling:
     def test_pin_with_leading_whitespace(self):
         """Pin names with leading whitespace should still match."""
         choices = get_role_choices_for_pin("  VCC")
-        assert choices[0].title in ["5V", "3V3"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["5V", "3V3"]
+        assert "suggested" in choices[0].title
 
     def test_pin_with_trailing_whitespace(self):
         """Pin names with trailing whitespace should still match."""
         choices = get_role_choices_for_pin("VCC  ")
-        assert choices[0].title in ["5V", "3V3"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["5V", "3V3"]
+        assert "suggested" in choices[0].title
 
     def test_pin_with_surrounding_whitespace(self):
         """Pin names with surrounding whitespace should still match."""
         choices = get_role_choices_for_pin("  VCC  ")
-        assert choices[0].title in ["5V", "3V3"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["5V", "3V3"]
+        assert "suggested" in choices[0].title
 
 
 class TestFalsePositivePrevention:
@@ -162,12 +162,12 @@ class TestFalsePositivePrevention:
         """DISCONNECT contains 'sco' but should not suggest I2C_SCL."""
         choices = get_role_choices_for_pin("DISCONNECT")
         # Should return original list without suggestions
-        assert "⭐" not in choices[0].value
+        assert "⭐" not in choices[0].title
 
     def test_clock_out_does_not_suggest_spi_sclk(self):
         """CLOCK_OUT contains 'clk' but should not suggest SPI_SCLK."""
         choices = get_role_choices_for_pin("CLOCK_OUT")
-        assert "⭐" not in choices[0].value
+        assert "⭐" not in choices[0].title
 
     def test_tx_enable_suggests_uart_tx(self):
         """TX_ENABLE contains TX as word and reasonably suggests UART_TX.
@@ -177,28 +177,28 @@ class TestFalsePositivePrevention:
         """
         choices = get_role_choices_for_pin("TX_ENABLE")
         # This IS a reasonable suggestion
-        assert choices[0].title == "UART_TX"
-        assert "⭐" in choices[0].value
+        assert choices[0].value == "UART_TX"
+        assert "⭐" in choices[0].title
 
     def test_gpio4_does_not_suggest_gpio_role(self):
         """GPIO4 should not trigger any specific role suggestions."""
         choices = get_role_choices_for_pin("GPIO4")
-        assert "⭐" not in choices[0].value
+        assert "⭐" not in choices[0].title
 
     def test_data_does_not_suggest_sda(self):
         """DATA contains 'da' but should not suggest I2C_SDA."""
         choices = get_role_choices_for_pin("DATA")
-        assert "⭐" not in choices[0].value
+        assert "⭐" not in choices[0].title
 
     def test_input_does_not_suggest_vin(self):
         """INPUT contains 'in' but should not suggest VIN."""
         choices = get_role_choices_for_pin("INPUT")
-        assert "⭐" not in choices[0].value
+        assert "⭐" not in choices[0].title
 
     def test_discount_does_not_suggest_scl(self):
         """DISCOUNT contains 'sco' but should not suggest I2C_SCL."""
         choices = get_role_choices_for_pin("DISCOUNT")
-        assert "⭐" not in choices[0].value
+        assert "⭐" not in choices[0].title
 
 
 class TestUnderscoreSeparatedPins:
@@ -207,32 +207,32 @@ class TestUnderscoreSeparatedPins:
     def test_vin_power_suggests_power(self):
         """VIN_POWER should suggest power roles."""
         choices = get_role_choices_for_pin("VIN_POWER")
-        assert choices[0].title in ["5V", "3V3"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["5V", "3V3"]
+        assert "suggested" in choices[0].title
 
     def test_i2c_sda_suggests_i2c_sda(self):
         """I2C_SDA should suggest I2C_SDA role."""
         choices = get_role_choices_for_pin("I2C_SDA")
-        assert choices[0].title == "I2C_SDA"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "I2C_SDA"
+        assert "suggested" in choices[0].title
 
     def test_spi_mosi_suggests_spi_mosi(self):
         """SPI_MOSI should suggest SPI_MOSI role."""
         choices = get_role_choices_for_pin("SPI_MOSI")
-        assert choices[0].title == "SPI_MOSI"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "SPI_MOSI"
+        assert "suggested" in choices[0].title
 
     def test_uart_tx_pin_suggests_uart_tx(self):
         """UART_TX should suggest UART_TX role."""
         choices = get_role_choices_for_pin("UART_TX")
-        assert choices[0].title == "UART_TX"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "UART_TX"
+        assert "suggested" in choices[0].title
 
     def test_gnd_pin_suggests_ground(self):
         """POWER_GND should suggest GND role."""
         choices = get_role_choices_for_pin("POWER_GND")
-        assert choices[0].title == "GND"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "GND"
+        assert "suggested" in choices[0].title
 
 
 class TestHyphenSeparatedPins:
@@ -241,14 +241,14 @@ class TestHyphenSeparatedPins:
     def test_vin_in_suggests_power(self):
         """VIN-IN should suggest power roles."""
         choices = get_role_choices_for_pin("VIN-IN")
-        assert choices[0].title in ["5V", "3V3"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["5V", "3V3"]
+        assert "suggested" in choices[0].title
 
     def test_sda_line_suggests_i2c_sda(self):
         """SDA-LINE should suggest I2C_SDA role."""
         choices = get_role_choices_for_pin("SDA-LINE")
-        assert choices[0].title == "I2C_SDA"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "I2C_SDA"
+        assert "suggested" in choices[0].title
 
 
 class TestNumberedPinNames:
@@ -257,44 +257,44 @@ class TestNumberedPinNames:
     def test_scl1_suggests_i2c_scl(self):
         """SCL1 should suggest I2C_SCL role."""
         choices = get_role_choices_for_pin("SCL1")
-        assert choices[0].title == "I2C_SCL"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "I2C_SCL"
+        assert "suggested" in choices[0].title
 
     def test_sda2_suggests_i2c_sda(self):
         """SDA2 should suggest I2C_SDA role."""
         choices = get_role_choices_for_pin("SDA2")
-        assert choices[0].title == "I2C_SDA"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "I2C_SDA"
+        assert "suggested" in choices[0].title
 
     def test_uart2_tx_suggests_uart_tx(self):
         """UART2_TX should suggest UART_TX role."""
         choices = get_role_choices_for_pin("UART2_TX")
-        assert choices[0].title == "UART_TX"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "UART_TX"
+        assert "suggested" in choices[0].title
 
     def test_txd0_suggests_uart_tx(self):
         """TXD0 should suggest UART_TX role."""
         choices = get_role_choices_for_pin("TXD0")
-        assert choices[0].title == "UART_TX"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "UART_TX"
+        assert "suggested" in choices[0].title
 
     def test_rxd1_suggests_uart_rx(self):
         """RXD1 should suggest UART_RX role."""
         choices = get_role_choices_for_pin("RXD1")
-        assert choices[0].title == "UART_RX"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "UART_RX"
+        assert "suggested" in choices[0].title
 
     def test_vcc_3v3_suggests_3v3(self):
         """VCC_3V3 should suggest 3V3 role."""
         choices = get_role_choices_for_pin("VCC_3V3")
-        assert choices[0].title == "3V3"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "3V3"
+        assert "suggested" in choices[0].title
 
     def test_spi1_mosi_suggests_spi_mosi(self):
         """SPI1_MOSI should suggest SPI_MOSI role."""
         choices = get_role_choices_for_pin("SPI1_MOSI")
-        assert choices[0].title == "SPI_MOSI"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "SPI_MOSI"
+        assert "suggested" in choices[0].title
 
 
 class TestGenericPinNames:
@@ -307,12 +307,12 @@ class TestGenericPinNames:
     def test_generic_pins_no_suggestions(self, pin_name):
         """Generic pin names should not trigger suggestions."""
         choices = get_role_choices_for_pin(pin_name)
-        assert "⭐" not in choices[0].value
+        assert "⭐" not in choices[0].title
 
     def test_empty_pin_name_returns_original_list(self):
         """Empty pin name should return original list."""
         choices = get_role_choices_for_pin("")
-        assert "⭐" not in choices[0].value
+        assert "⭐" not in choices[0].title
 
 
 class TestSeparatorPresence:
@@ -324,7 +324,7 @@ class TestSeparatorPresence:
         # Find the separator (it's a disabled choice with dashes)
         separator_found = False
         for choice in choices:
-            if getattr(choice, "disabled", False) and "─" in getattr(choice, "value", ""):
+            if getattr(choice, "disabled", False) and "─" in getattr(choice, "title", ""):
                 separator_found = True
                 break
         assert separator_found, "Separator should be present when suggestions exist"
@@ -335,7 +335,7 @@ class TestSeparatorPresence:
         # Check that no separator exists
         separator_found = False
         for choice in choices:
-            if getattr(choice, "disabled", False) and "─" in getattr(choice, "value", ""):
+            if getattr(choice, "disabled", False) and "─" in getattr(choice, "title", ""):
                 separator_found = True
                 break
         assert not separator_found, "Separator should not be present without suggestions"
@@ -608,25 +608,25 @@ class TestEnhancedRoleDescriptions:
         """3V3 suggestion should have Raspberry Pi context."""
         choices = get_role_choices_for_pin("VIN", detected_i2c=False)
         # Find the 3V3 choice
-        v3_choice = next((c for c in choices if c.title == "3V3"), None)
+        v3_choice = next((c for c in choices if c.value == "3V3"), None)
         assert v3_choice is not None
-        assert "Raspberry Pi" in v3_choice.value
+        assert "Raspberry Pi" in v3_choice.title
 
     def test_3v3_context_with_i2c(self):
         """3V3 suggestion should mention I2C when I2C is detected."""
         choices = get_role_choices_for_pin("VIN", detected_i2c=True)
         # Find the 3V3 choice
-        v3_choice = next((c for c in choices if c.title == "3V3"), None)
+        v3_choice = next((c for c in choices if c.value == "3V3"), None)
         assert v3_choice is not None
-        assert "I2C" in v3_choice.value
+        assert "I2C" in v3_choice.title
 
     def test_5v_context(self):
         """5V suggestion should have Arduino context."""
         choices = get_role_choices_for_pin("VIN", detected_i2c=False)
         # Find the 5V choice
-        v5_choice = next((c for c in choices if c.title == "5V"), None)
+        v5_choice = next((c for c in choices if c.value == "5V"), None)
         assert v5_choice is not None
-        assert "Arduino" in v5_choice.value or "5V" in v5_choice.value
+        assert "Arduino" in v5_choice.title or "5V" in v5_choice.title
 
 
 class TestAmbiguousPatterns:
@@ -636,51 +636,51 @@ class TestAmbiguousPatterns:
         """DIN is perspective-dependent and should suggest both MISO and MOSI."""
         choices = get_role_choices_for_pin("DIN")
         # Check that both are suggested (should be first two choices)
-        assert choices[0].title in ["SPI_MISO", "SPI_MOSI"]
-        assert choices[1].title in ["SPI_MISO", "SPI_MOSI"]
-        assert choices[0].title != choices[1].title
-        assert "suggested" in choices[0].value
-        assert "suggested" in choices[1].value
+        assert choices[0].value in ["SPI_MISO", "SPI_MOSI"]
+        assert choices[1].value in ["SPI_MISO", "SPI_MOSI"]
+        assert choices[0].value != choices[1].title
+        assert "suggested" in choices[0].title
+        assert "suggested" in choices[1].title
 
     def test_dout_suggests_both_mosi_and_miso(self):
         """DOUT is perspective-dependent and should suggest both MOSI and MISO."""
         choices = get_role_choices_for_pin("DOUT")
         # Check that both are suggested
-        assert choices[0].title in ["SPI_MOSI", "SPI_MISO"]
-        assert choices[1].title in ["SPI_MOSI", "SPI_MISO"]
-        assert choices[0].title != choices[1].title
-        assert "suggested" in choices[0].value
-        assert "suggested" in choices[1].value
+        assert choices[0].value in ["SPI_MOSI", "SPI_MISO"]
+        assert choices[1].value in ["SPI_MOSI", "SPI_MISO"]
+        assert choices[0].value != choices[1].title
+        assert "suggested" in choices[0].title
+        assert "suggested" in choices[1].title
 
     def test_sdi_suggests_both_roles(self):
         """SDI is ambiguous and should suggest both MISO and MOSI."""
         choices = get_role_choices_for_pin("SDI")
-        assert choices[0].title in ["SPI_MISO", "SPI_MOSI"]
-        assert choices[1].title in ["SPI_MISO", "SPI_MOSI"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["SPI_MISO", "SPI_MOSI"]
+        assert choices[1].value in ["SPI_MISO", "SPI_MOSI"]
+        assert "suggested" in choices[0].title
 
     def test_sdo_suggests_both_roles(self):
         """SDO is ambiguous and should suggest both MOSI and MISO."""
         choices = get_role_choices_for_pin("SDO")
-        assert choices[0].title in ["SPI_MOSI", "SPI_MISO"]
-        assert choices[1].title in ["SPI_MOSI", "SPI_MISO"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["SPI_MOSI", "SPI_MISO"]
+        assert choices[1].value in ["SPI_MOSI", "SPI_MISO"]
+        assert "suggested" in choices[0].title
 
     def test_clk_suggests_multiple_roles(self):
         """CLK is ambiguous and should suggest SPI_SCLK, PWM, and GPIO."""
         choices = get_role_choices_for_pin("CLK")
         # Should suggest at least SPI_SCLK
-        assert choices[0].title in ["SPI_SCLK", "PWM", "GPIO"]
-        assert "suggested" in choices[0].value
+        assert choices[0].value in ["SPI_SCLK", "PWM", "GPIO"]
+        assert "suggested" in choices[0].title
 
     def test_serial_tx_suggests_uart_tx(self):
         """SERIAL_TX should suggest UART_TX role."""
         choices = get_role_choices_for_pin("SERIAL_TX")
-        assert choices[0].title == "UART_TX"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "UART_TX"
+        assert "suggested" in choices[0].title
 
     def test_serial_rx_suggests_uart_rx(self):
         """SERIAL_RX should suggest UART_RX role."""
         choices = get_role_choices_for_pin("SERIAL_RX")
-        assert choices[0].title == "UART_RX"
-        assert "suggested" in choices[0].value
+        assert choices[0].value == "UART_RX"
+        assert "suggested" in choices[0].title
