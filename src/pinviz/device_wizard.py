@@ -600,6 +600,44 @@ def test_device_config(device_id: str) -> bool:
         return False
 
 
+def print_contribution_message(config: dict, output_path: Path) -> None:
+    """Print message encouraging users to contribute their device config.
+
+    Args:
+        config: Device configuration dict
+        output_path: Path where the device config was saved
+    """
+    device_id = config["id"]
+    device_name = config["name"]
+    category = config["category"]
+
+    # Get relative path from project root
+    relative_path = f"src/pinviz/device_configs/{category}/{device_id}.json"
+
+    print("\n" + "=" * 60)
+    print("📤 Contribute this device to help other users!")
+    print("=" * 60)
+    print("\nQuick contribution steps:")
+    print()
+    print("# 1. Fork and clone")
+    print("gh repo fork nordstad/PinViz --clone")
+    print("cd PinViz")
+    print()
+    print("# 2. Copy your device config")
+    print(f"cp {output_path} \\")
+    print(f"   {relative_path}")
+    print()
+    print("# 3. Create PR")
+    print(f"git checkout -b add-{device_id}-device")
+    print(f"git add {relative_path}")
+    print(f'git commit -m "feat: add {device_name}"')
+    print(f"git push -u origin add-{device_id}-device")
+    print(f'gh pr create --title "feat: add {device_name}" --body "Adds support for {device_name}"')
+    print()
+    print("Full guide: https://pinviz.dev/contributing/devices")
+    print("=" * 60 + "\n")
+
+
 async def main() -> int:
     """Main wizard entry point.
 
@@ -626,6 +664,10 @@ async def main() -> int:
             print("Usage:")
             print(f"  Python: registry.create('{config['id']}')")
             print(f'  YAML:   type: "{config["id"]}"')
+
+            # Show contribution message
+            print_contribution_message(config, output_path)
+
             return 0
         else:
             print(f"\n⚠️  Device saved but failed to load. Check configuration at {output_path}")
