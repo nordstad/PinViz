@@ -4,6 +4,37 @@ The project uses GitHub Actions for automated PyPI publishing. **IMPORTANT:** Fo
 
 ## Correct Publishing Process
 
+### Step 0: Pre-Publish Validation (CRITICAL)
+
+**Before bumping the version**, run these checks to catch issues early:
+
+```bash
+# 1. Run all tests locally
+uv run pytest
+
+# 2. Run the full CI test suite
+uv run pytest --cov=src/pinviz --cov-report=term-missing
+
+# 3. CRITICAL: Validate post-publish tests with current API
+# This catches outdated API usage that would fail after publishing
+./scripts/validate-post-publish-tests.sh
+
+# 4. Test package build
+uv build
+uv pip install dist/*.whl --force-reinstall
+uv run pinviz --version
+uv run pinviz example bh1750 -o test.svg
+
+# 5. Check for breaking API changes
+# If you modified the public API, update .github/workflows/publish.yml
+# Search for these patterns and update if needed:
+#   - "from pinviz import ..."
+#   - "devices.*("
+#   - "boards.*("
+```
+
+**Why this matters**: The post-publish integration tests in `.github/workflows/publish.yml` run AFTER the package is published to PyPI. If they fail due to outdated API usage, the package is already live but marked as failed. This validation script catches these issues BEFORE publishing.
+
 ### Step 1: Bump Version
 
 Update the version in `pyproject.toml`:

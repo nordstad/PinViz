@@ -373,17 +373,20 @@ jobs:
           echo ""
           echo "[2/11] Testing basic Python API..."
           # Test core imports
-          uv run python -c "from pinviz import boards, devices, Connection, Diagram, SVGRenderer"
+          uv run python -c "from pinviz import boards, Connection, Diagram, SVGRenderer"
           uv run python -c "from pinviz import WireColor, ComponentType, Component"
+          uv run python -c "from pinviz.devices import get_registry"
           uv run python -c "from pinviz.validation import DiagramValidator, ValidationLevel"
           uv run python -c "from pinviz.logging_config import configure_logging"
 
-          # Test simple diagram creation
+          # Test simple diagram creation with registry API
           uv run python -c "
-          from pinviz import boards, devices, Connection, Diagram, SVGRenderer
+          from pinviz import boards, Connection, Diagram, SVGRenderer
+          from pinviz.devices import get_registry
 
           board = boards.raspberry_pi_5()
-          led = devices.simple_led('Red')
+          registry = get_registry()
+          led = registry.create('led', color_name='Red')
           connections = [
               Connection(11, 'Red LED', '+'),
               Connection(6, 'Red LED', '-'),
@@ -600,7 +603,8 @@ jobs:
           echo ""
           echo "[9/11] Testing board and device templates..."
           uv run python << 'EOPY'
-          from pinviz import boards, devices
+          from pinviz import boards
+          from pinviz.devices import get_registry
 
           # Test boards
           rpi5 = boards.raspberry_pi_5()
@@ -608,11 +612,12 @@ jobs:
           assert len(rpi5.pins) == 40, "Raspberry Pi 5 should have 40 pins"
           assert len(rpi4.pins) == 40, "Raspberry Pi 4 should have 40 pins"
 
-          # Test devices
-          bh1750 = devices.bh1750_light_sensor()
-          led = devices.simple_led()
-          button = devices.button_switch()
-          ds18b20 = devices.ds18b20_temp_sensor()
+          # Test devices using registry
+          registry = get_registry()
+          bh1750 = registry.create('bh1750')
+          led = registry.create('led')
+          button = registry.create('button')
+          ds18b20 = registry.create('ds18b20')
 
           assert len(bh1750.pins) == 5, "BH1750 should have 5 pins"
           assert len(led.pins) == 2, "LED should have 2 pins"
