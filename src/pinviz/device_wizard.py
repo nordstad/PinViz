@@ -44,7 +44,12 @@ PIN_ROLES = [
 
 # Pin name patterns for auto-suggestion
 # Maps common pin name patterns to suggested roles
+# IMPORTANT: More specific patterns must come BEFORE generic patterns
+# due to first-match-wins strategy
 PIN_NAME_HINTS: dict[tuple[str, ...], list[str]] = {
+    # Special case: explicit voltage pins (MUST come before generic power pins)
+    ("3v3", "3.3v", "vcc_3v3"): ["3V3"],
+    ("5v", "vcc_5v"): ["5V"],
     # Power pins (variable voltage inputs like VIN, VCC)
     ("vin", "vcc", "v+", "vdd", "vbus"): ["5V", "3V3"],
     # Ground pins (removed "g" to avoid false matches like "gpio")
@@ -53,19 +58,22 @@ PIN_NAME_HINTS: dict[tuple[str, ...], list[str]] = {
     ("sda", "sdio", "sdi_i2c"): ["I2C_SDA"],
     ("scl", "sck_i2c", "scl_i2c"): ["I2C_SCL"],
     # SPI pins
-    ("mosi", "sdi", "copi", "dout"): ["SPI_MOSI"],
-    ("miso", "sdo", "cipo", "din"): ["SPI_MISO"],
-    ("sck", "sclk", "clk", "sck_spi"): ["SPI_SCLK"],
+    ("mosi", "copi"): ["SPI_MOSI"],
+    ("miso", "cipo"): ["SPI_MISO"],
+    # Ambiguous SPI data pins (perspective-dependent)
+    ("sdi",): ["SPI_MISO", "SPI_MOSI"],  # Could be either depending on device perspective
+    ("sdo",): ["SPI_MOSI", "SPI_MISO"],  # Could be either depending on device perspective
+    ("din",): ["SPI_MISO", "SPI_MOSI"],  # Could be either depending on device perspective
+    ("dout",): ["SPI_MOSI", "SPI_MISO"],  # Could be either depending on device perspective
+    ("sck", "sclk", "sck_spi"): ["SPI_SCLK"],
+    ("clk",): ["SPI_SCLK", "PWM", "GPIO"],  # Ambiguous - could be SPI, PWM, or generic clock
     ("cs", "ce", "ce0", "ss"): ["SPI_CE0"],
     ("ce1",): ["SPI_CE1"],
     # UART pins
-    ("tx", "txd", "uart_tx"): ["UART_TX"],
-    ("rx", "rxd", "uart_rx"): ["UART_RX"],
+    ("tx", "txd", "uart_tx", "serial_tx", "txd0"): ["UART_TX"],
+    ("rx", "rxd", "uart_rx", "serial_rx", "rxd0"): ["UART_RX"],
     # PWM pins
     ("pwm",): ["PWM"],
-    # Special case: explicit voltage pins
-    ("3v3", "3.3v", "vcc_3v3"): ["3V3"],
-    ("5v", "vcc_5v"): ["5V"],
 }
 
 # Contextual hints for ambiguous pin names
@@ -142,7 +150,8 @@ def get_context_hint_for_pin(pin_name: str) -> str | None:
     for patterns, hint in PIN_CONTEXT_HINTS.items():
         for pattern in patterns:
             # Use same word boundary matching as role suggestions
-            regex = r"(?:^|[_\-])" + re.escape(pattern) + r"(?:[_\-]|$)"
+            # Allow digits after pattern to match "SCL1", "SDA2", etc.
+            regex = r"(?:^|[_\-])" + re.escape(pattern) + r"(?:[_\-\d]|$)"
             if re.search(regex, pin_lower):
                 return hint
     return None
@@ -155,8 +164,14 @@ def get_role_choices_for_pin(pin_name: str, detected_i2c: bool = False) -> list[
     as complete words (at start/end or separated by underscore/hyphen), not as
     arbitrary substrings within other words.
 
+    Pattern matching uses first-match-wins strategy: patterns are checked in the
+    order defined in PIN_NAME_HINTS, so pattern order determines priority when
+    multiple patterns could match. More specific patterns should be defined before
+    more generic ones.
+
     Args:
         pin_name: The name of the pin to get role choices for
+        detected_i2c: Whether I2C pins have already been configured
 
     Returns:
         List of Choice objects with suggested roles marked and placed first
@@ -164,6 +179,7 @@ def get_role_choices_for_pin(pin_name: str, detected_i2c: bool = False) -> list[
     Examples:
         >>> get_role_choices_for_pin("VIN")  # Matches - suggests 5V, 3V3
         >>> get_role_choices_for_pin("SDA")  # Matches - suggests I2C_SDA
+        >>> get_role_choices_for_pin("SCL1")  # Matches with numbers - suggests I2C_SCL
         >>> get_role_choices_for_pin("DISCONNECT")  # No match - contains "sco" but not as word
     """
     pin_lower = pin_name.lower().strip()
@@ -176,8 +192,9 @@ def get_role_choices_for_pin(pin_name: str, detected_i2c: bool = False) -> list[
             # Match pattern as whole word or separated by underscore/hyphen
             # Regex: (?:^|[_\-]) = start of string or underscore/hyphen
             #        pattern = the literal pattern to match
-            #        (?:[_\-]|$) = underscore/hyphen or end of string
-            regex = r"(?:^|[_\-])" + re.escape(pattern) + r"(?:[_\-]|$)"
+            #        (?:[_\-\d]|$) = underscore/hyphen/digit or end of string
+            # This allows matching "SCL1", "SDA2", "UART2_TX", etc.
+            regex = r"(?:^|[_\-])" + re.escape(pattern) + r"(?:[_\-\d]|$)"
             if re.search(regex, pin_lower):
                 suggested_roles = roles
                 break

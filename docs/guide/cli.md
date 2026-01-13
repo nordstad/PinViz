@@ -129,9 +129,12 @@ The wizard guides you through creating a device configuration with:
 
 - Device name and identifier
 - Category selection (sensors, LEDs, displays, io, etc.)
+- **Smart pin role suggestions** based on pin names (VIN, SDA, SCL, MOSI, TX, etc.)
+- Contextual hints for ambiguous pins
 - Pin configuration with role assignment
 - Optional metadata (I2C address, datasheet URL, notes)
 - Automatic validation and testing
+- Comprehensive wiring summary for Raspberry Pi
 
 **Example session:**
 
@@ -189,6 +192,27 @@ Usage:
   Python: registry.create('dht22')
   YAML:   type: "dht22"
 ```
+
+**Smart Pin Role Suggestions:**
+
+The wizard automatically suggests appropriate pin roles based on common naming patterns:
+
+- **Power pins**: VIN, VCC, VDD → suggests 5V and 3V3
+- **Ground pins**: GND, GROUND → suggests GND
+- **I2C pins**: SDA, SCL → suggests I2C_SDA, I2C_SCL
+- **SPI pins**: MOSI, MISO, SCLK, CS → suggests appropriate SPI roles
+- **UART pins**: TX, RX, SERIAL_TX → suggests UART_TX, UART_RX
+- **Ambiguous pins**: DIN, DOUT, SDI, SDO, CLK → suggests multiple roles with context
+
+The wizard also provides inline contextual hints for ambiguous pins like:
+- VIN/VCC: Explains typical usage on Raspberry Pi (3.3V)
+- ADDR/A0: I2C address selection pins
+- DIN/DOUT: Data direction perspective
+
+Suggestions work with:
+- **Case insensitive**: VIN, vin, Vin all match
+- **Numbered pins**: SCL1, SDA2, UART2_TX all match
+- **Separators**: VIN_POWER, SDA-LINE, I2C_SDA all match
 
 **Available pin roles:**
 

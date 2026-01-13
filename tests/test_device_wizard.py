@@ -251,6 +251,52 @@ class TestHyphenSeparatedPins:
         assert "suggested" in choices[0].value
 
 
+class TestNumberedPinNames:
+    """Test that pin names with numbers are handled correctly."""
+
+    def test_scl1_suggests_i2c_scl(self):
+        """SCL1 should suggest I2C_SCL role."""
+        choices = get_role_choices_for_pin("SCL1")
+        assert choices[0].title == "I2C_SCL"
+        assert "suggested" in choices[0].value
+
+    def test_sda2_suggests_i2c_sda(self):
+        """SDA2 should suggest I2C_SDA role."""
+        choices = get_role_choices_for_pin("SDA2")
+        assert choices[0].title == "I2C_SDA"
+        assert "suggested" in choices[0].value
+
+    def test_uart2_tx_suggests_uart_tx(self):
+        """UART2_TX should suggest UART_TX role."""
+        choices = get_role_choices_for_pin("UART2_TX")
+        assert choices[0].title == "UART_TX"
+        assert "suggested" in choices[0].value
+
+    def test_txd0_suggests_uart_tx(self):
+        """TXD0 should suggest UART_TX role."""
+        choices = get_role_choices_for_pin("TXD0")
+        assert choices[0].title == "UART_TX"
+        assert "suggested" in choices[0].value
+
+    def test_rxd1_suggests_uart_rx(self):
+        """RXD1 should suggest UART_RX role."""
+        choices = get_role_choices_for_pin("RXD1")
+        assert choices[0].title == "UART_RX"
+        assert "suggested" in choices[0].value
+
+    def test_vcc_3v3_suggests_3v3(self):
+        """VCC_3V3 should suggest 3V3 role."""
+        choices = get_role_choices_for_pin("VCC_3V3")
+        assert choices[0].title == "3V3"
+        assert "suggested" in choices[0].value
+
+    def test_spi1_mosi_suggests_spi_mosi(self):
+        """SPI1_MOSI should suggest SPI_MOSI role."""
+        choices = get_role_choices_for_pin("SPI1_MOSI")
+        assert choices[0].title == "SPI_MOSI"
+        assert "suggested" in choices[0].value
+
+
 class TestGenericPinNames:
     """Test that generic pin names don't trigger suggestions."""
 
@@ -581,3 +627,60 @@ class TestEnhancedRoleDescriptions:
         v5_choice = next((c for c in choices if c.title == "5V"), None)
         assert v5_choice is not None
         assert "Arduino" in v5_choice.value or "5V" in v5_choice.value
+
+
+class TestAmbiguousPatterns:
+    """Test patterns that suggest multiple roles due to ambiguity."""
+
+    def test_din_suggests_both_miso_and_mosi(self):
+        """DIN is perspective-dependent and should suggest both MISO and MOSI."""
+        choices = get_role_choices_for_pin("DIN")
+        # Check that both are suggested (should be first two choices)
+        assert choices[0].title in ["SPI_MISO", "SPI_MOSI"]
+        assert choices[1].title in ["SPI_MISO", "SPI_MOSI"]
+        assert choices[0].title != choices[1].title
+        assert "suggested" in choices[0].value
+        assert "suggested" in choices[1].value
+
+    def test_dout_suggests_both_mosi_and_miso(self):
+        """DOUT is perspective-dependent and should suggest both MOSI and MISO."""
+        choices = get_role_choices_for_pin("DOUT")
+        # Check that both are suggested
+        assert choices[0].title in ["SPI_MOSI", "SPI_MISO"]
+        assert choices[1].title in ["SPI_MOSI", "SPI_MISO"]
+        assert choices[0].title != choices[1].title
+        assert "suggested" in choices[0].value
+        assert "suggested" in choices[1].value
+
+    def test_sdi_suggests_both_roles(self):
+        """SDI is ambiguous and should suggest both MISO and MOSI."""
+        choices = get_role_choices_for_pin("SDI")
+        assert choices[0].title in ["SPI_MISO", "SPI_MOSI"]
+        assert choices[1].title in ["SPI_MISO", "SPI_MOSI"]
+        assert "suggested" in choices[0].value
+
+    def test_sdo_suggests_both_roles(self):
+        """SDO is ambiguous and should suggest both MOSI and MISO."""
+        choices = get_role_choices_for_pin("SDO")
+        assert choices[0].title in ["SPI_MOSI", "SPI_MISO"]
+        assert choices[1].title in ["SPI_MOSI", "SPI_MISO"]
+        assert "suggested" in choices[0].value
+
+    def test_clk_suggests_multiple_roles(self):
+        """CLK is ambiguous and should suggest SPI_SCLK, PWM, and GPIO."""
+        choices = get_role_choices_for_pin("CLK")
+        # Should suggest at least SPI_SCLK
+        assert choices[0].title in ["SPI_SCLK", "PWM", "GPIO"]
+        assert "suggested" in choices[0].value
+
+    def test_serial_tx_suggests_uart_tx(self):
+        """SERIAL_TX should suggest UART_TX role."""
+        choices = get_role_choices_for_pin("SERIAL_TX")
+        assert choices[0].title == "UART_TX"
+        assert "suggested" in choices[0].value
+
+    def test_serial_rx_suggests_uart_rx(self):
+        """SERIAL_RX should suggest UART_RX role."""
+        choices = get_role_choices_for_pin("SERIAL_RX")
+        assert choices[0].title == "UART_RX"
+        assert "suggested" in choices[0].value
