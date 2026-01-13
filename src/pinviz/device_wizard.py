@@ -71,22 +71,59 @@ PIN_NAME_HINTS: dict[tuple[str, ...], list[str]] = {
 # Contextual hints for ambiguous pin names
 # Provides inline help when users enter certain pin names
 PIN_CONTEXT_HINTS: dict[tuple[str, ...], str] = {
+    # Power input pins
     ("vin", "vcc", "vdd", "vbus"): (
         "💡 VIN/VCC accepts flexible power (3-5V). For Raspberry Pi, typically use 3V3."
     ),
-    ("addr", "address", "a0", "a1", "a2"): (
-        "💡 Address pin for I2C - usually tied to GND or 3V3 to set device address."
-    ),
-    ("en", "enable", "ce", "chip_enable"): (
-        "💡 Enable/Chip Enable - controls when device is active (usually tie to 3V3)."
-    ),
-    ("rst", "reset", "res"): (
-        "💡 Reset pin - usually pulled high to 3V3 or controlled by a GPIO pin."
-    ),
-    ("int", "interrupt", "irq"): ("💡 Interrupt pin - connects to a GPIO pin to signal events."),
+    ("vbat",): ("💡 Battery backup power - different from VIN, usually for RTC or backup memory."),
+    # Power output pins
     ("3vo", "3v3_out", "vout"): (
         "💡 Voltage output - this pin PROVIDES 3.3V, don't connect it to power."
     ),
+    ("ioref",): ("💡 I/O reference voltage indicator - OUTPUT pin showing logic level (Arduino)."),
+    # I2C address selection pins
+    ("addr", "address", "a0", "a1", "a2", "sa0", "ad0", "ado"): (
+        "💡 Address pin for I2C - usually tied to GND or 3V3 to set device address."
+    ),
+    # SPI chip select
+    ("cs", "ss"): ("💡 Chip Select / Slave Select for SPI - connect to GPIO or SPI_CE0/CE1."),
+    # SPI data pins with perspective ambiguity
+    ("din", "dout", "sdi", "sdo"): (
+        "💡 Data In/Out - for SPI: DIN=MOSI, DOUT=MISO; may vary by device perspective."
+    ),
+    # Display control pins
+    ("dc", "d/c", "rs"): (
+        "💡 Data/Command pin for displays - connect to GPIO to control display mode."
+    ),
+    # Clock pins
+    ("clk",): ("💡 Clock signal - for SPI use SPI_SCLK, otherwise connect to GPIO."),
+    # Enable/control pins
+    ("en", "enable", "chip_enable"): (
+        "💡 Enable/Chip Enable - controls when device is active (usually tie to 3V3)."
+    ),
+    ("ce",): ("💡 Chip Enable - for SPI use SPI_CE0/CE1, otherwise tie to 3V3 or GPIO."),
+    ("run",): ("💡 Run/Enable pin for microcontrollers - tie to 3V3 or use for reset control."),
+    ("shdn", "shutdown"): (
+        "💡 Shutdown control - tie to 3V3 for normal operation, GND to shutdown."
+    ),
+    # Reset pins
+    ("rst", "reset", "res"): (
+        "💡 Reset pin - usually pulled high to 3V3 or controlled by a GPIO pin."
+    ),
+    # Interrupt/status pins
+    ("int", "interrupt", "irq"): ("💡 Interrupt pin - connects to a GPIO pin to signal events."),
+    ("drdy", "rdy", "busy"): (
+        "💡 Data Ready/Busy status pin - connect to GPIO to read device status."
+    ),
+    # Boot mode pins
+    ("boot", "boot0"): ("💡 Boot mode selection - usually tie to GND for normal operation."),
+    # Ground variations
+    ("agnd", "dgnd"): ("💡 Analog/Digital Ground - connect BOTH to GND (star ground if possible)."),
+    # Write protect
+    ("wp",): ("💡 Write Protect pin - tie to GND to allow writes, 3V3 to protect (EEPROMs/flash)."),
+    # No connect / test pins
+    ("nc",): ("💡 No Connect - leave unconnected (do NOT wire this pin)."),
+    ("test",): ("💡 Factory test pin - leave unconnected for normal operation."),
 }
 
 

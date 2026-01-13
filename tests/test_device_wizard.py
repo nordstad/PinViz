@@ -362,6 +362,198 @@ class TestContextHints:
         hint = get_context_hint_for_pin("D0")
         assert hint is None
 
+    # Power pins
+    def test_vbat_has_context_hint(self):
+        """VBAT should explain it's for battery backup."""
+        hint = get_context_hint_for_pin("VBAT")
+        assert hint is not None
+        assert "Battery backup" in hint or "backup" in hint
+        assert "RTC" in hint or "backup memory" in hint
+
+    def test_ioref_has_context_hint(self):
+        """IOREF should explain it's an output indicator."""
+        hint = get_context_hint_for_pin("IOREF")
+        assert hint is not None
+        assert "OUTPUT" in hint
+        assert "voltage" in hint.lower()
+
+    # I2C address selection variations
+    def test_sa0_has_context_hint(self):
+        """SA0 should be recognized as I2C address pin."""
+        hint = get_context_hint_for_pin("SA0")
+        assert hint is not None
+        assert "Address" in hint or "address" in hint
+        assert "I2C" in hint
+
+    def test_ad0_has_context_hint(self):
+        """AD0 should be recognized as I2C address pin."""
+        hint = get_context_hint_for_pin("AD0")
+        assert hint is not None
+        assert "Address" in hint or "address" in hint
+
+    def test_ado_has_context_hint(self):
+        """ADO should be recognized as I2C address pin."""
+        hint = get_context_hint_for_pin("ADO")
+        assert hint is not None
+        assert "Address" in hint or "address" in hint
+
+    # SPI pins
+    def test_cs_has_context_hint(self):
+        """CS should explain Chip Select usage."""
+        hint = get_context_hint_for_pin("CS")
+        assert hint is not None
+        assert "Chip Select" in hint or "chip select" in hint.lower()
+        assert "SPI" in hint
+
+    def test_ss_has_context_hint(self):
+        """SS should explain Slave Select usage."""
+        hint = get_context_hint_for_pin("SS")
+        assert hint is not None
+        assert "Slave Select" in hint or "Chip Select" in hint
+
+    def test_din_has_context_hint(self):
+        """DIN should explain data direction ambiguity."""
+        hint = get_context_hint_for_pin("DIN")
+        assert hint is not None
+        assert "MOSI" in hint
+        assert "perspective" in hint.lower() or "device" in hint.lower()
+
+    def test_dout_has_context_hint(self):
+        """DOUT should explain data direction ambiguity."""
+        hint = get_context_hint_for_pin("DOUT")
+        assert hint is not None
+        assert "MISO" in hint
+
+    def test_sdi_has_context_hint(self):
+        """SDI should be recognized as SPI data pin."""
+        hint = get_context_hint_for_pin("SDI")
+        assert hint is not None
+        assert "Data" in hint
+
+    def test_sdo_has_context_hint(self):
+        """SDO should be recognized as SPI data pin."""
+        hint = get_context_hint_for_pin("SDO")
+        assert hint is not None
+        assert "Data" in hint
+
+    # Display pins
+    def test_dc_has_context_hint(self):
+        """DC should explain Data/Command usage."""
+        hint = get_context_hint_for_pin("DC")
+        assert hint is not None
+        assert "Data/Command" in hint or "display" in hint.lower()
+
+    def test_rs_has_context_hint(self):
+        """RS should explain it's for display control."""
+        hint = get_context_hint_for_pin("RS")
+        assert hint is not None
+        assert "display" in hint.lower()
+
+    # Clock pins
+    def test_clk_has_context_hint(self):
+        """CLK should explain clock signal usage."""
+        hint = get_context_hint_for_pin("CLK")
+        assert hint is not None
+        assert "Clock" in hint
+        assert "SPI_SCLK" in hint or "SCLK" in hint
+
+    # Control pins
+    def test_ce_has_context_hint(self):
+        """CE should explain Chip Enable usage."""
+        hint = get_context_hint_for_pin("CE")
+        assert hint is not None
+        assert "Chip Enable" in hint or "chip enable" in hint.lower()
+
+    def test_run_has_context_hint(self):
+        """RUN should explain it's for microcontroller control."""
+        hint = get_context_hint_for_pin("RUN")
+        assert hint is not None
+        assert "Run" in hint or "Enable" in hint
+        assert "microcontroller" in hint.lower()
+
+    def test_shdn_has_context_hint(self):
+        """SHDN should explain shutdown control."""
+        hint = get_context_hint_for_pin("SHDN")
+        assert hint is not None
+        assert "Shutdown" in hint or "shutdown" in hint.lower()
+
+    def test_shutdown_has_context_hint(self):
+        """SHUTDOWN should explain shutdown control."""
+        hint = get_context_hint_for_pin("SHUTDOWN")
+        assert hint is not None
+        assert "Shutdown" in hint or "shutdown" in hint.lower()
+
+    # Status pins
+    def test_drdy_has_context_hint(self):
+        """DRDY should explain Data Ready status."""
+        hint = get_context_hint_for_pin("DRDY")
+        assert hint is not None
+        assert "Data Ready" in hint or "status" in hint.lower()
+
+    def test_rdy_has_context_hint(self):
+        """RDY should explain ready status."""
+        hint = get_context_hint_for_pin("RDY")
+        assert hint is not None
+        assert "Ready" in hint or "status" in hint.lower()
+
+    def test_busy_has_context_hint(self):
+        """BUSY should explain busy status."""
+        hint = get_context_hint_for_pin("BUSY")
+        assert hint is not None
+        assert "Busy" in hint or "status" in hint.lower()
+
+    # Boot pins
+    def test_boot_has_context_hint(self):
+        """BOOT should explain boot mode selection."""
+        hint = get_context_hint_for_pin("BOOT")
+        assert hint is not None
+        assert "Boot" in hint or "boot" in hint.lower()
+        assert "GND" in hint
+
+    def test_boot0_has_context_hint(self):
+        """BOOT0 should explain boot mode selection."""
+        hint = get_context_hint_for_pin("BOOT0")
+        assert hint is not None
+        assert "Boot" in hint or "boot" in hint.lower()
+
+    # Ground variations
+    def test_agnd_has_context_hint(self):
+        """AGND should explain analog ground."""
+        hint = get_context_hint_for_pin("AGND")
+        assert hint is not None
+        assert "Analog" in hint or "Ground" in hint
+        assert "BOTH" in hint
+
+    def test_dgnd_has_context_hint(self):
+        """DGND should explain digital ground."""
+        hint = get_context_hint_for_pin("DGND")
+        assert hint is not None
+        assert "Digital" in hint or "Ground" in hint
+        assert "BOTH" in hint
+
+    # Write protect
+    def test_wp_has_context_hint(self):
+        """WP should explain write protect functionality."""
+        hint = get_context_hint_for_pin("WP")
+        assert hint is not None
+        assert "Write Protect" in hint or "write" in hint.lower()
+        assert "EEPROM" in hint or "flash" in hint
+
+    # Special pins
+    def test_nc_has_context_hint(self):
+        """NC should warn not to connect."""
+        hint = get_context_hint_for_pin("NC")
+        assert hint is not None
+        assert "No Connect" in hint or "unconnected" in hint.lower()
+        assert "NOT" in hint
+
+    def test_test_has_context_hint(self):
+        """TEST should explain it's for factory use."""
+        hint = get_context_hint_for_pin("TEST")
+        assert hint is not None
+        assert "test" in hint.lower()
+        assert "unconnected" in hint.lower() or "leave" in hint.lower()
+
 
 class TestEnhancedRoleDescriptions:
     """Test that role descriptions include helpful context."""
