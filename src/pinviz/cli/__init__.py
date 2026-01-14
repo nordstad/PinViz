@@ -19,7 +19,7 @@ app = typer.Typer(
     help="Generate Raspberry Pi GPIO connection diagrams",
     no_args_is_help=True,
     rich_markup_mode="rich",
-    add_completion=True,
+    add_completion=False,
     pretty_exceptions_enable=True,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
@@ -50,23 +50,6 @@ def main_callback(
             help="Show version and exit",
         ),
     ] = None,
-    log_level: Annotated[
-        str,
-        typer.Option(
-            "--log-level",
-            "-l",
-            help="Set logging verbosity",
-            case_sensitive=False,
-        ),
-    ] = "WARNING",
-    log_format: Annotated[
-        str,
-        typer.Option(
-            "--log-format",
-            help="Log output format: json (machine-readable) or console (human-readable)",
-            case_sensitive=False,
-        ),
-    ] = "console",
 ) -> None:
     """
     Generate Raspberry Pi GPIO connection diagrams.
@@ -81,13 +64,11 @@ def main_callback(
 
     For more information, visit: [link]https://github.com/nordstad/PinViz[/link]
     """
-    # Configure logging globally
-    configure_logging(level=log_level.upper(), format=log_format)
+    # Configure logging to only show errors (suppress info/debug)
+    configure_logging(level="ERROR", format="console")
 
 
 # Register commands (import after app callback is defined)
-from .commands import completion as completion_cmd  # noqa: E402
-from .commands import config as config_cmd  # noqa: E402
 from .commands import device, example, render, validate  # noqa: E402
 from .commands import list as list_cmd  # noqa: E402
 
@@ -97,31 +78,6 @@ app.command(name="validate-devices")(validate.validate_devices_command)
 app.command(name="example")(example.example_command)
 app.command(name="list")(list_cmd.list_command)
 app.command(name="add-device")(device.add_device_command)
-
-# Config command group
-config_app = typer.Typer(
-    name="config",
-    help="Manage configuration settings",
-    no_args_is_help=True,
-    context_settings={"help_option_names": ["-h", "--help"]},
-)
-config_app.command(name="show")(config_cmd.config_show_command)
-config_app.command(name="path")(config_cmd.config_path_command)
-config_app.command(name="init")(config_cmd.config_init_command)
-config_app.command(name="edit")(config_cmd.config_edit_command)
-app.add_typer(config_app, name="config")
-
-# Completion command group
-completion_app = typer.Typer(
-    name="completion",
-    help="Manage shell completion",
-    no_args_is_help=True,
-    context_settings={"help_option_names": ["-h", "--help"]},
-)
-completion_app.command(name="install")(completion_cmd.completion_install_command)
-completion_app.command(name="show")(completion_cmd.completion_show_command)
-completion_app.command(name="uninstall")(completion_cmd.completion_uninstall_command)
-app.add_typer(completion_app, name="completion")
 
 
 def main() -> int:

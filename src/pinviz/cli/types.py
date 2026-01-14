@@ -79,13 +79,3 @@ ForceOption = Annotated[
         help="Force operation (overwrite existing files)",
     ),
 ]
-
-# Shell completion options
-ShellOption = Annotated[
-    str | None,
-    typer.Option(
-        "--shell",
-        "-s",
-        help="Shell to use (bash, zsh, fish). Auto-detected if not specified.",
-    ),
-]

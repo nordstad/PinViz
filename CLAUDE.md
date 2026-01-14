@@ -43,15 +43,9 @@ pinviz list [--json]
 
 # Add new device interactively
 pinviz add-device
-
-# Configuration management
-pinviz config [show|path|init|edit]
-
-# Shell completion
-pinviz completion [install|show|uninstall]
 ```
 
-**Global options:** `--log-level`, `--log-format`, `--version`
+**Global options:** `--version`
 
 ## Architecture
 
@@ -179,7 +173,7 @@ Device definitions are JSON files in `src/pinviz/device_configs/` organized by c
 Built with **Typer** (type-hint CLI) and **Rich** (terminal output).
 
 **Structure:** `src/pinviz/cli/` - Modular commands in separate files
-**Features:** JSON output (`--json`), TOML config, shell completion, structured logging
+**Features:** JSON output (`--json`), structured logging
 **Testing:** Use `typer.testing.CliRunner` for command tests
 
 ## Important Implementation Notes

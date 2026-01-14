@@ -39,8 +39,6 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - 📦 **SVG Output**: Scalable, high-quality vector graphics
 - ✨ **Modern CLI**: Rich terminal output with progress indicators and colored messages
 - 🔧 **JSON Output**: Machine-readable output for CI/CD integration
-- ⚙️ **Configuration Management**: TOML config file support with precedence rules
-- 🚀 **Shell Completion**: Auto-complete for bash, zsh, and fish shells
 
 ## Installation
 
@@ -172,36 +170,11 @@ pinviz list
 pinviz list --json
 ```
 
-### Configuration Management
-
-```bash
-# Create config file (~/.config/pinviz/config.toml)
-pinviz config init
-
-# View current configuration
-pinviz config show
-
-# Edit config file
-pinviz config edit
-```
-
-### Shell Completion
-
-```bash
-# Install shell completion (bash, zsh, fish)
-pinviz completion install
-
-# Show completion script
-pinviz completion show
-```
-
 ### Global Options
 
 All commands support these global options:
 
 ```bash
---log-level [DEBUG|INFO|WARNING|ERROR]  # Set logging verbosity
---log-format [console|json]            # Log output format
 --version                              # Show version
 --help                                 # Show help
 ```

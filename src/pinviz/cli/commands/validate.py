@@ -5,7 +5,6 @@ import typer
 from ...config_loader import load_diagram
 from ...device_validator import validate_devices
 from ...validation import DiagramValidator, ValidationLevel
-from ..config import load_config
 from ..context import AppContext
 from ..decorators import handle_command_exception
 from ..output import (
@@ -37,7 +36,7 @@ def validate_command(
 
       pinviz validate diagram.yaml --strict
     """
-    ctx = AppContext(config=load_config())
+    ctx = AppContext()
     log = ctx.logger
 
     try:
@@ -121,7 +120,7 @@ def validate_devices_command(
 
       pinviz validate-devices --strict
     """
-    ctx = AppContext(config=load_config())
+    ctx = AppContext()
     log = ctx.logger
 
     log.info("device_validation_started", strict_mode=strict)
