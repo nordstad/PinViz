@@ -17,15 +17,14 @@
 
 PinViz makes it easy to create clear, professional wiring diagrams for your Raspberry Pi projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/quick_demo.gif" alt="PinViz Quick Demo" width="800">
-</p>
 
 ## Example Diagram
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750.svg" alt="BH1750 Light Sensor Wiring Diagram" width="600">
 </p>
+
+**[→ See more examples](https://nordstad.github.io/PinViz/guide/examples/)**
 
 ## Features
 
@@ -58,7 +57,13 @@ uv add pinviz
 pip install pinviz
 ```
 
+
+
 ## Quick Start
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/quick_demo.gif" alt="PinViz Quick Demo" width="800">
+</p>
 
 ### Try a Built-in Example
 
@@ -132,19 +137,15 @@ renderer = SVGRenderer()
 renderer.render(diagram, "output.svg")
 ```
 
-## CLI Commands
+## CLI Commands Examples
 
-PinViz provides a modern CLI with rich terminal output and machine-readable JSON support.
+PinViz provides a modern CLI
 
 ### Rendering Diagrams
 
 ```bash
 # Generate diagram from YAML config
 pinviz render examples/bh1750.yaml -o output.svg
-
-# With JSON output for CI/CD
-pinviz render examples/bh1750.yaml --json
-# Output: {"status": "success", "output_path": "output.svg", "validation": {...}}
 ```
 
 ### Validation
@@ -152,12 +153,6 @@ pinviz render examples/bh1750.yaml --json
 ```bash
 # Validate diagram configuration
 pinviz validate examples/bh1750.yaml
-
-# Strict mode (warnings as errors)
-pinviz validate examples/bh1750.yaml --strict
-
-# Machine-readable output
-pinviz validate examples/bh1750.yaml --json
 ```
 
 ### List Templates
@@ -165,18 +160,6 @@ pinviz validate examples/bh1750.yaml --json
 ```bash
 # List all boards, devices, and examples
 pinviz list
-
-# JSON output for programmatic use
-pinviz list --json
-```
-
-### Global Options
-
-All commands support these global options:
-
-```bash
---version                              # Show version
---help                                 # Show help
 ```
 
 ## MCP Server (AI-Powered)
