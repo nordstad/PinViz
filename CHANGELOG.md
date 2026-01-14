@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-01-14
+
 ### Removed
 - **BREAKING**: Removed config command group (`pinviz config show|path|init|edit`)
 - **BREAKING**: Removed shell completion command group (`pinviz completion install|show|uninstall`)
@@ -17,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simplified CLI to focus on core functionality (render, validate, example, list, add-device)
 - CLI output is now quiet by default, showing only essential messages
+
+### Documentation
+- Updated README with link to examples gallery
 
 ### Migration Guide
 - **Config files**: No longer needed or supported - the tool works without configuration
