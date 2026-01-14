@@ -292,28 +292,8 @@ This command is useful for:
 
 - `--help` - Show help message and exit
 - `--version` - Show version and exit
-- `--log-level LEVEL` - Set logging level (DEBUG, INFO, WARNING, ERROR; default: WARNING)
-- `--log-format FORMAT` - Set log format (`json` or `console`; default: console)
 
-### Logging Examples
-
-```bash
-# Enable INFO level logging to see validation details
-pinviz --log-level INFO render my-diagram.yaml
-
-# Debug logging for troubleshooting
-pinviz --log-level DEBUG validate my-diagram.yaml
-
-# JSON format for machine-readable logs
-pinviz --log-format json render my-diagram.yaml
-```
-
-PinViz uses [structlog](https://www.structlog.org/) for structured logging. Log messages include:
-
-- Event name and level
-- Contextual information (file paths, device names, pin numbers)
-- Timestamps
-- Call site information (file, function, line number)
+The CLI produces quiet output by default, showing only essential messages and errors.
 
 ## Exit Codes
 

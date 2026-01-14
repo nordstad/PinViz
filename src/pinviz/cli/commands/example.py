@@ -11,7 +11,6 @@ from ...devices import get_registry
 from ...model import Connection, Diagram
 from ...render_svg import SVGRenderer
 from ...validation import DiagramValidator, ValidationLevel
-from ..config import load_config
 from ..context import AppContext
 from ..decorators import handle_command_exception, progress_indicator
 from ..output import (
@@ -142,7 +141,7 @@ def example_command(
 
       pinviz example i2c_spi --show-legend
     """
-    ctx = AppContext(config=load_config())
+    ctx = AppContext()
     log = ctx.logger
 
     # Validate example name

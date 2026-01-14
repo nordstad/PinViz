@@ -5,7 +5,6 @@ import asyncio
 import typer
 
 from ...device_wizard import main as wizard_main
-from ..config import load_config
 from ..context import AppContext
 from ..output import print_error
 
@@ -22,7 +21,7 @@ def add_device_command() -> None:
 
       pinviz add-device
     """
-    ctx = AppContext(config=load_config())
+    ctx = AppContext()
     log = ctx.logger
 
     log.info("device_wizard_started")

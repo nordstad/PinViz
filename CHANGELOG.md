@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- **BREAKING**: Removed config command group (`pinviz config show|path|init|edit`)
+- **BREAKING**: Removed shell completion command group (`pinviz completion install|show|uninstall`)
+- **BREAKING**: Removed global options: `--log-level` and `--log-format`
+- **BREAKING**: Removed TOML configuration file support
+- **BREAKING**: Logging is now fixed to ERROR-only output (no verbose option)
+
+### Changed
+- Simplified CLI to focus on core functionality (render, validate, example, list, add-device)
+- CLI output is now quiet by default, showing only essential messages
+
+### Migration Guide
+- **Config files**: No longer needed or supported - the tool works without configuration
+- **Shell completions**: Typer provides built-in completion support if needed
+- **Logging**: If you need debug output, you'll need to modify the source code (rare use case)
+- No action needed for most users - the core commands work the same way
 
 
 ## [0.9.2] - 2026-01-13

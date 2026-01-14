@@ -17,15 +17,14 @@
 
 PinViz makes it easy to create clear, professional wiring diagrams for your Raspberry Pi projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/quick_demo.gif" alt="PinViz Quick Demo" width="800">
-</p>
 
 ## Example Diagram
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750.svg" alt="BH1750 Light Sensor Wiring Diagram" width="600">
 </p>
+
+**[→ See more examples](https://nordstad.github.io/PinViz/guide/examples/)**
 
 ## Features
 
@@ -39,8 +38,6 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - 📦 **SVG Output**: Scalable, high-quality vector graphics
 - ✨ **Modern CLI**: Rich terminal output with progress indicators and colored messages
 - 🔧 **JSON Output**: Machine-readable output for CI/CD integration
-- ⚙️ **Configuration Management**: TOML config file support with precedence rules
-- 🚀 **Shell Completion**: Auto-complete for bash, zsh, and fish shells
 
 ## Installation
 
@@ -60,7 +57,13 @@ uv add pinviz
 pip install pinviz
 ```
 
+
+
 ## Quick Start
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/quick_demo.gif" alt="PinViz Quick Demo" width="800">
+</p>
 
 ### Try a Built-in Example
 
@@ -134,19 +137,15 @@ renderer = SVGRenderer()
 renderer.render(diagram, "output.svg")
 ```
 
-## CLI Commands
+## CLI Commands Examples
 
-PinViz provides a modern CLI with rich terminal output and machine-readable JSON support.
+PinViz provides a modern CLI
 
 ### Rendering Diagrams
 
 ```bash
 # Generate diagram from YAML config
 pinviz render examples/bh1750.yaml -o output.svg
-
-# With JSON output for CI/CD
-pinviz render examples/bh1750.yaml --json
-# Output: {"status": "success", "output_path": "output.svg", "validation": {...}}
 ```
 
 ### Validation
@@ -154,12 +153,6 @@ pinviz render examples/bh1750.yaml --json
 ```bash
 # Validate diagram configuration
 pinviz validate examples/bh1750.yaml
-
-# Strict mode (warnings as errors)
-pinviz validate examples/bh1750.yaml --strict
-
-# Machine-readable output
-pinviz validate examples/bh1750.yaml --json
 ```
 
 ### List Templates
@@ -167,43 +160,6 @@ pinviz validate examples/bh1750.yaml --json
 ```bash
 # List all boards, devices, and examples
 pinviz list
-
-# JSON output for programmatic use
-pinviz list --json
-```
-
-### Configuration Management
-
-```bash
-# Create config file (~/.config/pinviz/config.toml)
-pinviz config init
-
-# View current configuration
-pinviz config show
-
-# Edit config file
-pinviz config edit
-```
-
-### Shell Completion
-
-```bash
-# Install shell completion (bash, zsh, fish)
-pinviz completion install
-
-# Show completion script
-pinviz completion show
-```
-
-### Global Options
-
-All commands support these global options:
-
-```bash
---log-level [DEBUG|INFO|WARNING|ERROR]  # Set logging verbosity
---log-format [console|json]            # Log output format
---version                              # Show version
---help                                 # Show help
 ```
 
 ## MCP Server (AI-Powered)
