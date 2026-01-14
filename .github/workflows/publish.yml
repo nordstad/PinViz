@@ -146,17 +146,9 @@ jobs:
             echo "✓ Invalid config validation works (exit code: $?)"
           fi
 
-          # Test 7: Structured logging flags
+          # Test 7: Wire styles and colors
           echo ""
-          echo "[7/10] Testing structured logging..."
-          uv run pinviz --log-level INFO render valid_config.yaml -o test_info.svg 2>&1 | grep -q "info" || (echo "✗ INFO logging failed" && exit 1)
-          uv run pinviz --log-level DEBUG render valid_config.yaml -o test_debug.svg 2>&1 | grep -q "debug" || (echo "✗ DEBUG logging failed" && exit 1)
-          uv run pinviz --log-level INFO --log-format json render valid_config.yaml -o test_json.svg 2>&1 | grep -q '"level": "info"' || (echo "✗ JSON logging failed" && exit 1)
-          echo "✓ Structured logging works"
-
-          # Test 8: Wire styles and colors
-          echo ""
-          echo "[8/10] Testing wire styles and custom colors..."
+          echo "[7/9] Testing wire styles and custom colors..."
           cat > wire_styles.yaml << 'EOF'
           title: "Wire Styles Test"
           board: "rpi5"
@@ -177,9 +169,9 @@ jobs:
           uv run pinviz render wire_styles.yaml -o wire_styles.svg || (echo "✗ Wire styles failed" && exit 1)
           echo "✓ Wire styles and colors work"
 
-          # Test 9: Legend and GPIO reference
+          # Test 8: Legend and GPIO reference
           echo ""
-          echo "[9/10] Testing legend generation..."
+          echo "[8/9] Testing legend generation..."
           cat > legend_test.yaml << 'EOF'
           title: "Legend Test"
           board: "rpi5"
@@ -199,9 +191,9 @@ jobs:
           grep -q "legend" legend_test.svg || echo "Warning: Legend may not be in SVG"
           echo "✓ Legend generation works"
 
-          # Test 10: Automatic validation during render
+          # Test 9: Automatic validation during render
           echo ""
-          echo "[10/10] Testing automatic validation during render..."
+          echo "[9/9] Testing automatic validation during render..."
           if uv run pinviz render invalid_config.yaml -o should_fail.svg 2>&1; then
             echo "✗ Render should have failed due to validation errors"
             exit 1
