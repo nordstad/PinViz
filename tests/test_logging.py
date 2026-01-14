@@ -90,11 +90,11 @@ class TestLoggingConfiguration:
         assert caplog.records[0].exc_info is not None
 
 
-class TestCLILoggingFlags:
-    """Test CLI logging flags."""
+class TestCLILoggingBehavior:
+    """Test CLI logging behavior (fixed to ERROR-only)."""
 
-    def test_default_log_level_warning(self, tmp_path):
-        """Test default log level is WARNING (minimal output)."""
+    def test_default_log_level_error(self, tmp_path):
+        """Test default log level is ERROR (quiet output)."""
         config_file = tmp_path / "test.yaml"
         config_file.write_text(
             """
@@ -121,172 +121,16 @@ connections:
 
         assert result.exit_code == 0
         assert output_file.exists()
-        # At WARNING level, should see minimal logs (Rich progress is transient)
+        # At ERROR level, should see minimal logs (Rich progress is transient)
         # Success message still present
         assert "Diagram generated" in result.stdout
-
-    def test_log_level_info_flag(self, tmp_path, caplog):
-        """Test --log-level INFO flag produces more output."""
-        config_file = tmp_path / "test.yaml"
-        config_file.write_text(
-            """
-title: Test
-board: raspberry_pi_5
-devices:
-  - type: led
-connections:
-  - board_pin: 11
-    device: Red LED
-    device_pin: +
-  - board_pin: 6
-    device: Red LED
-    device_pin: "-"
-"""
-        )
-
-        output_file = tmp_path / "test.svg"
-
-        with caplog.at_level(logging.INFO):
-            result = runner.invoke(
-                app,
-                [
-                    "--log-level",
-                    "INFO",
-                    "render",
-                    str(config_file),
-                    "-o",
-                    str(output_file),
-                ],
-            )
-
-        assert result.exit_code == 0
-        # Verify INFO level logs were emitted
-        info_events = [r.message for r in caplog.records if r.levelname == "INFO"]
-        assert len(info_events) > 0
-
-    def test_log_level_debug_flag(self, tmp_path, caplog):
-        """Test --log-level DEBUG flag produces detailed output."""
-        config_file = tmp_path / "test.yaml"
-        config_file.write_text(
-            """
-title: Test
-board: raspberry_pi_5
-devices:
-  - type: led
-connections:
-  - board_pin: 11
-    device: Red LED
-    device_pin: +
-  - board_pin: 6
-    device: Red LED
-    device_pin: "-"
-"""
-        )
-
-        output_file = tmp_path / "test.svg"
-
-        with caplog.at_level(logging.DEBUG):
-            result = runner.invoke(
-                app,
-                [
-                    "--log-level",
-                    "DEBUG",
-                    "render",
-                    str(config_file),
-                    "-o",
-                    str(output_file),
-                ],
-            )
-
-        assert result.exit_code == 0
-        # Verify DEBUG level logs were emitted
-        debug_events = [r.message for r in caplog.records if r.levelname == "DEBUG"]
-        assert len(debug_events) > 0
-
-    def test_log_format_json_flag(self, tmp_path):
-        """Test --log-format json flag is accepted."""
-        config_file = tmp_path / "test.yaml"
-        config_file.write_text(
-            """
-title: Test
-board: raspberry_pi_5
-devices:
-  - type: led
-connections:
-  - board_pin: 11
-    device: Red LED
-    device_pin: +
-  - board_pin: 6
-    device: Red LED
-    device_pin: "-"
-"""
-        )
-
-        output_file = tmp_path / "test.svg"
-
-        result = runner.invoke(
-            app,
-            [
-                "--log-level",
-                "INFO",
-                "--log-format",
-                "json",
-                "render",
-                str(config_file),
-                "-o",
-                str(output_file),
-            ],
-        )
-
-        # Command should succeed with json format
-        assert result.exit_code == 0
-        assert output_file.exists()
-
-    def test_log_format_console_flag(self, tmp_path):
-        """Test --log-format console flag is accepted."""
-        config_file = tmp_path / "test.yaml"
-        config_file.write_text(
-            """
-title: Test
-board: raspberry_pi_5
-devices:
-  - type: led
-connections:
-  - board_pin: 11
-    device: Red LED
-    device_pin: +
-  - board_pin: 6
-    device: Red LED
-    device_pin: "-"
-"""
-        )
-
-        output_file = tmp_path / "test.svg"
-
-        result = runner.invoke(
-            app,
-            [
-                "--log-level",
-                "INFO",
-                "--log-format",
-                "console",
-                "render",
-                str(config_file),
-                "-o",
-                str(output_file),
-            ],
-        )
-
-        # Command should succeed with console format
-        assert result.exit_code == 0
-        assert output_file.exists()
 
 
 class TestLogMessageEmission:
     """Test that key events emit expected log messages."""
 
-    def test_render_command_logs_events(self, tmp_path, caplog):
-        """Test render command emits structured logs."""
+    def test_render_command_succeeds(self, tmp_path):
+        """Test render command succeeds with quiet output."""
         config_file = tmp_path / "test.yaml"
         config_file.write_text(
             """
@@ -306,25 +150,21 @@ connections:
 
         output_file = tmp_path / "test.svg"
 
-        with caplog.at_level(logging.INFO):
-            result = runner.invoke(
-                app,
-                [
-                    "--log-level",
-                    "INFO",
-                    "render",
-                    str(config_file),
-                    "-o",
-                    str(output_file),
-                ],
-            )
+        result = runner.invoke(
+            app,
+            [
+                "render",
+                str(config_file),
+                "-o",
+                str(output_file),
+            ],
+        )
 
         assert result.exit_code == 0
-        # Verify that INFO level logs were emitted during rendering
-        assert len([r for r in caplog.records if r.levelname == "INFO"]) > 0
+        assert output_file.exists()
 
-    def test_validation_command_logs_events(self, tmp_path, caplog):
-        """Test validate command emits structured logs."""
+    def test_validation_command_succeeds(self, tmp_path):
+        """Test validate command succeeds with quiet output."""
         config_file = tmp_path / "test.yaml"
         config_file.write_text(
             """
@@ -342,43 +182,33 @@ connections:
 """
         )
 
-        with caplog.at_level(logging.INFO):
-            result = runner.invoke(
-                app,
-                [
-                    "--log-level",
-                    "INFO",
-                    "validate",
-                    str(config_file),
-                ],
-            )
+        result = runner.invoke(
+            app,
+            [
+                "validate",
+                str(config_file),
+            ],
+        )
 
         assert result.exit_code == 0
-        # Verify validation logging occurred
-        assert len([r for r in caplog.records if r.levelname == "INFO"]) > 0
 
-    def test_error_logging_includes_context(self, tmp_path, caplog):
-        """Test error logs include relevant context."""
+    def test_error_command_fails(self, tmp_path):
+        """Test command with non-existent file fails."""
         # Non-existent file
         config_file = tmp_path / "nonexistent.yaml"
 
-        with caplog.at_level(logging.ERROR):
-            result = runner.invoke(
-                app,
-                [
-                    "--log-level",
-                    "ERROR",
-                    "render",
-                    str(config_file),
-                    "-o",
-                    "/tmp/out.svg",
-                ],
-            )
+        result = runner.invoke(
+            app,
+            [
+                "render",
+                str(config_file),
+                "-o",
+                "/tmp/out.svg",
+            ],
+        )
 
         # Typer validates file existence before calling the command
         assert result.exit_code != 0
-        # Note: Typer's file validation happens before command execution
-        # so structured logging may not capture this error
 
 
 class TestLoggingIntegration:
@@ -414,10 +244,6 @@ connections:
         result = runner.invoke(
             app,
             [
-                "--log-level",
-                "DEBUG",
-                "--log-format",
-                "json",
                 "render",
                 str(config_file),
                 "-o",
@@ -434,8 +260,8 @@ connections:
         assert "BH1750" in svg_content
         assert "Integration Test" in svg_content
 
-    def test_logging_with_validation_errors(self, tmp_path, caplog):
-        """Test logging captures validation errors."""
+    def test_validation_errors_are_caught(self, tmp_path, caplog):
+        """Test validation errors are properly handled."""
         config_file = tmp_path / "bad_config.yaml"
         config_file.write_text(
             """
@@ -462,8 +288,6 @@ connections:
             result = runner.invoke(
                 app,
                 [
-                    "--log-level",
-                    "INFO",
                     "render",
                     str(config_file),
                     "-o",
@@ -477,27 +301,22 @@ connections:
         error_records = [r for r in caplog.records if r.levelname == "ERROR"]
         assert len(error_records) > 0
 
-    def test_example_command_with_logging(self, tmp_path, caplog):
-        """Test example command works with logging enabled."""
+    def test_example_command_works(self, tmp_path):
+        """Test example command works with quiet logging."""
         output_file = tmp_path / "example.svg"
 
-        with caplog.at_level(logging.DEBUG):
-            result = runner.invoke(
-                app,
-                [
-                    "--log-level",
-                    "DEBUG",
-                    "example",
-                    "bh1750",
-                    "-o",
-                    str(output_file),
-                ],
-            )
+        result = runner.invoke(
+            app,
+            [
+                "example",
+                "bh1750",
+                "-o",
+                str(output_file),
+            ],
+        )
 
         assert result.exit_code == 0
         assert output_file.exists()
-        # Should have logging from example generation
-        assert len(caplog.records) > 0
 
 
 class TestLoggerInstances:
