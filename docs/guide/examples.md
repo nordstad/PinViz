@@ -576,22 +576,6 @@ All example files (YAML and Python) are available in the repository:
 - **Python Examples**: Same directory with `_python.py` suffix
 - **Generated Diagrams**: [`images/`](https://github.com/nordstad/PinViz/tree/main/images) directory
 
-### Available Examples
-
-**Raspberry Pi 5/4:**
-- `bh1750.yaml` / `bh1750_python.py` - I2C light sensor
-- `led_with_resistor.yaml` / `led_with_resistor_python.py` - LED with inline resistor
-- `traffic_light.yaml` - Three LEDs with resistors
-- `bh1750_ir_led.yaml` / `bh1750_ir_led_python.py` - Multi-device setup
-- `ir_led_ring.yaml` / `ir_led_ring_python.py` - IR LED ring module
-- `multi_device.yaml` / `multi_device_python.py` - Multiple I2C devices
-- `ds18b20_temp.yaml` / `ds18b20_temp_python.py` - 1-Wire temperature sensor
-
-**Raspberry Pi Pico:**
-- `pico_led.yaml` - Simple LED circuit with resistor
-- `pico_bme280.yaml` - I2C sensor using I2C0 bus
-- `pico_leds_with_specs.yaml` - Three LEDs with specifications table
-
 ---
 
 ## Contributing Examples
