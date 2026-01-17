@@ -404,24 +404,36 @@ class Component:
 @dataclass
 class Connection:
     """
-    A wire connection between a board pin and a device pin.
+    A wire connection between a board pin and a device pin, or between two devices.
 
-    Represents a physical wire connecting a specific GPIO header pin to
-    a specific pin on a device. Wire color is automatically assigned based
-    on pin role unless explicitly specified.
+    Represents a physical wire connecting either:
+    1. A GPIO header pin to a device pin (board-to-device connection)
+    2. A pin on one device to a pin on another device (device-to-device connection)
+
+    Wire color is automatically assigned based on pin role unless explicitly specified.
 
     Attributes:
-        board_pin: Physical pin number on the GPIO header (1-40)
+        board_pin: Physical pin number on the GPIO header (1-40). Required for board connections.
         device_name: Name of the target device (must match Device.name)
         device_pin_name: Name of the target pin on the device
+        source_device: Name of the source device for device-to-device connections
+        source_pin: Name of the source pin for device-to-device connections
         color: Wire color as hex code (auto-assigned from pin role if None)
         net_name: Optional logical net name for documentation (e.g., "I2C_BUS")
         style: Wire routing style (orthogonal, curved, or mixed)
         components: List of inline components on this wire (resistors, capacitors, etc.)
 
     Examples:
-        >>> # Simple connection with auto-assigned color
-        >>> conn = Connection(1, "Sensor", "VCC")
+        >>> # Board-to-device connection with auto-assigned color
+        >>> conn = Connection(board_pin=1, device_name="Sensor", device_pin_name="VCC")
+        >>>
+        >>> # Device-to-device connection
+        >>> conn = Connection(
+        ...     source_device="TP4056",
+        ...     source_pin="OUT+",
+        ...     device_name="ESP32",
+        ...     device_pin_name="VIN"
+        ... )
         >>>
         >>> # Connection with custom color and resistor
         >>> conn = Connection(
@@ -433,13 +445,161 @@ class Connection:
         ... )
     """
 
-    board_pin: int  # Physical pin number on the board
-    device_name: str  # Name of the device
-    device_pin_name: str  # Name of the pin on the device
+    # Maintain backward compatibility: board_pin stays as first positional arg
+    board_pin: int | None = None  # Physical pin number on the board (for board connections)
+    device_name: str | None = None  # Name of the target device
+    device_pin_name: str | None = None  # Name of the pin on the target device
+
+    # New fields for device-to-device connections
+    source_device: str | None = None  # Name of the source device
+    source_pin: str | None = None  # Name of the pin on the source device
+
+    # Connection properties
     color: str | None = None  # Wire color (auto-assigned if None)
     net_name: str | None = None  # Optional net name for grouping
     style: WireStyle = WireStyle.MIXED  # Wire routing style
     components: list[Component] = field(default_factory=list)  # Inline components
+
+    def __post_init__(self) -> None:
+        """Validate that exactly one source type is specified."""
+        # Validate target device fields are always present
+        if self.device_name is None:
+            raise ValueError("device_name is required for all connections.")
+        if self.device_pin_name is None:
+            raise ValueError("device_pin_name is required for all connections.")
+
+        # Validate source: exactly one source type must be specified
+        has_board_source = self.board_pin is not None
+        has_device_source = self.source_device is not None and self.source_pin is not None
+
+        if has_board_source and has_device_source:
+            raise ValueError(
+                "Cannot specify both board_pin and source_device/source_pin. "
+                "A connection must have exactly one source."
+            )
+
+        if not has_board_source and not has_device_source:
+            raise ValueError(
+                "Must specify either board_pin or both source_device and source_pin. "
+                "A connection must have exactly one source."
+            )
+
+    def is_board_connection(self) -> bool:
+        """
+        Check if this is a board-to-device connection.
+
+        Returns:
+            True if the connection source is a board pin, False otherwise.
+        """
+        return self.board_pin is not None
+
+    def is_device_connection(self) -> bool:
+        """
+        Check if this is a device-to-device connection.
+
+        Returns:
+            True if the connection source is another device, False otherwise.
+        """
+        return self.source_device is not None
+
+    def get_source(self) -> tuple[str, str]:
+        """
+        Get the source of this connection as a (name, pin) tuple.
+
+        Returns:
+            For board connections: ("board", str(board_pin))
+            For device connections: (source_device, source_pin)
+
+        Raises:
+            ValueError: If the connection has invalid state (should not happen after __post_init__).
+        """
+        if self.is_board_connection():
+            return ("board", str(self.board_pin))
+        elif self.is_device_connection():
+            return (self.source_device, self.source_pin)  # type: ignore
+        else:
+            raise ValueError("Connection has invalid state: no source specified")
+
+    @classmethod
+    def from_board(
+        cls,
+        board_pin: int,
+        device_name: str,
+        device_pin_name: str,
+        color: str | None = None,
+        net_name: str | None = None,
+        style: WireStyle = WireStyle.MIXED,
+        components: list[Component] | None = None,
+    ) -> Connection:
+        """
+        Create a board-to-device connection.
+
+        Args:
+            board_pin: Physical pin number on the GPIO header (1-40)
+            device_name: Name of the target device
+            device_pin_name: Name of the target pin on the device
+            color: Optional wire color as hex code
+            net_name: Optional logical net name for documentation
+            style: Wire routing style (default: MIXED)
+            components: Optional list of inline components
+
+        Returns:
+            A new Connection instance for a board-to-device connection.
+
+        Examples:
+            >>> conn = Connection.from_board(1, "Sensor", "VCC", color="#FF0000")
+        """
+        return cls(
+            board_pin=board_pin,
+            device_name=device_name,
+            device_pin_name=device_pin_name,
+            color=color,
+            net_name=net_name,
+            style=style,
+            components=components or [],
+        )
+
+    @classmethod
+    def from_device(
+        cls,
+        source_device: str,
+        source_pin: str,
+        target_device: str,
+        target_pin: str,
+        color: str | None = None,
+        net_name: str | None = None,
+        style: WireStyle = WireStyle.MIXED,
+        components: list[Component] | None = None,
+    ) -> Connection:
+        """
+        Create a device-to-device connection.
+
+        Args:
+            source_device: Name of the source device
+            source_pin: Name of the source pin
+            target_device: Name of the target device
+            target_pin: Name of the target pin
+            color: Optional wire color as hex code
+            net_name: Optional logical net name for documentation
+            style: Wire routing style (default: MIXED)
+            components: Optional list of inline components
+
+        Returns:
+            A new Connection instance for a device-to-device connection.
+
+        Examples:
+            >>> conn = Connection.from_device("TP4056", "OUT+", "ESP32", "VIN")
+        """
+        return cls(
+            source_device=source_device,
+            source_pin=source_pin,
+            device_name=target_device,
+            device_pin_name=target_pin,
+            color=color,
+            net_name=net_name,
+            style=style,
+            components=components or [],
+        )
 
 
 @dataclass
