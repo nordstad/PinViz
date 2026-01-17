@@ -148,6 +148,14 @@ class RenderOutputJson(BaseModel):
     errors: list[str] | None = None
 
 
+class GraphSummary(BaseModel):
+    """Connection graph statistics."""
+
+    devices: int
+    connections: int
+    levels: int
+
+
 class ValidateOutputJson(BaseModel):
     """JSON output for validate command."""
 
@@ -155,6 +163,7 @@ class ValidateOutputJson(BaseModel):
     validation: ValidationSummary
     issues: list[ValidationIssueJson] | None = None
     errors: list[str] | None = None
+    graph: GraphSummary | None = None
 
 
 class DeviceInfo(BaseModel):
