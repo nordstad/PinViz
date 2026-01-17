@@ -21,7 +21,7 @@ Examples:
     My Diagram
 """
 
-from typing import Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import (
     BaseModel,
@@ -31,6 +31,9 @@ from pydantic import (
     field_validator,
     model_validator,
 )
+
+if TYPE_CHECKING:
+    from .model import Connection
 
 # Valid board names and aliases
 VALID_BOARD_NAMES = {
@@ -275,22 +278,148 @@ class ComponentSchema(BaseModel):
         return type_lower
 
 
-class ConnectionSchema(BaseModel):
-    """Schema for wire connection.
+class ConnectionSourceSchema(BaseModel):
+    """Schema for connection source (board or device).
+
+    A connection source is either:
+    - A board pin (specified by board_pin number)
+    - A device pin (specified by device name and device_pin name)
+
+    Exactly one source type must be specified.
 
     Attributes:
         board_pin: Physical pin number on board (1-40 for Raspberry Pi)
+        device: Device name for device source
+        device_pin: Pin name on device for device source
+
+    Examples:
+        >>> # Board source
+        >>> source = ConnectionSourceSchema(board_pin=1)
+        >>>
+        >>> # Device source
+        >>> source = ConnectionSourceSchema(device="Regulator", device_pin="VOUT")
+    """
+
+    board_pin: Annotated[int, Field(ge=1, le=40, description="Board pin number")] | None = None
+    device: (
+        Annotated[str, Field(min_length=1, max_length=100, description="Device name")] | None
+    ) = None
+    device_pin: (
+        Annotated[str, Field(min_length=1, max_length=50, description="Device pin name")] | None
+    ) = None
+
+    model_config = ConfigDict(extra="forbid")
+
+    @model_validator(mode="after")
+    def validate_source(self) -> "ConnectionSourceSchema":
+        """Ensure exactly one source type is specified."""
+        has_board = self.board_pin is not None
+        has_device = self.device is not None and self.device_pin is not None
+
+        if has_board and has_device:
+            raise ValueError(
+                "Connection source cannot specify both board_pin and device source. "
+                "Use either 'board_pin' or 'device' + 'device_pin'."
+            )
+
+        if not has_board and not has_device:
+            raise ValueError(
+                "Connection source must specify either 'board_pin' or 'device' + 'device_pin'."
+            )
+
+        # If device is specified, device_pin must also be specified
+        if self.device is not None and self.device_pin is None:
+            raise ValueError("Connection source with 'device' must also specify 'device_pin'.")
+
+        if self.device_pin is not None and self.device is None:
+            raise ValueError("Connection source with 'device_pin' must also specify 'device'.")
+
+        return self
+
+
+class ConnectionTargetSchema(BaseModel):
+    """Schema for connection target (always a device).
+
+    Attributes:
         device: Device name
         device_pin: Pin name on device
+
+    Examples:
+        >>> target = ConnectionTargetSchema(device="LED", device_pin="VCC")
+    """
+
+    device: Annotated[str, Field(min_length=1, max_length=100, description="Device name")]
+    device_pin: Annotated[str, Field(min_length=1, max_length=50, description="Device pin name")]
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class ConnectionSchema(BaseModel):
+    """Schema for wire connection.
+
+    Supports both legacy and new connection formats:
+
+    Legacy format (board-to-device):
+        board_pin: 1
+        device: "LED"
+        device_pin: "VCC"
+
+    New format (unified):
+        from:
+          board_pin: 1
+        to:
+          device: "LED"
+          device_pin: "VCC"
+
+    New format (device-to-device):
+        from:
+          device: "Regulator"
+          device_pin: "VOUT"
+        to:
+          device: "LED"
+          device_pin: "VCC"
+
+    Attributes:
+        from_: Connection source (new format)
+        to: Connection target (new format)
+        board_pin: Physical pin number on board (legacy format)
+        device: Device name (legacy format)
+        device_pin: Pin name on device (legacy format)
         color: Optional wire color as hex code
         net: Optional logical net name
         style: Wire routing style
         components: Optional inline components
+
+    Examples:
+        >>> # Legacy format
+        >>> conn = ConnectionSchema(board_pin=1, device="LED", device_pin="VCC")
+        >>>
+        >>> # New format (board source)
+        >>> conn = ConnectionSchema(
+        ...     **{"from": {"board_pin": 1}, "to": {"device": "LED", "device_pin": "VCC"}}
+        ... )
+        >>>
+        >>> # New format (device source)
+        >>> conn = ConnectionSchema(
+        ...     **{"from": {"device": "Reg", "device_pin": "OUT"},
+        ...        "to": {"device": "LED", "device_pin": "VCC"}}
+        ... )
     """
 
-    board_pin: Annotated[int, Field(ge=1, le=40, description="Board pin number (1-40)")]
-    device: Annotated[str, Field(min_length=1, max_length=100, description="Device name")]
-    device_pin: Annotated[str, Field(min_length=1, max_length=50, description="Device pin name")]
+    # New format fields
+    from_: ConnectionSourceSchema | None = Field(None, alias="from")
+    to: ConnectionTargetSchema | None = None
+
+    # Legacy format fields (backward compatibility)
+    board_pin: Annotated[int, Field(ge=1, le=40, description="Board pin number")] | None = None
+    device: (
+        Annotated[str, Field(min_length=1, max_length=100, description="Device name")] | None
+    ) = None
+    device_pin: (
+        Annotated[str, Field(min_length=1, max_length=50, description="Device pin name")] | None
+    ) = None
+
+    # Common fields
     color: (
         Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$", description="Hex color code")] | None
     ) = None
@@ -298,7 +427,7 @@ class ConnectionSchema(BaseModel):
     style: Annotated[str, Field(description="Wire routing style")] = "mixed"
     components: list[ComponentSchema] = Field(default_factory=list)
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     @field_validator("style")
     @classmethod
@@ -310,6 +439,100 @@ class ConnectionSchema(BaseModel):
                 f"Invalid wire style '{v}'. Must be one of: {', '.join(sorted(VALID_WIRE_STYLES))}"
             )
         return style_lower
+
+    @model_validator(mode="after")
+    def validate_format(self) -> "ConnectionSchema":
+        """Ensure exactly one format is used (new or legacy)."""
+        has_new_format = self.from_ is not None and self.to is not None
+        has_legacy_format = (
+            self.board_pin is not None and self.device is not None and self.device_pin is not None
+        )
+
+        if has_new_format and has_legacy_format:
+            raise ValueError(
+                "Cannot mix 'from/to' format with legacy 'board_pin/device/device_pin' format. "
+                "Use one format only."
+            )
+
+        if not has_new_format and not has_legacy_format:
+            raise ValueError(
+                "Connection must use either 'from/to' format or "
+                "legacy 'board_pin/device/device_pin' format."
+            )
+
+        return self
+
+    def to_connection(self) -> "Connection":
+        """Convert schema to Connection model object.
+
+        Returns:
+            Connection model instance
+
+        Examples:
+            >>> schema = ConnectionSchema(board_pin=1, device="LED", device_pin="VCC")
+            >>> conn = schema.to_connection()
+            >>> conn.is_board_connection()
+            True
+        """
+        from .model import Connection, WireStyle
+
+        # Determine wire style enum
+        if self.style == "orthogonal":
+            wire_style = WireStyle.ORTHOGONAL
+        elif self.style == "curved":
+            wire_style = WireStyle.CURVED
+        else:  # mixed
+            wire_style = WireStyle.MIXED
+
+        # Convert components if present
+        components_list = []
+        if self.components:
+            from .model import Component, ComponentType
+
+            for comp_schema in self.components:
+                comp_type = ComponentType(comp_schema.type)
+                components_list.append(
+                    Component(
+                        type=comp_type, value=comp_schema.value, position=comp_schema.position
+                    )
+                )
+
+        if self.from_ and self.to:
+            # New format
+            if self.from_.board_pin:
+                # Board source
+                return Connection(
+                    board_pin=self.from_.board_pin,
+                    device_name=self.to.device,
+                    device_pin_name=self.to.device_pin,
+                    color=self.color,
+                    net_name=self.net,
+                    style=wire_style,
+                    components=components_list,
+                )
+            else:
+                # Device source
+                return Connection(
+                    source_device=self.from_.device,
+                    source_pin=self.from_.device_pin,
+                    device_name=self.to.device,
+                    device_pin_name=self.to.device_pin,
+                    color=self.color,
+                    net_name=self.net,
+                    style=wire_style,
+                    components=components_list,
+                )
+        else:
+            # Legacy format
+            return Connection(
+                board_pin=self.board_pin,
+                device_name=self.device,
+                device_pin_name=self.device_pin,
+                color=self.color,
+                net_name=self.net,
+                style=wire_style,
+                components=components_list,
+            )
 
 
 class DiagramConfigSchema(BaseModel):
