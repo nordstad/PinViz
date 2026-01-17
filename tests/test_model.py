@@ -1,5 +1,7 @@
 """Tests for the core data model."""
 
+import pytest
+
 from pinviz.model import (
     Component,
     ComponentType,
@@ -245,6 +247,94 @@ def test_connection_with_net_name():
     """Test Connection with net name."""
     conn = Connection(board_pin=1, device_name="Device1", device_pin_name="VCC", net_name="VCC_3V3")
     assert conn.net_name == "VCC_3V3"
+
+
+def test_board_connection_creation():
+    """Test creating board-to-device connection."""
+    conn = Connection(board_pin=1, device_name="LED", device_pin_name="VCC")
+    assert conn.is_board_connection()
+    assert not conn.is_device_connection()
+    assert conn.board_pin == 1
+    assert conn.device_name == "LED"
+    assert conn.device_pin_name == "VCC"
+
+
+def test_device_connection_creation():
+    """Test creating device-to-device connection."""
+    conn = Connection(
+        source_device="Reg",
+        source_pin="OUT",
+        device_name="LED",
+        device_pin_name="VCC",
+    )
+    assert conn.is_device_connection()
+    assert not conn.is_board_connection()
+    assert conn.source_device == "Reg"
+    assert conn.source_pin == "OUT"
+
+
+def test_invalid_connection_both_sources():
+    """Test that specifying both sources raises error."""
+    with pytest.raises(ValueError, match="Cannot specify both"):
+        Connection(
+            board_pin=1,
+            source_device="Reg",
+            source_pin="OUT",
+            device_name="LED",
+            device_pin_name="VCC",
+        )
+
+
+def test_invalid_connection_no_source():
+    """Test that missing source raises error."""
+    with pytest.raises(ValueError, match="Must specify either"):
+        Connection(device_name="LED", device_pin_name="VCC")
+
+
+def test_invalid_connection_partial_device_source():
+    """Test that only specifying source_device without source_pin raises error."""
+    with pytest.raises(ValueError, match="Must specify either"):
+        Connection(source_device="Reg", device_name="LED", device_pin_name="VCC")
+
+
+def test_invalid_connection_partial_device_source_pin_only():
+    """Test that only specifying source_pin without source_device raises error."""
+    with pytest.raises(ValueError, match="Must specify either"):
+        Connection(source_pin="OUT", device_name="LED", device_pin_name="VCC")
+
+
+def test_factory_method_from_board():
+    """Test from_board factory method."""
+    conn = Connection.from_board(1, "LED", "VCC", color="#FF0000")
+    assert conn.is_board_connection()
+    assert conn.board_pin == 1
+    assert conn.device_name == "LED"
+    assert conn.color == "#FF0000"
+
+
+def test_factory_method_from_device():
+    """Test from_device factory method."""
+    conn = Connection.from_device("A", "OUT", "B", "IN", color="#00FF00")
+    assert conn.is_device_connection()
+    assert conn.source_device == "A"
+    assert conn.source_pin == "OUT"
+    assert conn.device_name == "B"
+    assert conn.device_pin_name == "IN"
+    assert conn.color == "#00FF00"
+
+
+def test_get_source_board_connection():
+    """Test get_source for board connection."""
+    conn = Connection.from_board(1, "LED", "VCC")
+    source = conn.get_source()
+    assert source == ("board", "1")
+
+
+def test_get_source_device_connection():
+    """Test get_source for device connection."""
+    conn = Connection.from_device("A", "OUT", "B", "IN")
+    source = conn.get_source()
+    assert source == ("A", "OUT")
 
 
 def test_diagram_creation(sample_diagram):
