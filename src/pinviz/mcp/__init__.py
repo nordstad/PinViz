@@ -1,3 +1,9 @@
 """PinViz MCP Server - Natural language to GPIO wiring diagrams."""
 
-__version__ = "0.1.0"
+# Get version from package metadata
+try:
+    from importlib.metadata import version
+
+    __version__ = version("pinviz")
+except Exception:
+    __version__ = "unknown"
