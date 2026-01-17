@@ -3,6 +3,7 @@
 import math
 from dataclasses import dataclass
 
+from .connection_graph import ConnectionGraph
 from .model import Connection, Device, Diagram, Point, WireStyle
 
 
@@ -34,6 +35,7 @@ class LayoutConfig:
         gpio_diagram_width: Width of GPIO reference diagram (default: 125.0)
         gpio_diagram_margin: Margin around GPIO reference diagram (default: 40.0)
         specs_table_top_margin: Margin above specs table from bottom element (default: 30.0)
+        tier_spacing: Horizontal spacing between device tiers (default: 200.0)
     """
 
     board_margin_left: float = 40.0
@@ -55,6 +57,7 @@ class LayoutConfig:
     gpio_diagram_width: float = 125.0  # Width of GPIO pin diagram
     gpio_diagram_margin: float = 40.0  # Margin around GPIO diagram
     specs_table_top_margin: float = 30.0  # Margin above specs table
+    tier_spacing: float = 200.0  # Horizontal spacing between device tiers
 
     def get_board_margin_top(self, show_title: bool) -> float:
         """Calculate actual board top margin based on whether title is shown."""
@@ -212,8 +215,8 @@ class LayoutEngine:
         # Calculate actual board margin based on whether title is shown
         self._board_margin_top = self.config.get_board_margin_top(diagram.show_title)
 
-        # Position devices vertically on the right side
-        self._position_devices(diagram.devices)
+        # Position devices across multiple tiers based on connection depth
+        self._position_devices_by_level(diagram)
 
         # Route all wires
         routed_wires = self._route_wires(diagram)
@@ -223,28 +226,86 @@ class LayoutEngine:
 
         return canvas_width, canvas_height, routed_wires
 
-    def _position_devices(self, devices: list[Device]) -> None:
+    def _calculate_device_levels(self, diagram: Diagram) -> dict[str, int]:
         """
-        Position devices vertically in the device area.
+        Calculate level for each device using connection graph.
 
-        Stacks devices vertically on the right side of the board, starting at
-        device_area_left. Devices are positioned top-to-bottom with consistent
-        spacing between them.
+        Returns:
+            Dictionary mapping device names to their hierarchical levels.
+        """
+        graph = ConnectionGraph(diagram.devices, diagram.connections)
+        return graph.calculate_device_levels()
+
+    def _calculate_tier_positions(
+        self, device_levels: dict[str, int], devices: list[Device]
+    ) -> dict[int, float]:
+        """
+        Calculate X position for each device tier.
 
         Args:
-            devices: List of devices to position (positions are modified in-place)
+            device_levels: Mapping of device names to their hierarchical levels
+            devices: List of all devices in the diagram
+
+        Returns:
+            Mapping from level number to X coordinate.
+        """
+        tier_positions = {}
+        current_x = self.config.device_area_left
+
+        max_level = max(device_levels.values()) if device_levels else 0
+
+        for level in range(max_level + 1):
+            # Get devices at this level
+            devices_at_level = [d for d in devices if device_levels.get(d.name, -1) == level]
+
+            # Store tier X position
+            tier_positions[level] = current_x
+
+            # Calculate max device width at this level
+            if devices_at_level:
+                max_width = max(d.width for d in devices_at_level)
+                current_x += max_width + self.config.tier_spacing
+            else:
+                # Empty level, skip but add minimal spacing
+                current_x += self.config.tier_spacing
+
+        return tier_positions
+
+    def _position_devices_by_level(self, diagram: Diagram) -> None:
+        """
+        Position devices across horizontal tiers based on connection depth.
+
+        Devices are positioned in tiers (columns) based on their hierarchical level
+        in the connection graph. Within each tier, devices are stacked vertically.
+
+        Args:
+            diagram: The diagram containing devices and connections
 
         Note:
             This method mutates the position attribute of each device.
         """
-        y_offset = self.config.device_margin_top
+        # Calculate device levels from connection graph
+        device_levels = self._calculate_device_levels(diagram)
 
-        for device in devices:
-            device.position = Point(
-                self.config.device_area_left,
-                y_offset,
-            )
-            y_offset += device.height + self.config.device_spacing_vertical
+        # Calculate X position for each tier
+        tier_positions = self._calculate_tier_positions(device_levels, diagram.devices)
+
+        # Group devices by level
+        devices_by_level: dict[int, list[Device]] = {}
+        for device in diagram.devices:
+            level = device_levels.get(device.name, 0)
+            if level not in devices_by_level:
+                devices_by_level[level] = []
+            devices_by_level[level].append(device)
+
+        # Position devices within each tier
+        for level, devices_at_level in devices_by_level.items():
+            tier_x = tier_positions[level]
+            current_y = self.config.device_margin_top
+
+            for device in devices_at_level:
+                device.position = Point(tier_x, current_y)
+                current_y += device.height + self.config.device_spacing_vertical
 
     def _collect_wire_data(self, diagram: Diagram) -> list[WireData]:
         """
@@ -805,7 +866,7 @@ class LayoutEngine:
 
         Determines the minimum canvas dimensions needed to display the board,
         all devices, all wire paths, and optional legend/GPIO diagram without
-        clipping or overlap.
+        clipping or overlap. Accounts for multi-tier device layouts.
 
         Args:
             diagram: The diagram containing board, devices, and configuration
@@ -817,11 +878,11 @@ class LayoutEngine:
         Note:
             Adds extra margin for the legend and GPIO reference diagram if enabled.
         """
-        # Find the rightmost and bottommost elements
+        # Start with board dimensions
         max_x = self.config.board_margin_left + diagram.board.width
         max_y = self._board_margin_top + diagram.board.height
 
-        # Check devices
+        # Find rightmost device across all tiers
         for device in diagram.devices:
             device_right = device.position.x + device.width
             device_bottom = device.position.y + device.height

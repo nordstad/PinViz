@@ -67,35 +67,58 @@ def test_layout_engine_with_custom_config():
     assert engine.config.board_margin_left == 100.0
 
 
-def test_position_devices_vertically(sample_device):
-    """Test that devices are positioned vertically."""
+def test_position_devices_vertically(sample_board, sample_device):
+    """Test that devices are positioned correctly in single tier."""
     engine = LayoutEngine()
-    devices = [sample_device]
 
-    engine._position_devices(devices)
+    # Create a diagram with one device connected to board
+    connections = [Connection(1, "Test Device", "VCC")]
+    diagram = Diagram(
+        title="Test",
+        board=sample_board,
+        devices=[sample_device],
+        connections=connections,
+    )
 
-    assert devices[0].position is not None
-    assert devices[0].position.x == engine.config.device_area_left
-    assert devices[0].position.y == engine.config.device_margin_top
+    engine._position_devices_by_level(diagram)
+
+    assert sample_device.position is not None
+    assert sample_device.position.x == engine.config.device_area_left
+    assert sample_device.position.y == engine.config.device_margin_top
 
 
-def test_position_multiple_devices(sample_device, bh1750_device):
-    """Test positioning multiple devices with spacing."""
+def test_position_multiple_devices(sample_board, sample_device, bh1750_device):
+    """Test positioning multiple devices with spacing in same tier."""
     engine = LayoutEngine()
-    devices = [sample_device, bh1750_device]
 
-    engine._position_devices(devices)
+    # Create diagram with two devices both connected to board (same tier)
+    connections = [
+        Connection(1, "Test Device", "VCC"),
+        Connection(2, "BH1750 Light Sensor", "VCC"),
+    ]
+    diagram = Diagram(
+        title="Test",
+        board=sample_board,
+        devices=[sample_device, bh1750_device],
+        connections=connections,
+    )
 
-    # First device
-    assert devices[0].position.x == engine.config.device_area_left
-    assert devices[0].position.y == engine.config.device_margin_top
+    engine._position_devices_by_level(diagram)
+
+    # Both devices should be at same X (same tier)
+    assert sample_device.position.x == engine.config.device_area_left
+    assert bh1750_device.position.x == engine.config.device_area_left
+
+    # First device at top
+    assert sample_device.position.y == engine.config.device_margin_top
 
     # Second device should be below first with spacing
     expected_y = (
-        engine.config.device_margin_top + devices[0].height + engine.config.device_spacing_vertical
+        engine.config.device_margin_top
+        + sample_device.height
+        + engine.config.device_spacing_vertical
     )
-    assert devices[1].position.x == engine.config.device_area_left
-    assert devices[1].position.y == expected_y
+    assert bh1750_device.position.y == expected_y
 
 
 def test_layout_diagram_returns_dimensions_and_wires(sample_diagram):
@@ -295,3 +318,199 @@ def test_custom_device_area_position(sample_diagram):
 
     for device in sample_diagram.devices:
         assert device.position.x == config.device_area_left
+
+
+# Multi-tier layout tests
+def test_single_tier_layout(sample_board):
+    """Test single-tier layout where all devices are connected to board."""
+    from pinviz.model import Device, DevicePin, PinRole, Point
+
+    # Create three simple devices with custom names
+    device_a = Device(
+        name="Device A",
+        pins=[DevicePin("VCC", PinRole.POWER_3V3, Point(0, 0))],
+        width=60,
+        height=40,
+        color="#4A90E2",
+    )
+    device_b = Device(
+        name="Device B",
+        pins=[DevicePin("+", PinRole.POWER_3V3, Point(0, 0))],
+        width=60,
+        height=40,
+        color="#E24A4A",
+    )
+    device_c = Device(
+        name="Device C",
+        pins=[DevicePin("OUT", PinRole.GPIO, Point(0, 0))],
+        width=60,
+        height=40,
+        color="#4AE24A",
+    )
+
+    # All connections are board-to-device (no device-to-device)
+    connections = [
+        Connection(1, "Device A", "VCC"),
+        Connection(2, "Device B", "+"),
+        Connection(3, "Device C", "OUT"),
+    ]
+
+    diagram = Diagram(
+        title="Single Tier Test",
+        board=sample_board,
+        devices=[device_a, device_b, device_c],
+        connections=connections,
+    )
+
+    engine = LayoutEngine()
+    engine.layout_diagram(diagram)
+
+    # All devices should be at same X position (same tier/level 0)
+    x_positions = [device.position.x for device in diagram.devices]
+    assert len(set(x_positions)) == 1, "All devices should be in the same tier"
+
+
+def test_multi_tier_layout_linear_chain(sample_board):
+    """Test multi-tier layout with linear chain: Board → A → B → C."""
+    from pinviz.model import Device, DevicePin, PinRole, Point
+
+    # Create three devices in a linear chain
+    device_a = Device(
+        name="Device A",
+        pins=[
+            DevicePin("VCC", PinRole.POWER_3V3, Point(0, 0)),
+            DevicePin("OUT", PinRole.GPIO, Point(0, 10)),
+        ],
+        width=60,
+        height=40,
+        color="#4A90E2",
+    )
+    device_b = Device(
+        name="Device B",
+        pins=[
+            DevicePin("IN", PinRole.GPIO, Point(0, 0)),
+            DevicePin("OUT", PinRole.GPIO, Point(0, 10)),
+        ],
+        width=60,
+        height=40,
+        color="#E24A4A",
+    )
+    device_c = Device(
+        name="Device C",
+        pins=[DevicePin("IN", PinRole.GPIO, Point(0, 0))],
+        width=60,
+        height=40,
+        color="#4AE24A",
+    )
+
+    # Linear chain: Board → A → B → C
+    connections = [
+        # Board to A
+        Connection(board_pin=1, device_name="Device A", device_pin_name="VCC"),
+        # A to B (device-to-device)
+        Connection(
+            source_device="Device A",
+            source_pin="OUT",
+            device_name="Device B",
+            device_pin_name="IN",
+        ),
+        # B to C (device-to-device)
+        Connection(
+            source_device="Device B",
+            source_pin="OUT",
+            device_name="Device C",
+            device_pin_name="IN",
+        ),
+    ]
+
+    diagram = Diagram(
+        title="Linear Chain Test",
+        board=sample_board,
+        devices=[device_a, device_b, device_c],
+        connections=connections,
+    )
+
+    engine = LayoutEngine()
+    engine.layout_diagram(diagram)
+
+    # Devices should be at increasing X positions (different tiers)
+    pos_a = device_a.position.x
+    pos_b = device_b.position.x
+    pos_c = device_c.position.x
+
+    assert pos_a < pos_b < pos_c, "Devices should be positioned in increasing tiers"
+
+
+def test_branching_layout(sample_board):
+    """Test branching layout: Board → A → [B, C] (B and C at same level)."""
+    from pinviz.model import Device, DevicePin, PinRole, Point
+
+    # Create three devices where A branches to B and C
+    device_a = Device(
+        name="Device A",
+        pins=[
+            DevicePin("VCC", PinRole.POWER_3V3, Point(0, 0)),
+            DevicePin("OUT1", PinRole.GPIO, Point(0, 10)),
+            DevicePin("OUT2", PinRole.GPIO, Point(0, 20)),
+        ],
+        width=60,
+        height=40,
+        color="#4A90E2",
+    )
+    device_b = Device(
+        name="Device B",
+        pins=[DevicePin("IN", PinRole.GPIO, Point(0, 0))],
+        width=60,
+        height=40,
+        color="#E24A4A",
+    )
+    device_c = Device(
+        name="Device C",
+        pins=[DevicePin("IN", PinRole.GPIO, Point(0, 0))],
+        width=60,
+        height=40,
+        color="#4AE24A",
+    )
+
+    # Branching: Board → A, then A → B and A → C
+    connections = [
+        # Board to A
+        Connection(board_pin=1, device_name="Device A", device_pin_name="VCC"),
+        # A to B
+        Connection(
+            source_device="Device A",
+            source_pin="OUT1",
+            device_name="Device B",
+            device_pin_name="IN",
+        ),
+        # A to C
+        Connection(
+            source_device="Device A",
+            source_pin="OUT2",
+            device_name="Device C",
+            device_pin_name="IN",
+        ),
+    ]
+
+    diagram = Diagram(
+        title="Branching Test",
+        board=sample_board,
+        devices=[device_a, device_b, device_c],
+        connections=connections,
+    )
+
+    engine = LayoutEngine()
+    engine.layout_diagram(diagram)
+
+    pos_a = device_a.position
+    pos_b = device_b.position
+    pos_c = device_c.position
+
+    # B and C should be at same X (same tier/level)
+    assert pos_b.x == pos_c.x, "B and C should be at the same tier"
+
+    # B and C should be at different Y (stacked vertically)
+    assert pos_b.y != pos_c.y, "B and C should be stacked vertically"
+
+    # A should be at a smaller X (earlier tier)
+    assert pos_a.x < pos_b.x, "A should be at an earlier tier than B and C"
