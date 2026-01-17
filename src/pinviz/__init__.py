@@ -1,4 +1,7 @@
-"""PinViz - Generate Raspberry Pi GPIO connection diagrams."""
+"""PinViz - Generate Raspberry Pi GPIO connection diagrams.
+
+This is a test change to demonstrate Codecov PR comments.
+"""
 
 from . import boards, devices
 from .config_loader import load_diagram
