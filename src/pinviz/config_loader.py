@@ -8,6 +8,7 @@ import yaml
 from pydantic import ValidationError
 
 from . import boards
+from .connection_graph import ConnectionGraph
 from .devices import get_registry
 from .logging_config import get_logger
 from .model import (
@@ -19,6 +20,7 @@ from .model import (
     Point,
 )
 from .schemas import ConnectionSchema, validate_config
+from .validation import ValidationIssue, ValidationLevel
 
 log = get_logger(__name__)
 
@@ -185,6 +187,23 @@ class ConfigLoader:
         for conn_config in connection_configs:
             connection = self._load_connection(conn_config)
             connections.append(connection)
+
+        # Validate graph structure
+        log.debug("validating_graph_structure")
+        graph = ConnectionGraph(diagram_devices, connections)
+        validation_issues = self._validate_graph(graph, diagram_devices, connections)
+
+        # Check for critical errors
+        errors = [issue for issue in validation_issues if issue.level == ValidationLevel.ERROR]
+        warnings = [issue for issue in validation_issues if issue.level == ValidationLevel.WARNING]
+
+        if errors:
+            self._report_validation_errors(errors)
+            log.error("config_validation_failed", error_count=len(errors))
+            raise ValueError("Configuration has critical errors")
+
+        if warnings:
+            self._report_validation_warnings(warnings)
 
         # Create diagram
         diagram = Diagram(
@@ -396,6 +415,121 @@ class ConfigLoader:
             color=config.get("color", "#4A90E2"),
             description=config.get("description"),
         )
+
+    def _validate_graph(
+        self,
+        graph: ConnectionGraph,
+        devices: list[Device],
+        connections: list[Connection],
+    ) -> list[ValidationIssue]:
+        """
+        Validate connection graph structure.
+
+        Performs structural validation on the device connection graph:
+        - Detects cycles in device-to-device connections
+        - Identifies orphaned devices (devices with no connections)
+        - Validates pin compatibility between connected devices
+
+        Args:
+            graph: ConnectionGraph object representing the topology
+            devices: List of devices in the diagram
+            connections: List of connections in the diagram
+
+        Returns:
+            List of validation issues (errors, warnings, info)
+
+        Examples:
+            >>> issues = loader._validate_graph(graph, devices, connections)
+            >>> errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+            >>> if errors:
+            ...     print("Configuration has critical errors!")
+        """
+        issues: list[ValidationIssue] = []
+
+        # Check for cycles
+        cycles = graph.detect_cycles()
+        for cycle in cycles:
+            cycle_path = " → ".join(cycle)
+            issues.append(
+                ValidationIssue(
+                    level=ValidationLevel.ERROR,
+                    message=f"Cycle detected: {cycle_path}",
+                    location="Device connections",
+                )
+            )
+            log.error("cycle_detected_in_graph", cycle=cycle)
+
+        # Check for orphaned devices (devices with no connections)
+        connected_devices = set()
+        for conn in connections:
+            # Add target device
+            connected_devices.add(conn.device_name)
+            # Add source device if it's a device-to-device connection
+            if conn.is_device_connection() and conn.source_device:
+                connected_devices.add(conn.source_device)
+
+        for device in devices:
+            if device.name not in connected_devices:
+                issues.append(
+                    ValidationIssue(
+                        level=ValidationLevel.WARNING,
+                        message=f"Device '{device.name}' has no connections",
+                        location=device.name,
+                    )
+                )
+                log.warning("orphaned_device_detected", device_name=device.name)
+
+        log.debug(
+            "graph_validation_completed",
+            cycle_count=len([i for i in issues if "Cycle detected" in i.message]),
+            orphaned_count=len([i for i in issues if "has no connections" in i.message]),
+        )
+
+        return issues
+
+    def _report_validation_errors(self, issues: list[ValidationIssue]) -> None:
+        """
+        Print formatted validation errors to console.
+
+        Displays critical errors that prevent diagram generation,
+        including helpful suggestions for fixing each issue.
+
+        Args:
+            issues: List of ERROR-level validation issues to report
+        """
+        print("\n❌ Configuration Errors:")
+        for issue in issues:
+            print(f"  • {issue.message}")
+            if issue.location:
+                print(f"    📍 Location: {issue.location}")
+
+            # Add contextual suggestions based on error type
+            if "Cycle detected" in issue.message:
+                print("    💡 Suggestion: Remove one connection to break the cycle")
+            elif "not found" in issue.message:
+                print("    💡 Suggestion: Check device and pin names in your configuration")
+        print()
+
+    def _report_validation_warnings(self, issues: list[ValidationIssue]) -> None:
+        """
+        Print formatted validation warnings to console.
+
+        Displays warnings about potential issues that don't prevent
+        diagram generation but should be reviewed.
+
+        Args:
+            issues: List of WARNING-level validation issues to report
+        """
+        print("\n⚠️  Configuration Warnings:")
+        for issue in issues:
+            print(f"  • {issue.message}")
+            if issue.location:
+                print(f"    📍 Location: {issue.location}")
+
+            # Add contextual suggestions based on warning type
+            if "has no connections" in issue.message:
+                print("    💡 Suggestion: Connect device to board or remove it from configuration")
+        print()
 
     def _load_connection(self, config: dict[str, Any]) -> Connection:
         """

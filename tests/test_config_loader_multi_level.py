@@ -298,3 +298,233 @@ class TestConfigLoaderDeviceToDevice:
             assert conn.source_device == "Regulator"
             assert conn.source_pin == "VOUT"
             assert conn.device_name in ["Sensor", "LED"]
+
+
+class TestConfigLoaderGraphValidation:
+    """Test ConfigLoader graph validation (Phase 2.3)."""
+
+    def test_load_multi_level_config(self):
+        """Test loading multi-level config with device-to-device connections."""
+        config = {
+            "title": "Multi-Level Test",
+            "board": "raspberry_pi_5",
+            "devices": [
+                {
+                    "name": "Regulator",
+                    "pins": [
+                        {"name": "VIN", "role": "5V"},
+                        {"name": "VOUT", "role": "3V3"},
+                    ],
+                },
+                {"type": "led", "name": "LED"},
+            ],
+            "connections": [
+                # Board to Regulator
+                {"from": {"board_pin": 2}, "to": {"device": "Regulator", "device_pin": "VIN"}},
+                # Regulator to LED (device-to-device)
+                {
+                    "from": {"device": "Regulator", "device_pin": "VOUT"},
+                    "to": {"device": "LED", "device_pin": "VCC"},
+                },
+            ],
+        }
+
+        loader = ConfigLoader()
+        diagram = loader.load_from_dict(config)
+
+        assert len(diagram.connections) == 2
+        assert any(c.is_device_connection() for c in diagram.connections)
+
+    def test_detect_cycle_in_config(self):
+        """Test that cycle detection prevents loading cyclic configurations."""
+        config = {
+            "title": "Cyclic Configuration",
+            "board": "raspberry_pi_5",
+            "devices": [
+                {
+                    "name": "A",
+                    "pins": [
+                        {"name": "IN", "role": "GPIO"},
+                        {"name": "OUT", "role": "GPIO"},
+                    ],
+                },
+                {
+                    "name": "B",
+                    "pins": [
+                        {"name": "IN", "role": "GPIO"},
+                        {"name": "OUT", "role": "GPIO"},
+                    ],
+                },
+            ],
+            "connections": [
+                # A -> B
+                {
+                    "from": {"device": "A", "device_pin": "OUT"},
+                    "to": {"device": "B", "device_pin": "IN"},
+                },
+                # B -> A (creates cycle)
+                {
+                    "from": {"device": "B", "device_pin": "OUT"},
+                    "to": {"device": "A", "device_pin": "IN"},
+                },
+            ],
+        }
+
+        loader = ConfigLoader()
+        with pytest.raises(ValueError, match="Cycle detected|Configuration has critical errors"):
+            loader.load_from_dict(config)
+
+    def test_orphaned_device_warning(self, capsys):
+        """Test that orphaned devices generate warnings but don't block loading."""
+        config = {
+            "title": "Orphaned Device Test",
+            "board": "raspberry_pi_5",
+            "devices": [
+                {"type": "led", "name": "LED1"},
+                {"type": "led", "name": "LED2"},  # Orphaned (no connections)
+            ],
+            "connections": [
+                {"board_pin": 1, "device": "LED1", "device_pin": "VCC"},
+            ],
+        }
+
+        loader = ConfigLoader()
+        diagram = loader.load_from_dict(config)
+
+        # Should load successfully
+        assert len(diagram.devices) == 2
+        assert len(diagram.connections) == 1
+
+        # Should print warning
+        captured = capsys.readouterr()
+        assert "has no connections" in captured.out
+        assert "LED2" in captured.out
+
+    def test_complex_multi_level_hierarchy(self):
+        """Test complex multi-level hierarchy with multiple levels."""
+        config = {
+            "title": "Complex Hierarchy",
+            "board": "raspberry_pi_5",
+            "devices": [
+                {
+                    "name": "Regulator",
+                    "pins": [
+                        {"name": "VIN", "role": "5V"},
+                        {"name": "VOUT", "role": "3V3"},
+                    ],
+                },
+                {
+                    "name": "LevelShifter",
+                    "pins": [
+                        {"name": "VIN", "role": "3V3"},
+                        {"name": "VOUT", "role": "5V"},
+                    ],
+                },
+                {"type": "led", "name": "LED"},
+            ],
+            "connections": [
+                # Board -> Regulator (level 0)
+                {"from": {"board_pin": 2}, "to": {"device": "Regulator", "device_pin": "VIN"}},
+                # Regulator -> LevelShifter (level 1)
+                {
+                    "from": {"device": "Regulator", "device_pin": "VOUT"},
+                    "to": {"device": "LevelShifter", "device_pin": "VIN"},
+                },
+                # LevelShifter -> LED (level 2)
+                {
+                    "from": {"device": "LevelShifter", "device_pin": "VOUT"},
+                    "to": {"device": "LED", "device_pin": "VCC"},
+                },
+            ],
+        }
+
+        loader = ConfigLoader()
+        diagram = loader.load_from_dict(config)
+
+        assert len(diagram.connections) == 3
+
+        # Count device-to-device connections (should be 2)
+        device_connections = [c for c in diagram.connections if c.is_device_connection()]
+        assert len(device_connections) == 2
+
+    def test_self_loop_detection(self):
+        """Test that self-loops (device connected to itself) are detected."""
+        config = {
+            "title": "Self-Loop Test",
+            "board": "raspberry_pi_5",
+            "devices": [
+                {
+                    "name": "Device",
+                    "pins": [
+                        {"name": "IN", "role": "GPIO"},
+                        {"name": "OUT", "role": "GPIO"},
+                    ],
+                },
+            ],
+            "connections": [
+                # Board to device
+                {"board_pin": 1, "device": "Device", "device_pin": "IN"},
+                # Device to itself (self-loop)
+                {
+                    "from": {"device": "Device", "device_pin": "OUT"},
+                    "to": {"device": "Device", "device_pin": "IN"},
+                },
+            ],
+        }
+
+        loader = ConfigLoader()
+        with pytest.raises(ValueError, match="Cycle detected|Configuration has critical errors"):
+            loader.load_from_dict(config)
+
+    def test_three_way_cycle_detection(self):
+        """Test detection of cycle with three devices: A->B->C->A."""
+        config = {
+            "title": "Three-Way Cycle",
+            "board": "raspberry_pi_5",
+            "devices": [
+                {
+                    "name": "A",
+                    "pins": [
+                        {"name": "IN", "role": "GPIO"},
+                        {"name": "OUT", "role": "GPIO"},
+                    ],
+                },
+                {
+                    "name": "B",
+                    "pins": [
+                        {"name": "IN", "role": "GPIO"},
+                        {"name": "OUT", "role": "GPIO"},
+                    ],
+                },
+                {
+                    "name": "C",
+                    "pins": [
+                        {"name": "IN", "role": "GPIO"},
+                        {"name": "OUT", "role": "GPIO"},
+                    ],
+                },
+            ],
+            "connections": [
+                # Board -> A (make graph reachable)
+                {"board_pin": 1, "device": "A", "device_pin": "IN"},
+                # A -> B
+                {
+                    "from": {"device": "A", "device_pin": "OUT"},
+                    "to": {"device": "B", "device_pin": "IN"},
+                },
+                # B -> C
+                {
+                    "from": {"device": "B", "device_pin": "OUT"},
+                    "to": {"device": "C", "device_pin": "IN"},
+                },
+                # C -> A (creates cycle)
+                {
+                    "from": {"device": "C", "device_pin": "OUT"},
+                    "to": {"device": "A", "device_pin": "IN"},
+                },
+            ],
+        }
+
+        loader = ConfigLoader()
+        with pytest.raises(ValueError, match="Cycle detected|Configuration has critical errors"):
+            loader.load_from_dict(config)
