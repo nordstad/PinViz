@@ -431,8 +431,9 @@ class ConfigLoader:
             pins_list.append({"name": pin_name, "role": role, "position": position})
 
         # Calculate dynamic height based on max number of pins on either side
+        # Height = top margin + (n-1) spacing between pins + bottom margin
         max_pins_per_side = max(len(left_pins), len(right_pins), 1)
-        calculated_height = PIN_MARGIN_TOP + (max_pins_per_side * PIN_SPACING) + PIN_MARGIN_BOTTOM
+        calculated_height = PIN_MARGIN_TOP + ((max_pins_per_side - 1) * PIN_SPACING) + PIN_MARGIN_BOTTOM
 
         # Get final dimensions
         width = config.get("width", DEFAULT_WIDTH)

@@ -195,8 +195,10 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
         )
 
     # Auto-calculate height based on max pins per side if not specified
+    # Height = start_y + (n-1) spacing between pins + bottom margin
     max_pins_per_side = max(len(left_pins), len(right_pins), 1)
-    default_height = max(40.0, start_y + (max_pins_per_side * pin_spacing) + 10)
+    bottom_margin = 10.0
+    default_height = max(40.0, start_y + ((max_pins_per_side - 1) * pin_spacing) + bottom_margin)
     height = display.get("height", default_height)
 
     # Use category-based color defaults if not specified
