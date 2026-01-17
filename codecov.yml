@@ -1,0 +1,31 @@
+# Codecov configuration
+# See: https://docs.codecov.com/docs/codecov-yaml
+
+coverage:
+  status:
+    # Require project coverage to not decrease
+    project:
+      default:
+        target: auto
+        threshold: 1%  # Allow 1% decrease without failing
+        informational: true  # Don't fail CI, just inform
+
+    # Track coverage changes in the PR
+    patch:
+      default:
+        target: auto
+        threshold: 1%
+        informational: true
+
+comment:
+  # Post PR comments with coverage changes
+  layout: "header, diff, flags, components, footer"
+  behavior: default  # Update existing comment
+  require_changes: false  # Always comment, even if no coverage change
+
+  # Show which files changed coverage
+  after_n_builds: 1  # Comment after first build completes
+
+github_checks:
+  # Add GitHub status checks showing coverage
+  annotations: true
