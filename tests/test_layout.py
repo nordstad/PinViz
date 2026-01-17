@@ -701,3 +701,72 @@ def test_rectangles_overlap_helper(sample_board):
     rect7 = (0, 0, 100, 100)
     rect8 = (100, 0, 200, 100)
     assert engine._rectangles_overlap(rect7, rect8) is False
+
+
+def test_canvas_sizing_multi_tier(sample_board):
+    """Test canvas sizing for multi-tier layouts."""
+    from pinviz.model import Device, DevicePin, PinRole, Point
+
+    # Create three devices in a chain for three levels
+    device_a = Device(
+        name="Device A",
+        pins=[
+            DevicePin("VCC", PinRole.POWER_3V3, Point(0, 0)),
+            DevicePin("OUT", PinRole.GPIO, Point(0, 10)),
+        ],
+        width=80,
+        height=50,
+        color="#4A90E2",
+    )
+    device_b = Device(
+        name="Device B",
+        pins=[
+            DevicePin("IN", PinRole.GPIO, Point(0, 0)),
+            DevicePin("OUT", PinRole.GPIO, Point(0, 10)),
+        ],
+        width=80,
+        height=50,
+        color="#E24A4A",
+    )
+    device_c = Device(
+        name="Device C",
+        pins=[DevicePin("IN", PinRole.GPIO, Point(0, 0))],
+        width=80,
+        height=50,
+        color="#4AE24A",
+    )
+
+    # Create a three-level chain: Board → A → B → C
+    connections = [
+        Connection(board_pin=1, device_name="Device A", device_pin_name="VCC"),
+        Connection(
+            source_device="Device A",
+            source_pin="OUT",
+            device_name="Device B",
+            device_pin_name="IN",
+        ),
+        Connection(
+            source_device="Device B",
+            source_pin="OUT",
+            device_name="Device C",
+            device_pin_name="IN",
+        ),
+    ]
+
+    diagram = Diagram(
+        title="Multi-Tier Test",
+        board=sample_board,
+        devices=[device_a, device_b, device_c],
+        connections=connections,
+    )
+
+    engine = LayoutEngine()
+    canvas_width, canvas_height, _ = engine.layout_diagram(diagram)
+
+    # Multiple tiers should result in a wide canvas
+    # With 3 devices at different levels and tier_spacing=200, expect at least:
+    # board_margin_left (40) + board_width (~250) + device_area_left offset + 2 * tier_spacing (400)
+    assert canvas_width >= 800, (
+        f"Canvas width {canvas_width} should be >= 800 for multi-tier layout"
+    )
+    assert canvas_height >= 300, f"Canvas height {canvas_height} should be >= 300"
