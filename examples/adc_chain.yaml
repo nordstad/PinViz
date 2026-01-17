@@ -1,0 +1,60 @@
+# Analog Sensor → MCP3008 ADC → Raspberry Pi
+title: "Analog Sensor with MCP3008 ADC"
+board: "raspberry_pi_5"
+devices:
+  - name: "Potentiometer"
+    pins:
+      - name: "WIPER"
+        role: "GPIO"
+      - name: "VCC"
+        role: "3V3"
+      - name: "GND"
+        role: "GND"
+  - name: "MCP3008"
+    pins:
+      - name: "CH0"
+        role: "GPIO"
+      - name: "VDD"
+        role: "3V3"
+      - name: "DGND"
+        role: "GND"
+      - name: "CLK"
+        role: "SPI_SCLK"
+      - name: "DOUT"
+        role: "SPI_MISO"
+      - name: "DIN"
+        role: "SPI_MOSI"
+      - name: "CS"
+        role: "SPI_CE0"
+      - name: "AGND"
+        role: "GND"
+      - name: "VREF"
+        role: "3V3"
+connections:
+  # Power to ADC
+  - from: {board_pin: 1}
+    to: {device: "MCP3008", device_pin: "VDD"}
+  - from: {board_pin: 1}
+    to: {device: "MCP3008", device_pin: "VREF"}
+  - from: {board_pin: 6}
+    to: {device: "MCP3008", device_pin: "DGND"}
+  - from: {board_pin: 6}
+    to: {device: "MCP3008", device_pin: "AGND"}
+  # Power to potentiometer
+  - from: {board_pin: 1}
+    to: {device: "Potentiometer", device_pin: "VCC"}
+  - from: {board_pin: 6}
+    to: {device: "Potentiometer", device_pin: "GND"}
+  # Sensor to ADC
+  - from: {device: "Potentiometer", device_pin: "WIPER"}
+    to: {device: "MCP3008", device_pin: "CH0"}
+  # SPI connections
+  - from: {board_pin: 23}
+    to: {device: "MCP3008", device_pin: "CLK"}
+  - from: {board_pin: 21}
+    to: {device: "MCP3008", device_pin: "DOUT"}
+  - from: {board_pin: 19}
+    to: {device: "MCP3008", device_pin: "DIN"}
+  - from: {board_pin: 24}
+    to: {device: "MCP3008", device_pin: "CS"}
+show_legend: true

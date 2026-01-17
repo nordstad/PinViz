@@ -1,0 +1,45 @@
+# Raspberry Pi → L293D Motor Driver → DC Motor
+title: "DC Motor Control with L293D"
+board: "raspberry_pi_5"
+devices:
+  - name: "L293D Driver"
+    pins:
+      - name: "VCC1"
+        role: "5V"
+      - name: "VCC2"
+        role: "5V"
+      - name: "GND"
+        role: "GND"
+      - name: "IN1"
+        role: "GPIO"
+      - name: "IN2"
+        role: "GPIO"
+      - name: "OUT1"
+        role: "GPIO"
+      - name: "OUT2"
+        role: "GPIO"
+  - name: "DC Motor"
+    pins:
+      - name: "MOTOR+"
+        role: "GPIO"
+      - name: "MOTOR-"
+        role: "GPIO"
+connections:
+  # Power to driver
+  - from: {board_pin: 2}
+    to: {device: "L293D Driver", device_pin: "VCC1"}
+  - from: {board_pin: 4}
+    to: {device: "L293D Driver", device_pin: "VCC2"}
+  - from: {board_pin: 6}
+    to: {device: "L293D Driver", device_pin: "GND"}
+  # Control signals
+  - from: {board_pin: 11}
+    to: {device: "L293D Driver", device_pin: "IN1"}
+  - from: {board_pin: 13}
+    to: {device: "L293D Driver", device_pin: "IN2"}
+  # Driver to motor
+  - from: {device: "L293D Driver", device_pin: "OUT1"}
+    to: {device: "DC Motor", device_pin: "MOTOR+"}
+  - from: {device: "L293D Driver", device_pin: "OUT2"}
+    to: {device: "DC Motor", device_pin: "MOTOR-"}
+show_legend: true

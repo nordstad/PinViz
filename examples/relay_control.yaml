@@ -1,0 +1,34 @@
+# Pi → Relay Module → High Voltage Device (represented as load)
+title: "Relay Control for High Voltage Device"
+board: "raspberry_pi_5"
+devices:
+  - name: "5V Relay Module"
+    pins:
+      - name: "VCC"
+        role: "5V"
+      - name: "GND"
+        role: "GND"
+      - name: "IN"
+        role: "GPIO"
+      - name: "COM"
+        role: "GPIO"
+      - name: "NO"
+        role: "GPIO"
+  - name: "Load"
+    pins:
+      - name: "POWER"
+        role: "GPIO"
+      - name: "GND"
+        role: "GND"
+connections:
+  # Power and control to relay
+  - from: {board_pin: 2}
+    to: {device: "5V Relay Module", device_pin: "VCC"}
+  - from: {board_pin: 6}
+    to: {device: "5V Relay Module", device_pin: "GND"}
+  - from: {board_pin: 11}
+    to: {device: "5V Relay Module", device_pin: "IN"}
+  # Relay to load (simplified)
+  - from: {device: "5V Relay Module", device_pin: "NO"}
+    to: {device: "Load", device_pin: "POWER"}
+show_legend: true
