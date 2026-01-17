@@ -1,10 +1,13 @@
 """Layout engine for positioning components and routing wires."""
 
+import logging
 import math
 from dataclasses import dataclass
 
 from .connection_graph import ConnectionGraph
 from .model import Connection, Device, Diagram, Point, WireStyle
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -36,6 +39,10 @@ class LayoutConfig:
         gpio_diagram_margin: Margin around GPIO reference diagram (default: 40.0)
         specs_table_top_margin: Margin above specs table from bottom element (default: 30.0)
         tier_spacing: Horizontal spacing between device tiers (default: 200.0)
+        min_canvas_width: Minimum canvas width (default: 400.0)
+        min_canvas_height: Minimum canvas height (default: 300.0)
+        max_canvas_width: Maximum canvas width (default: 5000.0)
+        max_canvas_height: Maximum canvas height (default: 3000.0)
     """
 
     board_margin_left: float = 40.0
@@ -58,6 +65,10 @@ class LayoutConfig:
     gpio_diagram_margin: float = 40.0  # Margin around GPIO diagram
     specs_table_top_margin: float = 30.0  # Margin above specs table
     tier_spacing: float = 200.0  # Horizontal spacing between device tiers
+    min_canvas_width: float = 400.0  # Minimum canvas width
+    min_canvas_height: float = 300.0  # Minimum canvas height
+    max_canvas_width: float = 5000.0  # Maximum canvas width
+    max_canvas_height: float = 3000.0  # Maximum canvas height
 
     def get_board_margin_top(self, show_title: bool) -> float:
         """Calculate actual board top margin based on whether title is shown."""
@@ -223,6 +234,11 @@ class LayoutEngine:
 
         # Calculate canvas size
         canvas_width, canvas_height = self._calculate_canvas_size(diagram, routed_wires)
+
+        # Validate layout and log warnings
+        validation_issues = self.validate_layout(diagram, canvas_width, canvas_height)
+        for issue in validation_issues:
+            logger.warning(f"Layout validation: {issue}")
 
         return canvas_width, canvas_height, routed_wires
 
@@ -922,7 +938,103 @@ class LayoutEngine:
                 # Ensure canvas is tall enough for the table
                 canvas_height = max(canvas_height, table_bottom + self.config.canvas_padding)
 
+        # Apply min/max bounds
+        original_width = canvas_width
+        original_height = canvas_height
+
+        canvas_width = max(
+            self.config.min_canvas_width, min(canvas_width, self.config.max_canvas_width)
+        )
+        canvas_height = max(
+            self.config.min_canvas_height, min(canvas_height, self.config.max_canvas_height)
+        )
+
+        # Log warnings if clamped
+        if (
+            canvas_width == self.config.max_canvas_width
+            and original_width > self.config.max_canvas_width
+        ):
+            logger.warning(
+                f"Canvas width clamped to {canvas_width}px (requested: {original_width:.0f}px). "
+                "Diagram may be too wide. Consider reducing device count or tier spacing."
+            )
+
+        if (
+            canvas_height == self.config.max_canvas_height
+            and original_height > self.config.max_canvas_height
+        ):
+            logger.warning(
+                f"Canvas height clamped to {canvas_height}px (requested: {original_height:.0f}px). "
+                "Diagram may be too tall. Consider reducing device count or vertical spacing."
+            )
+
         return canvas_width, canvas_height
+
+    def _rectangles_overlap(
+        self, rect1: tuple[float, float, float, float], rect2: tuple[float, float, float, float]
+    ) -> bool:
+        """
+        Check if two rectangles overlap.
+
+        Args:
+            rect1: Rectangle as (x1, y1, x2, y2) where x2 > x1 and y2 > y1
+            rect2: Rectangle as (x1, y1, x2, y2) where x2 > x1 and y2 > y1
+
+        Returns:
+            True if rectangles overlap, False otherwise
+        """
+        x1_min, y1_min, x1_max, y1_max = rect1
+        x2_min, y2_min, x2_max, y2_max = rect2
+
+        # Rectangles overlap if they're not completely separated
+        return not (x1_max <= x2_min or x2_max <= x1_min or y1_max <= y2_min or y2_max <= y1_min)
+
+    def validate_layout(
+        self, diagram: Diagram, canvas_width: float, canvas_height: float
+    ) -> list[str]:
+        """
+        Validate calculated layout for issues.
+
+        Checks for:
+        - Device overlaps
+        - Devices positioned at negative coordinates
+        - Devices extending beyond canvas bounds
+
+        Args:
+            diagram: The diagram with positioned devices
+            canvas_width: Canvas width
+            canvas_height: Canvas height
+
+        Returns:
+            List of validation warnings/errors (empty if no issues)
+        """
+        issues = []
+
+        # Check for device overlaps
+        for i, dev1 in enumerate(diagram.devices):
+            pos1 = dev1.position
+            rect1 = (pos1.x, pos1.y, pos1.x + dev1.width, pos1.y + dev1.height)
+
+            for dev2 in diagram.devices[i + 1 :]:
+                pos2 = dev2.position
+                rect2 = (pos2.x, pos2.y, pos2.x + dev2.width, pos2.y + dev2.height)
+
+                if self._rectangles_overlap(rect1, rect2):
+                    issues.append(f"Devices '{dev1.name}' and '{dev2.name}' overlap")
+
+        # Check for out-of-bounds devices
+        for device in diagram.devices:
+            pos = device.position
+            if pos.x < 0 or pos.y < 0:
+                issues.append(f"Device '{device.name}' positioned at negative coordinates")
+
+            if pos.x + device.width > canvas_width:
+                issues.append(f"Device '{device.name}' extends beyond canvas width")
+
+            if pos.y + device.height > canvas_height:
+                issues.append(f"Device '{device.name}' extends beyond canvas height")
+
+        return issues
 
 
 def create_bezier_path(points: list[Point], corner_radius: float = 5.0) -> str:

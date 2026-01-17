@@ -514,3 +514,190 @@ def test_branching_layout(sample_board):
 
     # A should be at a smaller X (earlier tier)
     assert pos_a.x < pos_b.x, "A should be at an earlier tier than B and C"
+
+
+def test_canvas_sizing_with_bounds(sample_board):
+    """Test canvas sizing respects min/max bounds."""
+    registry = get_registry()
+
+    # Create diagram with single device (should trigger min bounds)
+    device = registry.create("led")
+    device.position = Point(100, 100)
+
+    diagram = Diagram(
+        board=sample_board,
+        devices=[device],
+        connections=[],
+        title="Test",
+        show_title=False,
+        show_legend=False,
+    )
+
+    config = LayoutConfig(min_canvas_width=800.0, min_canvas_height=600.0)
+    engine = LayoutEngine(config)
+    canvas_width, canvas_height, _ = engine.layout_diagram(diagram)
+
+    # Should respect minimum bounds
+    assert canvas_width >= config.min_canvas_width
+    assert canvas_height >= config.min_canvas_height
+
+
+def test_canvas_sizing_clamping_width(sample_board):
+    """Test canvas width clamping at max bound."""
+    registry = get_registry()
+
+    # Create many devices to exceed max width
+    devices = []
+    for i in range(20):
+        device = registry.create("led")
+        device.name = f"LED{i}"
+        devices.append(device)
+
+    connections = [
+        Connection(board_pin=1, device_name=f"LED{i}", device_pin_name="VCC") for i in range(20)
+    ]
+
+    diagram = Diagram(
+        board=sample_board,
+        devices=devices,
+        connections=connections,
+        title="Wide Test",
+        show_title=False,
+        show_legend=False,
+    )
+
+    config = LayoutConfig(max_canvas_width=1000.0, max_canvas_height=5000.0)
+    engine = LayoutEngine(config)
+    canvas_width, canvas_height, _ = engine.layout_diagram(diagram)
+
+    # Width should be clamped but height should not necessarily be
+    assert canvas_width <= config.max_canvas_width
+
+
+def test_validate_layout_no_issues(sample_board):
+    """Test layout validation with valid layout."""
+    registry = get_registry()
+
+    device = registry.create("led")
+    device.position = Point(500, 100)
+
+    diagram = Diagram(
+        board=sample_board,
+        devices=[device],
+        connections=[],
+        title="Test",
+        show_title=False,
+        show_legend=False,
+    )
+
+    engine = LayoutEngine()
+    canvas_width, canvas_height, _ = engine.layout_diagram(diagram)
+
+    # Validate should return no issues
+    issues = engine.validate_layout(diagram, canvas_width, canvas_height)
+    assert len(issues) == 0
+
+
+def test_validate_layout_device_overlap(sample_board):
+    """Test layout validation detects device overlaps."""
+    registry = get_registry()
+
+    device1 = registry.create("led")
+    device1.name = "LED1"
+    device1.position = Point(500, 100)
+
+    device2 = registry.create("led")
+    device2.name = "LED2"
+    device2.position = Point(510, 110)  # Overlaps with LED1
+
+    diagram = Diagram(
+        board=sample_board,
+        devices=[device1, device2],
+        connections=[],
+        title="Test",
+        show_title=False,
+        show_legend=False,
+    )
+
+    engine = LayoutEngine()
+    canvas_width, canvas_height = 1000.0, 800.0
+
+    # Validate should detect overlap
+    issues = engine.validate_layout(diagram, canvas_width, canvas_height)
+    assert len(issues) > 0
+    assert any("overlap" in issue.lower() for issue in issues)
+
+
+def test_validate_layout_negative_coordinates(sample_board):
+    """Test layout validation detects negative coordinates."""
+    registry = get_registry()
+
+    device = registry.create("led")
+    device.position = Point(-10, 100)  # Negative X
+
+    diagram = Diagram(
+        board=sample_board,
+        devices=[device],
+        connections=[],
+        title="Test",
+        show_title=False,
+        show_legend=False,
+    )
+
+    engine = LayoutEngine()
+    canvas_width, canvas_height = 1000.0, 800.0
+
+    # Validate should detect negative coordinate
+    issues = engine.validate_layout(diagram, canvas_width, canvas_height)
+    assert len(issues) > 0
+    assert any("negative" in issue.lower() for issue in issues)
+
+
+def test_validate_layout_out_of_bounds(sample_board):
+    """Test layout validation detects devices extending beyond canvas."""
+    registry = get_registry()
+
+    device = registry.create("led")
+    device.position = Point(970, 100)  # LED is 50px wide, will extend to 1020px (beyond 1000px)
+
+    diagram = Diagram(
+        board=sample_board,
+        devices=[device],
+        connections=[],
+        title="Test",
+        show_title=False,
+        show_legend=False,
+    )
+
+    engine = LayoutEngine()
+    canvas_width, canvas_height = 1000.0, 800.0
+
+    # Validate should detect out of bounds
+    issues = engine.validate_layout(diagram, canvas_width, canvas_height)
+    assert len(issues) > 0
+    assert any("beyond canvas" in issue.lower() for issue in issues)
+
+
+def test_rectangles_overlap_helper(sample_board):
+    """Test the _rectangles_overlap helper method."""
+    engine = LayoutEngine()
+
+    # Overlapping rectangles
+    rect1 = (0, 0, 100, 100)
+    rect2 = (50, 50, 150, 150)
+    assert engine._rectangles_overlap(rect1, rect2) is True
+
+    # Non-overlapping rectangles (horizontally separated)
+    rect3 = (0, 0, 100, 100)
+    rect4 = (200, 0, 300, 100)
+    assert engine._rectangles_overlap(rect3, rect4) is False
+
+    # Non-overlapping rectangles (vertically separated)
+    rect5 = (0, 0, 100, 100)
+    rect6 = (0, 200, 100, 300)
+    assert engine._rectangles_overlap(rect5, rect6) is False
+
+    # Touching but not overlapping
+    rect7 = (0, 0, 100, 100)
+    rect8 = (100, 0, 200, 100)
+    assert engine._rectangles_overlap(rect7, rect8) is False
