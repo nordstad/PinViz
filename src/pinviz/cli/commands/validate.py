@@ -3,11 +3,13 @@
 import typer
 
 from ...config_loader import load_diagram
+from ...connection_graph import ConnectionGraph
 from ...device_validator import validate_devices
 from ...validation import DiagramValidator, ValidationLevel
 from ..context import AppContext
 from ..decorators import handle_command_exception
 from ..output import (
+    GraphSummary,
     ValidateDevicesOutputJson,
     ValidateOutputJson,
     get_validation_summary,
@@ -20,8 +22,34 @@ from ..types import ConfigFileArg, JsonOption, StrictOption
 from ..validation_output import ValidationResult
 
 
+def _show_graph_structure(graph: ConnectionGraph, console) -> None:
+    """Display graph structure with device levels.
+
+    Args:
+        graph: ConnectionGraph instance with calculated device levels
+        console: Rich console for output
+    """
+    levels = graph.device_levels
+
+    console.print("\n🌲 [bold]Device Hierarchy:[/bold]")
+    console.print("  [cyan]Board (Level -1)[/cyan]")
+
+    if not levels:
+        console.print("  └─ [dim](no devices connected)[/dim]")
+        return
+
+    max_level = max(levels.values())
+    for level in range(max_level + 1):
+        devices_at_level = [name for name, dev_level in levels.items() if dev_level == level]
+        if devices_at_level:
+            console.print(f"  └─ [yellow]Level {level}[/yellow]: {', '.join(devices_at_level)}")
+
+
 def validate_command(
     config_file: ConfigFileArg,
+    show_graph: bool = typer.Option(
+        False, "--show-graph", help="Show connection graph visualization"
+    ),
     strict: StrictOption = False,
     json_output: JsonOption = False,
 ) -> None:
@@ -35,6 +63,8 @@ def validate_command(
       pinviz validate diagram.yaml
 
       pinviz validate diagram.yaml --strict
+
+      pinviz validate diagram.yaml --show-graph
     """
     ctx = AppContext()
     log = ctx.logger
@@ -56,6 +86,17 @@ def validate_command(
         validator = DiagramValidator()
         issues = validator.validate(diagram)
 
+        # Build graph for analysis
+        graph = ConnectionGraph(diagram.devices, diagram.connections)
+
+        # Calculate device levels (only if graph is acyclic)
+        try:
+            levels = graph.calculate_device_levels()
+            max_level = max(levels.values()) + 1 if levels else 0
+        except ValueError:
+            # Graph has cycles - will be caught by validator
+            max_level = 0
+
         # Log validation results
         if not issues:
             log.info("validation_passed", config_path=str(config_file))
@@ -73,9 +114,32 @@ def validate_command(
         result = ValidationResult(issues=issues, strict=strict, config_path=str(config_file))
 
         if json_output:
-            result.output_json(ctx.console)
+            # Enhanced JSON output with graph information
+            json_data = ValidateOutputJson(
+                status=result.status.value,
+                validation=get_validation_summary(issues),
+                issues=None
+                if not issues
+                else [{"level": i.level.name, "message": str(i)} for i in issues],
+                graph=GraphSummary(
+                    devices=len(diagram.devices),
+                    connections=len(diagram.connections),
+                    levels=max_level,
+                ),
+            )
+            output_json(json_data, ctx.console)
         else:
             result.output_console(ctx.console)
+
+            # Show graph statistics
+            if not result.errors or show_graph:
+                ctx.console.print("\n📊 [bold]Connection Graph:[/bold]")
+                ctx.console.print(f"  • Devices: [cyan]{len(diagram.devices)}[/cyan]")
+                ctx.console.print(f"  • Connections: [cyan]{len(diagram.connections)}[/cyan]")
+                ctx.console.print(f"  • Levels: [cyan]{max_level}[/cyan]")
+
+                if show_graph:
+                    _show_graph_structure(graph, ctx.console)
 
         if result.exit_code != 0:
             if result.errors:

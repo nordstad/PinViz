@@ -489,3 +489,49 @@ def test_validation_result_json_output_with_issues():
     output_str = output.getvalue()
     assert "error" in output_str.lower()
     assert "warning" in output_str.lower()
+
+
+def test_validate_command_show_graph(sample_yaml_config):
+    """Test validate command with --show-graph flag."""
+    result = runner.invoke(
+        app,
+        ["validate", str(sample_yaml_config), "--show-graph"],
+    )
+    assert result.exit_code == 0
+    assert "Connection Graph" in result.stdout
+    assert "Device Hierarchy" in result.stdout
+    assert "Level 0" in result.stdout
+
+
+def test_validate_command_json_output(sample_yaml_config):
+    """Test validate command with --json flag."""
+    result = runner.invoke(
+        app,
+        ["validate", str(sample_yaml_config), "--json"],
+    )
+    assert result.exit_code == 0
+    # Check JSON output contains expected fields
+    assert "status" in result.stdout
+    assert "validation" in result.stdout
+    assert "graph" in result.stdout
+    assert "devices" in result.stdout
+    assert "connections" in result.stdout
+    assert "levels" in result.stdout
+
+
+def test_validate_command_json_with_graph_stats(sample_yaml_config):
+    """Test validate command JSON output includes graph statistics."""
+    import json
+
+    result = runner.invoke(
+        app,
+        ["validate", str(sample_yaml_config), "--json"],
+    )
+    assert result.exit_code == 0
+
+    # Parse JSON output
+    output_data = json.loads(result.stdout)
+    assert "graph" in output_data
+    assert output_data["graph"]["devices"] > 0
+    assert output_data["graph"]["connections"] > 0
+    assert output_data["graph"]["levels"] >= 0
