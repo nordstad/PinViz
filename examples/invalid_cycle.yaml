@@ -1,0 +1,21 @@
+# Intentional cycle for validation testing
+title: "Invalid Cycle Example"
+board: "raspberry_pi_5"
+devices:
+  - name: "Device A"
+    pins:
+      - name: "IN"
+        role: "GPIO"
+      - name: "OUT"
+        role: "GPIO"
+  - name: "Device B"
+    pins:
+      - name: "IN"
+        role: "GPIO"
+      - name: "OUT"
+        role: "GPIO"
+connections:
+  - from: {device: "Device A", device_pin: "OUT"}
+    to: {device: "Device B", device_pin: "IN"}
+  - from: {device: "Device B", device_pin: "OUT"}
+    to: {device: "Device A", device_pin: "IN"}

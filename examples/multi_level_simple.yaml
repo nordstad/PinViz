@@ -1,0 +1,25 @@
+# Simple linear chain: Board → Regulator → LED
+title: "Simple Power Chain"
+board: "raspberry_pi_5"
+devices:
+  - name: "5V Regulator"
+    pins:
+      - name: "VIN"
+        role: "5V"
+      - name: "GND_IN"
+        role: "GND"
+      - name: "VOUT"
+        role: "3V3"
+      - name: "GND_OUT"
+        role: "GND"
+  - type: "led"
+    name: "Status LED"
+connections:
+  - from: {board_pin: 2}
+    to: {device: "5V Regulator", device_pin: "VIN"}
+  - from: {device: "5V Regulator", device_pin: "VOUT"}
+    to: {device: "Status LED", device_pin: "+"}
+  - from: {board_pin: 6}
+    to: {device: "5V Regulator", device_pin: "GND_IN"}
+  - from: {device: "5V Regulator", device_pin: "GND_OUT"}
+    to: {device: "Status LED", device_pin: "-"}

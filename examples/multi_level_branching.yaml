@@ -1,0 +1,35 @@
+# Tree structure: Board → Power Supply → [LED1, LED2, LED3]
+title: "Power Distribution Tree"
+board: "raspberry_pi_5"
+devices:
+  - name: "Power Supply"
+    pins:
+      - name: "VIN"
+        role: "5V"
+      - name: "GND"
+        role: "GND"
+      - name: "VOUT"
+        role: "3V3"
+  - type: "led"
+    name: "LED1"
+  - type: "led"
+    name: "LED2"
+  - type: "led"
+    name: "LED3"
+connections:
+  - from: {board_pin: 2}
+    to: {device: "Power Supply", device_pin: "VIN"}
+  - from: {board_pin: 6}
+    to: {device: "Power Supply", device_pin: "GND"}
+  - from: {device: "Power Supply", device_pin: "VOUT"}
+    to: {device: "LED1", device_pin: "+"}
+  - from: {device: "Power Supply", device_pin: "VOUT"}
+    to: {device: "LED2", device_pin: "+"}
+  - from: {device: "Power Supply", device_pin: "VOUT"}
+    to: {device: "LED3", device_pin: "+"}
+  - from: {device: "Power Supply", device_pin: "GND"}
+    to: {device: "LED1", device_pin: "-"}
+  - from: {device: "Power Supply", device_pin: "GND"}
+    to: {device: "LED2", device_pin: "-"}
+  - from: {device: "Power Supply", device_pin: "GND"}
+    to: {device: "LED3", device_pin: "-"}
