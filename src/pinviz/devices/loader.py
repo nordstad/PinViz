@@ -107,41 +107,96 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
     layout_config = config_dict.get("layout", {})
     layout_type = layout_config.get("type", "vertical")  # vertical, horizontal, custom
     pin_spacing = layout_config.get("pin_spacing", 8.0)  # Default spacing
-    pin_x = layout_config.get("pin_x", 5.0)  # Default x position
+    pin_x_left = layout_config.get("pin_x", 5.0)  # Default x position for left pins
     start_y = layout_config.get("start_y", 10.0)  # Starting y position
 
-    # Create DevicePin objects from configuration
-    pins = []
+    # Helper function to detect output pins
+    def is_output_pin(pin_name: str) -> bool:
+        """Detect if a pin should be positioned on the right (output) side."""
+        name_upper = pin_name.upper()
+        output_patterns = ["OUT", "TX", "MOSI", "DO", "DOUT", "VOUT", "MOTOR"]
+        return any(pattern in name_upper for pattern in output_patterns)
+
+    # Separate pins into left and right groups for smart positioning
+    left_pins = []
+    right_pins = []
+
     for index, pin_config in enumerate(config_dict.get("pins", [])):
+        pin_name = pin_config["name"]
         pin_role = PinRole(pin_config["role"])  # Convert string to PinRole enum
 
-        # Auto-calculate position if not specified
+        # Check if pin has explicit position
         if "position" in pin_config:
             # Use explicit position if provided
             position_data = pin_config["position"]
             position = Point(position_data["x"], position_data["y"])
+            pin_side = "left"  # Default to left if explicit
+        elif is_output_pin(pin_name):
+            position = None  # Will calculate later
+            pin_side = "right"
         else:
-            # Auto-calculate based on layout type and pin order
-            if layout_type == "vertical":
-                position = Point(pin_x, start_y + (index * pin_spacing))
-            elif layout_type == "horizontal":
-                position = Point(pin_x + (index * pin_spacing), start_y)
-            else:  # custom or fallback
-                position = Point(pin_x, start_y + (index * pin_spacing))
+            position = None  # Will calculate later
+            pin_side = "left"
 
-        device_pin = DevicePin(
-            name=pin_config["name"],
-            role=pin_role,
-            position=position,
-        )
-        pins.append(device_pin)
+        pin_data = {
+            "name": pin_name,
+            "role": pin_role,
+            "position": position,
+            "original_index": index,
+        }
 
-    # Get display properties with smart defaults
+        if pin_side == "right":
+            right_pins.append(pin_data)
+        else:
+            left_pins.append(pin_data)
+
+    # Get display properties first (needed for pin positioning)
     display = config_dict.get("display", {})
-
-    # Auto-calculate height based on pin count if not specified
-    default_height = max(40.0, len(pins) * pin_spacing + 20)  # Fit all pins with padding
     width = display.get("width", 80.0)
+
+    # Calculate positions for left and right pins
+    pins = []
+    pin_x_right = width - pin_x_left
+
+    # Position left side pins
+    for i, pin_data in enumerate(left_pins):
+        if pin_data["position"] is None:
+            if layout_type == "vertical":
+                pin_data["position"] = Point(pin_x_left, start_y + i * pin_spacing)
+            elif layout_type == "horizontal":
+                pin_data["position"] = Point(pin_x_left + i * pin_spacing, start_y)
+            else:  # custom or fallback
+                pin_data["position"] = Point(pin_x_left, start_y + i * pin_spacing)
+
+        pins.append(
+            DevicePin(
+                name=pin_data["name"],
+                role=pin_data["role"],
+                position=pin_data["position"],
+            )
+        )
+
+    # Position right side pins
+    for i, pin_data in enumerate(right_pins):
+        if pin_data["position"] is None:
+            if layout_type == "vertical":
+                pin_data["position"] = Point(pin_x_right, start_y + i * pin_spacing)
+            elif layout_type == "horizontal":
+                pin_data["position"] = Point(pin_x_right + i * pin_spacing, start_y)
+            else:  # custom or fallback
+                pin_data["position"] = Point(pin_x_right, start_y + i * pin_spacing)
+
+        pins.append(
+            DevicePin(
+                name=pin_data["name"],
+                role=pin_data["role"],
+                position=pin_data["position"],
+            )
+        )
+
+    # Auto-calculate height based on max pins per side if not specified
+    max_pins_per_side = max(len(left_pins), len(right_pins), 1)
+    default_height = max(40.0, start_y + (max_pins_per_side * pin_spacing) + 10)
     height = display.get("height", default_height)
 
     # Use category-based color defaults if not specified

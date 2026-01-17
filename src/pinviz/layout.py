@@ -331,6 +331,8 @@ class LayoutEngine:
         device references, and wire colors. This prepares all the data needed for
         the wire routing algorithm.
 
+        Handles both board-to-device and device-to-device connections.
+
         Args:
             diagram: The diagram containing connections, board, and devices
 
@@ -343,45 +345,79 @@ class LayoutEngine:
         device_by_name = {device.name: device for device in diagram.devices}
 
         for conn in diagram.connections:
-            # Find board pin by physical pin number
-            board_pin = diagram.board.get_pin_by_number(conn.board_pin)
-            if not board_pin or not board_pin.position:
-                continue
+            # Determine connection type: board-to-device or device-to-device
+            is_device_to_device = conn.source_device is not None
 
             # Find the target device by name (using O(1) dictionary lookup)
-            device = device_by_name.get(conn.device_name)
-            if not device:
+            target_device = device_by_name.get(conn.device_name)
+            if not target_device:
                 continue
 
-            # Find the specific device pin by name
-            device_pin = device.get_pin_by_name(conn.device_pin_name)
-            if not device_pin:
+            # Find the specific target device pin by name
+            target_pin = target_device.get_pin_by_name(conn.device_pin_name)
+            if not target_pin:
                 continue
 
-            # Calculate absolute position of board pin
-            # (board position is offset by margins)
-            from_pos = Point(
-                self.config.board_margin_left + board_pin.position.x,
-                self._board_margin_top + board_pin.position.y,
-            )
+            if is_device_to_device:
+                # Device-to-device connection
+                source_device = device_by_name.get(conn.source_device)
+                if not source_device:
+                    continue
 
-            # Calculate absolute position of device pin
-            # (device pins are relative to device position)
-            to_pos = Point(
-                device.position.x + device_pin.position.x,
-                device.position.y + device_pin.position.y,
-            )
+                source_pin = source_device.get_pin_by_name(conn.source_pin)
+                if not source_pin:
+                    continue
 
-            # Determine wire color: use connection color if specified,
-            # otherwise use default color based on pin role
-            from .model import DEFAULT_COLORS
+                # Calculate absolute positions for device-to-device connection
+                from_pos = Point(
+                    source_device.position.x + source_pin.position.x,
+                    source_device.position.y + source_pin.position.y,
+                )
+                to_pos = Point(
+                    target_device.position.x + target_pin.position.x,
+                    target_device.position.y + target_pin.position.y,
+                )
 
-            if conn.color:
-                color = conn.color.value if hasattr(conn.color, "value") else conn.color
+                # Use source pin role for color if no explicit color
+                from .model import DEFAULT_COLORS
+
+                if conn.color:
+                    color = conn.color.value if hasattr(conn.color, "value") else conn.color
+                else:
+                    color = DEFAULT_COLORS.get(source_pin.role, "#808080")
+
+                wire_data.append(WireData(conn, from_pos, to_pos, color, target_device))
+
             else:
-                color = DEFAULT_COLORS.get(board_pin.role, "#808080")
+                # Board-to-device connection
+                board_pin = diagram.board.get_pin_by_number(conn.board_pin)
+                if not board_pin or not board_pin.position:
+                    continue
 
-            wire_data.append(WireData(conn, from_pos, to_pos, color, device))
+                # Calculate absolute position of board pin
+                # (board position is offset by margins)
+                from_pos = Point(
+                    self.config.board_margin_left + board_pin.position.x,
+                    self._board_margin_top + board_pin.position.y,
+                )
+
+                # Calculate absolute position of device pin
+                # (device pins are relative to device position)
+                to_pos = Point(
+                    target_device.position.x + target_pin.position.x,
+                    target_device.position.y + target_pin.position.y,
+                )
+
+                # Determine wire color: use connection color if specified,
+                # otherwise use default color based on pin role
+                from .model import DEFAULT_COLORS
+
+                if conn.color:
+                    color = conn.color.value if hasattr(conn.color, "value") else conn.color
+                else:
+                    color = DEFAULT_COLORS.get(board_pin.role, "#808080")
+
+                wire_data.append(WireData(conn, from_pos, to_pos, color, target_device))
 
         return wire_data
 

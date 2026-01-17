@@ -382,7 +382,24 @@ class ConfigLoader:
         name = config["name"]
         pin_configs = config["pins"]
 
-        pins = []
+        # Constants for pin positioning
+        PIN_SPACING = 8.0
+        PIN_MARGIN_TOP = 10.0
+        PIN_MARGIN_BOTTOM = 10.0
+        PIN_X_LEFT = 5.0
+        DEFAULT_WIDTH = 80.0
+
+        # Detect which pins are outputs (should go on right side)
+        def is_output_pin(pin_name: str) -> bool:
+            """Detect if a pin should be positioned on the right (output) side."""
+            name_upper = pin_name.upper()
+            output_patterns = ["OUT", "TX", "MOSI", "DO", "DOUT", "VOUT", "MOTOR"]
+            return any(pattern in name_upper for pattern in output_patterns)
+
+        # Separate pins into left (input) and right (output) groups
+        left_pins = []
+        right_pins = []
+
         for i, pin_config in enumerate(pin_configs):
             pin_name = pin_config["name"]
             role_str = pin_config.get("role", "GPIO")
@@ -397,21 +414,51 @@ class ConfigLoader:
                 except ValueError:
                     role = PinRole.GPIO
 
-            # Position (auto-calculate if not provided)
+            # Check if pin has explicit position
             if "position" in pin_config:
                 pos = pin_config["position"]
                 position = Point(pos["x"], pos["y"])
+                pins_list = left_pins  # Default to left if explicit position
+            elif is_output_pin(pin_name):
+                # Output pins go on the right
+                position = None  # Will calculate later
+                pins_list = right_pins
             else:
-                # Auto-position vertically
-                position = Point(5.0, 10.0 + i * 8.0)
+                # Input/power pins go on the left
+                position = None  # Will calculate later
+                pins_list = left_pins
 
-            pins.append(DevicePin(pin_name, role, position))
+            pins_list.append({"name": pin_name, "role": role, "position": position})
+
+        # Calculate dynamic height based on max number of pins on either side
+        max_pins_per_side = max(len(left_pins), len(right_pins), 1)
+        calculated_height = PIN_MARGIN_TOP + (max_pins_per_side * PIN_SPACING) + PIN_MARGIN_BOTTOM
+
+        # Get final dimensions
+        width = config.get("width", DEFAULT_WIDTH)
+        height = config.get("height", calculated_height)
+
+        # Calculate actual pin positions
+        pins = []
+
+        # Position left side pins
+        for i, pin_data in enumerate(left_pins):
+            if pin_data["position"] is None:
+                pin_data["position"] = Point(PIN_X_LEFT, PIN_MARGIN_TOP + i * PIN_SPACING)
+            pins.append(DevicePin(pin_data["name"], pin_data["role"], pin_data["position"]))
+
+        # Position right side pins
+        pin_x_right = width - PIN_X_LEFT
+        for i, pin_data in enumerate(right_pins):
+            if pin_data["position"] is None:
+                pin_data["position"] = Point(pin_x_right, PIN_MARGIN_TOP + i * PIN_SPACING)
+            pins.append(DevicePin(pin_data["name"], pin_data["role"], pin_data["position"]))
 
         return Device(
             name=name,
             pins=pins,
-            width=config.get("width", 80.0),
-            height=config.get("height", 40.0),
+            width=width,
+            height=height,
             color=config.get("color", "#4A90E2"),
             description=config.get("description"),
         )
