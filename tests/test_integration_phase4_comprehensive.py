@@ -97,10 +97,9 @@ class TestEndToEndLayoutScenarios:
             "Devices should be in increasing tiers"
         )
 
-        # Verify only board-to-device wires are routed
-        board_to_device_connections = [c for c in connections if c.board_pin is not None]
-        assert len(routed_wires) == len(board_to_device_connections), (
-            f"Expected {len(board_to_device_connections)} routed wires, got {len(routed_wires)}"
+        # Verify all wires are routed (both board-to-device and device-to-device)
+        assert len(routed_wires) == len(connections), (
+            f"Expected {len(connections)} routed wires, got {len(routed_wires)}"
         )
 
         # Verify canvas dimensions are reasonable
@@ -179,9 +178,8 @@ class TestEndToEndLayoutScenarios:
         assert device_b.position.x == device_c.position.x, "Branches at same tier"
         assert device_b.position.y != device_c.position.y, "Branches stacked vertically"
 
-        # Verify only board-to-device wires are routed
-        board_to_device_connections = [c for c in connections if c.board_pin is not None]
-        assert len(routed_wires) == len(board_to_device_connections)
+        # Verify all wires are routed (both board-to-device and device-to-device)
+        assert len(routed_wires) == len(connections)
 
         # Verify no layout validation issues
         issues = engine.validate_layout(diagram, canvas_width, canvas_height)
@@ -270,9 +268,8 @@ class TestEndToEndLayoutScenarios:
         # Display is connected via device-to-device, so it's at tier 1
         assert display.position.x > controller.position.x, "Display after controller"
 
-        # Verify only board-to-device wires are routed
-        board_to_device_connections = [c for c in connections if c.board_pin is not None]
-        assert len(routed_wires) == len(board_to_device_connections)
+        # Verify all wires are routed (both board-to-device and device-to-device)
+        assert len(routed_wires) == len(connections)
 
         # Verify no layout validation issues
         issues = engine.validate_layout(diagram, canvas_width, canvas_height)
@@ -555,9 +552,8 @@ class TestEdgeCases:
         assert device_c.position.x > device_a.position.x, "Merger after inputs"
         assert device_d.position.x > device_c.position.x, "Output after merger"
 
-        # Verify only board-to-device wires are routed
-        board_to_device_connections = [c for c in connections if c.board_pin is not None]
-        assert len(routed_wires) == len(board_to_device_connections)
+        # Verify all wires are routed (both board-to-device and device-to-device)
+        assert len(routed_wires) == len(connections)
 
         # Verify no validation issues
         issues = engine.validate_layout(diagram, canvas_width, canvas_height)
@@ -696,9 +692,8 @@ class TestPerformanceValidation:
 
         # Verify layout is valid
         assert len(devices) == 50
-        # Only board-to-device wires are routed
-        board_to_device_connections = [c for c in connections if c.board_pin is not None]
-        assert len(routed_wires) == len(board_to_device_connections)
+        # All wires are routed (both board-to-device and device-to-device)
+        assert len(routed_wires) == len(connections)
         assert canvas_width > 0 and canvas_height > 0
 
         # Verify no validation issues

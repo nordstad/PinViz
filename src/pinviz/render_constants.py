@@ -36,7 +36,8 @@ class RenderConstants:
     # Device rendering
     DEVICE_BORDER_RADIUS: int = 5  # Radius for device rectangle corners
     DEVICE_STROKE_WIDTH: int = 1  # Stroke width for device border
-    DEVICE_OPACITY: float = 0.95  # Opacity for device rectangles
+    # Opacity for device rectangles (fully opaque to hide wires underneath)
+    DEVICE_OPACITY: float = 1.0
 
     # Title and label positioning
     TITLE_Y_OFFSET: int = 25  # Y position for title text

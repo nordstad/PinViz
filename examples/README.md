@@ -101,6 +101,58 @@ This example should be **rejected** by the validation system with a cycle detect
 - **ds18b20_temp.yaml** - DS18B20 1-Wire temperature sensor
 - **mcp3008.yaml** - MCP3008 ADC with SPI interface
 
+### Professional Examples
+
+Real-world use cases demonstrating complex device interactions:
+
+#### motor_control.yaml
+
+**DC Motor Control with L293D Driver**
+
+Demonstrates motor control using an H-bridge driver:
+- Raspberry Pi GPIO pins control motor direction
+- L293D H-bridge driver provides power amplification
+- DC motor receives power from driver
+- Device-to-device connections (driver → motor)
+
+**Key Features:**
+- Motor driver integration
+- Bidirectional motor control
+- Multi-level device chain (board → driver → motor)
+- Power and control signal separation
+
+#### adc_chain.yaml
+
+**Analog Sensor with MCP3008 ADC**
+
+Shows how to read analog sensors on Raspberry Pi:
+- Potentiometer as analog input source
+- MCP3008 8-channel ADC converts analog to digital
+- SPI communication to Raspberry Pi
+- Device-to-device analog signal connection
+
+**Key Features:**
+- Analog-to-digital conversion
+- SPI interface usage
+- Device-to-device signal routing (sensor → ADC)
+- Proper power and ground distribution
+
+#### relay_control.yaml
+
+**Relay Control for High Voltage Devices**
+
+Demonstrates safe control of high-voltage devices:
+- GPIO-controlled relay module
+- Relay switches high-voltage load
+- Electrical isolation between Pi and load
+- Device-to-device power switching
+
+**Key Features:**
+- Relay module integration
+- High-voltage device control
+- Electrical isolation
+- Safety-focused design pattern
+
 ### Board-Specific Examples
 
 #### Raspberry Pi 4

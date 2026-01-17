@@ -178,6 +178,9 @@ class WireData:
         to_pos: Absolute position of destination pin on device
         color: Wire color as hex code (from connection or auto-assigned)
         device: The target device for this wire
+        source_device: The source device (None for board-to-device connections)
+        is_source_right_side: True if source pin is on right side of device
+        is_target_right_side: True if target pin is on right side of device
     """
 
     connection: Connection
@@ -185,6 +188,9 @@ class WireData:
     to_pos: Point
     color: str
     device: Device
+    source_device: Device | None = None
+    is_source_right_side: bool = False
+    is_target_right_side: bool = False
 
 
 class LayoutEngine:
@@ -331,6 +337,8 @@ class LayoutEngine:
         device references, and wire colors. This prepares all the data needed for
         the wire routing algorithm.
 
+        Handles both board-to-device and device-to-device connections.
+
         Args:
             diagram: The diagram containing connections, board, and devices
 
@@ -343,45 +351,108 @@ class LayoutEngine:
         device_by_name = {device.name: device for device in diagram.devices}
 
         for conn in diagram.connections:
-            # Find board pin by physical pin number
-            board_pin = diagram.board.get_pin_by_number(conn.board_pin)
-            if not board_pin or not board_pin.position:
-                continue
+            # Determine connection type: board-to-device or device-to-device
+            is_device_to_device = conn.source_device is not None
 
             # Find the target device by name (using O(1) dictionary lookup)
-            device = device_by_name.get(conn.device_name)
-            if not device:
+            target_device = device_by_name.get(conn.device_name)
+            if not target_device:
                 continue
 
-            # Find the specific device pin by name
-            device_pin = device.get_pin_by_name(conn.device_pin_name)
-            if not device_pin:
+            # Find the specific target device pin by name
+            target_pin = target_device.get_pin_by_name(conn.device_pin_name)
+            if not target_pin:
                 continue
 
-            # Calculate absolute position of board pin
-            # (board position is offset by margins)
-            from_pos = Point(
-                self.config.board_margin_left + board_pin.position.x,
-                self._board_margin_top + board_pin.position.y,
-            )
+            if is_device_to_device:
+                # Device-to-device connection
+                source_device = device_by_name.get(conn.source_device)
+                if not source_device:
+                    continue
 
-            # Calculate absolute position of device pin
-            # (device pins are relative to device position)
-            to_pos = Point(
-                device.position.x + device_pin.position.x,
-                device.position.y + device_pin.position.y,
-            )
+                source_pin = source_device.get_pin_by_name(conn.source_pin)
+                if not source_pin:
+                    continue
 
-            # Determine wire color: use connection color if specified,
-            # otherwise use default color based on pin role
-            from .model import DEFAULT_COLORS
+                # Calculate absolute positions for device-to-device connection
+                from_pos = Point(
+                    source_device.position.x + source_pin.position.x,
+                    source_device.position.y + source_pin.position.y,
+                )
+                to_pos = Point(
+                    target_device.position.x + target_pin.position.x,
+                    target_device.position.y + target_pin.position.y,
+                )
 
-            if conn.color:
-                color = conn.color.value if hasattr(conn.color, "value") else conn.color
+                # Detect if pins are on right side of their respective devices
+                is_source_right_side = source_pin.position.x > (source_device.width / 2)
+                is_target_right_side = target_pin.position.x > (target_device.width / 2)
+
+                # Use source pin role for color if no explicit color
+                from .model import DEFAULT_COLORS
+
+                if conn.color:
+                    color = conn.color.value if hasattr(conn.color, "value") else conn.color
+                else:
+                    color = DEFAULT_COLORS.get(source_pin.role, "#808080")
+
+                wire_data.append(
+                    WireData(
+                        conn,
+                        from_pos,
+                        to_pos,
+                        color,
+                        target_device,
+                        source_device,
+                        is_source_right_side,
+                        is_target_right_side,
+                    )
+                )
+
             else:
-                color = DEFAULT_COLORS.get(board_pin.role, "#808080")
+                # Board-to-device connection
+                board_pin = diagram.board.get_pin_by_number(conn.board_pin)
+                if not board_pin or not board_pin.position:
+                    continue
 
-            wire_data.append(WireData(conn, from_pos, to_pos, color, device))
+                # Calculate absolute position of board pin
+                # (board position is offset by margins)
+                from_pos = Point(
+                    self.config.board_margin_left + board_pin.position.x,
+                    self._board_margin_top + board_pin.position.y,
+                )
+
+                # Calculate absolute position of device pin
+                # (device pins are relative to device position)
+                to_pos = Point(
+                    target_device.position.x + target_pin.position.x,
+                    target_device.position.y + target_pin.position.y,
+                )
+
+                # Detect if target pin is on right side of device
+                is_target_right_side = target_pin.position.x > (target_device.width / 2)
+
+                # Determine wire color: use connection color if specified,
+                # otherwise use default color based on pin role
+                from .model import DEFAULT_COLORS
+
+                if conn.color:
+                    color = conn.color.value if hasattr(conn.color, "value") else conn.color
+                else:
+                    color = DEFAULT_COLORS.get(board_pin.role, "#808080")
+
+                wire_data.append(
+                    WireData(
+                        conn,
+                        from_pos,
+                        to_pos,
+                        color,
+                        target_device,
+                        None,
+                        False,
+                        is_target_right_side,
+                    )
+                )
 
         return wire_data
 
@@ -599,6 +670,9 @@ class LayoutEngine:
                     "rail_x": rail_x,
                     "y_offset": y_offset,
                     "wire_idx": wire_idx,
+                    "source_device": wire.source_device,
+                    "is_source_right_side": wire.is_source_right_side,
+                    "is_target_right_side": wire.is_target_right_side,
                 }
             )
 
@@ -634,6 +708,8 @@ class LayoutEngine:
                 wire_info["rail_x"],
                 final_y_offset,
                 wire_info["conn"].style,
+                wire_info["is_source_right_side"],
+                wire_info["is_target_right_side"],
             )
 
             routed_wires.append(
@@ -676,6 +752,8 @@ class LayoutEngine:
                 wire["rail_x"],
                 wire["y_offset"],
                 wire["conn"].style,
+                wire["is_source_right_side"],
+                wire["is_target_right_side"],
             )
 
             # Sample points along the path (simplified - use path points directly)
@@ -739,21 +817,29 @@ class LayoutEngine:
 
         return adjustments
 
-    def _calculate_connection_points(self, to_pos: Point) -> tuple[Point, Point]:
+    def _calculate_connection_points(
+        self, to_pos: Point, is_right_side: bool = False
+    ) -> tuple[Point, Point]:
         """
         Calculate connection and extended end points for wire routing.
 
         Args:
             to_pos: Target position (device pin)
+            is_right_side: True if target pin is on right side of device
 
         Returns:
             Tuple of (connection_point, extended_end)
         """
-        # Create a point slightly before the device pin for the curve to end
-        connection_point = Point(to_pos.x - self.constants.STRAIGHT_SEGMENT_LENGTH, to_pos.y)
-
-        # Extend the final point slightly beyond pin center so wire visually penetrates the pin
-        extended_end = Point(to_pos.x + self.constants.WIRE_PIN_EXTENSION, to_pos.y)
+        if is_right_side:
+            # For right-side pins, wire approaches from the right
+            connection_point = Point(to_pos.x + self.constants.STRAIGHT_SEGMENT_LENGTH, to_pos.y)
+            # Extend inward (to the left)
+            extended_end = Point(to_pos.x - self.constants.WIRE_PIN_EXTENSION, to_pos.y)
+        else:
+            # For left-side pins, wire approaches from the left (original behavior)
+            connection_point = Point(to_pos.x - self.constants.STRAIGHT_SEGMENT_LENGTH, to_pos.y)
+            # Extend inward (to the right)
+            extended_end = Point(to_pos.x + self.constants.WIRE_PIN_EXTENSION, to_pos.y)
 
         return connection_point, extended_end
 
@@ -839,6 +925,8 @@ class LayoutEngine:
         rail_x: float,
         y_offset: float,
         style: WireStyle,
+        is_source_right_side: bool = False,
+        is_target_right_side: bool = False,
     ) -> list[Point]:
         """
         Calculate wire path with organic Bezier curves.
@@ -848,17 +936,33 @@ class LayoutEngine:
         offsets to prevent overlap and crossings.
 
         Args:
-            from_pos: Starting position (board pin)
+            from_pos: Starting position (board pin or device pin)
             to_pos: Ending position (device pin)
             rail_x: X position for the vertical routing rail (device-specific)
             y_offset: Vertical offset for the curve path
             style: Wire routing style (always uses curved style now)
+            is_source_right_side: True if source pin is on right side (device-to-device)
+            is_target_right_side: True if target pin is on right side
 
         Returns:
             List of points defining the wire path with Bezier control points
         """
-        # Calculate connection points
-        connection_point, extended_end = self._calculate_connection_points(to_pos)
+        # Calculate connection points for target
+        connection_point, extended_end = self._calculate_connection_points(
+            to_pos, is_target_right_side
+        )
+
+        # Calculate start connection point for source (device-to-device)
+        if is_source_right_side:
+            # For right-side source pins, extend slightly to the right
+            from_pos = Point(from_pos.x + self.constants.WIRE_PIN_EXTENSION, from_pos.y)
+
+            # Check if target is to the RIGHT (device-to-device right-to-left routing)
+            if to_pos.x > from_pos.x:
+                # Route directly RIGHT to the target device
+                return self._calculate_right_to_right_path(
+                    from_pos, connection_point, extended_end, y_offset
+                )
 
         # Choose curve type based on vertical distance
         dy = to_pos.y - from_pos.y
@@ -873,6 +977,48 @@ class LayoutEngine:
             return self._calculate_s_curve_path(
                 from_pos, rail_x, y_offset, connection_point, extended_end
             )
+
+    def _calculate_right_to_right_path(
+        self,
+        from_pos: Point,
+        connection_point: Point,
+        extended_end: Point,
+        y_offset: float,
+    ) -> list[Point]:
+        """
+        Calculate wire path for right-side output to another device (horizontal routing).
+
+        Routes wires horizontally from right-side output pins directly to target
+        devices, avoiding the left-side rail system that would cause wires to go
+        underneath the source device.
+
+        Args:
+            from_pos: Starting position (already extended from right-side pin)
+            connection_point: Point where curve should end near target
+            extended_end: Final point penetrating into target pin
+            y_offset: Vertical offset for path separation
+
+        Returns:
+            List of points defining smooth horizontal path
+        """
+        dy = connection_point.y - from_pos.y
+        dx = connection_point.x - from_pos.x
+
+        if abs(dy) < self.constants.SIMILAR_Y_THRESHOLD:
+            # Similar Y levels - gentle horizontal arc
+            mid_x = from_pos.x + dx * 0.5
+            ctrl1 = Point(mid_x, from_pos.y + y_offset * 0.3)
+            ctrl2 = Point(mid_x, connection_point.y + y_offset * 0.3)
+        else:
+            # Different Y levels - smooth S-curve
+            ctrl1_x = from_pos.x + dx * 0.3
+            ctrl1_y = from_pos.y + y_offset * 0.5
+            ctrl2_x = from_pos.x + dx * 0.7
+            ctrl2_y = connection_point.y + y_offset * 0.5
+            ctrl1 = Point(ctrl1_x, ctrl1_y)
+            ctrl2 = Point(ctrl2_x, ctrl2_y)
+
+        return [from_pos, ctrl1, ctrl2, connection_point, extended_end]
 
     def _calculate_canvas_size(
         self, diagram: Diagram, routed_wires: list[RoutedWire]

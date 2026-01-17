@@ -108,14 +108,41 @@ class ComponentRenderer:
                 )
             )
 
-            # Pin label with black background inside device box (to the right of pin)
-            label_padding = 4
-            label_x = pin_x + 6  # Position to the right of the pin circle
-            label_y = pin_y
+            # Detect if pin is on the right side of device (pin x > 50% of device width)
+            is_right_side = pin.position.x > (device.width / 2)
 
-            # Estimate label dimensions
-            label_width = len(pin.name) * 4.2  # ~4.2px per character at 7px font
+            # Pin label with black background inside device box
+            label_padding = 4
             label_height = 10
+            # ~4.5px per character at 7px font (increased for safety)
+            label_width = len(pin.name) * 4.5
+
+            if is_right_side:
+                # Right-side pin: label to the LEFT of pin circle
+                label_x = pin_x - 6 - label_width - label_padding * 2
+                text_x = label_x + label_padding
+                text_anchor = "start"
+
+                # Ensure label doesn't go outside device boundary on the left
+                device_left = x
+                if label_x < device_left:
+                    label_x = device_left + 2  # 2px margin from edge
+                    text_x = label_x + label_padding
+            else:
+                # Left-side pin: label to the RIGHT of pin circle (original behavior)
+                label_x = pin_x + 6
+                text_x = label_x + label_padding
+                text_anchor = "start"
+
+                # Ensure label doesn't go outside device boundary on the right
+                device_right = x + device.width
+                label_right = label_x + label_width + label_padding * 2
+                if label_right > device_right:
+                    # 2px margin from edge
+                    label_x = device_right - label_width - label_padding * 2 - 2
+                    text_x = label_x + label_padding
+
+            label_y = pin_y
 
             # Draw black background for pin label
             dwg.append(
@@ -136,9 +163,9 @@ class ComponentRenderer:
                 draw.Text(
                     pin.name,
                     7,
-                    label_x + label_padding,
+                    text_x,
                     label_y + 2.5,
-                    text_anchor="start",
+                    text_anchor=text_anchor,
                     font_family="Arial, sans-serif",
                     fill="#FFFFFF",
                 )
