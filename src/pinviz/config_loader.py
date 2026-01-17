@@ -11,17 +11,14 @@ from . import boards
 from .devices import get_registry
 from .logging_config import get_logger
 from .model import (
-    Component,
-    ComponentType,
     Connection,
     Device,
     DevicePin,
     Diagram,
     PinRole,
     Point,
-    WireStyle,
 )
-from .schemas import validate_config
+from .schemas import ConnectionSchema, validate_config
 
 log = get_logger(__name__)
 
@@ -404,77 +401,65 @@ class ConfigLoader:
         """
         Load a connection from configuration dictionary.
 
-        Parses a connection specification including optional color, net name,
-        wire style, and inline components.
+        Supports both legacy and new connection formats:
+
+        Legacy format (board-to-device):
+            {
+                "board_pin": 1,
+                "device": "LED",
+                "device_pin": "VCC",
+                "color": "#FF0000",  # optional
+                "style": "mixed",  # optional
+                "components": [...]  # optional
+            }
+
+        New format (board-to-device):
+            {
+                "from": {"board_pin": 1},
+                "to": {"device": "LED", "device_pin": "VCC"},
+                "color": "#FF0000",  # optional
+                "style": "mixed",  # optional
+                "components": [...]  # optional
+            }
+
+        New format (device-to-device):
+            {
+                "from": {"device": "Regulator", "device_pin": "VOUT"},
+                "to": {"device": "LED", "device_pin": "VCC"},
+                "color": "#FF0000",  # optional
+                "style": "mixed",  # optional
+                "components": [...]  # optional
+            }
 
         Args:
-            config: Connection configuration with required fields:
-                - "board_pin": Physical pin number (1-40)
-                - "device": Device name
-                - "device_pin": Pin name on device
-                Optional fields:
-                - "color": Wire color as hex code
-                - "net": Logical net name
-                - "style": Wire routing style ("orthogonal", "curved", "mixed")
-                - "components": List of inline components
+            config: Connection configuration dictionary
 
         Returns:
             Connection object
 
         Examples:
+            >>> # Legacy format
+            >>> config = {"board_pin": 11, "device": "LED", "device_pin": "Anode"}
+            >>> conn = loader._load_connection(config)
+            >>>
+            >>> # New format (board source)
             >>> config = {
-            ...     "board_pin": 11,
-            ...     "device": "LED",
-            ...     "device_pin": "Anode",
-            ...     "color": "#FF0000",
-            ...     "components": [
-            ...         {"type": "resistor", "value": "220Ω", "position": 0.5}
-            ...     ]
+            ...     "from": {"board_pin": 1},
+            ...     "to": {"device": "LED", "device_pin": "VCC"}
+            ... }
+            >>> conn = loader._load_connection(config)
+            >>>
+            >>> # New format (device source)
+            >>> config = {
+            ...     "from": {"device": "Regulator", "device_pin": "VOUT"},
+            ...     "to": {"device": "LED", "device_pin": "VCC"}
             ... }
             >>> conn = loader._load_connection(config)
         """
-        board_pin = config["board_pin"]
-        device_name = config["device"]
-        device_pin_name = config["device_pin"]
-
-        # Optional fields
-        color = config.get("color")
-        net_name = config.get("net")
-        style_str = config.get("style", "mixed")
-
-        # Parse style
-        try:
-            style = WireStyle(style_str.lower())
-        except ValueError:
-            style = WireStyle.MIXED
-
-        # Parse components (resistors, capacitors, etc.)
-        components = []
-        if "components" in config:
-            for comp_config in config["components"]:
-                comp_type_str = comp_config.get("type", "resistor").lower()
-                try:
-                    comp_type = ComponentType(comp_type_str)
-                except ValueError:
-                    comp_type = ComponentType.RESISTOR
-
-                components.append(
-                    Component(
-                        type=comp_type,
-                        value=comp_config["value"],
-                        position=comp_config.get("position", 0.55),
-                    )
-                )
-
-        return Connection(
-            board_pin=board_pin,
-            device_name=device_name,
-            device_pin_name=device_pin_name,
-            color=color,
-            net_name=net_name,
-            style=style,
-            components=components,
-        )
+        # Use ConnectionSchema to parse and validate the connection
+        # This automatically supports both legacy and new formats
+        schema = ConnectionSchema(**config)
+        return schema.to_connection()
 
 
 def load_diagram(config_path: str | Path) -> Diagram:

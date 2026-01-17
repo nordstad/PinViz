@@ -608,17 +608,24 @@ class DiagramConfigSchema(BaseModel):
         # Check connections (only if we have explicit device names)
         if device_names:
             for i, connection in enumerate(self.connections):
-                if connection.device not in device_names:
+                # Get target device name based on format (legacy or new)
+                target_device = connection.to.device if connection.to else connection.device
+
+                # Skip validation if no explicit device name
+                if target_device is None:
+                    continue
+
+                if target_device not in device_names:
                     # Only warn if the device name is explicitly set
                     # (not a default from a type-only device)
                     has_matching_type = any(
-                        d.get("type") == connection.device.lower() for d in self.devices
+                        d.get("type") == target_device.lower() for d in self.devices
                     )
-                    if not has_matching_type and connection.device not in device_names:
+                    if not has_matching_type and target_device not in device_names:
                         available = ", ".join(sorted(device_names))
                         raise ValueError(
                             f"Connection at index {i} references unknown device "
-                            f"'{connection.device}'. Available devices: {available}"
+                            f"'{target_device}'. Available devices: {available}"
                         )
 
         return self
