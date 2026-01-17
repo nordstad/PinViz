@@ -27,6 +27,112 @@ from .model import Diagram, PinRole
 log = get_logger(__name__)
 
 
+# Pin Compatibility Matrix
+# Defines which pin roles can be safely connected to each other
+# Key: (source_role, target_role) -> (is_compatible, severity_if_incompatible)
+# Severity: "error" for dangerous connections, "warning" for questionable ones
+PIN_COMPATIBILITY_MATRIX: dict[tuple[PinRole, PinRole], tuple[bool, str | None]] = {
+    # Power connections - same voltage OK
+    (PinRole.POWER_3V3, PinRole.POWER_3V3): (True, None),
+    (PinRole.POWER_5V, PinRole.POWER_5V): (True, None),
+    # Power to ground - DANGEROUS short circuit
+    (PinRole.POWER_3V3, PinRole.GROUND): (False, "error"),
+    (PinRole.POWER_5V, PinRole.GROUND): (False, "error"),
+    # Ground connections always OK
+    (PinRole.GROUND, PinRole.GROUND): (True, None),
+    # Cross-voltage power connections - handled separately in voltage checks
+    (PinRole.POWER_5V, PinRole.POWER_3V3): (False, "error"),
+    (PinRole.POWER_3V3, PinRole.POWER_5V): (False, "warning"),
+    # I2C connections - data and clock lines
+    (PinRole.I2C_SDA, PinRole.I2C_SDA): (True, None),
+    (PinRole.I2C_SCL, PinRole.I2C_SCL): (True, None),
+    (PinRole.I2C_SDA, PinRole.I2C_SCL): (False, "error"),  # Swapped I2C lines
+    (PinRole.I2C_SCL, PinRole.I2C_SDA): (False, "error"),  # Swapped I2C lines
+    # SPI connections - MOSI, MISO, SCLK, chip enables
+    (PinRole.SPI_MOSI, PinRole.SPI_MOSI): (True, None),
+    (PinRole.SPI_MISO, PinRole.SPI_MISO): (True, None),
+    (PinRole.SPI_SCLK, PinRole.SPI_SCLK): (True, None),
+    (PinRole.SPI_CE0, PinRole.SPI_CE0): (True, None),
+    (PinRole.SPI_CE1, PinRole.SPI_CE1): (True, None),
+    (PinRole.SPI_MOSI, PinRole.SPI_MISO): (False, "error"),  # Swapped MOSI/MISO
+    (PinRole.SPI_MISO, PinRole.SPI_MOSI): (False, "error"),  # Swapped MOSI/MISO
+    # UART connections - TX and RX
+    (PinRole.UART_TX, PinRole.UART_RX): (True, None),  # TX to RX is correct
+    (PinRole.UART_RX, PinRole.UART_TX): (True, None),  # RX to TX is correct
+    (PinRole.UART_TX, PinRole.UART_TX): (False, "error"),  # TX to TX won't work
+    (PinRole.UART_RX, PinRole.UART_RX): (False, "error"),  # RX to RX won't work
+    # PWM connections
+    (PinRole.PWM, PinRole.PWM): (True, None),
+    (PinRole.PWM, PinRole.GPIO): (True, None),  # PWM to generic GPIO OK
+    # GPIO connections - generic GPIO can connect to most things with caution
+    (PinRole.GPIO, PinRole.GPIO): (True, None),
+    (PinRole.GPIO, PinRole.PWM): (True, None),
+    # PCM Audio connections
+    (PinRole.PCM_CLK, PinRole.PCM_CLK): (True, None),
+    (PinRole.PCM_FS, PinRole.PCM_FS): (True, None),
+    (PinRole.PCM_DIN, PinRole.PCM_DIN): (True, None),
+    (PinRole.PCM_DOUT, PinRole.PCM_DOUT): (True, None),
+    # I2C EEPROM identification
+    (PinRole.I2C_EEPROM, PinRole.I2C_EEPROM): (True, None),
+}
+
+
+def check_pin_compatibility(source_role: PinRole, target_role: PinRole) -> tuple[bool, str | None]:
+    """
+    Check if two pin roles are compatible for connection.
+
+    Args:
+        source_role: Role of the source pin
+        target_role: Role of the target pin
+
+    Returns:
+        Tuple of (is_compatible, severity_level)
+        severity_level is "error" or "warning" if incompatible, None if compatible
+
+    Examples:
+        >>> check_pin_compatibility(PinRole.POWER_3V3, PinRole.POWER_3V3)
+        (True, None)
+        >>> check_pin_compatibility(PinRole.POWER_5V, PinRole.GROUND)
+        (False, "error")
+    """
+    # Check direct match in compatibility matrix
+    if (source_role, target_role) in PIN_COMPATIBILITY_MATRIX:
+        return PIN_COMPATIBILITY_MATRIX[(source_role, target_role)]
+
+    # Default behavior for unlisted combinations:
+    # - Power to power: warning (might be intentional voltage distribution)
+    # - GPIO to specialized pins: warning (might be bit-banging)
+    # - Different protocol pins: error (likely a mistake)
+
+    power_roles = {PinRole.POWER_3V3, PinRole.POWER_5V}
+    protocol_roles = {
+        PinRole.I2C_SDA,
+        PinRole.I2C_SCL,
+        PinRole.SPI_MOSI,
+        PinRole.SPI_MISO,
+        PinRole.SPI_SCLK,
+        PinRole.SPI_CE0,
+        PinRole.SPI_CE1,
+        PinRole.UART_TX,
+        PinRole.UART_RX,
+    }
+
+    # GPIO to protocol pins - warning (might be software implementation)
+    if source_role == PinRole.GPIO and target_role in protocol_roles:
+        return (True, "warning")
+    if source_role in protocol_roles and target_role == PinRole.GPIO:
+        return (True, "warning")
+
+    # Power to protocol/data pins - error (dangerous)
+    if source_role in power_roles and target_role in protocol_roles:
+        return (False, "error")
+    if source_role in protocol_roles and target_role in power_roles:
+        return (False, "error")
+
+    # Default: incompatible with warning
+    return (False, "warning")
+
+
 class ValidationLevel(str, Enum):
     """Severity level of a validation issue."""
 
@@ -101,6 +207,7 @@ class DiagramValidator:
         issues: list[ValidationIssue] = []
         issues.extend(self._check_pin_conflicts(diagram))
         issues.extend(self._check_voltage_mismatches(diagram))
+        issues.extend(self._check_pin_role_compatibility(diagram))
         issues.extend(self._check_i2c_address_conflicts(diagram))
         issues.extend(self._check_current_limits(diagram))
         issues.extend(self._check_connection_validity(diagram))
@@ -251,6 +358,100 @@ class DiagramValidator:
 
         return issues
 
+    def _check_pin_role_compatibility(self, diagram: Diagram) -> list[ValidationIssue]:
+        """Check if pin roles are compatible across all connections.
+
+        Validates that the pin roles on both ends of each connection are compatible,
+        checking both board-to-device and device-to-device connections using the
+        pin compatibility matrix.
+        """
+        log.debug("checking_pin_role_compatibility")
+        issues: list[ValidationIssue] = []
+
+        # Build device lookup dictionary for O(1) access
+        device_by_name = {device.name: device for device in diagram.devices}
+
+        for i, conn in enumerate(diagram.connections, 1):
+            # Get source and target pin roles
+            source_role: PinRole | None = None
+            target_role: PinRole | None = None
+            location = f"Connection #{i}"
+
+            # Get target device and pin
+            target_device = device_by_name.get(conn.device_name)
+            if not target_device:
+                continue  # Will be caught by connection validity check
+
+            target_device_pin = target_device.get_pin_by_name(conn.device_pin_name)
+            if not target_device_pin:
+                continue  # Will be caught by connection validity check
+
+            target_role = target_device_pin.role
+
+            # Determine source role based on connection type
+            if conn.is_board_connection():
+                # Board-to-device connection
+                board_pin = diagram.board.get_pin_by_number(conn.board_pin)
+                if not board_pin:
+                    continue  # Will be caught by connection validity check
+
+                source_role = board_pin.role
+                location = f"Pin {conn.board_pin} → {conn.device_name}.{conn.device_pin_name}"
+
+            elif conn.is_device_connection():
+                # Device-to-device connection
+                source_device = device_by_name.get(conn.source_device)
+                if not source_device:
+                    continue  # Will be caught by connection validity check
+
+                source_device_pin = source_device.get_pin_by_name(conn.source_pin)
+                if not source_device_pin:
+                    continue  # Will be caught by connection validity check
+
+                source_role = source_device_pin.role
+                location = (
+                    f"{conn.source_device}.{conn.source_pin} → "
+                    f"{conn.device_name}.{conn.device_pin_name}"
+                )
+
+            # Check compatibility using the matrix
+            if source_role and target_role:
+                is_compatible, severity = check_pin_compatibility(source_role, target_role)
+
+                if not is_compatible:
+                    message = (
+                        f"Incompatible pin roles: {source_role.value} "
+                        f"connected to {target_role.value}"
+                    )
+
+                    if severity == "error":
+                        level = ValidationLevel.ERROR
+                    else:
+                        level = ValidationLevel.WARNING
+
+                    issues.append(
+                        ValidationIssue(
+                            level=level,
+                            message=message,
+                            location=location,
+                        )
+                    )
+                elif severity == "warning":
+                    # Compatible but questionable connection
+                    message = (
+                        f"Unusual pin connection: {source_role.value} to {target_role.value} "
+                        "(verify this is intentional)"
+                    )
+                    issues.append(
+                        ValidationIssue(
+                            level=ValidationLevel.WARNING,
+                            message=message,
+                            location=location,
+                        )
+                    )
+
+        return issues
+
     def _check_i2c_address_conflicts(self, diagram: Diagram) -> list[ValidationIssue]:
         """Check for I2C address conflicts between devices.
 
@@ -355,19 +556,49 @@ class DiagramValidator:
         device_by_name = {device.name: device for device in diagram.devices}
 
         for i, conn in enumerate(diagram.connections, 1):
-            # Check board pin exists
-            board_pin = diagram.board.get_pin_by_number(conn.board_pin)
-            if not board_pin:
-                issues.append(
-                    ValidationIssue(
-                        level=ValidationLevel.ERROR,
-                        message=f"Invalid board pin number: {conn.board_pin}",
-                        location=f"Connection #{i}",
+            # Check source is valid (board pin or device/pin)
+            if conn.is_board_connection():
+                # Check board pin exists
+                board_pin = diagram.board.get_pin_by_number(conn.board_pin)
+                if not board_pin:
+                    issues.append(
+                        ValidationIssue(
+                            level=ValidationLevel.ERROR,
+                            message=f"Invalid board pin number: {conn.board_pin}",
+                            location=f"Connection #{i}",
+                        )
                     )
-                )
-                continue
+                    continue
 
-            # Check device exists (using O(1) dictionary lookup)
+            elif conn.is_device_connection():
+                # Check source device exists
+                source_device = device_by_name.get(conn.source_device)
+                if not source_device:
+                    issues.append(
+                        ValidationIssue(
+                            level=ValidationLevel.ERROR,
+                            message=f"Source device '{conn.source_device}' not found in diagram",
+                            location=f"Connection #{i}",
+                        )
+                    )
+                    continue
+
+                # Check source device pin exists
+                source_pin = source_device.get_pin_by_name(conn.source_pin)
+                if not source_pin:
+                    issues.append(
+                        ValidationIssue(
+                            level=ValidationLevel.ERROR,
+                            message=(
+                                f"Pin '{conn.source_pin}' not found on source device "
+                                f"'{conn.source_device}'"
+                            ),
+                            location=f"Connection #{i}",
+                        )
+                    )
+                    continue
+
+            # Check target device exists (using O(1) dictionary lookup)
             device = device_by_name.get(conn.device_name)
             if not device:
                 issues.append(
