@@ -1026,24 +1026,24 @@
 <path d="M 227.10,206.20 C 263.23,192.88 390.97,89.56 440.00,94.00" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="227.1" cy="206.2" r="4.0" fill="white" />
 <circle cx="227.1" cy="206.2" r="3.0" fill="#808080" />
-<path d="M 239.10,170.20 C 267.23,204.66 387.77,97.49 440.00,86.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 239.10,170.20 C 267.23,204.66 387.77,97.49 440.00,86.00" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 239.10,170.20 C 267.23,199.72 387.77,95.84 440.00,86.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 239.10,170.20 C 267.23,199.72 387.77,95.84 440.00,86.00" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="239.1" cy="170.2" r="4.0" fill="white" />
 <circle cx="239.1" cy="170.2" r="3.0" fill="#000000" />
-<path d="M 239.10,158.20 C 264.03,161.16 384.57,78.99 440.00,78.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 239.10,158.20 C 264.03,161.16 384.57,78.99 440.00,78.00" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 239.10,158.20 C 264.03,158.20 384.57,78.00 440.00,78.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 239.10,158.20 C 264.03,158.20 384.57,78.00 440.00,78.00" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="239.1" cy="158.2" r="4.0" fill="white" />
 <circle cx="239.1" cy="158.2" r="3.0" fill="#FF0000" />
-<path d="M 239.10,146.20 C 260.83,113.89 381.37,59.23 440.00,70.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 239.10,146.20 C 260.83,113.89 381.37,59.23 440.00,70.00" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 239.10,146.20 C 260.83,112.00 381.37,58.60 440.00,70.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 239.10,146.20 C 260.83,112.00 381.37,58.60 440.00,70.00" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="239.1" cy="146.2" r="4.0" fill="white" />
 <circle cx="239.1" cy="146.2" r="3.0" fill="#FF0000" />
-<path d="M 525.00,78.00 C 454.33,86.98 439.59,81.37 790.00,78.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 525.00,78.00 C 454.33,86.98 439.59,81.37 790.00,78.00" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 527.00,78.00 C 623.50,84.00 623.50,84.00 720.00,78.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 527.00,78.00 C 623.50,84.00 623.50,84.00 720.00,78.00" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="525.0" cy="78.0" r="4.0" fill="white" />
 <circle cx="525.0" cy="78.0" r="3.0" fill="#808080" />
-<path d="M 525.00,70.00 C 451.93,52.32 433.99,63.37 790.00,70.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 525.00,70.00 C 451.93,52.32 433.99,63.37 790.00,70.00" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 527.00,70.00 C 623.50,64.00 623.50,64.00 720.00,70.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 527.00,70.00 C 623.50,64.00 623.50,64.00 720.00,70.00" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="525.0" cy="70.0" r="4.0" fill="white" />
 <circle cx="525.0" cy="70.0" r="3.0" fill="#808080" />
 <text x="490.0" y="55.0" font-size="12.0" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">L293D Driver</text>
@@ -1060,44 +1060,44 @@
 <path d="M 440.00,78.00 L 457.00,78.00" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <path d="M 440.00,70.00 L 457.00,70.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
 <path d="M 440.00,70.00 L 457.00,70.00" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<path d="M 790.00,78.00 L 807.00,78.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 790.00,78.00 L 807.00,78.00" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<path d="M 790.00,70.00 L 807.00,70.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 790.00,70.00 L 807.00,70.00" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 720.00,78.00 L 737.00,78.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 720.00,78.00 L 737.00,78.00" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 720.00,70.00 L 737.00,70.00" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 720.00,70.00 L 737.00,70.00" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="455.0" cy="70.0" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="70.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="0.95" />
-<rect x="461.0" y="65.0" width="24.8" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<circle cx="455.0" cy="70.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="65.0" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
 <text x="465.0" y="72.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">VCC1</text>
 <circle cx="455.0" cy="78.0" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="78.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="0.95" />
-<rect x="461.0" y="73.0" width="24.8" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<circle cx="455.0" cy="78.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="73.0" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
 <text x="465.0" y="80.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">VCC2</text>
 <circle cx="455.0" cy="86.0" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="86.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="0.95" />
-<rect x="461.0" y="81.0" width="20.6" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<circle cx="455.0" cy="86.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="81.0" width="21.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
 <text x="465.0" y="88.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">GND</text>
 <circle cx="455.0" cy="94.0" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="94.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="0.95" />
-<rect x="461.0" y="89.0" width="20.6" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<circle cx="455.0" cy="94.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="89.0" width="21.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
 <text x="465.0" y="96.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">IN1</text>
 <circle cx="455.0" cy="102.0" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="102.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="0.95" />
-<rect x="461.0" y="97.0" width="20.6" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<circle cx="455.0" cy="102.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="97.0" width="21.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
 <text x="465.0" y="104.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">IN2</text>
 <circle cx="525.0" cy="70.0" r="4.0" fill="white" opacity="0.8" />
-<circle cx="525.0" cy="70.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="0.95" />
-<rect x="494.2" y="65.0" width="24.8" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="498.2" y="72.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">OUT1</text>
+<circle cx="525.0" cy="70.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="493.0" y="65.0" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="497.0" y="72.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">OUT1</text>
 <circle cx="525.0" cy="78.0" r="4.0" fill="white" opacity="0.8" />
-<circle cx="525.0" cy="78.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="0.95" />
-<rect x="494.2" y="73.0" width="24.8" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="498.2" y="80.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">OUT2</text>
-<circle cx="805.0" cy="70.0" r="4.0" fill="white" opacity="0.8" />
-<circle cx="805.0" cy="70.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="0.95" />
-<rect x="765.8" y="65.0" width="33.2" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="769.8" y="72.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">MOTOR+</text>
-<circle cx="805.0" cy="78.0" r="4.0" fill="white" opacity="0.8" />
-<circle cx="805.0" cy="78.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="0.95" />
-<rect x="765.8" y="73.0" width="33.2" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="769.8" y="80.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">MOTOR-</text>
+<circle cx="525.0" cy="78.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="493.0" y="73.0" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="497.0" y="80.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">OUT2</text>
+<circle cx="735.0" cy="70.0" r="4.0" fill="white" opacity="0.8" />
+<circle cx="735.0" cy="70.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="741.0" y="65.0" width="35.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="745.0" y="72.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">MOTOR+</text>
+<circle cx="735.0" cy="78.0" r="4.0" fill="white" opacity="0.8" />
+<circle cx="735.0" cy="78.0" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="741.0" y="73.0" width="35.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="745.0" y="80.5" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">MOTOR-</text>
 </svg>

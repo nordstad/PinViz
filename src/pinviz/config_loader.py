@@ -383,24 +383,35 @@ class ConfigLoader:
         pin_configs = config["pins"]
 
         # Constants for pin positioning
-        PIN_SPACING = 8.0
-        PIN_MARGIN_TOP = 10.0
-        PIN_MARGIN_BOTTOM = 10.0
-        PIN_X_LEFT = 5.0
-        DEFAULT_WIDTH = 80.0
+        pin_spacing = 8.0
+        pin_margin_top = 10.0
+        pin_margin_bottom = 10.0
+        pin_x_left = 5.0
+        default_width = 80.0
 
         # Detect which pins are outputs (should go on right side)
         def is_output_pin(pin_name: str) -> bool:
             """Detect if a pin should be positioned on the right (output) side."""
             name_upper = pin_name.upper()
-            output_patterns = ["OUT", "TX", "MOSI", "DO", "DOUT", "VOUT", "MOTOR"]
+            output_patterns = [
+                "OUT",
+                "TX",
+                "MOSI",
+                "DO",
+                "DOUT",
+                "VOUT",
+                "COM",  # Relay common
+                "NO",  # Relay normally open
+                "NC",  # Relay normally closed
+                "WIPER",  # Potentiometer output
+            ]
             return any(pattern in name_upper for pattern in output_patterns)
 
         # Separate pins into left (input) and right (output) groups
         left_pins = []
         right_pins = []
 
-        for i, pin_config in enumerate(pin_configs):
+        for _i, pin_config in enumerate(pin_configs):
             pin_name = pin_config["name"]
             role_str = pin_config.get("role", "GPIO")
 
@@ -433,10 +444,12 @@ class ConfigLoader:
         # Calculate dynamic height based on max number of pins on either side
         # Height = top margin + (n-1) spacing between pins + bottom margin
         max_pins_per_side = max(len(left_pins), len(right_pins), 1)
-        calculated_height = PIN_MARGIN_TOP + ((max_pins_per_side - 1) * PIN_SPACING) + PIN_MARGIN_BOTTOM
+        calculated_height = (
+            pin_margin_top + ((max_pins_per_side - 1) * pin_spacing) + pin_margin_bottom
+        )
 
         # Get final dimensions
-        width = config.get("width", DEFAULT_WIDTH)
+        width = config.get("width", default_width)
         height = config.get("height", calculated_height)
 
         # Calculate actual pin positions
@@ -445,14 +458,14 @@ class ConfigLoader:
         # Position left side pins
         for i, pin_data in enumerate(left_pins):
             if pin_data["position"] is None:
-                pin_data["position"] = Point(PIN_X_LEFT, PIN_MARGIN_TOP + i * PIN_SPACING)
+                pin_data["position"] = Point(pin_x_left, pin_margin_top + i * pin_spacing)
             pins.append(DevicePin(pin_data["name"], pin_data["role"], pin_data["position"]))
 
         # Position right side pins
-        pin_x_right = width - PIN_X_LEFT
+        pin_x_right = width - pin_x_left
         for i, pin_data in enumerate(right_pins):
             if pin_data["position"] is None:
-                pin_data["position"] = Point(pin_x_right, PIN_MARGIN_TOP + i * PIN_SPACING)
+                pin_data["position"] = Point(pin_x_right, pin_margin_top + i * pin_spacing)
             pins.append(DevicePin(pin_data["name"], pin_data["role"], pin_data["position"]))
 
         return Device(

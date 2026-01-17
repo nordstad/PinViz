@@ -114,7 +114,18 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
     def is_output_pin(pin_name: str) -> bool:
         """Detect if a pin should be positioned on the right (output) side."""
         name_upper = pin_name.upper()
-        output_patterns = ["OUT", "TX", "MOSI", "DO", "DOUT", "VOUT", "MOTOR"]
+        output_patterns = [
+            "OUT",
+            "TX",
+            "MOSI",
+            "DO",
+            "DOUT",
+            "VOUT",
+            "COM",  # Relay common
+            "NO",  # Relay normally open
+            "NC",  # Relay normally closed
+            "WIPER",  # Potentiometer output
+        ]
         return any(pattern in name_upper for pattern in output_patterns)
 
     # Separate pins into left and right groups for smart positioning
