@@ -40,6 +40,16 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - ✨ **Modern CLI**: Rich terminal output with progress indicators and colored messages
 - 🔧 **JSON Output**: Machine-readable output for CI/CD integration
 
+## Supported Boards
+
+| Board              | Aliases                            | GPIO Pins            | Description                                          |
+| ------------------ | ---------------------------------- | -------------------- | ---------------------------------------------------- |
+| Raspberry Pi 5     | `raspberry_pi_5`, `rpi5`, `rpi`    | 40-pin               | Latest Raspberry Pi with improved GPIO capabilities  |
+| Raspberry Pi 4     | `raspberry_pi_4`, `rpi4`           | 40-pin               | Popular Raspberry Pi model with full GPIO header     |
+| Raspberry Pi Pico  | `raspberry_pi_pico`, `pico`        | 40-pin (dual-sided)  | RP2040-based microcontroller board                   |
+
+All boards include full pin definitions with GPIO numbers, I2C, SPI, UART, and PWM support.
+
 ## Installation
 
 Install as a standalone tool with global CLI access:
