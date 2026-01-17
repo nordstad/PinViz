@@ -1,0 +1,75 @@
+# Realistic: LiPo → TP4056 Charger → ESP32 → [Sensor1, Sensor2]
+title: "ESP32 Project Power Distribution"
+board: "raspberry_pi_5"
+devices:
+  - name: "LiPo Battery"
+    pins:
+      - name: "VCC"
+        role: "3V3"
+      - name: "GND"
+        role: "GND"
+  - name: "Charger"
+    pins:
+      - name: "VIN"
+        role: "5V"
+      - name: "GND_IN"
+        role: "GND"
+      - name: "BAT+"
+        role: "3V3"
+      - name: "BAT-"
+        role: "GND"
+      - name: "OUT+"
+        role: "3V3"
+      - name: "OUT-"
+        role: "GND"
+  - name: "Controller"
+    pins:
+      - name: "VIN"
+        role: "5V"
+      - name: "GND_IN"
+        role: "GND"
+      - name: "3V3"
+        role: "3V3"
+      - name: "GND_OUT"
+        role: "GND"
+      - name: "GPIO21"
+        role: "I2C_SDA"
+      - name: "GPIO22"
+        role: "I2C_SCL"
+  - type: "bh1750"
+    name: "Light Sensor"
+  - type: "dht22"
+    name: "Temp Sensor"
+connections:
+  # USB power to charger
+  - from: {board_pin: 2}
+    to: {device: "Charger", device_pin: "VIN"}
+  - from: {board_pin: 6}
+    to: {device: "Charger", device_pin: "GND_IN"}
+  # Battery to charger
+  - from: {device: "LiPo Battery", device_pin: "VCC"}
+    to: {device: "Charger", device_pin: "BAT+"}
+  - from: {device: "LiPo Battery", device_pin: "GND"}
+    to: {device: "Charger", device_pin: "BAT-"}
+  # Charger to ESP32
+  - from: {device: "Charger", device_pin: "OUT+"}
+    to: {device: "Controller", device_pin: "VIN"}
+  - from: {device: "Charger", device_pin: "OUT-"}
+    to: {device: "Controller", device_pin: "GND_IN"}
+  # ESP32 to sensors (power)
+  - from: {device: "Controller", device_pin: "3V3"}
+    to: {device: "Light Sensor", device_pin: "VCC"}
+  - from: {device: "Controller", device_pin: "3V3"}
+    to: {device: "Temp Sensor", device_pin: "VCC"}
+  - from: {device: "Controller", device_pin: "GND_OUT"}
+    to: {device: "Light Sensor", device_pin: "GND"}
+  - from: {device: "Controller", device_pin: "GND_OUT"}
+    to: {device: "Temp Sensor", device_pin: "GND"}
+  # I2C connections
+  - from: {device: "Controller", device_pin: "GPIO21"}
+    to: {device: "Light Sensor", device_pin: "SDA"}
+  - from: {device: "Controller", device_pin: "GPIO22"}
+    to: {device: "Light Sensor", device_pin: "SCL"}
+  # DHT22 data connection
+  - from: {device: "Controller", device_pin: "GPIO21"}
+    to: {device: "Temp Sensor", device_pin: "DATA"}
