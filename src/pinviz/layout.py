@@ -5,6 +5,7 @@ import math
 from dataclasses import dataclass
 
 from .connection_graph import ConnectionGraph
+from .constants import LAYOUT_ADJUSTMENTS, TABLE_LAYOUT
 from .model import Connection, Device, Diagram, Point, WireStyle
 
 logger = logging.getLogger(__name__)
@@ -410,7 +411,10 @@ class LayoutEngine:
         min_y_with_clearance = title_bottom + self.config.title_margin
 
         # Use the greater of: title clearance or topmost pin
-        return max(min_y_with_clearance, min_pin_y - 20)  # Allow some device above pin
+        return max(
+            min_y_with_clearance,
+            min_pin_y - LAYOUT_ADJUSTMENTS.DEVICE_ABOVE_PIN_ALLOWANCE,
+        )
 
     def _position_with_target_y(
         self,
@@ -509,7 +513,11 @@ class LayoutEngine:
         if is_horizontal_layout:
             # Horizontal layout boards (Pico, ESP32): Allow devices to extend beyond board
             # These boards are typically shorter and have pins on top/bottom
-            max_device_y = min_device_y + total_height_needed + 100  # Extra margin
+            max_device_y = (
+                min_device_y
+                + total_height_needed
+                + LAYOUT_ADJUSTMENTS.HORIZONTAL_BOARD_EXTRA_MARGIN
+            )
         else:
             # Vertical layout boards (Pi 4/5): Try to fit within board height
             available_height_at_board = board_bottom - min_device_y
@@ -1313,10 +1321,10 @@ class LayoutEngine:
                 # Table position: below bottommost element + margin
                 table_y = max_bottom + self.config.specs_table_top_margin
 
-                # Table height: header (35px) + rows (varies with multiline descriptions)
+                # Table height: header + rows (varies with multiline descriptions)
                 # Use realistic estimate matching render_svg.py base row height
-                header_height = 35
-                base_row_height = 30  # Base height per row (single line)
+                header_height = TABLE_LAYOUT.HEADER_HEIGHT
+                base_row_height = TABLE_LAYOUT.BASE_ROW_HEIGHT
                 table_height = header_height + (len(devices_with_specs) * base_row_height)
                 table_bottom = table_y + table_height
 
