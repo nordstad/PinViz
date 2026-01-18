@@ -360,8 +360,6 @@ class TestBackwardCompatibility:
         result = engine.layout_diagram(diagram)
         canvas_width = result.canvas_width
         canvas_height = result.canvas_height
-        routed_wires = result.routed_wires
-
         # All devices should be at same X (same tier)
         x_positions = [d.position.x for d in devices]
         assert len(set(x_positions)) == 1, "All devices should be in same tier"
@@ -475,8 +473,6 @@ class TestEdgeCases:
         result = engine.layout_diagram(diagram)
         canvas_width = result.canvas_width
         canvas_height = result.canvas_height
-        routed_wires = result.routed_wires
-
         # Verify layout completes without errors
         assert canvas_width > 0 and canvas_height > 0
 
@@ -843,8 +839,6 @@ class TestLayoutValidation:
         result = engine.layout_diagram(diagram)
         canvas_width = result.canvas_width
         canvas_height = result.canvas_height
-        routed_wires = result.routed_wires
-
         # Validate layout
         issues = engine.validate_layout(diagram, canvas_width, canvas_height)
 
@@ -897,8 +891,6 @@ class TestLayoutValidation:
         result = engine.layout_diagram(diagram)
         canvas_width = result.canvas_width
         canvas_height = result.canvas_height
-        routed_wires = result.routed_wires
-
         # Verify all devices are within canvas
         for device in devices:
             assert 0 <= device.position.x <= canvas_width - device.width, (
@@ -945,8 +937,6 @@ class TestLayoutValidation:
         result = engine.layout_diagram(diagram)
         canvas_width = result.canvas_width
         canvas_height = result.canvas_height
-        routed_wires = result.routed_wires
-
         # Check no overlaps manually
         for i, dev1 in enumerate(devices):
             for dev2 in devices[i + 1 :]:

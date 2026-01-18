@@ -180,8 +180,6 @@ class TestGraphPatterns:
         result = engine.layout_diagram(diagram)
         canvas_width = result.canvas_width
         canvas_height = result.canvas_height
-        routed_wires = result.routed_wires
-
         # Verify diamond structure
         assert device_a.position.x < device_b.position.x, "Source before branches"
         assert device_a.position.x < device_c.position.x, "Source before branches"
@@ -241,8 +239,6 @@ class TestGraphPatterns:
         result = engine.layout_diagram(diagram)
         canvas_width = result.canvas_width
         canvas_height = result.canvas_height
-        routed_wires = result.routed_wires
-
         # Verify hub is before all children
         for child in children:
             assert hub.position.x < child.position.x, f"Hub before {child.name}"
@@ -298,8 +294,6 @@ class TestGraphPatterns:
         result = engine.layout_diagram(diagram)
         canvas_width = result.canvas_width
         canvas_height = result.canvas_height
-        routed_wires = result.routed_wires
-
         # Verify devices are in increasing tier order
         for i in range(7):
             assert devices[i].position.x < devices[i + 1].position.x, (
@@ -536,8 +530,6 @@ class TestStressTests:
         result = engine.layout_diagram(diagram)
         canvas_width = result.canvas_width
         canvas_height = result.canvas_height
-        routed_wires = result.routed_wires
-
         # Basic validation
         assert len(devices) == 100, f"Expected 100 devices, got {len(devices)}"
         assert canvas_width > 0 and canvas_height > 0, "Invalid canvas dimensions"
