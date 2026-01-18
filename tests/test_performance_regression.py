@@ -333,7 +333,8 @@ class TestMemoryUsage:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         # Check object sizes (rough heuristic)
         # A routed diagram with 40 connections shouldn't be huge

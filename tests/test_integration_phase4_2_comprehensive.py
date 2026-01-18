@@ -177,7 +177,10 @@ class TestGraphPatterns:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify diamond structure
         assert device_a.position.x < device_b.position.x, "Source before branches"
@@ -235,7 +238,10 @@ class TestGraphPatterns:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify hub is before all children
         for child in children:
@@ -289,7 +295,10 @@ class TestGraphPatterns:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify devices are in increasing tier order
         for i in range(7):
@@ -339,7 +348,10 @@ class TestErrorHandling:
 
         # Layout should succeed, connections to nonexistent devices are ignored
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
         assert canvas_width > 0 and canvas_height > 0
         assert len(routed_wires) == 0  # No wires since source device doesn't exist
 
@@ -377,7 +389,10 @@ class TestErrorHandling:
 
         # Layout should succeed, connections to nonexistent pins are ignored
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
         assert canvas_width > 0 and canvas_height > 0
         assert len(routed_wires) == 0  # No wires since pin doesn't exist
 
@@ -518,7 +533,10 @@ class TestStressTests:
 
         # Should complete without errors
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Basic validation
         assert len(devices) == 100, f"Expected 100 devices, got {len(devices)}"

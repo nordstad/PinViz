@@ -167,6 +167,38 @@ class RoutedWire:
 
 
 @dataclass
+class LayoutResult:
+    """
+    Complete layout information for a diagram.
+
+    Contains all calculated layout data including canvas dimensions, positioned
+    devices, and routed wires. This is the immutable output of the layout engine
+    that gets passed to the renderer.
+
+    This decouples layout calculation from rendering, enabling:
+    - Independent testing of layout logic
+    - Alternative layout algorithms
+    - Layout result caching
+    - Thread-safe parallel rendering
+
+    Attributes:
+        canvas_width: Calculated canvas width in SVG units
+        canvas_height: Calculated canvas height in SVG units
+        board_position: Absolute position of the board on canvas
+        device_positions: Mapping of device names to their absolute positions
+        routed_wires: List of wires with calculated routing paths
+        board_margin_top: Top margin of the board (needed for pin positioning)
+    """
+
+    canvas_width: float
+    canvas_height: float
+    board_position: Point
+    device_positions: dict[str, Point]
+    routed_wires: list[RoutedWire]
+    board_margin_top: float
+
+
+@dataclass
 class WireData:
     """
     Intermediate wire data collected during routing.
@@ -221,20 +253,29 @@ class LayoutEngine:
         self.config = config or LayoutConfig()
         self.constants = LayoutConstants()
 
-    def layout_diagram(self, diagram: Diagram) -> tuple[float, float, list[RoutedWire]]:
+    def layout_diagram(self, diagram: Diagram) -> LayoutResult:
         """
         Calculate layout for a complete diagram.
+
+        Returns a LayoutResult containing all layout information including
+        canvas dimensions, device positions, and routed wires. This immutable
+        result can be passed to the renderer without further diagram mutation.
 
         Args:
             diagram: The diagram to layout
 
         Returns:
-            Tuple of (canvas_width, canvas_height, routed_wires)
+            LayoutResult with complete layout information
+
+        Note:
+            For backward compatibility, this method still mutates device.position
+            on the diagram's devices. Future versions will remove this mutation.
         """
         # Calculate actual board margin based on whether title is shown
         self._board_margin_top = self.config.get_board_margin_top(diagram.show_title)
 
         # Position devices across multiple tiers based on connection depth
+        # NOTE: This still mutates diagram.devices[].position for backward compatibility
         self._position_devices_by_level(diagram)
 
         # Route all wires
@@ -243,6 +284,14 @@ class LayoutEngine:
         # Calculate canvas size
         canvas_width, canvas_height = self._calculate_canvas_size(diagram, routed_wires)
 
+        # Collect device positions into immutable mapping
+        device_positions = {
+            device.name: Point(device.position.x, device.position.y) for device in diagram.devices
+        }
+
+        # Calculate board position
+        board_position = Point(self.config.board_margin_left, self._board_margin_top)
+
         # Validate layout and log warnings
         validation_issues = self.validate_layout(diagram, canvas_width, canvas_height)
         wire_clearance_issues = self._validate_wire_clearance(diagram, routed_wires)
@@ -250,7 +299,15 @@ class LayoutEngine:
         for issue in all_issues:
             logger.warning(f"Layout validation: {issue}")
 
-        return canvas_width, canvas_height, routed_wires
+        # Return immutable layout result
+        return LayoutResult(
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
+            board_position=board_position,
+            device_positions=device_positions,
+            routed_wires=routed_wires,
+            board_margin_top=self._board_margin_top,
+        )
 
     def _calculate_device_levels(self, diagram: Diagram) -> dict[str, int]:
         """

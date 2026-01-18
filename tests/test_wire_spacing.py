@@ -108,7 +108,8 @@ class TestWireSpacing:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         # Extract rail X positions (3rd waypoint is along the rail)
         rail_positions = set()
@@ -140,7 +141,8 @@ class TestWireSpacing:
         )
 
         engine = LayoutEngine(config)
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         # Check spacing between all wire pairs
         min_spacing_found = float("inf")
@@ -187,7 +189,8 @@ class TestWireSpacing:
 
         config = LayoutConfig(wire_spacing=8.0)
         engine = LayoutEngine(config)
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         # Verify rails are properly spaced
         assert len(routed_wires) == 8, f"Expected 8 wires, got {len(routed_wires)}"
@@ -219,7 +222,8 @@ class TestWireSpacing:
         )
 
         engine = LayoutEngine(config)
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         # With device-based rail routing and Bezier curves, each wire to a different
         # device should use different control points (path_points[1] is first control point)
@@ -261,8 +265,10 @@ class TestWireSpacing:
         engine = LayoutEngine()
 
         # Route twice
-        _, _, routed1 = engine.layout_diagram(diagram)
-        _, _, routed2 = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed1 = result.routed_wires
+        result = engine.layout_diagram(diagram)
+        routed2 = result.routed_wires
 
         # Should produce identical results
         assert len(routed1) == len(routed2)

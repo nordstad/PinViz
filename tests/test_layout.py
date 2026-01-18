@@ -1,7 +1,7 @@
 """Tests for layout engine."""
 
 from pinviz.devices import get_registry
-from pinviz.layout import LayoutConfig, LayoutEngine, RoutedWire
+from pinviz.layout import LayoutConfig, LayoutEngine, LayoutResult, RoutedWire
 from pinviz.model import Connection, Diagram, Point
 
 
@@ -130,7 +130,10 @@ def test_position_multiple_devices(sample_board, sample_device, bh1750_device):
 def test_layout_diagram_returns_dimensions_and_wires(sample_diagram):
     """Test that layout_diagram returns canvas dimensions and wires."""
     engine = LayoutEngine()
-    canvas_width, canvas_height, routed_wires = engine.layout_diagram(sample_diagram)
+    result = engine.layout_diagram(sample_diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
+    routed_wires = result.routed_wires
 
     assert isinstance(canvas_width, float)
     assert isinstance(canvas_height, float)
@@ -154,7 +157,8 @@ def test_layout_diagram_positions_devices(sample_diagram):
 def test_layout_diagram_routes_all_connections(sample_diagram):
     """Test that layout_diagram routes all connections."""
     engine = LayoutEngine()
-    _, _, routed_wires = engine.layout_diagram(sample_diagram)
+    result = engine.layout_diagram(sample_diagram)
+    routed_wires = result.routed_wires
 
     assert len(routed_wires) == len(sample_diagram.connections)
     for wire in routed_wires:
@@ -167,7 +171,9 @@ def test_layout_diagram_routes_all_connections(sample_diagram):
 def test_canvas_size_includes_board(sample_diagram):
     """Test that canvas size includes the board with padding."""
     engine = LayoutEngine()
-    canvas_width, canvas_height, _ = engine.layout_diagram(sample_diagram)
+    result = engine.layout_diagram(sample_diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
 
     # Canvas should be at least as large as board + margins + padding
     # Use dynamic board margin based on whether title is shown
@@ -186,7 +192,9 @@ def test_canvas_size_includes_board(sample_diagram):
 def test_canvas_size_includes_devices(sample_diagram):
     """Test that canvas size includes all devices."""
     engine = LayoutEngine()
-    canvas_width, canvas_height, _ = engine.layout_diagram(sample_diagram)
+    result = engine.layout_diagram(sample_diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
 
     # Find the rightmost and bottommost device positions
     for device in sample_diagram.devices:
@@ -199,7 +207,8 @@ def test_canvas_size_includes_devices(sample_diagram):
 def test_routed_wires_have_path_points(sample_diagram):
     """Test that routed wires have path points."""
     engine = LayoutEngine()
-    _, _, routed_wires = engine.layout_diagram(sample_diagram)
+    result = engine.layout_diagram(sample_diagram)
+    routed_wires = result.routed_wires
 
     for wire in routed_wires:
         assert len(wire.path_points) >= 2  # At least start and end
@@ -210,7 +219,8 @@ def test_routed_wires_have_path_points(sample_diagram):
 def test_routed_wires_have_colors(sample_diagram):
     """Test that routed wires have assigned colors."""
     engine = LayoutEngine()
-    _, _, routed_wires = engine.layout_diagram(sample_diagram)
+    result = engine.layout_diagram(sample_diagram)
+    routed_wires = result.routed_wires
 
     for wire in routed_wires:
         assert wire.color is not None
@@ -222,7 +232,8 @@ def test_routed_wires_have_colors(sample_diagram):
 def test_routed_wires_track_endpoints(sample_diagram):
     """Test that routed wires track from/to pin positions."""
     engine = LayoutEngine()
-    _, _, routed_wires = engine.layout_diagram(sample_diagram)
+    result = engine.layout_diagram(sample_diagram)
+    routed_wires = result.routed_wires
 
     for wire in routed_wires:
         assert wire.from_pin_pos is not None
@@ -245,7 +256,10 @@ def test_layout_with_single_device(rpi5_board, bh1750_device):
     )
 
     engine = LayoutEngine()
-    canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+    result = engine.layout_diagram(diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
+    routed_wires = result.routed_wires
 
     assert canvas_width > 0
     assert canvas_height > 0
@@ -271,7 +285,10 @@ def test_layout_with_multiple_devices(rpi5_board, bh1750_device, led_device):
     )
 
     engine = LayoutEngine()
-    canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+    result = engine.layout_diagram(diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
+    routed_wires = result.routed_wires
 
     # Devices should be positioned at different y coordinates
     assert diagram.devices[0].position.y != diagram.devices[1].position.y
@@ -288,7 +305,10 @@ def test_layout_with_no_connections(rpi5_board, bh1750_device):
     )
 
     engine = LayoutEngine()
-    canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+    result = engine.layout_diagram(diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
+    routed_wires = result.routed_wires
 
     assert canvas_width > 0
     assert canvas_height > 0
@@ -567,7 +587,9 @@ def test_canvas_sizing_with_bounds(sample_board):
 
     config = LayoutConfig(min_canvas_width=800.0, min_canvas_height=600.0)
     engine = LayoutEngine(config)
-    canvas_width, canvas_height, _ = engine.layout_diagram(diagram)
+    result = engine.layout_diagram(diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
 
     # Should respect minimum bounds
     assert canvas_width >= config.min_canvas_width
@@ -600,7 +622,9 @@ def test_canvas_sizing_clamping_width(sample_board):
 
     config = LayoutConfig(max_canvas_width=1000.0, max_canvas_height=5000.0)
     engine = LayoutEngine(config)
-    canvas_width, canvas_height, _ = engine.layout_diagram(diagram)
+    result = engine.layout_diagram(diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
 
     # Width should be clamped but height should not necessarily be
     assert canvas_width <= config.max_canvas_width
@@ -623,7 +647,9 @@ def test_validate_layout_no_issues(sample_board):
     )
 
     engine = LayoutEngine()
-    canvas_width, canvas_height, _ = engine.layout_diagram(diagram)
+    result = engine.layout_diagram(diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
 
     # Validate should return no issues
     issues = engine.validate_layout(diagram, canvas_width, canvas_height)
@@ -793,7 +819,9 @@ def test_canvas_sizing_multi_tier(sample_board):
     )
 
     engine = LayoutEngine()
-    canvas_width, canvas_height, _ = engine.layout_diagram(diagram)
+    result = engine.layout_diagram(diagram)
+    canvas_width = result.canvas_width
+    canvas_height = result.canvas_height
 
     # Multiple tiers should result in a wide canvas
     # With 3 devices at different levels and tier_spacing=200, expect at least:

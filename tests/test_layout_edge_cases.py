@@ -58,7 +58,8 @@ class TestLargeDiagrams:
 
         # Layout should complete without errors
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         # Verify all connections were routed
         assert len(routed_wires) == len(connections)
@@ -101,7 +102,8 @@ class TestLargeDiagrams:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 40
 
@@ -148,7 +150,8 @@ class TestWireOverlapScenarios:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 3
 
@@ -191,7 +194,8 @@ class TestWireOverlapScenarios:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 10
 
@@ -229,7 +233,8 @@ class TestWireStyleDifferences:
         diagram = self._create_test_diagram_for_styles(WireStyle.ORTHOGONAL)
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 4
 
@@ -249,7 +254,8 @@ class TestWireStyleDifferences:
         diagram = self._create_test_diagram_for_styles(WireStyle.CURVED)
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 4
 
@@ -265,7 +271,8 @@ class TestWireStyleDifferences:
         diagram = self._create_test_diagram_for_styles(WireStyle.MIXED)
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 4
 
@@ -293,7 +300,8 @@ class TestWireStyleDifferences:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 4
 
@@ -415,7 +423,8 @@ class TestLayoutEdgeCases:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 1
         wire = routed_wires[0]
@@ -434,7 +443,8 @@ class TestLayoutEdgeCases:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         # Should have positioned the device
         assert diagram.devices[0].position is not None
@@ -465,7 +475,8 @@ class TestLayoutEdgeCases:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 20
 
@@ -491,7 +502,8 @@ class TestLayoutEdgeCases:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 10
 
