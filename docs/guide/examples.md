@@ -499,6 +499,71 @@ pinviz render examples/relay_control.yaml -o relay_control.svg
 
 ---
 
+### Pico Power Distribution Chain
+
+Clean power distribution example on Raspberry Pi Pico showing a voltage regulator powering an LED. Demonstrates proper multi-tier power chaining without shared pins.
+
+**Configuration:** [`examples/pico_power_chain.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/pico_power_chain.yaml)
+
+```yaml
+# Raspberry Pi Pico → Voltage Regulator → LED
+# Simple multi-tier example showing power distribution chain
+title: "Pico Power Distribution Chain"
+board: "raspberry_pi_pico"
+devices:
+  - name: "3.3V Regulator"
+    pins:
+      - name: "VIN"
+        role: "5V"
+      - name: "GND_IN"
+        role: "GND"
+      - name: "VOUT"
+        role: "3V3"
+      - name: "GND_OUT"
+        role: "GND"
+  - type: "led"
+    name: "Status LED"
+    color: "Green"
+connections:
+  # Pico to regulator
+  - from: {board_pin: 40}  # VBUS (5V, top header pin 40)
+    to: {device: "3.3V Regulator", device_pin: "VIN"}
+  - from: {board_pin: 38}  # GND (bottom header)
+    to: {device: "3.3V Regulator", device_pin: "GND_IN"}
+
+  # Regulator to LED (device-to-device)
+  - from: {device: "3.3V Regulator", device_pin: "VOUT"}
+    to: {device: "Status LED", device_pin: "+"}
+    components:
+      - type: "resistor"
+        value: "220Ω"
+  - from: {device: "3.3V Regulator", device_pin: "GND_OUT"}
+    to: {device: "Status LED", device_pin: "-"}
+
+show_legend: true
+```
+
+**Generate:**
+
+```bash
+pinviz render examples/pico_power_chain.yaml -o pico_power_chain.svg
+```
+
+**Result:**
+
+![Pico Power Distribution Chain](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pico_power_chain.svg)
+
+**Key Features:**
+
+- **Clean three-tier chain**: Pico → Regulator → LED
+- **Proper power chaining**: Each device gets power from previous device, not directly from board
+- **No shared pins**: Only one connection per board pin (validation enforced)
+- **Dual-header board**: Works with Pico's horizontal pin layout (top and bottom headers)
+- **Real-world application**: Power distribution, voltage conversion, LED indicators, battery-powered projects
+- **Best practice**: Demonstrates proper multi-tier power flow without pin sharing
+
+---
+
 ### Multi-Tier Connection Syntax
 
 Multi-tier connections use the `from` and `to` keys with nested dictionaries:

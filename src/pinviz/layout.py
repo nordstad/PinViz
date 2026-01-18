@@ -295,6 +295,25 @@ class LayoutEngine:
 
         return tier_positions
 
+    def _is_horizontal_layout_board(self, diagram: Diagram) -> bool:
+        """
+        Detect if board has horizontal/dual-sided layout (like Pico, ESP32).
+
+        Horizontal layout boards have pins on top and bottom edges,
+        vs. vertical layout boards (Pi 4/5) with pins in columns on one side.
+
+        Returns:
+            True if board has horizontal layout (dual headers), False otherwise
+        """
+        # Check if any pin has a 'header' attribute (top/bottom)
+        # This indicates a dual-header horizontal layout board
+        if diagram.board.pins:
+            # Sample first few pins to check for header attribute
+            for pin in diagram.board.pins[:5]:
+                if hasattr(pin, "header") and pin.header in ("top", "bottom"):
+                    return True
+        return False
+
     def _get_board_vertical_range(self, diagram: Diagram) -> tuple[float, float]:
         """
         Get the vertical range of the board in absolute coordinates.
@@ -476,7 +495,6 @@ class LayoutEngine:
         # Step 3: Get constraints
         board_top, board_bottom = self._get_board_vertical_range(diagram)
         min_device_y = self._calculate_min_device_y(diagram)
-        max_device_y = board_bottom  # Use full board height
 
         # Step 4: Calculate space requirements
         total_device_height = sum(d.height for d, _ in device_targets)
@@ -484,9 +502,27 @@ class LayoutEngine:
         min_spacing = self.config.device_spacing_vertical
         total_min_spacing = num_gaps * min_spacing if num_gaps > 0 else 0
         total_height_needed = total_device_height + total_min_spacing
+
+        # Step 5: Calculate max_device_y based on board layout type
+        is_horizontal_layout = self._is_horizontal_layout_board(diagram)
+
+        if is_horizontal_layout:
+            # Horizontal layout boards (Pico, ESP32): Allow devices to extend beyond board
+            # These boards are typically shorter and have pins on top/bottom
+            max_device_y = min_device_y + total_height_needed + 100  # Extra margin
+        else:
+            # Vertical layout boards (Pi 4/5): Try to fit within board height
+            available_height_at_board = board_bottom - min_device_y
+            if total_height_needed <= available_height_at_board:
+                # Devices fit - use board bottom as constraint
+                max_device_y = board_bottom
+            else:
+                # Devices don't fit - allow extending beyond board
+                max_device_y = min_device_y + total_height_needed
+
         available_height = max_device_y - min_device_y
 
-        # Step 5: Position devices
+        # Step 6: Position devices
         if total_height_needed <= available_height:
             # Enough space - position at target Y with adjustments
             self._position_with_target_y(device_targets, min_device_y, max_device_y, min_spacing)
