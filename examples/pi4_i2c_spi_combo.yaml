@@ -3,11 +3,10 @@ title: "Raspberry Pi 4 - I2C OLED Display + SPI Accelerometer"
 board: "rpi4"
 
 devices:
-  - type: "i2c"
+  - type: "i2c_device"
     name: "OLED Display"
-    has_int_pin: false
 
-  - type: "spi"
+  - type: "spi_device"
     name: "Accelerometer"
 
 connections:
