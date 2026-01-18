@@ -119,6 +119,7 @@ class LayoutConstants:
 
     # Conflict resolution constants
     CONFLICT_ADJUSTMENT_DIVISOR: float = 2.0  # Divisor for adjusting conflicting wires
+    MAX_ADJUSTMENT: float = 50.0  # Maximum total adjustment per wire to prevent unbounded offsets
 
     # Wire path calculation constants
     STRAIGHT_SEGMENT_LENGTH: float = 15.0  # Length of straight segment at device pin end
@@ -1059,8 +1060,19 @@ class LayoutEngine:
             # Push wire_a up, wire_b down
             wire_a_idx = conflict["wire_a"]
             wire_b_idx = conflict["wire_b"]
-            adjustments[wire_a_idx] = adjustments.get(wire_a_idx, 0.0) - adjustment_amount
-            adjustments[wire_b_idx] = adjustments.get(wire_b_idx, 0.0) + adjustment_amount
+
+            # Clamp adjustments to prevent unbounded offsets
+            current_a = adjustments.get(wire_a_idx, 0.0)
+            current_b = adjustments.get(wire_b_idx, 0.0)
+
+            adjustments[wire_a_idx] = max(
+                -self.constants.MAX_ADJUSTMENT,
+                min(self.constants.MAX_ADJUSTMENT, current_a - adjustment_amount),
+            )
+            adjustments[wire_b_idx] = max(
+                -self.constants.MAX_ADJUSTMENT,
+                min(self.constants.MAX_ADJUSTMENT, current_b + adjustment_amount),
+            )
 
         return adjustments
 
