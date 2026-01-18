@@ -8,6 +8,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+
+## [0.11.0] - 2026-01-18
+
+### Added
+- feat: Add ConnectionGraph utility class for topology analysis (#72) (https://github.com/nordstad/PinViz/pull/91)
+- [Phase 1.5] Add Phase 1 Integration Tests (https://github.com/nordstad/PinViz/pull/94)
+- fix: Sync MCP module version with package metadata and add Codecov badge (https://github.com/nordstad/PinViz/pull/95)
+- feat: Add Pydantic schemas for multi-level connections (Phase 2.1) (https://github.com/nordstad/PinViz/pull/97)
+- docs: Add supported boards table to README (https://github.com/nordstad/PinViz/pull/99)
+- [Phase 3.1] Add multi-level connection examples (https://github.com/nordstad/PinViz/pull/102)
+- feat: Implement multi-tier device layout positioning (Phase 3.2) (https://github.com/nordstad/PinViz/pull/103)
+- feat: Implement canvas sizing and layout validation (Phase 3.3) (#81) (https://github.com/nordstad/PinViz/pull/104)
+- test: Add multi-tier canvas sizing integration test (Phase 3.4) (https://github.com/nordstad/PinViz/pull/105)
+- [Phase 4.2] Add Comprehensive Integration Tests for Multi-Level Features (https://github.com/nordstad/PinViz/pull/107)
+- feat: Add professional example diagrams for Phase 4.3 (https://github.com/nordstad/PinViz/pull/108)
+- feat: Add smart vertical device positioning based on pin connections (https://github.com/nordstad/PinViz/pull/113)
+- fix: Eliminate wire stubs and add validation (fixes #112) (https://github.com/nordstad/PinViz/pull/114)
+- docs: Add multi-tier diagram examples to documentation (fixes #115) (https://github.com/nordstad/PinViz/pull/116)
+- docs: Add comprehensive multi-level device support documentation (fixes #86) (https://github.com/nordstad/PinViz/pull/117)
+- fix: add bounds checking to wire conflict resolution (fixes #119) (https://github.com/nordstad/PinViz/pull/129)
+
+### Changed
+- feat: Extend Connection model for device-to-device connections (https://github.com/nordstad/PinViz/pull/90)
+- chore(deps): bump urllib3 from 2.5.0 to 2.6.3 (https://github.com/nordstad/PinViz/pull/92)
+- [Phase 1.3] Pin Compatibility Matrix and Validation (https://github.com/nordstad/PinViz/pull/93)
+- feat: Update ConfigLoader for multi-level connections (Phase 2.2) (https://github.com/nordstad/PinViz/pull/98)
+- [Phase 2.3] Enhance CLI Validation Command (https://github.com/nordstad/PinViz/pull/100)
+- feat: Enhance validate command with graph visualization (#78) (https://github.com/nordstad/PinViz/pull/101)
+- [Phase 4.1] Comprehensive Integration Tests for Multi-Tier Layout (https://github.com/nordstad/PinViz/pull/106)
+
+### Fixed
+- Potential fix for code scanning alert no. 8: Workflow does not contain permissions (https://github.com/nordstad/PinViz/pull/70)
+- fix: centralize magic numbers into organized constant classes (fixes #121) (https://github.com/nordstad/PinViz/pull/128)
+- perf: optimize device lookups and wire conflict detection (fixes #118, #122) (https://github.com/nordstad/PinViz/pull/130)
+- perf: optimize wire conflict detection with early exit (fixes #122) (https://github.com/nordstad/PinViz/pull/131)
+- fix: improve error handling and validation messages (fixes #123, #124) (https://github.com/nordstad/PinViz/pull/132)
+- refactor: extract pin position calculation methods (fixes #120) (https://github.com/nordstad/PinViz/pull/133)
+- feat: decouple layout and rendering via LayoutResult (fixes #125) (https://github.com/nordstad/PinViz/pull/134)
+- feat: make device registry instantiable for better testing (fixes #126) (https://github.com/nordstad/PinViz/pull/135)
+
 ## [0.10.0] - 2026-01-14
 
 ### Changed
@@ -444,7 +484,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md for AI assistant context
 - Example configurations and diagrams
 
-[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/nordstad/PinViz/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/nordstad/PinViz/compare/v0.10.0...v0.10.0
 [0.9.2]: https://github.com/nordstad/PinViz/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/nordstad/PinViz/compare/v0.9.0...v0.9.1
