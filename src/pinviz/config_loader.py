@@ -383,7 +383,7 @@ class ConfigLoader:
         pin_configs = config["pins"]
 
         # Constants for pin positioning
-        pin_spacing = 8.0
+        pin_spacing = 14.0  # Increased from 8.0 to prevent label overlap
         pin_margin_top = 10.0
         pin_margin_bottom = 10.0
         pin_x_left = 5.0
