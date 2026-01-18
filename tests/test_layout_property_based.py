@@ -31,12 +31,15 @@ def device_pin_strategy(draw):
 @st.composite
 def device_strategy(draw, min_pins=1, max_pins=10):
     """Generate a random Device."""
+    # Reserved names that should not be used for devices
+    reserved_names = {"board", "raspberry", "pi", "pico"}
+
     name = draw(
         st.text(
             min_size=1,
             max_size=30,
             alphabet=st.characters(whitelist_categories=("Lu", "Ll", "Nd", "Zs")),
-        )
+        ).filter(lambda n: n.strip() and n.strip().lower() not in reserved_names)
     )
     num_pins = draw(st.integers(min_value=min_pins, max_value=max_pins))
     pins = [draw(device_pin_strategy()) for _ in range(num_pins)]

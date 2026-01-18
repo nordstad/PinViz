@@ -669,8 +669,9 @@ class TestPinRoleCompatibilityValidation:
 
         # Connections:
         # - Board 5V to power module input (OK)
-        # - Power module 3.3V output to sensor VCC (OK)
-        # - Shared ground (OK)
+        # - Board GND to power module GND (OK)
+        # - Power module 3.3V output to sensor VCC (OK device-to-device)
+        # - Power module GND to sensor GND (OK device-to-device, chained ground)
         connections = [
             Connection(board_pin=2, device_name="Power Module", device_pin_name="VIN"),
             Connection(board_pin=6, device_name="Power Module", device_pin_name="GND"),
@@ -680,7 +681,12 @@ class TestPinRoleCompatibilityValidation:
                 device_name="Sensor",
                 device_pin_name="VCC",
             ),
-            Connection(board_pin=6, device_name="Sensor", device_pin_name="GND"),
+            Connection(
+                source_device="Power Module",
+                source_pin="GND",
+                device_name="Sensor",
+                device_pin_name="GND",
+            ),
         ]
 
         diagram = Diagram(
@@ -694,6 +700,7 @@ class TestPinRoleCompatibilityValidation:
         issues = validator.validate(diagram)
 
         # Should have no errors - this is a valid power distribution setup
+        # with properly chained ground connections
         errors = [i for i in issues if i.level == ValidationLevel.ERROR]
         assert len(errors) == 0
 

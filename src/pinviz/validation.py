@@ -243,23 +243,62 @@ class DiagramValidator:
         log.debug("checking_pin_conflicts")
         issues: list[ValidationIssue] = []
         pin_usage: dict[int, list[str]] = {}
+        has_device_to_device = False
 
+        # Track board-to-device connections and check for device-to-device connections in one pass
         for conn in diagram.connections:
-            if conn.board_pin not in pin_usage:
-                pin_usage[conn.board_pin] = []
-            pin_usage[conn.board_pin].append(f"{conn.device_name}.{conn.device_pin_name}")
+            # Only count board connections (not device-to-device)
+            if conn.is_board_connection():
+                if conn.board_pin not in pin_usage:
+                    pin_usage[conn.board_pin] = []
+                pin_usage[conn.board_pin].append(f"{conn.device_name}.{conn.device_pin_name}")
+            elif conn.is_device_connection():
+                # Mark that this is a multi-tier diagram
+                has_device_to_device = True
 
         # Check for conflicts (ignore power/ground pins which can be shared)
         for pin_num, devices in pin_usage.items():
             if len(devices) > 1:
                 board_pin = diagram.board.get_pin_by_number(pin_num)
                 if board_pin:
-                    # Power and ground pins can be shared safely
+                    # Power and ground pins can be shared in simple diagrams
                     if board_pin.role in (
                         PinRole.POWER_3V3,
                         PinRole.POWER_5V,
                         PinRole.GROUND,
                     ):
+                        # For multi-tier diagrams, error on shared power/ground
+                        # In real hardware, you cannot physically connect multiple wires to one pin
+                        # Use breadboard power rails or device-to-device chaining instead
+                        if has_device_to_device and len(devices) > 1:
+                            issues.append(
+                                ValidationIssue(
+                                    level=ValidationLevel.ERROR,
+                                    message=(
+                                        f"Multiple devices share {board_pin.role.value} pin "
+                                        f"{pin_num}: {', '.join(devices)}. "
+                                        "In real hardware, you cannot physically connect "
+                                        "multiple wires to a single pin. Use breadboard power "
+                                        "rails or chain power/ground through device-to-device "
+                                        "connections."
+                                    ),
+                                    location=f"Pin {pin_num}",
+                                )
+                            )
+                        # For non-multi-tier diagrams, just warn
+                        elif len(devices) > 1:
+                            issues.append(
+                                ValidationIssue(
+                                    level=ValidationLevel.WARNING,
+                                    message=(
+                                        f"Multiple devices share {board_pin.role.value} pin "
+                                        f"{pin_num}: {', '.join(devices)}. "
+                                        "Consider using a breadboard with power rails for "
+                                        "cleaner wiring."
+                                    ),
+                                    location=f"Pin {pin_num}",
+                                )
+                            )
                         continue
 
                     # I2C pins can be shared (it's a bus)

@@ -1,0 +1,35 @@
+# Raspberry Pi Pico → Voltage Regulator → LED
+# Simple multi-tier example showing power distribution chain
+title: "Pico Power Distribution Chain"
+board: "raspberry_pi_pico"
+devices:
+  - name: "3.3V Regulator"
+    pins:
+      - name: "VIN"
+        role: "5V"
+      - name: "GND_IN"
+        role: "GND"
+      - name: "VOUT"
+        role: "3V3"
+      - name: "GND_OUT"
+        role: "GND"
+  - type: "led"
+    name: "Status LED"
+    color: "Green"
+connections:
+  # Pico to regulator
+  - from: {board_pin: 40}  # VBUS (5V, top header pin 40)
+    to: {device: "3.3V Regulator", device_pin: "VIN"}
+  - from: {board_pin: 38}  # GND (bottom header)
+    to: {device: "3.3V Regulator", device_pin: "GND_IN"}
+
+  # Regulator to LED (device-to-device)
+  - from: {device: "3.3V Regulator", device_pin: "VOUT"}
+    to: {device: "Status LED", device_pin: "+"}
+    components:
+      - type: "resistor"
+        value: "220Ω"
+  - from: {device: "3.3V Regulator", device_pin: "GND_OUT"}
+    to: {device: "Status LED", device_pin: "-"}
+
+show_legend: true

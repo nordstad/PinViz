@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 
 from ..model import Device, DevicePin, PinRole, Point
+from ..utils import is_output_pin
 
 
 def _get_device_config_path(config_name: str) -> Path:
@@ -106,27 +107,10 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
     # Get layout configuration or use defaults
     layout_config = config_dict.get("layout", {})
     layout_type = layout_config.get("type", "vertical")  # vertical, horizontal, custom
-    pin_spacing = layout_config.get("pin_spacing", 8.0)  # Default spacing
+    # Default spacing (increased from 8.0 to prevent label overlap)
+    pin_spacing = layout_config.get("pin_spacing", 14.0)
     pin_x_left = layout_config.get("pin_x", 5.0)  # Default x position for left pins
     start_y = layout_config.get("start_y", 10.0)  # Starting y position
-
-    # Helper function to detect output pins
-    def is_output_pin(pin_name: str) -> bool:
-        """Detect if a pin should be positioned on the right (output) side."""
-        name_upper = pin_name.upper()
-        output_patterns = [
-            "OUT",
-            "TX",
-            "MOSI",
-            "DO",
-            "DOUT",
-            "VOUT",
-            "COM",  # Relay common
-            "NO",  # Relay normally open
-            "NC",  # Relay normally closed
-            "WIPER",  # Potentiometer output
-        ]
-        return any(pattern in name_upper for pattern in output_patterns)
 
     # Separate pins into left and right groups for smart positioning
     left_pins = []
@@ -187,15 +171,20 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
             )
         )
 
-    # Position right side pins
+    # Position right side pins (offset in vertical mode to prevent label collision)
+    right_pin_offset = pin_spacing / 2 if layout_type == "vertical" else 0
     for i, pin_data in enumerate(right_pins):
         if pin_data["position"] is None:
             if layout_type == "vertical":
-                pin_data["position"] = Point(pin_x_right, start_y + i * pin_spacing)
+                pin_data["position"] = Point(
+                    pin_x_right, start_y + right_pin_offset + i * pin_spacing
+                )
             elif layout_type == "horizontal":
                 pin_data["position"] = Point(pin_x_right + i * pin_spacing, start_y)
             else:  # custom or fallback
-                pin_data["position"] = Point(pin_x_right, start_y + i * pin_spacing)
+                pin_data["position"] = Point(
+                    pin_x_right, start_y + right_pin_offset + i * pin_spacing
+                )
 
         pins.append(
             DevicePin(
@@ -206,10 +195,13 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
         )
 
     # Auto-calculate height based on max pins per side if not specified
-    # Height = start_y + (n-1) spacing between pins + bottom margin
+    # Height = start_y + offset + (n-1) spacing between pins + bottom margin
     max_pins_per_side = max(len(left_pins), len(right_pins), 1)
     bottom_margin = 10.0
-    default_height = max(40.0, start_y + ((max_pins_per_side - 1) * pin_spacing) + bottom_margin)
+    # Account for right pin offset in height calculation
+    default_height = max(
+        40.0, start_y + right_pin_offset + ((max_pins_per_side - 1) * pin_spacing) + bottom_margin
+    )
     height = display.get("height", default_height)
 
     # Use category-based color defaults if not specified
