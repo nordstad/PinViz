@@ -3,11 +3,10 @@ title: "Multi-Device Wiring: I2C OLED + SPI Accelerometer"
 board: "raspberry_pi_5"
 
 devices:
-  - type: "i2c"
+  - type: "i2c_device"
     name: "OLED_Display"
-    has_int_pin: false
 
-  - type: "spi"
+  - type: "spi_device"
     name: "Accel_SPI"
 
 connections:
