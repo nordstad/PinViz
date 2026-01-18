@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 
 from ..model import Device, DevicePin, PinRole, Point
+from ..utils import is_output_pin
 
 
 def _get_device_config_path(config_name: str) -> Path:
@@ -110,24 +111,6 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
     pin_spacing = layout_config.get("pin_spacing", 14.0)
     pin_x_left = layout_config.get("pin_x", 5.0)  # Default x position for left pins
     start_y = layout_config.get("start_y", 10.0)  # Starting y position
-
-    # Helper function to detect output pins
-    def is_output_pin(pin_name: str) -> bool:
-        """Detect if a pin should be positioned on the right (output) side."""
-        name_upper = pin_name.upper()
-        output_patterns = [
-            "OUT",
-            "TX",
-            "MOSI",
-            "DO",
-            "DOUT",
-            "VOUT",
-            "COM",  # Relay common
-            "NO",  # Relay normally open
-            "NC",  # Relay normally closed
-            "WIPER",  # Potentiometer output
-        ]
-        return any(pattern in name_upper for pattern in output_patterns)
 
     # Separate pins into left and right groups for smart positioning
     left_pins = []

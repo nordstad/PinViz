@@ -20,6 +20,7 @@ from .model import (
     Point,
 )
 from .schemas import ConnectionSchema, validate_config
+from .utils import is_output_pin
 from .validation import ValidationIssue, ValidationLevel
 
 log = get_logger(__name__)
@@ -388,24 +389,6 @@ class ConfigLoader:
         pin_margin_bottom = 10.0
         pin_x_left = 5.0
         default_width = 80.0
-
-        # Detect which pins are outputs (should go on right side)
-        def is_output_pin(pin_name: str) -> bool:
-            """Detect if a pin should be positioned on the right (output) side."""
-            name_upper = pin_name.upper()
-            output_patterns = [
-                "OUT",
-                "TX",
-                "MOSI",
-                "DO",
-                "DOUT",
-                "VOUT",
-                "COM",  # Relay common
-                "NO",  # Relay normally open
-                "NC",  # Relay normally closed
-                "WIPER",  # Potentiometer output
-            ]
-            return any(pattern in name_upper for pattern in output_patterns)
 
         # Separate pins into left (input) and right (output) groups
         left_pins = []

@@ -243,17 +243,18 @@ class DiagramValidator:
         log.debug("checking_pin_conflicts")
         issues: list[ValidationIssue] = []
         pin_usage: dict[int, list[str]] = {}
+        has_device_to_device = False
 
-        # Track only board-to-device connections for pin conflict checking
+        # Track board-to-device connections and check for device-to-device connections in one pass
         for conn in diagram.connections:
             # Only count board connections (not device-to-device)
             if conn.is_board_connection():
                 if conn.board_pin not in pin_usage:
                     pin_usage[conn.board_pin] = []
                 pin_usage[conn.board_pin].append(f"{conn.device_name}.{conn.device_pin_name}")
-
-        # Check if this is a multi-tier diagram (has device-to-device connections)
-        has_device_to_device = any(conn.is_device_connection() for conn in diagram.connections)
+            elif conn.is_device_connection():
+                # Mark that this is a multi-tier diagram
+                has_device_to_device = True
 
         # Check for conflicts (ignore power/ground pins which can be shared)
         for pin_num, devices in pin_usage.items():
