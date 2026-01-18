@@ -18,7 +18,6 @@
 
 PinViz makes it easy to create clear, professional wiring diagrams for your Raspberry Pi projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
 
-
 ## Example Diagram
 
 <p align="center">
@@ -39,6 +38,32 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - 📦 **SVG Output**: Scalable, high-quality vector graphics
 - ✨ **Modern CLI**: Rich terminal output with progress indicators and colored messages
 - 🔧 **JSON Output**: Machine-readable output for CI/CD integration
+
+## Multi-Level Device Support ✨
+
+**New in v0.11.0**: PinViz now supports device-to-device connections, enabling complex multi-level wiring diagrams!
+
+### What's New
+
+- Connect devices to other devices (not just to the board)
+- Automatic horizontal tier layout based on connection depth
+- Supports power distribution chains, sensor chains, motor controllers, and more
+- Backward compatible with existing configurations
+
+### Example: Power Distribution Chain
+
+```yaml
+connections:
+  # Board to regulator
+  - from: {board_pin: 2}
+    to: {device: "Regulator", device_pin: "VIN"}
+
+  # Regulator to LED (device-to-device!)
+  - from: {device: "Regulator", device_pin: "VOUT"}
+    to: {device: "LED", device_pin: "VCC"}
+```
+
+See [examples/multi_level_simple.yaml](examples/multi_level_simple.yaml) for a complete example.
 
 ## Supported Boards
 
@@ -67,8 +92,6 @@ uv add pinviz
 # Using pip
 pip install pinviz
 ```
-
-
 
 ## Quick Start
 
