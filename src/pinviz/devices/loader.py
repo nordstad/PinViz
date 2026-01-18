@@ -188,15 +188,20 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
             )
         )
 
-    # Position right side pins
+    # Position right side pins (offset in vertical mode to prevent label collision)
+    right_pin_offset = pin_spacing / 2 if layout_type == "vertical" else 0
     for i, pin_data in enumerate(right_pins):
         if pin_data["position"] is None:
             if layout_type == "vertical":
-                pin_data["position"] = Point(pin_x_right, start_y + i * pin_spacing)
+                pin_data["position"] = Point(
+                    pin_x_right, start_y + right_pin_offset + i * pin_spacing
+                )
             elif layout_type == "horizontal":
                 pin_data["position"] = Point(pin_x_right + i * pin_spacing, start_y)
             else:  # custom or fallback
-                pin_data["position"] = Point(pin_x_right, start_y + i * pin_spacing)
+                pin_data["position"] = Point(
+                    pin_x_right, start_y + right_pin_offset + i * pin_spacing
+                )
 
         pins.append(
             DevicePin(
@@ -207,10 +212,13 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
         )
 
     # Auto-calculate height based on max pins per side if not specified
-    # Height = start_y + (n-1) spacing between pins + bottom margin
+    # Height = start_y + offset + (n-1) spacing between pins + bottom margin
     max_pins_per_side = max(len(left_pins), len(right_pins), 1)
     bottom_margin = 10.0
-    default_height = max(40.0, start_y + ((max_pins_per_side - 1) * pin_spacing) + bottom_margin)
+    # Account for right pin offset in height calculation
+    default_height = max(
+        40.0, start_y + right_pin_offset + ((max_pins_per_side - 1) * pin_spacing) + bottom_margin
+    )
     height = display.get("height", default_height)
 
     # Use category-based color defaults if not specified
