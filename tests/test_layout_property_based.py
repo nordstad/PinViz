@@ -134,7 +134,8 @@ class TestLayoutProperties:
         engine = LayoutEngine()
 
         # Layout should not raise an exception
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         # Basic validity checks
         assert routed_wires is not None
@@ -155,7 +156,8 @@ class TestLayoutProperties:
     def test_all_wires_have_valid_paths(self, diagram):
         """Property: All routed wires should have valid path points."""
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         for wire in routed_wires:
             # Every wire should have at least 2 path points
@@ -180,7 +182,7 @@ class TestLayoutProperties:
             return  # Need at least 2 devices to test
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        engine.layout_diagram(diagram)
 
         positions = [(d.position.x, d.position.y) for d in diagram.devices]
 
@@ -221,7 +223,8 @@ class TestLayoutProperties:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == 1
         wire = routed_wires[0]
@@ -253,7 +256,8 @@ class TestLayoutProperties:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(diagram.devices) == num_devices
         assert len(routed_wires) == len(connections)
@@ -284,7 +288,8 @@ class TestLayoutProperties:
         )
 
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == len(connections)
         for wire in routed_wires:
@@ -307,8 +312,10 @@ class TestLayoutInvariants:
         diagram1 = deepcopy(diagram)
         diagram2 = deepcopy(diagram)
 
-        _, _, wires1 = engine.layout_diagram(diagram1)
-        _, _, wires2 = engine.layout_diagram(diagram2)
+        result = engine.layout_diagram(diagram1)
+        wires1 = result.routed_wires
+        result = engine.layout_diagram(diagram2)
+        wires2 = result.routed_wires
 
         # Device positions should be identical
         for d1, d2 in zip(diagram1.devices, diagram2.devices, strict=True):
@@ -325,7 +332,8 @@ class TestLayoutInvariants:
     def test_all_connections_are_routed(self, diagram):
         """Property: Number of routed wires equals number of connections."""
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         assert len(routed_wires) == len(diagram.connections)
 
@@ -334,7 +342,8 @@ class TestLayoutInvariants:
     def test_wire_colors_are_assigned(self, diagram):
         """Property: All wires should have colors assigned."""
         engine = LayoutEngine()
-        _, _, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        routed_wires = result.routed_wires
 
         for wire in routed_wires:
             assert wire.color is not None

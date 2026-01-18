@@ -94,18 +94,21 @@ class SVGRenderer:
             connection_count=len(diagram.connections),
         )
 
-        # Calculate dynamic board margin based on whether title is shown
-        board_margin_top = self.layout_config.get_board_margin_top(diagram.show_title)
-
-        # Calculate layout
+        # Calculate layout (returns immutable LayoutResult)
         log.debug("calculating_layout")
-        canvas_width, canvas_height, routed_wires = self.layout_engine.layout_diagram(diagram)
+        layout_result = self.layout_engine.layout_diagram(diagram)
         log.debug(
             "layout_calculated",
-            canvas_width=canvas_width,
-            canvas_height=canvas_height,
-            wire_count=len(routed_wires),
+            canvas_width=layout_result.canvas_width,
+            canvas_height=layout_result.canvas_height,
+            wire_count=len(layout_result.routed_wires),
         )
+
+        # Extract layout data for rendering
+        canvas_width = layout_result.canvas_width
+        canvas_height = layout_result.canvas_height
+        routed_wires = layout_result.routed_wires
+        board_margin_top = layout_result.board_margin_top
 
         # Create SVG drawing
         dwg = draw.Drawing(canvas_width, canvas_height)

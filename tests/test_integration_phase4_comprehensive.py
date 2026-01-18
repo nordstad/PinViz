@@ -90,7 +90,10 @@ class TestEndToEndLayoutScenarios:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify devices are positioned correctly in tiers
         assert device_a.position.x < device_b.position.x < device_c.position.x, (
@@ -170,7 +173,10 @@ class TestEndToEndLayoutScenarios:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify branching structure
         assert device_a.position.x < device_b.position.x, "Splitter before branches"
@@ -256,7 +262,10 @@ class TestEndToEndLayoutScenarios:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify multi-tier structure
         # All devices directly connected to board are at tier 0
@@ -300,7 +309,10 @@ class TestBackwardCompatibility:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify device is positioned
         assert device.position is not None
@@ -345,8 +357,9 @@ class TestBackwardCompatibility:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
-
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
         # All devices should be at same X (same tier)
         x_positions = [d.position.x for d in devices]
         assert len(set(x_positions)) == 1, "All devices should be in same tier"
@@ -379,7 +392,10 @@ class TestBackwardCompatibility:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify render completes without errors
         assert canvas_width > 0
@@ -454,8 +470,9 @@ class TestEdgeCases:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
-
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
         # Verify layout completes without errors
         assert canvas_width > 0 and canvas_height > 0
 
@@ -545,7 +562,10 @@ class TestEdgeCases:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify multi-tier structure
         assert device_a.position.x == device_b.position.x, "Inputs at same tier"
@@ -581,7 +601,10 @@ class TestEdgeCases:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
 
         # Verify basic layout
         assert device.position is not None
@@ -684,7 +707,10 @@ class TestPerformanceValidation:
 
         # Measure layout time
         start_time = time.time()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
+        routed_wires = result.routed_wires
         elapsed_time = time.time() - start_time
 
         # Critical requirement: must complete in under 1 second
@@ -810,8 +836,9 @@ class TestLayoutValidation:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
-
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
         # Validate layout
         issues = engine.validate_layout(diagram, canvas_width, canvas_height)
 
@@ -861,8 +888,9 @@ class TestLayoutValidation:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
-
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
         # Verify all devices are within canvas
         for device in devices:
             assert 0 <= device.position.x <= canvas_width - device.width, (
@@ -906,8 +934,9 @@ class TestLayoutValidation:
         )
 
         engine = LayoutEngine()
-        canvas_width, canvas_height, routed_wires = engine.layout_diagram(diagram)
-
+        result = engine.layout_diagram(diagram)
+        canvas_width = result.canvas_width
+        canvas_height = result.canvas_height
         # Check no overlaps manually
         for i, dev1 in enumerate(devices):
             for dev2 in devices[i + 1 :]:
