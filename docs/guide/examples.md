@@ -17,6 +17,7 @@ Learn PinViz capabilities through these focused examples:
 | **I2C Sensors** | [BH1750](#bh1750-light-sensor) | Automatic I2C color coding, bus sharing |
 | **Inline Components** | [LED with Resistor](#led-with-resistor) | Resistors, capacitors, diodes on wires |
 | **Multiple Devices** | [Traffic Light](#traffic-light) | Parallel connections, multiple LEDs |
+| **Multi-Tier Connections** | [Motor Control](#motor-control-with-l293d) | Device-to-device chains, motor drivers, relay control |
 | **Wire Routing** | [Multi-Device Setup](#multi-device-setup) | Custom wire colors, complex routing |
 | **Pico Board** | [Pico LED](#pico-led-circuit) | Dual-sided board, horizontal pin layout |
 | **Specifications Table** | [Pico LEDs with Specs](#pico-multi-led-circuit-with-specifications) | Device specs, part numbers, --show-legend |
@@ -354,6 +355,191 @@ connections:
 - Projects with multiple similar devices
 - Technical specifications needed for assembly
 - Part numbers and electrical characteristics
+
+---
+
+## Multi-Tier Connections
+
+Multi-tier diagrams show connections that flow through intermediate devices, creating device chains like board → motor driver → motor or board → relay → load. This is a powerful feature for documenting complex systems with motor controllers, ADCs, power distribution, and relay switching.
+
+### Motor Control with L293D
+
+DC motor control through L293D motor driver IC, demonstrating a three-tier connection chain: Raspberry Pi → L293D Driver → DC Motor.
+
+**Configuration:** [`examples/motor_control.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/motor_control.yaml)
+
+```yaml
+# Raspberry Pi → L293D Motor Driver → DC Motor
+title: "DC Motor Control with L293D"
+board: "raspberry_pi_5"
+devices:
+  - name: "L293D Driver"
+    pins:
+      - name: "VCC1"
+        role: "5V"
+      - name: "VCC2"
+        role: "5V"
+      - name: "GND"
+        role: "GND"
+      - name: "IN1"
+        role: "GPIO"
+      - name: "IN2"
+        role: "GPIO"
+      - name: "OUT1"
+        role: "GPIO"
+      - name: "OUT2"
+        role: "GPIO"
+  - name: "DC Motor"
+    pins:
+      - name: "MOTOR+"
+        role: "GPIO"
+      - name: "MOTOR-"
+        role: "GPIO"
+connections:
+  # Power to driver
+  - from: {board_pin: 2}
+    to: {device: "L293D Driver", device_pin: "VCC1"}
+  - from: {board_pin: 4}
+    to: {device: "L293D Driver", device_pin: "VCC2"}
+  - from: {board_pin: 6}
+    to: {device: "L293D Driver", device_pin: "GND"}
+  # Control signals
+  - from: {board_pin: 11}
+    to: {device: "L293D Driver", device_pin: "IN1"}
+  - from: {board_pin: 13}
+    to: {device: "L293D Driver", device_pin: "IN2"}
+  # Driver to motor (device-to-device)
+  - from: {device: "L293D Driver", device_pin: "OUT1"}
+    to: {device: "DC Motor", device_pin: "MOTOR+"}
+  - from: {device: "L293D Driver", device_pin: "OUT2"}
+    to: {device: "DC Motor", device_pin: "MOTOR-"}
+show_legend: true
+```
+
+**Generate:**
+
+```bash
+pinviz render examples/motor_control.yaml -o motor_control.svg
+```
+
+**Result:**
+
+![Motor Control with L293D](https://raw.githubusercontent.com/nordstad/PinViz/main/images/motor_control.svg)
+
+**Key Features:**
+
+- **Three-tier connection chain**: Board → Driver → Motor
+- **`from`/`to` syntax**: Device-to-device connections use `from: {device: "...", device_pin: "..."}` and `to: {device: "...", device_pin: "..."}`
+- **Mixed connections**: Combines board-to-device and device-to-device connections
+- **Real-world application**: Robot motor control, automated systems, CNC machines
+- **Specifications table**: Includes `show_legend: true` for device details
+
+---
+
+### Relay Control for High Voltage Devices
+
+Relay module controlling a high-voltage load, showing another practical multi-tier application.
+
+**Configuration:** [`examples/relay_control.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/relay_control.yaml)
+
+```yaml
+# Pi → Relay Module → High Voltage Device (represented as load)
+title: "Relay Control for High Voltage Device"
+board: "raspberry_pi_5"
+devices:
+  - name: "5V Relay Module"
+    pins:
+      - name: "VCC"
+        role: "5V"
+      - name: "GND"
+        role: "GND"
+      - name: "IN"
+        role: "GPIO"
+      - name: "COM"
+        role: "GPIO"
+      - name: "NO"
+        role: "GPIO"
+  - name: "Load"
+    pins:
+      - name: "POWER"
+        role: "GPIO"
+      - name: "GND"
+        role: "GND"
+connections:
+  # Power and control to relay
+  - from: {board_pin: 2}
+    to: {device: "5V Relay Module", device_pin: "VCC"}
+  - from: {board_pin: 6}
+    to: {device: "5V Relay Module", device_pin: "GND"}
+  - from: {board_pin: 11}
+    to: {device: "5V Relay Module", device_pin: "IN"}
+  # Relay to load (device-to-device)
+  - from: {device: "5V Relay Module", device_pin: "NO"}
+    to: {device: "Load", device_pin: "POWER"}
+show_legend: true
+```
+
+**Generate:**
+
+```bash
+pinviz render examples/relay_control.yaml -o relay_control.svg
+```
+
+**Result:**
+
+![Relay Control](https://raw.githubusercontent.com/nordstad/PinViz/main/images/relay_control.svg)
+
+**Key Features:**
+
+- **Safety isolation**: Relay provides electrical isolation between low-voltage Pi and high-voltage load
+- **Device-to-device connection**: Relay output connects directly to load
+- **Simple two-tier chain**: Board → Relay → Load
+- **Real-world application**: Home automation, lighting control, pump control, heating systems
+- **Compact syntax**: Clean `from`/`to` connection format
+
+---
+
+### Multi-Tier Connection Syntax
+
+Multi-tier connections use the `from` and `to` keys with nested dictionaries:
+
+**Board to device** (traditional syntax, still supported):
+
+```yaml
+connections:
+  - board_pin: 1
+    device: "Device Name"
+    device_pin: "PIN"
+```
+
+**Board to device** (new `from`/`to` syntax):
+
+```yaml
+connections:
+  - from: {board_pin: 1}
+    to: {device: "Device Name", device_pin: "PIN"}
+```
+
+**Device to device** (requires `from`/`to` syntax):
+
+```yaml
+connections:
+  - from: {device: "Device1", device_pin: "OUT"}
+    to: {device: "Device2", device_pin: "IN"}
+```
+
+**Key points:**
+
+- Both connection syntaxes work for board-to-device connections
+- Device-to-device connections **require** the `from`/`to` syntax
+- You can mix both syntaxes in the same configuration
+- Works with all board types (Pi 5, Pi 4, Pico, etc.)
+
+**Additional multi-tier examples** in the repository:
+
+- `power_distribution.yaml` - Complex power chain with battery, charger, controller, and sensors
+- `multi_level_simple.yaml` - Simple voltage regulator chain
+- `multi_level_branching.yaml` - Multiple devices sharing intermediate power sources
 
 ---
 
