@@ -9,6 +9,7 @@ from pydantic import ValidationError
 
 from . import boards
 from .connection_graph import ConnectionGraph
+from .constants import DEVICE_LAYOUT
 from .devices import get_registry
 from .logging_config import get_logger
 from .model import (
@@ -384,11 +385,11 @@ class ConfigLoader:
         pin_configs = config["pins"]
 
         # Constants for pin positioning
-        pin_spacing = 14.0  # Increased from 8.0 to prevent label overlap
-        pin_margin_top = 10.0
-        pin_margin_bottom = 10.0
-        pin_x_left = 5.0
-        default_width = 80.0
+        pin_spacing = DEVICE_LAYOUT.PIN_SPACING
+        pin_margin_top = DEVICE_LAYOUT.PIN_MARGIN_TOP
+        pin_margin_bottom = DEVICE_LAYOUT.PIN_MARGIN_BOTTOM
+        pin_x_left = DEVICE_LAYOUT.PIN_X_LEFT
+        default_width = DEVICE_LAYOUT.DEFAULT_DEVICE_WIDTH
 
         # Separate pins into left (input) and right (output) groups
         left_pins = []
@@ -425,7 +426,7 @@ class ConfigLoader:
             pins_list.append({"name": pin_name, "role": role, "position": position})
 
         # Stagger right pins by half spacing to prevent label collision
-        right_pin_offset = pin_spacing / 2
+        right_pin_offset = pin_spacing * DEVICE_LAYOUT.RIGHT_PIN_OFFSET_RATIO
 
         # Calculate dynamic height based on max number of pins on either side
         # Height = top margin + offset + (n-1) spacing between pins + bottom margin
@@ -464,7 +465,7 @@ class ConfigLoader:
             pins=pins,
             width=width,
             height=height,
-            color=config.get("color", "#4A90E2"),
+            color=config.get("color", DEVICE_LAYOUT.DEFAULT_DEVICE_COLOR),
             description=config.get("description"),
         )
 

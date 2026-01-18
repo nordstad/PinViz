@@ -7,6 +7,7 @@ import drawsvg as draw
 
 from .board_renderer import BoardRenderer, BoardStyle
 from .component_renderer import ComponentRenderer
+from .constants import TABLE_LAYOUT
 from .layout import LayoutConfig, LayoutEngine
 from .logging_config import get_logger
 from .model import Board, Diagram, PinRole
@@ -620,12 +621,12 @@ class SVGRenderer:
         table_width = max_device_x - table_x
 
         # Table styling parameters
-        base_row_height = 30
-        line_spacing = 12
-        header_height = 35
-        padding_left = 10
-        padding_right = 10
-        name_column_width = 110  # Reduced from ~140-180
+        base_row_height = TABLE_LAYOUT.BASE_ROW_HEIGHT
+        line_spacing = TABLE_LAYOUT.LINE_SPACING
+        header_height = TABLE_LAYOUT.HEADER_HEIGHT
+        padding_left = TABLE_LAYOUT.PADDING_LEFT
+        padding_right = TABLE_LAYOUT.PADDING_RIGHT
+        name_column_width = TABLE_LAYOUT.NAME_COLUMN_WIDTH
         desc_column_start = table_x + padding_left + name_column_width
 
         # Pre-calculate row heights for multi-line descriptions
