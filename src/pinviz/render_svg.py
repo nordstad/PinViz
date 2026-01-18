@@ -230,21 +230,54 @@ class SVGRenderer:
                 board_width = board.width
                 board_height = board.height
 
-            except (FileNotFoundError, ET.ParseError, PermissionError, OSError) as e:
-                # SVG asset loading failed - use fallback rendering
-                # Handles: file not found, parse errors, permission issues, I/O errors
-                error_type = type(e).__name__
+            except FileNotFoundError as e:
+                # Expected: SVG asset file not found - use fallback rendering
                 log.warning(
-                    "svg_load_failed",
-                    error_type=error_type,
-                    error=str(e),
+                    "svg_asset_not_found",
                     path=board.svg_asset_path,
                     board=board.name,
+                    error=str(e),
                 )
-                print(f"Warning: Could not load SVG ({error_type}: {e}), using fallback")
+                print(
+                    f"Warning: SVG asset not found ({board.svg_asset_path}), "
+                    "using fallback rendering"
+                )
                 self.component_renderer.draw_board_fallback(dwg, board, x, y)
                 board_width = board.width
                 board_height = board.height
+
+            except ET.ParseError as e:
+                # Data corruption: Malformed SVG content - use fallback rendering
+                log.error(
+                    "svg_parse_error",
+                    path=board.svg_asset_path,
+                    board=board.name,
+                    error=str(e),
+                    line=e.position[0] if hasattr(e, "position") else None,
+                )
+                print(f"Error: SVG file is malformed ({board.svg_asset_path}): {e}")
+                print("Using fallback rendering instead.")
+                self.component_renderer.draw_board_fallback(dwg, board, x, y)
+                board_width = board.width
+                board_height = board.height
+
+            except (PermissionError, OSError) as e:
+                # Critical: Permission denied or disk failure - escalate to user
+                error_type = type(e).__name__
+                log.error(
+                    "svg_system_error",
+                    error_type=error_type,
+                    path=board.svg_asset_path,
+                    board=board.name,
+                    error=str(e),
+                )
+                raise RuntimeError(
+                    f"Critical error loading SVG asset for board '{board.name}': "
+                    f"{error_type} - {e}\n"
+                    f"Path: {board.svg_asset_path}\n"
+                    f"This may indicate a permission issue or disk failure. "
+                    f"Please check file permissions and disk health."
+                ) from e
         else:
             # Fallback: draw a simple rectangle
             log.debug("using_fallback_rectangle", board_name=board.name)
