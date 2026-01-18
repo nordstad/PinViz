@@ -58,6 +58,44 @@ pinviz add-device
 5. **Layout Engine** (`layout.py`): Positions devices and routes wires algorithmically
 6. **SVG Renderer** (`render_svg.py`): Converts diagrams to SVG using `drawsvg`
 7. **CLI** (`cli/`): Modular Typer-based CLI with Rich output and JSON support
+8. **Connection Graph** (`connection_graph.py`): Multi-level device connection validation and analysis
+
+### Multi-Level Device Support (v0.11.0+)
+
+#### Connection Model
+
+`Connection` dataclass supports both board and device sources:
+
+- `board_pin: int | None` - Board source (backward compatible)
+- `source_device: str | None` - Device source (new)
+- `source_pin: str | None` - Source pin on device (new)
+
+#### Connection Graph
+
+`ConnectionGraph` class (src/pinviz/connection_graph.py):
+
+- Builds directed graph from connections
+- Calculates device levels via BFS
+- Detects cycles using DFS
+- Validates pin compatibility
+
+#### Layout Strategy
+
+Multi-tier horizontal layout:
+
+- Devices positioned in tiers based on connection depth
+- Each tier gets its own X position
+- Vertical stacking within each tier
+- Dynamic spacing based on device widths
+
+#### Wire Routing
+
+Device-to-device routing:
+
+- Each tier has routing zone on right side
+- Wires flow horizontally through inter-tier zones
+- Bezier curves for smooth appearance
+- Backward connections (higher → lower level) supported
 
 ### Key Design Patterns
 
