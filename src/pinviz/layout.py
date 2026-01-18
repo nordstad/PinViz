@@ -979,16 +979,28 @@ class LayoutEngine:
         Samples points along each wire path and checks for overlaps.
         Returns adjustments to y_offset for each wire to minimize overlaps.
 
+        Performance: Uses bounding box quick rejection to filter out non-overlapping
+        wire pairs before expensive distance calculations. Early exit optimization
+        stops checking sample pairs once a conflict is found.
+
         Args:
             wires: List of wire info dicts with positions and initial offsets
 
         Returns:
             Dictionary mapping wire_idx to y_offset adjustment
         """
+        import time
+
+        start_time = time.perf_counter()
         adjustments = {}
         min_separation = (
             self.config.wire_spacing * self.constants.MIN_SEPARATION_MULTIPLIER
         )  # Minimum desired separation
+
+        # Performance tracking
+        total_wire_pairs = 0
+        bbox_rejections = 0
+        distance_checks = 0
 
         # Sample points along each wire's potential path and calculate bounding boxes
         wire_samples = []
@@ -1037,6 +1049,7 @@ class LayoutEngine:
         conflicts = []
         for i in range(len(wire_samples)):
             for j in range(i + 1, len(wire_samples)):
+                total_wire_pairs += 1
                 wire_a = wire_samples[i]
                 wire_b = wire_samples[j]
 
@@ -1045,6 +1058,7 @@ class LayoutEngine:
                     abs(wire_a["from_y"] - wire_b["from_y"])
                     > self.constants.FROM_Y_POSITION_TOLERANCE
                 ):
+                    bbox_rejections += 1
                     continue  # Wires start far apart, unlikely to conflict
 
                 # Quick rejection using bounding boxes (O(1) check)
@@ -1060,14 +1074,27 @@ class LayoutEngine:
                     or bbox_a[3] + bbox_margin < bbox_b[2]  # a_max_y + margin < b_min_y
                     or bbox_b[3] + bbox_margin < bbox_a[2]  # b_max_y + margin < a_min_y
                 ):
+                    bbox_rejections += 1
                     continue  # Bounding boxes don't overlap, skip expensive check
 
+                # Bounding boxes overlap - need to check distances
+                distance_checks += 1
+
                 # Check minimum distance between sampled points (only if bounding boxes overlap)
+                # Early exit optimization: stop checking as soon as we find a conflict
                 min_dist = float("inf")
+                found_conflict = False
                 for pa in wire_a["samples"]:
                     for pb in wire_b["samples"]:
                         dist = math.sqrt((pa[0] - pb[0]) ** 2 + (pa[1] - pb[1]) ** 2)
+                        if dist < min_separation:
+                            # Found a conflict - no need to check remaining pairs
+                            min_dist = dist
+                            found_conflict = True
+                            break
                         min_dist = min(min_dist, dist)
+                    if found_conflict:
+                        break
 
                 if min_dist < min_separation:
                     conflicts.append(
@@ -1098,6 +1125,18 @@ class LayoutEngine:
             adjustments[wire_b_idx] = max(
                 -self.constants.MAX_ADJUSTMENT,
                 min(self.constants.MAX_ADJUSTMENT, current_b + adjustment_amount),
+            )
+
+        # Performance logging
+        elapsed_time = time.perf_counter() - start_time
+        if total_wire_pairs > 0:
+            rejection_rate = (bbox_rejections / total_wire_pairs) * 100
+            logger.debug(
+                f"Wire conflict detection: {len(wires)} wires, "
+                f"{total_wire_pairs} pairs checked, "
+                f"{bbox_rejections} rejected ({rejection_rate:.1f}%), "
+                f"{distance_checks} distance checks, "
+                f"{len(conflicts)} conflicts found in {elapsed_time * 1000:.1f}ms"
             )
 
         return adjustments
