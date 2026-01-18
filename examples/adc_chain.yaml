@@ -1,5 +1,5 @@
-# Analog Sensor → MCP3008 ADC → Raspberry Pi
-title: "Analog Sensor with MCP3008 ADC"
+# Analog Sensor → MCP3008 ADC → Raspberry Pi (Wiring Reference)
+title: "Analog Sensor with MCP3008 ADC - Wiring Reference"
 board: "raspberry_pi_5"
 devices:
   - name: "Potentiometer"
@@ -23,7 +23,7 @@ devices:
       - name: "DOUT"
         role: "SPI_MISO"
       - name: "DIN"
-        role: "SPI_MOSI"
+        role: "SPI_MOSI"  # Pin visible but not connected in wiring diagram
       - name: "CS"
         role: "SPI_CE0"
       - name: "AGND"
@@ -48,13 +48,9 @@ connections:
   # Sensor to ADC
   - from: {device: "Potentiometer", device_pin: "WIPER"}
     to: {device: "MCP3008", device_pin: "CH0"}
-  # SPI connections
+  # SPI connections (DIN/DOUT not connected - wiring reference only)
   - from: {board_pin: 23}
     to: {device: "MCP3008", device_pin: "CLK"}
-  - from: {board_pin: 21}
-    to: {device: "MCP3008", device_pin: "DOUT"}
-  - from: {board_pin: 19}
-    to: {device: "MCP3008", device_pin: "DIN"}
   - from: {board_pin: 24}
     to: {device: "MCP3008", device_pin: "CS"}
 show_legend: true

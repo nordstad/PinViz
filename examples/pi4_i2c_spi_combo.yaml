@@ -47,15 +47,7 @@ connections:
     device_pin: "SCLK"
     color: "#00FFFF"  # Cyan
 
-  - board_pin: 19   # GPIO10 (SPI MOSI)
-    device: "Accelerometer"
-    device_pin: "MOSI"
-    color: "#FFA500"  # Orange
-
-  - board_pin: 21   # GPIO9 (SPI MISO)
-    device: "Accelerometer"
-    device_pin: "MISO"
-    color: "#FF69B4"  # Pink
+  # Note: MOSI/MISO not connected - wiring reference only, no data transfer
 
   - board_pin: 24   # GPIO8 (SPI CE0)
     device: "Accelerometer"

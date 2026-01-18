@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-     width="575.0" height="477.46" viewBox="0 0 575.0 477.46">
+     width="565.0" height="477.46" viewBox="0 0 565.0 477.46">
 <defs>
 </defs>
-<rect x="0" y="0" width="575.0" height="477.46" fill="white" />
-<text x="287.5" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">Raspberry Pi 4 - I2C OLED Display + SPI Accelerometer</text>
+<rect x="0" y="0" width="565.0" height="477.46" fill="white" />
+<text x="282.5" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">Raspberry Pi 4 - I2C OLED Display + SPI Accelerometer</text>
 <g transform="translate(40.0, 130.0)">
 <g id="pi4">
 <g id="g328">
@@ -727,68 +727,56 @@
 <text x="227.1" y="375.7" font-size="4.5" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">39</text>
 <circle cx="239.1" cy="374.2" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
 <text x="239.1" y="375.7" font-size="4.5" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">40</text>
-<path d="M 227.10,266.20 C 250.60,246.19 345.79,294.70 440.00,302.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 227.10,266.20 C 250.60,246.19 345.79,294.70 440.00,302.20" stroke="#FF69B4" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<circle cx="227.1" cy="266.2" r="4.0" fill="white" />
-<circle cx="227.1" cy="266.2" r="3.0" fill="#FF69B4" />
-<path d="M 227.10,278.20 C 253.00,288.30 351.39,297.99 440.00,294.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 227.10,278.20 C 253.00,288.30 351.39,297.99 440.00,294.20" stroke="#00FFFF" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 227.10,278.20 C 250.60,258.57 345.79,290.84 440.00,298.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 227.10,278.20 C 250.60,258.57 345.79,290.84 440.00,298.20" stroke="#00FFFF" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="227.1" cy="278.2" r="4.0" fill="white" />
 <circle cx="227.1" cy="278.2" r="3.0" fill="#00FFFF" />
-<path d="M 227.10,290.20 C 257.80,372.22 362.59,316.96 440.00,286.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 227.10,290.20 C 257.80,372.22 362.59,316.96 440.00,286.20" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 227.10,290.20 C 255.40,341.98 356.99,309.62 440.00,290.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 227.10,290.20 C 255.40,341.98 356.99,309.62 440.00,290.20" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="227.1" cy="290.2" r="4.0" fill="white" />
 <circle cx="227.1" cy="290.2" r="3.0" fill="#808080" />
-<path d="M 227.10,254.20 C 248.20,217.17 368.69,264.31 535.00,278.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 227.10,254.20 C 248.20,217.17 368.69,264.31 535.00,278.20" stroke="#FFA500" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<circle cx="227.1" cy="254.2" r="4.0" fill="white" />
-<circle cx="227.1" cy="254.2" r="3.0" fill="#FFA500" />
-<path d="M 227.10,242.20 C 245.80,171.47 334.59,251.68 440.00,278.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 227.10,242.20 C 245.80,171.47 334.59,251.68 440.00,278.20" stroke="#FF00FF" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 227.10,242.20 C 248.20,200.26 340.19,266.47 440.00,282.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 227.10,242.20 C 248.20,200.26 340.19,266.47 440.00,282.20" stroke="#FF00FF" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="227.1" cy="242.2" r="4.0" fill="white" />
 <circle cx="227.1" cy="242.2" r="3.0" fill="#FF00FF" />
 <path d="M 227.10,158.20 C 243.40,139.85 328.99,188.32 440.00,195.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
 <path d="M 227.10,158.20 C 243.40,139.85 328.99,188.32 440.00,195.20" stroke="#00FF00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="227.1" cy="158.2" r="4.0" fill="white" />
 <circle cx="227.1" cy="158.2" r="3.0" fill="#00FF00" />
-<path d="M 227.10,170.20 C 248.20,211.48 340.19,202.68 440.00,187.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 227.10,170.20 C 248.20,211.48 340.19,202.68 440.00,187.20" stroke="#FFFF00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 227.10,170.20 C 248.20,215.41 340.19,204.15 440.00,187.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 227.10,170.20 C 248.20,215.41 340.19,204.15 440.00,187.20" stroke="#FFFF00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="227.1" cy="170.2" r="4.0" fill="white" />
 <circle cx="227.1" cy="170.2" r="3.0" fill="#FFFF00" />
 <path d="M 227.10,146.20 C 241.00,100.33 323.39,154.00 440.00,171.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
 <path d="M 227.10,146.20 C 241.00,100.33 323.39,154.00 440.00,171.20" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="227.1" cy="146.2" r="4.0" fill="white" />
 <circle cx="227.1" cy="146.2" r="3.0" fill="#FF0000" />
-<path d="M 239.10,278.20 C 263.80,323.59 356.99,327.22 440.00,310.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 239.10,278.20 C 263.80,323.59 356.99,327.22 440.00,310.20" stroke="#8B4513" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 239.10,278.20 C 261.40,290.84 351.39,318.94 440.00,314.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 239.10,278.20 C 261.40,290.84 351.39,318.94 440.00,314.20" stroke="#8B4513" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="239.1" cy="278.2" r="4.0" fill="white" />
 <circle cx="239.1" cy="278.2" r="3.0" fill="#8B4513" />
-<path d="M 239.10,170.20 C 254.20,183.40 334.59,184.15 440.00,179.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 239.10,170.20 C 254.20,183.40 334.59,184.15 440.00,179.20" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 239.10,170.20 C 254.20,186.34 334.59,185.25 440.00,179.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 239.10,170.20 C 254.20,186.34 334.59,185.25 440.00,179.20" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="239.1" cy="170.2" r="4.0" fill="white" />
 <circle cx="239.1" cy="170.2" r="3.0" fill="#000000" />
 <text x="487.5" y="156.2" font-size="12.0" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">OLED Display</text>
 <rect x="450.0" y="161.2" width="75.0" height="42.0" rx="5" ry="5" fill="#9B59B6" stroke="#333" stroke-width="2" opacity="0.9" />
-<text x="487.5" y="263.2" font-size="12.0" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">Accelerometer</text>
-<rect x="450.0" y="268.2" width="75.0" height="60.0" rx="5" ry="5" fill="#3498DB" stroke="#333" stroke-width="2" opacity="0.9" />
-<path d="M 440.00,302.20 L 457.00,302.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 440.00,302.20 L 457.00,302.20" stroke="#FF69B4" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<path d="M 440.00,294.20 L 457.00,294.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 440.00,294.20 L 457.00,294.20" stroke="#00FFFF" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<path d="M 440.00,286.20 L 457.00,286.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 440.00,286.20 L 457.00,286.20" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<path d="M 535.00,278.20 L 518.00,278.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 535.00,278.20 L 518.00,278.20" stroke="#FFA500" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<path d="M 440.00,278.20 L 457.00,278.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 440.00,278.20 L 457.00,278.20" stroke="#FF00FF" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<text x="487.5" y="267.2" font-size="12.0" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">Accelerometer</text>
+<rect x="450.0" y="272.2" width="75.0" height="60.0" rx="5" ry="5" fill="#3498DB" stroke="#333" stroke-width="2" opacity="0.9" />
+<path d="M 440.00,298.20 L 457.00,298.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 440.00,298.20 L 457.00,298.20" stroke="#00FFFF" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 440.00,290.20 L 457.00,290.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 440.00,290.20 L 457.00,290.20" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 440.00,282.20 L 457.00,282.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 440.00,282.20 L 457.00,282.20" stroke="#FF00FF" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <path d="M 440.00,195.20 L 457.00,195.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
 <path d="M 440.00,195.20 L 457.00,195.20" stroke="#00FF00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <path d="M 440.00,187.20 L 457.00,187.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
 <path d="M 440.00,187.20 L 457.00,187.20" stroke="#FFFF00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <path d="M 440.00,171.20 L 457.00,171.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
 <path d="M 440.00,171.20 L 457.00,171.20" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
-<path d="M 440.00,310.20 L 457.00,310.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 440.00,310.20 L 457.00,310.20" stroke="#8B4513" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 440.00,314.20 L 457.00,314.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 440.00,314.20 L 457.00,314.20" stroke="#8B4513" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <path d="M 440.00,179.20 L 457.00,179.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
 <path d="M 440.00,179.20 L 457.00,179.20" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="455.0" cy="171.2" r="4.0" fill="white" opacity="0.8" />
@@ -807,28 +795,28 @@
 <circle cx="455.0" cy="195.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
 <rect x="461.0" y="190.2" width="21.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
 <text x="465.0" y="197.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">SDA</text>
-<circle cx="455.0" cy="278.2" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="278.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
-<rect x="461.0" y="273.2" width="21.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="465.0" y="280.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">VCC</text>
-<circle cx="455.0" cy="286.2" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="286.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
-<rect x="461.0" y="281.2" width="21.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="465.0" y="288.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">GND</text>
-<circle cx="455.0" cy="294.2" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="294.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
-<rect x="461.0" y="289.2" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="465.0" y="296.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">SCLK</text>
-<circle cx="455.0" cy="302.2" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="302.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
-<rect x="461.0" y="297.2" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="465.0" y="304.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">MISO</text>
-<circle cx="455.0" cy="310.2" r="4.0" fill="white" opacity="0.8" />
-<circle cx="455.0" cy="310.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
-<rect x="461.0" y="305.2" width="17.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="465.0" y="312.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">CS</text>
-<circle cx="520.0" cy="278.2" r="4.0" fill="white" opacity="0.8" />
-<circle cx="520.0" cy="278.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
-<rect x="488.0" y="273.2" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
-<text x="492.0" y="280.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">MOSI</text>
+<circle cx="455.0" cy="282.2" r="4.0" fill="white" opacity="0.8" />
+<circle cx="455.0" cy="282.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="277.2" width="21.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="465.0" y="284.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">VCC</text>
+<circle cx="455.0" cy="290.2" r="4.0" fill="white" opacity="0.8" />
+<circle cx="455.0" cy="290.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="285.2" width="21.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="465.0" y="292.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">GND</text>
+<circle cx="455.0" cy="298.2" r="4.0" fill="white" opacity="0.8" />
+<circle cx="455.0" cy="298.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="293.2" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="465.0" y="300.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">SCLK</text>
+<circle cx="455.0" cy="306.2" r="4.0" fill="white" opacity="0.8" />
+<circle cx="455.0" cy="306.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="301.2" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="465.0" y="308.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">MISO</text>
+<circle cx="455.0" cy="314.2" r="4.0" fill="white" opacity="0.8" />
+<circle cx="455.0" cy="314.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="309.2" width="17.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="465.0" y="316.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">CS</text>
+<circle cx="520.0" cy="282.2" r="4.0" fill="white" opacity="0.8" />
+<circle cx="520.0" cy="282.2" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="488.0" y="277.2" width="26.0" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="492.0" y="284.7" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">MOSI</text>
 </svg>

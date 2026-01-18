@@ -40,13 +40,7 @@ connections:
     device: "Accel_SPI"
     device_pin: "SCLK"
 
-  - board_pin: 19   # GPIO10 (SPI MOSI)
-    device: "Accel_SPI"
-    device_pin: "MOSI"
-
-  - board_pin: 21   # GPIO9 (SPI MISO)
-    device: "Accel_SPI"
-    device_pin: "MISO"
+  # Note: MOSI/MISO not connected - wiring reference only, no data transfer
 
   - board_pin: 24   # GPIO8 (SPI CE0)
     device: "Accel_SPI"
