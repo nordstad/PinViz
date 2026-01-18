@@ -211,6 +211,7 @@ class DiagramValidator:
         issues.extend(self._check_i2c_address_conflicts(diagram))
         issues.extend(self._check_current_limits(diagram))
         issues.extend(self._check_connection_validity(diagram))
+        issues.extend(self._check_stub_wires(diagram))
 
         # Categorize for logging
         errors = [i for i in issues if i.level == ValidationLevel.ERROR]
@@ -622,5 +623,115 @@ class DiagramValidator:
                         location=f"Connection #{i}",
                     )
                 )
+
+        return issues
+
+    def _check_stub_wires(self, diagram: Diagram) -> list[ValidationIssue]:
+        """Check for 'stub wires' - data pins connected but serving no functional purpose.
+
+        A stub wire occurs when:
+        - Data output pin (DOUT, MISO, OUT, TX) is connected to board but nothing reads it
+        - Data input pin (DIN, MOSI, IN, RX) is connected but no data is being sent
+        - Only one half of a bidirectional protocol (e.g., MISO without MOSI) is connected
+
+        This helps catch wiring reference examples that should only show control lines.
+        """
+        log.debug("checking_stub_wires")
+        issues: list[ValidationIssue] = []
+
+        # Build device lookup dictionary
+        device_by_name = {device.name: device for device in diagram.devices}
+
+        # Data output roles that should have a functional purpose
+        data_output_roles = {
+            PinRole.SPI_MISO,  # SPI data out
+            PinRole.UART_TX,  # UART transmit
+            # Note: GPIO and general OUT pins can have many uses, so we don't flag them
+        }
+
+        # Track which SPI data pins are connected per device
+        spi_data_pins_per_device: dict[str, set[str]] = {}
+
+        for conn in diagram.connections:
+            # Only check board-to-device connections
+            if not conn.is_board_connection():
+                continue
+
+            device = device_by_name.get(conn.device_name)
+            if not device:
+                continue
+
+            device_pin = device.get_pin_by_name(conn.device_pin_name)
+            if not device_pin:
+                continue
+
+            # Track SPI data pins
+            if device_pin.role in {PinRole.SPI_MOSI, PinRole.SPI_MISO}:
+                if conn.device_name not in spi_data_pins_per_device:
+                    spi_data_pins_per_device[conn.device_name] = set()
+                spi_data_pins_per_device[conn.device_name].add(device_pin.role.value)
+
+        # Check for incomplete SPI connections (one data line without the other)
+        for device_name, spi_pins in spi_data_pins_per_device.items():
+            has_mosi = "SPI_MOSI" in spi_pins
+            has_miso = "SPI_MISO" in spi_pins
+
+            if has_mosi and not has_miso:
+                issues.append(
+                    ValidationIssue(
+                        level=ValidationLevel.WARNING,
+                        message=(
+                            f"Potential stub wire: MOSI connected but MISO not connected "
+                            f"on {device_name}. For wiring reference examples, consider "
+                            "removing MOSI connection (show pin but no wire). "
+                            "For functional examples, add MISO connection."
+                        ),
+                        location=f"Device: {device_name}",
+                    )
+                )
+
+            if has_miso and not has_mosi:
+                issues.append(
+                    ValidationIssue(
+                        level=ValidationLevel.WARNING,
+                        message=(
+                            f"Potential stub wire: MISO connected but MOSI not connected "
+                            f"on {device_name}. For wiring reference examples, consider "
+                            "removing MISO connection (show pin but no wire). "
+                            "For functional examples, add MOSI connection."
+                        ),
+                        location=f"Device: {device_name}",
+                    )
+                )
+
+        # Check for data output pins with no apparent consumer
+        # Only flag if it's a simple single-device scenario
+        if len(diagram.devices) == 1:
+            for conn in diagram.connections:
+                if not conn.is_board_connection():
+                    continue
+
+                device = device_by_name.get(conn.device_name)
+                if not device:
+                    continue
+
+                device_pin = device.get_pin_by_name(conn.device_pin_name)
+                if not device_pin:
+                    continue
+
+                # Check if it's a data output pin in a single-device circuit
+                if device_pin.role in data_output_roles:
+                    issues.append(
+                        ValidationIssue(
+                            level=ValidationLevel.INFO,
+                            message=(
+                                f"Data output pin {conn.device_pin_name} "
+                                f"({device_pin.role.value}) connected in single-device circuit. "
+                                "For wiring reference examples, consider removing this connection "
+                                "(show pin but no wire)."
+                            ),
+                            location=f"{conn.device_name}.{conn.device_pin_name}",
+                        )
+                    )
 
         return issues

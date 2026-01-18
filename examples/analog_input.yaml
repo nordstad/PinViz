@@ -19,12 +19,8 @@ connections:
     device_pin: "DGND"
 
   # MCP3008 SPI Interface
-  - board_pin: 19  # GPIO 10 (SPI0 MOSI)
-    device: "ADC Chip"
-    device_pin: "DIN"
-  - board_pin: 21  # GPIO 9 (SPI0 MISO)
-    device: "ADC Chip"
-    device_pin: "DOUT"
+  # Note: DIN (data in) not connected - no analog sensor attached
+  # Note: DOUT (data out) not connected - no data to read without sensor
   - board_pin: 23  # GPIO 11 (SPI0 SCLK)
     device: "ADC Chip"
     device_pin: "CLK"

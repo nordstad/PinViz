@@ -1,14 +1,13 @@
-title: "PIR Motion Sensor"
+title: "PIR Motion Sensor - Basic Wiring"
 board: "raspberry_pi_5"
 devices:
   - type: "pir"
 connections:
+  # Power connections only - OUT pin visible but not connected in this wiring reference
   - board_pin: 2   # 5V
     device: "PIR Motion Sensor"
     device_pin: "VCC"
   - board_pin: 6   # GND
     device: "PIR Motion Sensor"
     device_pin: "GND"
-  - board_pin: 7   # GPIO 4
-    device: "PIR Motion Sensor"
-    device_pin: "OUT"
+  # Note: OUT pin not connected - use smart_sensor_station.yaml for complete working example
