@@ -464,24 +464,52 @@ class Connection:
         """Validate that exactly one source type is specified."""
         # Validate target device fields are always present
         if self.device_name is None:
-            raise ValueError("device_name is required for all connections.")
+            raise ValueError(
+                "Connection validation error: 'device_name' is required for all connections. "
+                f"Current value: {self.device_name}"
+            )
         if self.device_pin_name is None:
-            raise ValueError("device_pin_name is required for all connections.")
+            raise ValueError(
+                "Connection validation error: 'device_pin_name' is required for all connections. "
+                f"Target device: '{self.device_name}', device_pin_name: {self.device_pin_name}"
+            )
 
         # Validate source: exactly one source type must be specified
         has_board_source = self.board_pin is not None
         has_device_source = self.source_device is not None and self.source_pin is not None
 
+        # Check for incomplete device-to-device connection specification
+        has_partial_device_source = (self.source_device is None) != (self.source_pin is None)
+
+        if has_partial_device_source:
+            raise ValueError(
+                "Connection validation error: Incomplete device-to-device connection. "
+                f"Both 'source_device' and 'source_pin' must be specified together. "
+                f"Current values: source_device='{self.source_device}', "
+                f"source_pin='{self.source_pin}'. "
+                f"Target: device='{self.device_name}', pin='{self.device_pin_name}'"
+            )
+
         if has_board_source and has_device_source:
             raise ValueError(
-                "Cannot specify both board_pin and source_device/source_pin. "
-                "A connection must have exactly one source."
+                "Connection validation error: Cannot specify both board_pin "
+                "and source_device/source_pin. "
+                f"A connection must have exactly one source. "
+                f"Current values: board_pin={self.board_pin}, "
+                f"source_device='{self.source_device}', "
+                f"source_pin='{self.source_pin}'. "
+                f"Target: device='{self.device_name}', pin='{self.device_pin_name}'"
             )
 
         if not has_board_source and not has_device_source:
             raise ValueError(
-                "Must specify either board_pin or both source_device and source_pin. "
-                "A connection must have exactly one source."
+                "Connection validation error: Must specify either 'board_pin' OR both "
+                f"'source_device' and 'source_pin'. "
+                f"A connection must have exactly one source. "
+                f"Current values: board_pin={self.board_pin}, "
+                f"source_device='{self.source_device}', "
+                f"source_pin='{self.source_pin}'. "
+                f"Target: device='{self.device_name}', pin='{self.device_pin_name}'"
             )
 
     def is_board_connection(self) -> bool:

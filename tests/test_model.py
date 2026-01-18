@@ -287,19 +287,19 @@ def test_invalid_connection_both_sources():
 
 def test_invalid_connection_no_source():
     """Test that missing source raises error."""
-    with pytest.raises(ValueError, match="Must specify either"):
+    with pytest.raises(ValueError, match="Must specify either.*board_pin.*OR both"):
         Connection(device_name="LED", device_pin_name="VCC")
 
 
 def test_invalid_connection_partial_device_source():
     """Test that only specifying source_device without source_pin raises error."""
-    with pytest.raises(ValueError, match="Must specify either"):
+    with pytest.raises(ValueError, match="Incomplete device-to-device connection"):
         Connection(source_device="Reg", device_name="LED", device_pin_name="VCC")
 
 
 def test_invalid_connection_partial_device_source_pin_only():
     """Test that only specifying source_pin without source_device raises error."""
-    with pytest.raises(ValueError, match="Must specify either"):
+    with pytest.raises(ValueError, match="Incomplete device-to-device connection"):
         Connection(source_pin="OUT", device_name="LED", device_pin_name="VCC")
 
 
