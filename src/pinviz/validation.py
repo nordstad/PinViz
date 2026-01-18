@@ -22,7 +22,7 @@ from enum import Enum
 
 from .devices.registry import get_registry
 from .logging_config import get_logger
-from .model import Diagram, PinRole
+from .model import Device, Diagram, PinRole
 
 log = get_logger(__name__)
 
@@ -204,14 +204,17 @@ class DiagramValidator:
             connection_count=len(diagram.connections),
         )
 
+        # Build device lookup dictionary once for O(1) access across all validation methods
+        device_by_name = {device.name: device for device in diagram.devices}
+
         issues: list[ValidationIssue] = []
         issues.extend(self._check_pin_conflicts(diagram))
-        issues.extend(self._check_voltage_mismatches(diagram))
-        issues.extend(self._check_pin_role_compatibility(diagram))
-        issues.extend(self._check_i2c_address_conflicts(diagram))
+        issues.extend(self._check_voltage_mismatches(diagram, device_by_name))
+        issues.extend(self._check_pin_role_compatibility(diagram, device_by_name))
+        issues.extend(self._check_i2c_address_conflicts(diagram, device_by_name))
         issues.extend(self._check_current_limits(diagram))
-        issues.extend(self._check_connection_validity(diagram))
-        issues.extend(self._check_stub_wires(diagram))
+        issues.extend(self._check_connection_validity(diagram, device_by_name))
+        issues.extend(self._check_stub_wires(diagram, device_by_name))
 
         # Categorize for logging
         errors = [i for i in issues if i.level == ValidationLevel.ERROR]
@@ -343,15 +346,14 @@ class DiagramValidator:
 
         return issues
 
-    def _check_voltage_mismatches(self, diagram: Diagram) -> list[ValidationIssue]:
+    def _check_voltage_mismatches(
+        self, diagram: Diagram, device_by_name: dict[str, "Device"]
+    ) -> list[ValidationIssue]:
         """Check for voltage compatibility issues.
 
         Detects cases where 5V devices are connected to 3.3V pins or vice versa.
         """
         issues: list[ValidationIssue] = []
-
-        # Build device lookup dictionary for O(1) access (performance optimization)
-        device_by_name = {device.name: device for device in diagram.devices}
 
         for conn in diagram.connections:
             board_pin = diagram.board.get_pin_by_number(conn.board_pin)
@@ -398,7 +400,9 @@ class DiagramValidator:
 
         return issues
 
-    def _check_pin_role_compatibility(self, diagram: Diagram) -> list[ValidationIssue]:
+    def _check_pin_role_compatibility(
+        self, diagram: Diagram, device_by_name: dict[str, "Device"]
+    ) -> list[ValidationIssue]:
         """Check if pin roles are compatible across all connections.
 
         Validates that the pin roles on both ends of each connection are compatible,
@@ -407,9 +411,6 @@ class DiagramValidator:
         """
         log.debug("checking_pin_role_compatibility")
         issues: list[ValidationIssue] = []
-
-        # Build device lookup dictionary for O(1) access
-        device_by_name = {device.name: device for device in diagram.devices}
 
         for i, conn in enumerate(diagram.connections, 1):
             # Get source and target pin roles
@@ -492,7 +493,9 @@ class DiagramValidator:
 
         return issues
 
-    def _check_i2c_address_conflicts(self, diagram: Diagram) -> list[ValidationIssue]:
+    def _check_i2c_address_conflicts(
+        self, diagram: Diagram, device_by_name: dict[str, "Device"]
+    ) -> list[ValidationIssue]:
         """Check for I2C address conflicts between devices.
 
         Multiple I2C devices on the same bus must have unique addresses.
@@ -514,9 +517,6 @@ class DiagramValidator:
 
         # Get registry for device metadata lookups
         registry = get_registry()
-
-        # Build device lookup dictionary for O(1) access (performance optimization)
-        device_by_name = {device.name: device for device in diagram.devices}
 
         # Check for address conflicts using registry metadata
         address_usage: dict[int, list[str]] = {}
@@ -588,12 +588,11 @@ class DiagramValidator:
 
         return issues
 
-    def _check_connection_validity(self, diagram: Diagram) -> list[ValidationIssue]:
+    def _check_connection_validity(
+        self, diagram: Diagram, device_by_name: dict[str, "Device"]
+    ) -> list[ValidationIssue]:
         """Check if all connections reference valid pins and devices."""
         issues: list[ValidationIssue] = []
-
-        # Build device lookup dictionary for O(1) access (performance optimization)
-        device_by_name = {device.name: device for device in diagram.devices}
 
         for i, conn in enumerate(diagram.connections, 1):
             # Check source is valid (board pin or device/pin)
@@ -665,7 +664,9 @@ class DiagramValidator:
 
         return issues
 
-    def _check_stub_wires(self, diagram: Diagram) -> list[ValidationIssue]:
+    def _check_stub_wires(
+        self, diagram: Diagram, device_by_name: dict[str, "Device"]
+    ) -> list[ValidationIssue]:
         """Check for 'stub wires' - data pins connected but serving no functional purpose.
 
         A stub wire occurs when:
@@ -677,9 +678,6 @@ class DiagramValidator:
         """
         log.debug("checking_stub_wires")
         issues: list[ValidationIssue] = []
-
-        # Build device lookup dictionary
-        device_by_name = {device.name: device for device in diagram.devices}
 
         # Data output roles that should have a functional purpose
         data_output_roles = {

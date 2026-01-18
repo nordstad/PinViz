@@ -990,7 +990,7 @@ class LayoutEngine:
             self.config.wire_spacing * self.constants.MIN_SEPARATION_MULTIPLIER
         )  # Minimum desired separation
 
-        # Sample points along each wire's potential path
+        # Sample points along each wire's potential path and calculate bounding boxes
         wire_samples = []
         for wire in wires:
             # Create initial path to analyze
@@ -1006,6 +1006,11 @@ class LayoutEngine:
 
             # Sample points along the path (simplified - use path points directly)
             samples = []
+            min_x = float("inf")
+            max_x = float("-inf")
+            min_y = float("inf")
+            max_y = float("-inf")
+
             for i in range(len(path_points) - 1):
                 p1, p2 = path_points[i], path_points[i + 1]
                 # Sample points between each pair
@@ -1013,12 +1018,18 @@ class LayoutEngine:
                     x = p1.x + (p2.x - p1.x) * t
                     y = p1.y + (p2.y - p1.y) * t
                     samples.append((x, y))
+                    # Update bounding box
+                    min_x = min(min_x, x)
+                    max_x = max(max_x, x)
+                    min_y = min(min_y, y)
+                    max_y = max(max_y, y)
 
             wire_samples.append(
                 {
                     "wire_idx": wire["wire_idx"],
                     "samples": samples,
                     "from_y": wire["from_pos"].y,
+                    "bbox": (min_x, max_x, min_y, max_y),
                 }
             )
 
@@ -1036,7 +1047,22 @@ class LayoutEngine:
                 ):
                     continue  # Wires start far apart, unlikely to conflict
 
-                # Check minimum distance between sampled points
+                # Quick rejection using bounding boxes (O(1) check)
+                # If bounding boxes don't overlap (with margin), wires can't conflict
+                bbox_a = wire_a["bbox"]
+                bbox_b = wire_b["bbox"]
+                bbox_margin = min_separation
+
+                # Check if bounding boxes overlap (with margin)
+                if (
+                    bbox_a[1] + bbox_margin < bbox_b[0]  # a_max_x + margin < b_min_x
+                    or bbox_b[1] + bbox_margin < bbox_a[0]  # b_max_x + margin < a_min_x
+                    or bbox_a[3] + bbox_margin < bbox_b[2]  # a_max_y + margin < b_min_y
+                    or bbox_b[3] + bbox_margin < bbox_a[2]  # b_max_y + margin < a_min_y
+                ):
+                    continue  # Bounding boxes don't overlap, skip expensive check
+
+                # Check minimum distance between sampled points (only if bounding boxes overlap)
                 min_dist = float("inf")
                 for pa in wire_a["samples"]:
                     for pb in wire_b["samples"]:
