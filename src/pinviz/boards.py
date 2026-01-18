@@ -46,6 +46,99 @@ def _get_board_config_path(config_name: str) -> Path:
     return config_path
 
 
+def _calculate_dual_header_positions(layout_dict: dict, pins: list) -> dict[int, Point]:
+    """
+    Calculate pin positions for dual-header boards (e.g., Raspberry Pi Pico).
+
+    Dual-header boards have horizontal pin layouts with pins arranged along
+    top and bottom edges. The top header typically has reversed pin numbering
+    (e.g., pin 20 on left, pin 1 on right) while the bottom header has normal
+    ordering (e.g., pin 21 on left, pin 40 on right).
+
+    Args:
+        layout_dict: Layout configuration containing top_header and bottom_header
+                    specifications with start_x, pin_spacing, and y coordinates
+        pins: List of pin configuration objects with physical_pin and header attributes
+
+    Returns:
+        Dictionary mapping physical pin numbers to Point positions
+
+    Raises:
+        ValueError: If a pin has an invalid header side (not 'top' or 'bottom')
+
+    Note:
+        This is an internal function used by load_board_from_config().
+    """
+    pin_positions = {}
+
+    for pin_config in pins:
+        header_side = getattr(pin_config, "header", None)
+
+        if header_side == "top":
+            # Top header: pins in a single horizontal row
+            # Note: Pins are in REVERSE order (higher pin numbers on left)
+            header_layout = layout_dict["top_header"]
+            pin_num = pin_config.physical_pin
+
+            # Calculate X position: reversed order
+            x_pos = header_layout["start_x"] + ((20 - pin_num) * header_layout["pin_spacing"])
+            # Fixed Y position for all top header pins
+            y_pos = header_layout["y"]
+
+        elif header_side == "bottom":
+            # Bottom header: pins in a single horizontal row
+            header_layout = layout_dict["bottom_header"]
+            pin_num = pin_config.physical_pin
+
+            # Calculate X position: each pin increments horizontally
+            x_pos = header_layout["start_x"] + ((pin_num - 21) * header_layout["pin_spacing"])
+            # Fixed Y position for all bottom header pins
+            y_pos = header_layout["y"]
+        else:
+            raise ValueError(
+                f"Pin {pin_config.physical_pin} has invalid header side: {header_side}. "
+                f"Expected 'top' or 'bottom'."
+            )
+
+        pin_positions[pin_config.physical_pin] = Point(x_pos, y_pos)
+
+    return pin_positions
+
+
+def _calculate_single_header_positions(layout_dict: dict, pins: list) -> dict[int, Point]:
+    """
+    Calculate pin positions for single-header boards (e.g., Raspberry Pi 4/5).
+
+    Single-header boards have the standard Raspberry Pi GPIO layout with two
+    vertical columns:
+    - Left column (odd pins): 1, 3, 5, ..., N-1 (top to bottom)
+    - Right column (even pins): 2, 4, 6, ..., N (top to bottom)
+
+    Args:
+        layout_dict: Layout configuration containing left_col_x, right_col_x,
+                    start_y, and row_spacing values
+        pins: List of pin configuration objects (used to determine number of rows)
+
+    Returns:
+        Dictionary mapping physical pin numbers to Point positions
+
+    Note:
+        This is an internal function used by load_board_from_config().
+    """
+    pin_positions = {}
+    num_rows = len(pins) // 2  # 20 rows for 40-pin header
+
+    for row in range(num_rows):
+        y_pos = layout_dict["start_y"] + (row * layout_dict["row_spacing"])
+        odd_pin = (row * 2) + 1  # Physical pins 1, 3, 5, ...
+        even_pin = (row * 2) + 2  # Physical pins 2, 4, 6, ...
+
+        pin_positions[odd_pin] = Point(layout_dict["left_col_x"], y_pos)  # Left column
+        pin_positions[even_pin] = Point(layout_dict["right_col_x"], y_pos)  # Right column
+
+    return pin_positions
+
+
 def load_board_from_config(config_name: str) -> Board:
     """
     Load a board definition from a JSON configuration file.
@@ -107,63 +200,17 @@ def load_board_from_config(config_name: str) -> Board:
         raise ValueError(f"Invalid board configuration in {config_path}: {e}") from e
 
     # Calculate pin positions based on layout parameters
-    pin_positions = {}
-
     # Check if this is a dual-header board (like Pico) or single-header (like Pi 5)
     layout_dict = config.layout if isinstance(config.layout, dict) else config.layout.__dict__
     is_dual_header = (
         layout_dict.get("top_header") is not None and layout_dict.get("bottom_header") is not None
     )
 
+    # Use appropriate position calculation method based on board type
     if is_dual_header:
-        # Dual-header board (e.g., Raspberry Pi Pico)
-        # Horizontal pin layout: single row of pins along top and bottom edges
-        # Top header: pins 1-20 running left-to-right in one row
-        # Bottom header: pins 21-40 running left-to-right in one row
-        for pin_config in config.pins:
-            header_side = getattr(pin_config, "header", None)
-
-            if header_side == "top":
-                # Top header: pins 1-20 in a single horizontal row
-                # Note: Pins are in REVERSE order (pin 20 on left, pin 1 on right)
-                header_layout = layout_dict["top_header"]
-                pin_num = pin_config.physical_pin  # 1-20
-
-                # Calculate X position: reversed order (20 - pin_num)
-                x_pos = header_layout["start_x"] + ((20 - pin_num) * header_layout["pin_spacing"])
-                # Fixed Y position for all top header pins
-                y_pos = header_layout["y"]
-
-            elif header_side == "bottom":
-                # Bottom header: pins 21-40 in a single horizontal row
-                header_layout = layout_dict["bottom_header"]
-                pin_num = pin_config.physical_pin  # 21-40
-
-                # Calculate X position: each pin increments horizontally
-                x_pos = header_layout["start_x"] + ((pin_num - 21) * header_layout["pin_spacing"])
-                # Fixed Y position for all bottom header pins
-                y_pos = header_layout["y"]
-            else:
-                raise ValueError(
-                    f"Pin {pin_config.physical_pin} has invalid header side: {header_side}. "
-                    f"Expected 'top' or 'bottom'."
-                )
-
-            pin_positions[pin_config.physical_pin] = Point(x_pos, y_pos)
+        pin_positions = _calculate_dual_header_positions(layout_dict, config.pins)
     else:
-        # Single-header board (e.g., Raspberry Pi 5)
-        # Standard Raspberry Pi GPIO has 2 vertical columns with rows:
-        # - Left column (odd pins): 1, 3, 5, ..., N-1 (top to bottom)
-        # - Right column (even pins): 2, 4, 6, ..., N (top to bottom)
-        num_rows = len(config.pins) // 2  # 20 rows for 40-pin header
-
-        for row in range(num_rows):
-            y_pos = layout_dict["start_y"] + (row * layout_dict["row_spacing"])
-            odd_pin = (row * 2) + 1  # Physical pins 1, 3, 5, ...
-            even_pin = (row * 2) + 2  # Physical pins 2, 4, 6, ...
-
-            pin_positions[odd_pin] = Point(layout_dict["left_col_x"], y_pos)  # Left column
-            pin_positions[even_pin] = Point(layout_dict["right_col_x"], y_pos)  # Right column
+        pin_positions = _calculate_single_header_positions(layout_dict, config.pins)
 
     # Create HeaderPin objects from configuration
     pins = []
