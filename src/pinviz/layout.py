@@ -426,9 +426,6 @@ class LayoutEngine:
             # Try to honor target, but don't go below current_y (avoid overlap)
             adjusted_y = max(current_y, target_y)
 
-            # Don't exceed max boundary
-            adjusted_y = min(adjusted_y, max_y - device.height)
-
             device.position = Point(device.position.x, adjusted_y)
             current_y = adjusted_y + device.height + min_spacing
 
@@ -446,18 +443,21 @@ class LayoutEngine:
             device_y = center_y - device.height / 2
             device.position = Point(device.position.x, device_y)
         else:
-            # Multiple devices - even distribution
+            # Multiple devices - distribute with appropriate spacing
             total_device_height = sum(d.height for d, _ in device_targets)
             available_height = max_y - min_y
             num_gaps = len(device_targets) - 1
 
-            # Calculate spacing - ensure it's never negative (which would cause overlap)
-            if total_device_height > available_height:
-                # Not enough space - use minimum spacing to prevent overlap
-                spacing = self.config.device_spacing_vertical
+            # Calculate spacing
+            if num_gaps > 0:
+                if total_device_height <= available_height:
+                    # Enough space - distribute evenly
+                    spacing = (available_height - total_device_height) / num_gaps
+                else:
+                    # Not enough space - use minimum spacing and extend beyond max_y
+                    spacing = self.config.device_spacing_vertical
             else:
-                # Enough space - distribute evenly
-                spacing = (available_height - total_device_height) / num_gaps if num_gaps > 0 else 0
+                spacing = 0
 
             current_y = min_y
             for device, _ in device_targets:
