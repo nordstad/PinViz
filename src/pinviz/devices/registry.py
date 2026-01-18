@@ -11,7 +11,10 @@ The registry system enables:
 - Category-based device filtering
 - Datasheet URL and I2C address management
 
-Example:
+The module supports both a global default registry (for convenience) and
+independent registries (for testing and isolation).
+
+Example (default registry):
     >>> from pinviz.devices import get_registry
     >>> registry = get_registry()
     >>> sensor = registry.create('bh1750')
@@ -19,6 +22,11 @@ Example:
     BH1750 Light Sensor
     >>> print(sensor.url)
     https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf
+
+Example (isolated registry for testing):
+    >>> from pinviz.devices import create_registry
+    >>> test_registry = create_registry()
+    >>> # Use test_registry independently without affecting global state
 """
 
 import json
@@ -222,20 +230,20 @@ class DeviceRegistry:
         return sorted(categories)
 
 
-# Global registry instance
-_registry = DeviceRegistry()
+# Optional default registry instance (lazy-loaded)
+_default_registry: DeviceRegistry | None = None
 
 
 def get_registry() -> DeviceRegistry:
     """
-    Get the global device registry instance.
+    Get the default device registry instance.
 
-    This function returns the singleton registry instance that has been
-    automatically populated with all device templates from the device_configs/
-    directory.
+    This is a convenience function for common use cases. The registry is
+    lazily initialized on first access and cached for subsequent calls.
+    For testing or isolated contexts, use create_registry() instead.
 
     Returns:
-        The global DeviceRegistry instance
+        The default DeviceRegistry instance
 
     Example:
         >>> from pinviz.devices import get_registry
@@ -244,4 +252,49 @@ def get_registry() -> DeviceRegistry:
         >>> print(device.name)
         BH1750 Light Sensor
     """
-    return _registry
+    global _default_registry
+    if _default_registry is None:
+        _default_registry = DeviceRegistry()
+    return _default_registry
+
+
+def create_registry() -> DeviceRegistry:
+    """
+    Create a new independent device registry.
+
+    Useful for:
+    - Unit testing with isolated state
+    - Multiple concurrent contexts
+    - Custom device configurations
+
+    Each call creates a fresh registry that scans the device_configs/
+    directory independently. Changes to this registry do not affect
+    the default registry returned by get_registry().
+
+    Returns:
+        A new DeviceRegistry instance
+
+    Example:
+        >>> from pinviz.devices import create_registry
+        >>> test_registry = create_registry()
+        >>> # Use test_registry independently
+        >>> # No pollution of global state
+    """
+    return DeviceRegistry()
+
+
+def reset_default_registry() -> None:
+    """
+    Reset the default registry (mainly for testing).
+
+    This clears the cached default registry, causing get_registry()
+    to create a fresh instance on the next call. This is useful for
+    resetting state between test runs.
+
+    Example:
+        >>> from pinviz.devices import reset_default_registry
+        >>> reset_default_registry()
+        >>> # Next call to get_registry() will create a new instance
+    """
+    global _default_registry
+    _default_registry = None
