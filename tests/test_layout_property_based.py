@@ -182,8 +182,7 @@ class TestLayoutProperties:
             return  # Need at least 2 devices to test
 
         engine = LayoutEngine()
-        result = engine.layout_diagram(diagram)
-        routed_wires = result.routed_wires
+        engine.layout_diagram(diagram)
 
         positions = [(d.position.x, d.position.y) for d in diagram.devices]
 

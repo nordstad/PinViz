@@ -1,7 +1,7 @@
 """Tests for layout engine."""
 
 from pinviz.devices import get_registry
-from pinviz.layout import LayoutConfig, LayoutEngine, LayoutResult, RoutedWire
+from pinviz.layout import LayoutConfig, LayoutEngine, RoutedWire
 from pinviz.model import Connection, Diagram, Point
 
 
@@ -286,8 +286,6 @@ def test_layout_with_multiple_devices(rpi5_board, bh1750_device, led_device):
 
     engine = LayoutEngine()
     result = engine.layout_diagram(diagram)
-    canvas_width = result.canvas_width
-    canvas_height = result.canvas_height
     routed_wires = result.routed_wires
 
     # Devices should be positioned at different y coordinates
@@ -624,7 +622,6 @@ def test_canvas_sizing_clamping_width(sample_board):
     engine = LayoutEngine(config)
     result = engine.layout_diagram(diagram)
     canvas_width = result.canvas_width
-    canvas_height = result.canvas_height
 
     # Width should be clamped but height should not necessarily be
     assert canvas_width <= config.max_canvas_width
