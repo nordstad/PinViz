@@ -106,7 +106,8 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
     # Get layout configuration or use defaults
     layout_config = config_dict.get("layout", {})
     layout_type = layout_config.get("type", "vertical")  # vertical, horizontal, custom
-    pin_spacing = layout_config.get("pin_spacing", 14.0)  # Default spacing (increased from 8.0 to prevent label overlap)
+    # Default spacing (increased from 8.0 to prevent label overlap)
+    pin_spacing = layout_config.get("pin_spacing", 14.0)
     pin_x_left = layout_config.get("pin_x", 5.0)  # Default x position for left pins
     start_y = layout_config.get("start_y", 10.0)  # Starting y position
 
