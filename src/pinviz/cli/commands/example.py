@@ -200,7 +200,7 @@ def example_command(
                 try:
                     diagram.theme = Theme(theme.lower())
                 except ValueError as e:
-                    print_error(f"Invalid theme '{theme}'. Must be 'light' or 'dark'.")
+                    print_error(f"Invalid theme '{theme}'. Must be 'light' or 'dark'.", ctx.console)
                     raise typer.Exit(1) from e
 
             # Validate diagram before rendering
