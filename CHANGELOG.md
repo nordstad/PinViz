@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+
+## [0.12.0] - 2026-01-25
+
+### Added
+- feat: Add dark mode support for diagrams (https://github.com/nordstad/PinViz/pull/141)
+
+### Fixed
+- fix: Consistent device pin spacing across all devices (https://github.com/nordstad/PinViz/pull/140)
+
 ## [0.12.0] - 2026-01-25
 
 ### Added
@@ -525,7 +534,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md for AI assistant context
 - Example configurations and diagrams
 
-[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.11.2...HEAD
+[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/nordstad/PinViz/compare/v0.12.0...v0.12.0
 [0.11.2]: https://github.com/nordstad/PinViz/compare/v0.11.2...v0.11.2
 [0.11.1]: https://github.com/nordstad/PinViz/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/nordstad/PinViz/compare/v0.10.0...v0.11.0
