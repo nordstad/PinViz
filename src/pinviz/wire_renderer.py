@@ -9,6 +9,63 @@ from .model import DEFAULT_COLORS, ComponentType, PinRole, Point
 from .render_constants import RENDER_CONSTANTS
 
 
+def calculate_luminance(hex_color: str) -> float:
+    """
+    Calculate relative luminance of a hex color using WCAG formula.
+
+    Uses the WCAG 2.0 relative luminance formula to determine how "bright"
+    a color appears to the human eye. This accounts for the fact that humans
+    perceive green as brighter than red, and red as brighter than blue.
+
+    Args:
+        hex_color: Hex color string (e.g., "#FFFFFF" or "FFFFFF")
+
+    Returns:
+        Luminance value between 0.0 (black) and 1.0 (white)
+    """
+    # Remove '#' if present
+    hex_color = hex_color.lstrip("#")
+
+    # Handle 3-char hex colors (e.g., "#FFF" -> "#FFFFFF")
+    if len(hex_color) == 3:
+        hex_color = "".join([c * 2 for c in hex_color])
+
+    # Parse RGB components
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+
+    # Convert to 0-1 range
+    r, g, b = r / 255.0, g / 255.0, b / 255.0
+
+    # Apply gamma correction
+    r = r / 12.92 if r <= 0.03928 else ((r + 0.055) / 1.055) ** 2.4
+    g = g / 12.92 if g <= 0.03928 else ((g + 0.055) / 1.055) ** 2.4
+    b = b / 12.92 if b <= 0.03928 else ((b + 0.055) / 1.055) ** 2.4
+
+    # Calculate relative luminance (WCAG formula)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def get_halo_color(wire_color: str) -> str:
+    """
+    Determine appropriate halo color based on wire color luminance.
+
+    Light-colored wires get a dark halo for visibility against white background.
+    Dark-colored wires get a white halo (traditional behavior).
+
+    Args:
+        wire_color: Hex color string of the wire
+
+    Returns:
+        Halo color as hex string ("#2C2C2C" for dark halo, "white" for light halo)
+    """
+    luminance = calculate_luminance(wire_color)
+    if luminance > RENDER_CONSTANTS.LUMINANCE_THRESHOLD:
+        return RENDER_CONSTANTS.DARK_HALO_COLOR
+    return RENDER_CONSTANTS.LIGHT_HALO_COLOR
+
+
 class WireRenderer:
     """Handles rendering of wires, inline components, and wire legends."""
 
@@ -56,8 +113,11 @@ class WireRenderer:
                 f"L {end_point.x:.2f},{end_point.y:.2f}"
             )
 
+            # Determine appropriate halo color for wire visibility
+            halo_color = get_halo_color(wire.color)
+
             # Draw with halo and core
-            self._draw_wire_halo(dwg, path_d)
+            self._draw_wire_halo(dwg, path_d, halo_color)
             self._draw_wire_core(dwg, path_d, wire.color)
 
     def draw_legend(
@@ -166,15 +226,18 @@ class WireRenderer:
         self, dwg: draw.Drawing, wire: RoutedWire, draw_connection_segment: bool = True
     ) -> None:
         """Draw a simple wire without components."""
+        # Determine appropriate halo color for wire visibility
+        halo_color = get_halo_color(wire.color)
+
         if draw_connection_segment or len(wire.path_points) < 5:
             # Draw the full wire path
             path_d = create_bezier_path(wire.path_points, self.layout_config.corner_radius)
-            self._draw_wire_halo(dwg, path_d)
+            self._draw_wire_halo(dwg, path_d, halo_color)
             self._draw_wire_core(dwg, path_d, wire.color)
         else:
             # Draw only up to the connection point (skip the final straight segment)
             path_d = create_bezier_path(wire.path_points[:-1], self.layout_config.corner_radius)
-            self._draw_wire_halo(dwg, path_d)
+            self._draw_wire_halo(dwg, path_d, halo_color)
             self._draw_wire_core(dwg, path_d, wire.color)
 
     def _draw_wire_with_components(
@@ -208,8 +271,11 @@ class WireRenderer:
         """Draw a segment of a wire between two positions (0.0-1.0)."""
         segment_points = self._get_path_segment(wire.path_points, start_pos, end_pos)
         if len(segment_points) >= 2:
+            # Determine appropriate halo color for wire visibility
+            halo_color = get_halo_color(wire.color)
+
             path_d = create_bezier_path(segment_points, self.layout_config.corner_radius)
-            self._draw_wire_halo(dwg, path_d)
+            self._draw_wire_halo(dwg, path_d, halo_color)
             self._draw_wire_core(dwg, path_d, wire.color)
 
     def _get_path_segment(
@@ -380,12 +446,19 @@ class WireRenderer:
 
         dwg.append(g)
 
-    def _draw_wire_halo(self, dwg: draw.Drawing, path_d: str) -> None:
-        """Draw the white halo around a wire for visibility."""
+    def _draw_wire_halo(self, dwg: draw.Drawing, path_d: str, halo_color: str) -> None:
+        """
+        Draw a halo around a wire for visibility.
+
+        Args:
+            dwg: The SVG drawing object
+            path_d: SVG path data string
+            halo_color: Color of the halo (white for dark wires, dark gray for light wires)
+        """
         dwg.append(
             draw.Path(
                 d=path_d,
-                stroke="white",
+                stroke=halo_color,
                 stroke_width=RENDER_CONSTANTS.WIRE_MAIN_STROKE_WIDTH,
                 fill="none",
                 stroke_linecap="round",

@@ -1,0 +1,78 @@
+title: "Wire Visibility - Light & Dark Colors"
+board: "raspberry_pi_5"
+
+# This example demonstrates PinViz's dynamic halo color feature that ensures
+# all wire colors remain visible against white backgrounds. Light-colored wires
+# automatically get dark gray halos, while dark wires keep traditional white halos.
+
+devices:
+  - name: "Light Colors Device"
+    description: "Demonstrates automatic dark halos for light-colored wires"
+    pins:
+      - name: "WHITE"
+        role: "GPIO"
+      - name: "LIGHT_GRAY"
+        role: "GPIO"
+      - name: "PALE_YELLOW"
+        role: "GPIO"
+      - name: "CREAM"
+        role: "GPIO"
+
+  - name: "Dark Colors Device"
+    description: "Shows traditional white halos for dark-colored wires"
+    pins:
+      - name: "BLACK"
+        role: "GPIO"
+      - name: "DARK_RED"
+        role: "GPIO"
+      - name: "NAVY"
+        role: "GPIO"
+      - name: "FOREST"
+        role: "GPIO"
+
+connections:
+  # Light colored wires - will automatically get dark gray halos (#2C2C2C)
+  # for visibility against white background
+  - board_pin: 1    # 3V3
+    device: "Light Colors Device"
+    device_pin: "WHITE"
+    color: "#FFFFFF"  # Pure white
+
+  - board_pin: 3    # GPIO2 (I2C SDA)
+    device: "Light Colors Device"
+    device_pin: "LIGHT_GRAY"
+    color: "#F0F0F0"  # Light gray
+
+  - board_pin: 5    # GPIO3 (I2C SCL)
+    device: "Light Colors Device"
+    device_pin: "PALE_YELLOW"
+    color: "#FFFFE0"  # Pale yellow
+
+  - board_pin: 7    # GPIO4
+    device: "Light Colors Device"
+    device_pin: "CREAM"
+    color: "#FFFACD"  # Lemon chiffon (cream)
+
+  # Dark colored wires - will keep traditional white halos
+  # These work great with the existing rendering system
+  - board_pin: 11   # GPIO17
+    device: "Dark Colors Device"
+    device_pin: "BLACK"
+    color: "#000000"  # Black
+
+  - board_pin: 13   # GPIO27
+    device: "Dark Colors Device"
+    device_pin: "DARK_RED"
+    color: "#8B0000"  # Dark red
+
+  - board_pin: 15   # GPIO22
+    device: "Dark Colors Device"
+    device_pin: "NAVY"
+    color: "#000080"  # Navy blue
+
+  - board_pin: 19   # GPIO10 (SPI MOSI)
+    device: "Dark Colors Device"
+    device_pin: "FOREST"
+    color: "#228B22"  # Forest green
+
+show_legend: true
