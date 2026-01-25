@@ -33,6 +33,11 @@ class RenderConstants:
     WIRE_MAIN_OPACITY: float = 1.0  # Opacity for main wire
     WIRE_CORE_OPACITY: float = 0.8  # Opacity for wire core
 
+    # Wire halo colors (for visibility against background)
+    LUMINANCE_THRESHOLD: float = 0.7  # Threshold for switching to dark halo
+    DARK_HALO_COLOR: str = "#2C2C2C"  # Dark gray for light wires
+    LIGHT_HALO_COLOR: str = "white"  # White for dark wires
+
     # Device rendering
     DEVICE_BORDER_RADIUS: int = 5  # Radius for device rectangle corners
     DEVICE_STROKE_WIDTH: int = 1  # Stroke width for device border
