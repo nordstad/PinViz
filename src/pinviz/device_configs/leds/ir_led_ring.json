@@ -6,7 +6,7 @@
 
   "pins": [
     {"name": "VCC", "role": "5V"},
-    {"name": "CTRL", "role": "GPIO"},
+    {"name": "EN", "role": "GPIO"},
     {"name": "GND", "role": "GND"}
   ],
 

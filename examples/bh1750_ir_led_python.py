@@ -25,7 +25,7 @@ connections = [
     # IR LED Ring (5V power + GPIO control)
     Connection(2, "IR LED Ring", "VCC", color=WireColor.RED),  # Pin 2 (5V) to VCC
     Connection(6, "IR LED Ring", "GND", color=WireColor.BLACK),  # Pin 6 (GND) to GND
-    Connection(11, "IR LED Ring", "CTRL", color=WireColor.RED),  # Pin 11 (GPIO17) to Control
+    Connection(11, "IR LED Ring", "EN", color=WireColor.RED),  # Pin 11 (GPIO17) to EN
 ]
 
 # Create diagram

@@ -128,7 +128,7 @@ def test_ir_led_ring_has_correct_pins():
     pin_names = [pin.name for pin in device.pins]
     assert "VCC" in pin_names
     assert "GND" in pin_names
-    assert "CTRL" in pin_names
+    assert "EN" in pin_names
 
 
 def test_button_creation():

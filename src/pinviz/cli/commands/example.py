@@ -54,7 +54,7 @@ def create_ir_led_example() -> Diagram:
     connections = [
         Connection(2, "IR LED Ring (12)", "VCC"),  # 5V to VCC
         Connection(6, "IR LED Ring (12)", "GND"),  # GND to GND
-        Connection(7, "IR LED Ring (12)", "CTRL"),  # GPIO4 to CTRL
+        Connection(7, "IR LED Ring (12)", "EN"),  # GPIO4 to EN
     ]
 
     return Diagram(
