@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+
+## [0.11.1] - 2026-01-25
+
+### Changed
+- chore(deps-dev): bump hypothesis from 6.150.0 to 6.150.2 (https://github.com/nordstad/PinViz/pull/136)
+- chore(deps-dev): bump ruff from 0.14.11 to 0.14.13 (https://github.com/nordstad/PinViz/pull/137)
+
+### Fixed
+- fix: correct IR LED Ring pin name from CTRL to EN (https://github.com/nordstad/PinViz/pull/138)
+
 ## [0.11.0] - 2026-01-18
 
 ### Added
@@ -484,7 +494,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md for AI assistant context
 - Example configurations and diagrams
 
-[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.11.1...HEAD
+[0.11.1]: https://github.com/nordstad/PinViz/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/nordstad/PinViz/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/nordstad/PinViz/compare/v0.10.0...v0.10.0
 [0.9.2]: https://github.com/nordstad/PinViz/compare/v0.9.1...v0.9.2
