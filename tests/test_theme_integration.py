@@ -1,7 +1,5 @@
 """Integration tests for theme system with config loading and rendering."""
 
-
-
 from pinviz.config_loader import load_diagram
 from pinviz.model import Diagram
 from pinviz.render_svg import SVGRenderer
