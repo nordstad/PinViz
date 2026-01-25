@@ -18,5 +18,5 @@ connections:
 
   - board_pin: 11   # GPIO17
     device: "IR_LED_Ring"
-    device_pin: "CTRL"
+    device_pin: "EN"
 

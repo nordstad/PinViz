@@ -267,7 +267,7 @@ connections:
     color: "#000000"  # Black
   - board_pin: 11
     device: "IR LED Ring"
-    device_pin: "CTRL"
+    device_pin: "EN"
     color: "#F44336"  # Red
 
 ```

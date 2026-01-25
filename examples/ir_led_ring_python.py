@@ -12,7 +12,7 @@ led_ring = registry.create("ir_led_ring", num_leds=12)
 connections = [
     Connection(2, "IR LED Ring (12)", "VCC"),  # Pin 2 (5V) to VCC
     Connection(9, "IR LED Ring (12)", "GND"),  # Pin 9 (GND) to GND
-    Connection(11, "IR LED Ring (12)", "CTRL"),  # Pin 11 (GPIO17) to control pin
+    Connection(11, "IR LED Ring (12)", "EN"),  # Pin 11 (GPIO17) to EN
 ]
 
 # Create diagram
