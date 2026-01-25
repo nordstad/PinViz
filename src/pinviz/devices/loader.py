@@ -107,8 +107,8 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
     # Get layout configuration or use defaults
     layout_config = config_dict.get("layout", {})
     layout_type = layout_config.get("type", "vertical")  # vertical, horizontal, custom
-    # Default spacing (increased from 8.0 to prevent label overlap)
-    pin_spacing = layout_config.get("pin_spacing", 14.0)
+    # Default spacing (10.0 for consistency with most device configs)
+    pin_spacing = layout_config.get("pin_spacing", 10.0)
     pin_x_left = layout_config.get("pin_x", 5.0)  # Default x position for left pins
     start_y = layout_config.get("start_y", 10.0)  # Starting y position
 
@@ -198,9 +198,10 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
     # Height = start_y + offset + (n-1) spacing between pins + bottom margin
     max_pins_per_side = max(len(left_pins), len(right_pins), 1)
     bottom_margin = 10.0
-    # Account for right pin offset in height calculation
+    # Only include right pin offset if there are actually right-side pins
+    offset_for_height = right_pin_offset if len(right_pins) > 0 else 0
     default_height = max(
-        40.0, start_y + right_pin_offset + ((max_pins_per_side - 1) * pin_spacing) + bottom_margin
+        40.0, start_y + offset_for_height + ((max_pins_per_side - 1) * pin_spacing) + bottom_margin
     )
     height = display.get("height", default_height)
 
