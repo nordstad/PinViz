@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.12.0] - 2026-01-25
+
+### Added
+- feat: Dark mode support for diagrams (https://github.com/nordstad/PinViz/pull/141)
+  - New theme system with LIGHT and DARK color schemes
+  - Dark canvas background (#1E1E1E) optimized for dark UIs
+  - Light text and stroke colors for visibility in dark mode
+  - Pin labels inverted for better contrast (white bg, black text in dark mode)
+  - Wire colors preserved to maintain electrical conventions
+  - Theme support in YAML config: `theme: "dark"`
+  - CLI `--theme` flag to override config: `pinviz render config.yaml --theme dark`
+  - New examples: `bh1750_dark.yaml`, `pico_led_dark.yaml`, `i2c_spi_dark.yaml`
+  - Comprehensive themes guide in documentation
+  - 38 new tests (theme unit + integration tests)
+  - 8 CLI tests for --theme flag coverage
+  - Perfect for dark-themed documentation, presentations, and GitHub dark mode
+
 ## [0.11.2] - 2026-01-25
 
 ### Changed
