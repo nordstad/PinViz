@@ -21,8 +21,8 @@ def test_load_bh1750_from_config():
     assert len(device.pins) == 5
     # Dimensions and color use smart defaults now (no need to specify in config)
     assert device.width == 80.0  # Default width
-    # Height: 10 (top) + 7 (offset) + 56 (4 gaps * 14px) + 10 (bottom) = 83
-    assert device.height == 83.0
+    # Height: 10 (start_y) + 0 (no offset, no right pins) + 40 (4 gaps * 10px) + 10 (bottom) = 60
+    assert device.height == 60.0
     assert device.color == "#50E3C2"  # Sensors category color
 
 
