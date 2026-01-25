@@ -1,0 +1,24 @@
+title: "Raspberry Pi Pico - LED Circuit (Dark Mode)"
+board: "raspberry_pi_pico"
+theme: "dark"
+
+devices:
+  - type: "led"
+    color: "Blue"
+    name: "Status LED"
+
+connections:
+  # LED Anode to GP0 via 220Ω resistor
+  - board_pin: 1   # GP0 (top header, rightmost pin)
+    device: "Status LED"
+    device_pin: "+"
+    color: "#4A90E2"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  # LED Cathode to Ground
+  - board_pin: 3   # GND (top header)
+    device: "Status LED"
+    device_pin: "-"
+    color: "#E0E0E0"

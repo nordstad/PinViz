@@ -1,5 +1,4 @@
-title: "BH1750 Light Sensor Wiring (Dark Mode)"
-
+title: "BH1750 Light Sensor (Dark Mode)"
 board: "raspberry_pi_5"
 theme: "dark"
 
