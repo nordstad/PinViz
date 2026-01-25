@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
 
+from .theme import Theme
+
 if TYPE_CHECKING:
     from .board_renderer import BoardLayout
 
@@ -680,5 +682,6 @@ class Diagram:
     show_gpio_diagram: bool = False
     show_title: bool = True
     show_board_name: bool = True
+    theme: Theme = Theme.LIGHT
     canvas_width: float = 800.0
     canvas_height: float = 600.0

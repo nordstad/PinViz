@@ -82,6 +82,7 @@ nav:
       - CLI Usage: guide/cli.md
       - YAML Configuration: guide/yaml-config.md
       - Python API: guide/python-api.md
+      - Themes: guide/themes.md
       - Validation: validation.md
       - Examples: guide/examples.md
   - MCP Server:

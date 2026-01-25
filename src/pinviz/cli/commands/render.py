@@ -4,6 +4,7 @@ import typer
 
 from ...config_loader import load_diagram
 from ...render_svg import SVGRenderer
+from ...theme import Theme
 from ...validation import DiagramValidator, ValidationLevel
 from ..context import AppContext
 from ..decorators import handle_command_exception, progress_indicator
@@ -32,6 +33,7 @@ def render_command(
     no_title: NoTitleOption = False,
     no_board_name: NoBoardNameOption = False,
     show_legend: ShowLegendOption = False,
+    theme: str = typer.Option(None, help="Theme: light or dark (overrides config)"),
     json_output: JsonOption = False,
 ) -> None:
     """
@@ -43,7 +45,7 @@ def render_command(
 
       pinviz render diagram.yaml -o out/wiring.svg --show-legend
 
-      pinviz render diagram.yaml --no-title --json
+      pinviz render diagram.yaml --no-title --theme dark --json
     """
     ctx = AppContext()
     log = ctx.logger
@@ -72,6 +74,14 @@ def render_command(
                 diagram.show_board_name = False
             if show_legend:
                 diagram.show_legend = True
+
+            # Apply theme if specified
+            if theme:
+                try:
+                    diagram.theme = Theme(theme.lower())
+                except ValueError as e:
+                    print_error(f"Invalid theme '{theme}'. Must be 'light' or 'dark'.", ctx.console)
+                    raise typer.Exit(1) from e
 
             # Validate
             task = progress.add_task("Validating diagram...", total=None)

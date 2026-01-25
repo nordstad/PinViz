@@ -10,6 +10,7 @@ from ... import boards
 from ...devices import get_registry
 from ...model import Connection, Diagram
 from ...render_svg import SVGRenderer
+from ...theme import Theme
 from ...validation import DiagramValidator, ValidationLevel
 from ..context import AppContext
 from ..decorators import handle_command_exception, progress_indicator
@@ -128,6 +129,7 @@ def example_command(
     no_title: NoTitleOption = False,
     no_board_name: NoBoardNameOption = False,
     show_legend: ShowLegendOption = False,
+    theme: str = typer.Option(None, help="Theme: light or dark"),
     json_output: JsonOption = False,
 ) -> None:
     """
@@ -137,7 +139,7 @@ def example_command(
 
       pinviz example bh1750
 
-      pinviz example ir_led -o images/ir_led.svg
+      pinviz example ir_led -o images/ir_led.svg --theme dark
 
       pinviz example i2c_spi --show-legend
     """
@@ -192,6 +194,14 @@ def example_command(
                 diagram.show_board_name = False
             if show_legend:
                 diagram.show_legend = True
+
+            # Apply theme if specified
+            if theme:
+                try:
+                    diagram.theme = Theme(theme.lower())
+                except ValueError as e:
+                    print_error(f"Invalid theme '{theme}'. Must be 'light' or 'dark'.", ctx.console)
+                    raise typer.Exit(1) from e
 
             # Validate diagram before rendering
             validator = DiagramValidator()

@@ -15,6 +15,7 @@ Learn PinViz capabilities through these focused examples:
 | Feature | Example | What it demonstrates |
 |---------|---------|---------------------|
 | **Wire Visibility** | [Light & Dark Wires](#wire-visibility---light--dark-colors) | Automatic halo color selection for wire visibility |
+| **Dark Mode 🌙** | [BH1750 Dark](#bh1750-sensor-dark-mode) • [Pico Dark](#pico-led-dark-mode) | Dark theme for dark backgrounds, inverted colors |
 | **I2C Sensors** | [BH1750](#bh1750-light-sensor) | Automatic I2C color coding, bus sharing |
 | **Inline Components** | [LED with Resistor](#led-with-resistor) | Resistors, capacitors, diodes on wires |
 | **Multiple Devices** | [Traffic Light](#traffic-light) | Parallel connections, multiple LEDs |
@@ -932,6 +933,131 @@ You can use any of these board names in your configuration:
 - `raspberry_pi_pico`
 - `pico`
 - `rpi pico`
+
+---
+
+## Dark Mode Examples 🌙
+
+PinViz supports dark mode themes optimized for dark backgrounds. Perfect for documentation displayed in dark themes or presentations.
+
+### BH1750 Sensor (Dark Mode)
+
+BH1750 I2C light sensor with dark theme optimized for dark backgrounds.
+
+**Configuration:** [`examples/bh1750_dark.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/bh1750_dark.yaml)
+
+```yaml
+title: "BH1750 Light Sensor (Dark Mode)"
+board: "raspberry_pi_5"
+theme: "dark"
+
+devices:
+  - type: "bh1750"
+    name: "BH1750"
+
+connections:
+  - board_pin: 1    # 3V3
+    device: "BH1750"
+    device_pin: "VCC"
+
+  - board_pin: 6    # GND
+    device: "BH1750"
+    device_pin: "GND"
+
+  - board_pin: 5    # GPIO3 (I2C SCL)
+    device: "BH1750"
+    device_pin: "SCL"
+
+  - board_pin: 3    # GPIO2 (I2C SDA)
+    device: "BH1750"
+    device_pin: "SDA"
+```
+
+**Generate:**
+
+```bash
+pinviz render examples/bh1750_dark.yaml -o bh1750_dark.svg
+# Or override theme via CLI
+pinviz render examples/bh1750.yaml --theme dark -o bh1750_dark.svg
+```
+
+**Result:**
+
+![BH1750 Dark Mode](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750_dark.svg)
+
+**Key Features:**
+- Dark canvas background (#1E1E1E) optimized for dark UIs
+- Light text and stroke colors for visibility
+- Pin labels inverted (white background, black text)
+- Wire colors remain unchanged (electrical conventions preserved)
+- Perfect for dark-themed documentation, presentations, and GitHub dark mode
+
+---
+
+### Pico LED (Dark Mode)
+
+Simple LED circuit on Raspberry Pi Pico with dark theme.
+
+**Configuration:** [`examples/pico_led_dark.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/pico_led_dark.yaml)
+
+```yaml
+title: "Raspberry Pi Pico - LED Circuit (Dark Mode)"
+board: "raspberry_pi_pico"
+theme: "dark"
+
+devices:
+  - type: "led"
+    color: "Blue"
+    name: "Status LED"
+
+connections:
+  # LED Anode to GP0 via 220Ω resistor
+  - board_pin: 1   # GP0 (top header, rightmost pin)
+    device: "Status LED"
+    device_pin: "+"
+    color: "#4A90E2"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  # LED Cathode to Ground
+  - board_pin: 3   # GND (top header)
+    device: "Status LED"
+    device_pin: "-"
+    color: "#E0E0E0"
+```
+
+**Generate:**
+
+```bash
+pinviz render examples/pico_led_dark.yaml -o pico_led_dark.svg
+```
+
+**Result:**
+
+![Pico LED Dark Mode](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pico_led_dark.svg)
+
+**Key Features:**
+- Dark mode support for Pico's dual-sided header
+- Inline resistor component visible in dark theme
+- Light wire colors optimized for dark backgrounds
+- Demonstrates dark theme on horizontal pin layout
+
+**Theme Options:**
+
+You can enable dark mode in two ways:
+
+1. **In YAML config:**
+   ```yaml
+   theme: "dark"
+   ```
+
+2. **Via CLI flag (overrides config):**
+   ```bash
+   pinviz render config.yaml --theme dark
+   ```
+
+For more details, see the [Themes Guide](themes.md).
 
 ---
 

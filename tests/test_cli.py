@@ -535,3 +535,171 @@ def test_validate_command_json_with_graph_stats(sample_yaml_config):
     assert output_data["graph"]["devices"] > 0
     assert output_data["graph"]["connections"] > 0
     assert output_data["graph"]["levels"] >= 0
+
+
+def test_render_command_with_theme_light(sample_yaml_config, temp_output_dir):
+    """Test render command with --theme light flag."""
+    output_file = temp_output_dir / "test_light.svg"
+    with patch("pinviz.cli.commands.render.SVGRenderer") as mock_renderer:
+        mock_instance = Mock()
+        mock_renderer.return_value = mock_instance
+        result = runner.invoke(
+            app,
+            ["render", str(sample_yaml_config), "-o", str(output_file), "--theme", "light"],
+        )
+        assert result.exit_code == 0
+        mock_instance.render.assert_called_once()
+        # Verify the diagram passed to render has light theme
+        call_args = mock_instance.render.call_args
+        diagram = call_args[0][0]
+        from pinviz.theme import Theme
+
+        assert diagram.theme == Theme.LIGHT
+
+
+def test_render_command_with_theme_dark(sample_yaml_config, temp_output_dir):
+    """Test render command with --theme dark flag."""
+    output_file = temp_output_dir / "test_dark.svg"
+    with patch("pinviz.cli.commands.render.SVGRenderer") as mock_renderer:
+        mock_instance = Mock()
+        mock_renderer.return_value = mock_instance
+        result = runner.invoke(
+            app,
+            ["render", str(sample_yaml_config), "-o", str(output_file), "--theme", "dark"],
+        )
+        assert result.exit_code == 0
+        mock_instance.render.assert_called_once()
+        # Verify the diagram passed to render has dark theme
+        call_args = mock_instance.render.call_args
+        diagram = call_args[0][0]
+        from pinviz.theme import Theme
+
+        assert diagram.theme == Theme.DARK
+
+
+def test_render_command_with_invalid_theme(sample_yaml_config, temp_output_dir):
+    """Test render command with invalid theme."""
+    output_file = temp_output_dir / "test_invalid.svg"
+    result = runner.invoke(
+        app,
+        ["render", str(sample_yaml_config), "-o", str(output_file), "--theme", "invalid"],
+    )
+    assert result.exit_code == 1
+    assert "Invalid theme" in result.stdout or "invalid" in result.stdout.lower()
+
+
+def test_example_command_with_theme_light(temp_output_dir):
+    """Test example command with --theme light flag."""
+    output_file = temp_output_dir / "bh1750_light.svg"
+    with patch("pinviz.cli.commands.example.SVGRenderer") as mock_renderer:
+        mock_instance = Mock()
+        mock_renderer.return_value = mock_instance
+        result = runner.invoke(
+            app,
+            ["example", "bh1750", "-o", str(output_file), "--theme", "light"],
+        )
+        assert result.exit_code == 0
+        mock_instance.render.assert_called_once()
+        # Verify the diagram passed to render has light theme
+        call_args = mock_instance.render.call_args
+        diagram = call_args[0][0]
+        from pinviz.theme import Theme
+
+        assert diagram.theme == Theme.LIGHT
+
+
+def test_example_command_with_theme_dark(temp_output_dir):
+    """Test example command with --theme dark flag."""
+    output_file = temp_output_dir / "bh1750_dark.svg"
+    with patch("pinviz.cli.commands.example.SVGRenderer") as mock_renderer:
+        mock_instance = Mock()
+        mock_renderer.return_value = mock_instance
+        result = runner.invoke(
+            app,
+            ["example", "bh1750", "-o", str(output_file), "--theme", "dark"],
+        )
+        assert result.exit_code == 0
+        mock_instance.render.assert_called_once()
+        # Verify the diagram passed to render has dark theme
+        call_args = mock_instance.render.call_args
+        diagram = call_args[0][0]
+        from pinviz.theme import Theme
+
+        assert diagram.theme == Theme.DARK
+
+
+def test_example_command_with_invalid_theme(temp_output_dir):
+    """Test example command with invalid theme."""
+    output_file = temp_output_dir / "bh1750_invalid.svg"
+    result = runner.invoke(
+        app,
+        ["example", "bh1750", "-o", str(output_file), "--theme", "invalid"],
+    )
+    assert result.exit_code == 1
+    assert "Invalid theme" in result.stdout or "invalid" in result.stdout.lower()
+
+
+def test_render_command_with_visibility_flags_and_theme(sample_yaml_config, temp_output_dir):
+    """Test render command with visibility flags combined with theme."""
+    output_file = temp_output_dir / "test_flags.svg"
+    with patch("pinviz.cli.commands.render.SVGRenderer") as mock_renderer:
+        mock_instance = Mock()
+        mock_renderer.return_value = mock_instance
+        result = runner.invoke(
+            app,
+            [
+                "render",
+                str(sample_yaml_config),
+                "-o",
+                str(output_file),
+                "--no-title",
+                "--no-board-name",
+                "--show-legend",
+                "--theme",
+                "dark",
+            ],
+        )
+        assert result.exit_code == 0
+        mock_instance.render.assert_called_once()
+        # Verify diagram settings
+        call_args = mock_instance.render.call_args
+        diagram = call_args[0][0]
+        from pinviz.theme import Theme
+
+        assert diagram.theme == Theme.DARK
+        assert diagram.show_title is False
+        assert diagram.show_board_name is False
+        assert diagram.show_legend is True
+
+
+def test_example_command_with_visibility_flags_and_theme(temp_output_dir):
+    """Test example command with visibility flags combined with theme."""
+    output_file = temp_output_dir / "bh1750_flags.svg"
+    with patch("pinviz.cli.commands.example.SVGRenderer") as mock_renderer:
+        mock_instance = Mock()
+        mock_renderer.return_value = mock_instance
+        result = runner.invoke(
+            app,
+            [
+                "example",
+                "bh1750",
+                "-o",
+                str(output_file),
+                "--no-title",
+                "--no-board-name",
+                "--show-legend",
+                "--theme",
+                "dark",
+            ],
+        )
+        assert result.exit_code == 0
+        mock_instance.render.assert_called_once()
+        # Verify diagram settings
+        call_args = mock_instance.render.call_args
+        diagram = call_args[0][0]
+        from pinviz.theme import Theme
+
+        assert diagram.theme == Theme.DARK
+        assert diagram.show_title is False
+        assert diagram.show_board_name is False
+        assert diagram.show_legend is True

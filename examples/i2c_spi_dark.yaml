@@ -1,0 +1,75 @@
+title: "I2C and SPI Devices (Dark Mode)"
+
+board: "raspberry_pi_5"
+theme: "dark"
+show_legend: true
+
+devices:
+  - type: "bh1750"
+    name: "Light Sensor"
+
+  - type: "ssd1306"
+    name: "OLED Display"
+
+  - type: "spi_device"
+    name: "SPI Module"
+
+connections:
+  # Light Sensor (I2C)
+  - board_pin: 1
+    device: "Light Sensor"
+    device_pin: "VCC"
+
+  - board_pin: 6
+    device: "Light Sensor"
+    device_pin: "GND"
+
+  - board_pin: 3
+    device: "Light Sensor"
+    device_pin: "SDA"
+
+  - board_pin: 5
+    device: "Light Sensor"
+    device_pin: "SCL"
+
+  # OLED Display (I2C)
+  - board_pin: 17
+    device: "OLED Display"
+    device_pin: "VCC"
+
+  - board_pin: 20
+    device: "OLED Display"
+    device_pin: "GND"
+
+  - board_pin: 3
+    device: "OLED Display"
+    device_pin: "SDA"
+
+  - board_pin: 5
+    device: "OLED Display"
+    device_pin: "SCL"
+
+  # SPI Module
+  - board_pin: 17
+    device: "SPI Module"
+    device_pin: "VCC"
+
+  - board_pin: 25
+    device: "SPI Module"
+    device_pin: "GND"
+
+  - board_pin: 19
+    device: "SPI Module"
+    device_pin: "MOSI"
+
+  - board_pin: 21
+    device: "SPI Module"
+    device_pin: "MISO"
+
+  - board_pin: 23
+    device: "SPI Module"
+    device_pin: "SCLK"
+
+  - board_pin: 24
+    device: "SPI Module"
+    device_pin: "CS"

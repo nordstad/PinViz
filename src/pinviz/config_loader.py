@@ -21,6 +21,7 @@ from .model import (
     Point,
 )
 from .schemas import ConnectionSchema, validate_config
+from .theme import Theme
 from .utils import is_output_pin
 from .validation import ValidationIssue, ValidationLevel
 
@@ -207,6 +208,14 @@ class ConfigLoader:
         if warnings:
             self._report_validation_warnings(warnings)
 
+        # Parse theme
+        theme_str = config.get("theme", "light")
+        try:
+            theme = Theme(theme_str.lower())
+        except ValueError:
+            log.warning("invalid_theme", theme=theme_str, using_default="light")
+            theme = Theme.LIGHT
+
         # Create diagram
         diagram = Diagram(
             title=config.get("title", "GPIO Diagram"),
@@ -217,6 +226,7 @@ class ConfigLoader:
             show_gpio_diagram=config.get("show_gpio_diagram", False),
             show_title=config.get("show_title", True),
             show_board_name=config.get("show_board_name", True),
+            theme=theme,
         )
 
         log.info(

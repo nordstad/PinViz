@@ -12,6 +12,7 @@ from .layout import LayoutConfig, LayoutEngine
 from .logging_config import get_logger
 from .model import Board, Diagram, PinRole
 from .render_constants import RENDER_CONSTANTS, _parse_font_size, _parse_numeric_value
+from .theme import get_color_scheme
 from .wire_renderer import WireRenderer
 
 log = get_logger(__name__)
@@ -60,8 +61,6 @@ class SVGRenderer:
         """
         self.layout_config = layout_config or LayoutConfig()
         self.layout_engine = LayoutEngine(self.layout_config)
-        self.wire_renderer = WireRenderer(self.layout_config)
-        self.component_renderer = ComponentRenderer()
         self._init_svg_handlers()
 
     def _init_svg_handlers(self) -> None:
@@ -94,6 +93,13 @@ class SVGRenderer:
             connection_count=len(diagram.connections),
         )
 
+        # Get color scheme from theme
+        color_scheme = get_color_scheme(diagram.theme)
+
+        # Initialize renderers with color scheme
+        wire_renderer = WireRenderer(self.layout_config, color_scheme)
+        component_renderer = ComponentRenderer(color_scheme)
+
         # Calculate layout (returns immutable LayoutResult)
         log.debug("calculating_layout")
         layout_result = self.layout_engine.layout_diagram(diagram)
@@ -113,8 +119,10 @@ class SVGRenderer:
         # Create SVG drawing
         dwg = draw.Drawing(canvas_width, canvas_height)
 
-        # Add white background
-        dwg.append(draw.Rectangle(0, 0, canvas_width, canvas_height, fill="white"))
+        # Add background
+        dwg.append(
+            draw.Rectangle(0, 0, canvas_width, canvas_height, fill=color_scheme.canvas_background)
+        )
 
         # Draw title
         if diagram.title and diagram.show_title:
@@ -127,18 +135,25 @@ class SVGRenderer:
                     text_anchor="middle",
                     font_family="Arial, sans-serif",
                     font_weight="bold",
-                    fill="#333",
+                    fill=color_scheme.text_primary,
                 )
             )
 
         # Draw board
         log.debug("drawing_board", board_name=diagram.board.name)
-        self._draw_board(dwg, diagram.board, board_margin_top, diagram.show_board_name)
+        self._draw_board(
+            dwg,
+            diagram.board,
+            board_margin_top,
+            diagram.show_board_name,
+            color_scheme,
+            component_renderer,
+        )
 
         # Draw GPIO pin numbers on the header
         x = self.layout_config.board_margin_left
         y = board_margin_top
-        self._draw_gpio_pin_numbers(dwg, diagram.board, x, y)
+        self._draw_gpio_pin_numbers(dwg, diagram.board, x, y, color_scheme)
 
         # Draw wires first so they appear behind devices
         # Sort wires for proper z-order to prevent overlapping/hiding
@@ -156,24 +171,24 @@ class SVGRenderer:
             ),
         )
         for wire in sorted_wires:
-            self.wire_renderer.draw_wire(dwg, wire, draw_connection_segment=False)
+            wire_renderer.draw_wire(dwg, wire, draw_connection_segment=False)
 
         # Draw device boxes (without pins yet)
         log.debug("drawing_devices", device_count=len(diagram.devices))
         for device in diagram.devices:
-            self.component_renderer.draw_device_box(dwg, device)
+            component_renderer.draw_device_box(dwg, device)
 
         # Draw wire connection segments on top of device boxes
         for wire in sorted_wires:
-            self.wire_renderer.draw_wire_connection_segment(dwg, wire)
+            wire_renderer.draw_wire_connection_segment(dwg, wire)
 
         # Draw device pins on top of everything
         for device in diagram.devices:
-            self.component_renderer.draw_device_pins(dwg, device)
+            component_renderer.draw_device_pins(dwg, device)
 
         # Draw device specifications table if legend is enabled
         if diagram.show_legend:
-            self._draw_device_specs_table(dwg, diagram, board_margin_top)
+            self._draw_device_specs_table(dwg, diagram, board_margin_top, color_scheme)
 
         # Save
         log.debug("saving_svg", output_path=str(output_path))
@@ -181,7 +196,13 @@ class SVGRenderer:
         log.info("render_completed", output_path=str(output_path))
 
     def _draw_board(
-        self, dwg: draw.Drawing, board: Board, board_margin_top: float, show_board_name: bool = True
+        self,
+        dwg: draw.Drawing,
+        board: Board,
+        board_margin_top: float,
+        show_board_name: bool,
+        color_scheme,
+        component_renderer,
     ) -> None:
         """
         Draw the Raspberry Pi board with GPIO pins.
@@ -193,7 +214,9 @@ class SVGRenderer:
             dwg: The SVG drawing object
             board: The board to render
             board_margin_top: Top margin for the board
-            show_board_name: Whether to display the board name label (default: True)
+            show_board_name: Whether to display the board name label
+            color_scheme: Theme color scheme
+            component_renderer: Component renderer for fallback
         """
         x = self.layout_config.board_margin_left
         y = board_margin_top
@@ -245,7 +268,7 @@ class SVGRenderer:
                     f"Warning: SVG asset not found ({board.svg_asset_path}), "
                     "using fallback rendering"
                 )
-                self.component_renderer.draw_board_fallback(dwg, board, x, y)
+                component_renderer.draw_board_fallback(dwg, board, x, y)
                 board_width = board.width
                 board_height = board.height
 
@@ -260,7 +283,7 @@ class SVGRenderer:
                 )
                 print(f"Error: SVG file is malformed ({board.svg_asset_path}): {e}")
                 print("Using fallback rendering instead.")
-                self.component_renderer.draw_board_fallback(dwg, board, x, y)
+                component_renderer.draw_board_fallback(dwg, board, x, y)
                 board_width = board.width
                 board_height = board.height
 
@@ -284,7 +307,7 @@ class SVGRenderer:
         else:
             # Fallback: draw a simple rectangle
             log.debug("using_fallback_rectangle", board_name=board.name)
-            self.component_renderer.draw_board_fallback(dwg, board, x, y)
+            component_renderer.draw_board_fallback(dwg, board, x, y)
             board_width = board.width
             board_height = board.height
 
@@ -299,11 +322,13 @@ class SVGRenderer:
                     text_anchor="middle",
                     font_family="Arial, sans-serif",
                     font_weight="bold",
-                    fill="#333",
+                    fill=color_scheme.text_primary,
                 )
             )
 
-    def _draw_gpio_pin_numbers(self, dwg: draw.Drawing, board: Board, x: float, y: float) -> None:
+    def _draw_gpio_pin_numbers(
+        self, dwg: draw.Drawing, board: Board, x: float, y: float, color_scheme
+    ) -> None:
         """
         Draw pin numbers on GPIO header with color-coded backgrounds.
 
@@ -315,6 +340,7 @@ class SVGRenderer:
             board: The board containing pin definitions
             x: Board X offset
             y: Board Y offset
+            color_scheme: Theme color scheme
         """
         # Color mapping for pin backgrounds based on pin role
 
@@ -358,7 +384,7 @@ class SVGRenderer:
                     pin_y,
                     pin_radius,
                     fill=bg_color,
-                    stroke="#333",
+                    stroke=color_scheme.pin_circle_stroke,
                     stroke_width=RENDER_CONSTANTS.PIN_STROKE_WIDTH,
                     opacity=RENDER_CONSTANTS.PIN_OPACITY,
                 )
@@ -366,8 +392,8 @@ class SVGRenderer:
 
             # Draw pin number - scaled to fit in circle
             font_size = pin_font_size  # Scaled to fit in circle
-            # Use white text on blue backgrounds for better readability
-            text_color = "#FFFFFF" if bg_color == "#0000FF" else "#000000"
+            # Use appropriate text color based on background for readability
+            text_color = "#FFFFFF" if bg_color in ["#0000FF", "#FF00FF"] else "#000000"
             dwg.append(
                 draw.Text(
                     str(pin.number),
@@ -620,7 +646,7 @@ class SVGRenderer:
         return lines if lines else [text]
 
     def _draw_device_specs_table(
-        self, dwg: draw.Drawing, diagram: Diagram, board_margin_top: float
+        self, dwg: draw.Drawing, diagram: Diagram, board_margin_top: float, color_scheme
     ) -> None:
         """
         Draw a device specifications table below the diagram.
@@ -632,6 +658,7 @@ class SVGRenderer:
             dwg: The SVG drawing object
             diagram: The diagram containing devices
             board_margin_top: Top margin of the board
+            color_scheme: Theme color scheme
         """
         # Filter devices that have descriptions
         devices_with_specs = [d for d in diagram.devices if d.description]
@@ -685,8 +712,8 @@ class SVGRenderer:
                 table_y,
                 table_width,
                 total_table_height,
-                fill="#F8F9FA",
-                stroke="#333",
+                fill=color_scheme.table_background,
+                stroke=color_scheme.legend_stroke,
                 stroke_width=1,
                 rx=4,
                 ry=4,
@@ -700,8 +727,8 @@ class SVGRenderer:
                 table_y,
                 table_width,
                 header_height,
-                fill="#E9ECEF",
-                stroke="#333",
+                fill=color_scheme.table_header_background,
+                stroke=color_scheme.legend_stroke,
                 stroke_width=1,
             )
         )
@@ -715,7 +742,7 @@ class SVGRenderer:
                 table_y + 20,
                 font_family="Arial, sans-serif",
                 font_weight="bold",
-                fill="#333",
+                fill=color_scheme.text_primary,
             )
         )
 
@@ -733,7 +760,7 @@ class SVGRenderer:
                     y_pos + 20,
                     font_family="Arial, sans-serif",
                     font_weight="bold",
-                    fill="#333",
+                    fill=color_scheme.text_primary,
                 )
             )
 
@@ -748,7 +775,7 @@ class SVGRenderer:
                         desc_column_start,
                         y_pos + 20 + (i * line_spacing),
                         font_family="Arial, sans-serif",
-                        fill="#666",
+                        fill=color_scheme.text_secondary,
                     )
                 )
 
@@ -760,7 +787,7 @@ class SVGRenderer:
                         y_pos + row_height,
                         table_x + table_width,
                         y_pos + row_height,
-                        stroke="#DEE2E6",
+                        stroke=color_scheme.table_separator,
                         stroke_width=1,
                     )
                 )

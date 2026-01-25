@@ -563,6 +563,7 @@ class DiagramConfigSchema(BaseModel):
     show_gpio_diagram: bool = False
     show_title: bool = True
     show_board_name: bool = True
+    theme: Annotated[str, Field(description="Theme: light or dark")] = "light"
 
     model_config = ConfigDict(extra="forbid")
 
