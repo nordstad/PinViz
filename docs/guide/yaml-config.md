@@ -7,6 +7,7 @@ Complete reference for YAML configuration files.
 ```yaml
 title: "Diagram Title"
 board: "raspberry_pi_5"  # or "raspberry_pi_4"
+theme: "light"  # optional: "light" (default) or "dark"
 devices:
   - type: "device_type"
     name: "Device Name"
@@ -108,6 +109,28 @@ pinviz list
 
 ## Configuration Options
 
-See the [Quick Start Guide](../getting-started/quickstart.md) for detailed examples.
+### Top-Level Options
 
-Full documentation coming soon.
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `title` | string | `"GPIO Diagram"` | Diagram title displayed at the top |
+| `board` | string | `"raspberry_pi_5"` | Board type (see Supported Boards above) |
+| `theme` | string | `"light"` | Theme: `"light"` or `"dark"` |
+| `show_legend` | boolean | `false` | Show device specifications table |
+| `show_gpio_diagram` | boolean | `false` | Show GPIO pin reference diagram |
+| `show_title` | boolean | `true` | Display the diagram title |
+| `show_board_name` | boolean | `true` | Display the board name |
+
+### Themes
+
+PinViz supports light and dark themes. See the [Themes Guide](themes.md) for detailed documentation.
+
+```yaml
+# Light theme (default)
+theme: "light"
+
+# Dark theme
+theme: "dark"
+```
+
+For more examples, see the [Quick Start Guide](../getting-started/quickstart.md).

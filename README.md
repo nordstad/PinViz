@@ -35,6 +35,7 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - 🔌 **Built-in Templates**: Pre-configured boards (Raspberry Pi 4, 5 & Pico) and common devices
 - 🐍 **Python API**: Create diagrams programmatically with Python code
 - 🤖 **MCP Server**: Generate diagrams from natural language with AI assistants
+- 🌙 **Dark Mode**: Built-in light and dark themes for better visibility
 - 📦 **SVG Output**: Scalable, high-quality vector graphics
 - ✨ **Modern CLI**: Rich terminal output with progress indicators and colored messages
 - 🔧 **JSON Output**: Machine-readable output for CI/CD integration
@@ -64,6 +65,26 @@ connections:
 ```
 
 See [examples/multi_level_simple.yaml](examples/multi_level_simple.yaml) for a complete example.
+
+## Dark Mode 🌙
+
+Generate diagrams optimized for dark backgrounds. Perfect for documentation displayed in dark themes.
+
+```yaml
+title: "My Diagram"
+board: "raspberry_pi_5"
+theme: "dark"  # or "light" (default)
+devices: [...]
+connections: [...]
+```
+
+Or use the CLI flag:
+
+```bash
+pinviz render diagram.yaml --theme dark -o output.svg
+```
+
+See [examples/bh1750_dark.yaml](examples/bh1750_dark.yaml) for a complete example.
 
 ## Supported Boards
 

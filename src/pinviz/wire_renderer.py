@@ -7,6 +7,7 @@ import drawsvg as draw
 from .layout import LayoutConfig, RoutedWire, create_bezier_path
 from .model import DEFAULT_COLORS, ComponentType, PinRole, Point
 from .render_constants import RENDER_CONSTANTS
+from .theme import ColorScheme
 
 
 def calculate_luminance(hex_color: str) -> float:
@@ -69,14 +70,16 @@ def get_halo_color(wire_color: str) -> str:
 class WireRenderer:
     """Handles rendering of wires, inline components, and wire legends."""
 
-    def __init__(self, layout_config: LayoutConfig):
+    def __init__(self, layout_config: LayoutConfig, color_scheme: ColorScheme):
         """
         Initialize wire renderer.
 
         Args:
             layout_config: Layout configuration for corner radius and legend settings
+            color_scheme: Theme color scheme for rendering
         """
         self.layout_config = layout_config
+        self.color_scheme = color_scheme
 
     def draw_wire(
         self, dwg: draw.Drawing, wire: RoutedWire, draw_connection_segment: bool = True
@@ -140,8 +143,8 @@ class WireRenderer:
                 size=(self.layout_config.legend_width, self.layout_config.legend_height),
                 rx=RENDER_CONSTANTS.DEVICE_BORDER_RADIUS,
                 ry=RENDER_CONSTANTS.DEVICE_BORDER_RADIUS,
-                fill="white",
-                stroke="#333",
+                fill=self.color_scheme.legend_background,
+                stroke=self.color_scheme.legend_stroke,
                 stroke_width=RENDER_CONSTANTS.DEVICE_STROKE_WIDTH,
                 opacity=RENDER_CONSTANTS.DEVICE_OPACITY,
             )
@@ -159,7 +162,7 @@ class WireRenderer:
                 font_size=RENDER_CONSTANTS.LEGEND_TITLE_FONT_SIZE,
                 font_family="Arial, sans-serif",
                 font_weight="bold",
-                fill="#333",
+                fill=self.color_scheme.legend_text,
             )
         )
 
@@ -216,7 +219,7 @@ class WireRenderer:
                     ),
                     font_size=RENDER_CONSTANTS.LEGEND_ENTRY_FONT_SIZE,
                     font_family="Arial, sans-serif",
-                    fill="#333",
+                    fill=self.color_scheme.legend_text,
                 )
             )
 
@@ -439,7 +442,7 @@ class WireRenderer:
             -height / 2 - 5,
             text_anchor="middle",
             font_family="Arial, sans-serif",
-            fill="#333",
+            fill=self.color_scheme.text_primary,
             font_weight="bold",
         )
         g.append(text)

@@ -4,10 +4,19 @@ import drawsvg as draw
 
 from .model import Board, Device
 from .render_constants import RENDER_CONSTANTS, _parse_font_size
+from .theme import ColorScheme
 
 
 class ComponentRenderer:
     """Handles rendering of devices, components, and board elements."""
+
+    def __init__(self, color_scheme: ColorScheme):
+        """Initialize renderer with color scheme.
+
+        Args:
+            color_scheme: Theme color scheme for rendering
+        """
+        self.color_scheme = color_scheme
 
     def draw_device(self, dwg: draw.Drawing, device: Device) -> None:
         """
@@ -54,7 +63,7 @@ class ComponentRenderer:
                 text_anchor="middle",
                 font_family="Arial, sans-serif",
                 font_weight="bold",
-                fill="#333",
+                fill=self.color_scheme.text_primary,
             )
         )
 
@@ -68,7 +77,7 @@ class ComponentRenderer:
                 rx=RENDER_CONSTANTS.DEVICE_BORDER_RADIUS,
                 ry=RENDER_CONSTANTS.DEVICE_BORDER_RADIUS,
                 fill=device.color,
-                stroke="#333",
+                stroke=self.color_scheme.device_stroke,
                 stroke_width=2,
                 opacity=0.9,
             )
@@ -102,7 +111,7 @@ class ComponentRenderer:
                     pin_y,
                     RENDER_CONSTANTS.PIN_MARKER_INNER_RADIUS,
                     fill="#FFD700",
-                    stroke="#333",
+                    stroke=self.color_scheme.device_stroke,
                     stroke_width=RENDER_CONSTANTS.DEVICE_STROKE_WIDTH,
                     opacity=RENDER_CONSTANTS.DEVICE_OPACITY,
                 )
@@ -144,7 +153,7 @@ class ComponentRenderer:
 
             label_y = pin_y
 
-            # Draw black background for pin label
+            # Draw background for pin label
             dwg.append(
                 draw.Rectangle(
                     label_x,
@@ -153,12 +162,12 @@ class ComponentRenderer:
                     label_height,
                     rx=2,
                     ry=2,
-                    fill="#000000",
+                    fill=self.color_scheme.pin_label_background,
                     opacity=0.8,
                 )
             )
 
-            # Draw pin label text in white
+            # Draw pin label text
             dwg.append(
                 draw.Text(
                     pin.name,
@@ -167,7 +176,7 @@ class ComponentRenderer:
                     label_y + 2.5,
                     text_anchor=text_anchor,
                     font_family="Arial, sans-serif",
-                    fill="#FFFFFF",
+                    fill=self.color_scheme.pin_label_text,
                 )
             )
 

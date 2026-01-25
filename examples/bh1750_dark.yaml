@@ -1,0 +1,25 @@
+title: "BH1750 Light Sensor Wiring (Dark Mode)"
+
+board: "raspberry_pi_5"
+theme: "dark"
+
+devices:
+  - type: "bh1750"
+    name: "BH1750"
+
+connections:
+  - board_pin: 1    # 3V3
+    device: "BH1750"
+    device_pin: "VCC"
+
+  - board_pin: 6    # GND
+    device: "BH1750"
+    device_pin: "GND"
+
+  - board_pin: 5    # GPIO3 (I2C SCL)
+    device: "BH1750"
+    device_pin: "SCL"
+
+  - board_pin: 3    # GPIO2 (I2C SDA)
+    device: "BH1750"
+    device_pin: "SDA"
