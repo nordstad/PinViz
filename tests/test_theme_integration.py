@@ -1,9 +1,6 @@
 """Integration tests for theme system with config loading and rendering."""
 
-import tempfile
-from pathlib import Path
 
-import pytest
 
 from pinviz.config_loader import load_diagram
 from pinviz.model import Diagram

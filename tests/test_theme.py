@@ -178,7 +178,7 @@ class TestThemeIntegration:
         valid_named_colors = {"white", "black"}
 
         for scheme in schemes:
-            for field_name, field_value in scheme.__dataclass_fields__.items():
+            for field_name, _field_value in scheme.__dataclass_fields__.items():
                 color = getattr(scheme, field_name)
                 # Should be either a hex color or named color
                 assert isinstance(color, str)
