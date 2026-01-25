@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
-
+### Added
+- feat: Dynamic halo color for light-colored wires (https://github.com/nordstad/PinViz/pull/139)
+  - Automatic visibility detection using WCAG 2.0 luminance calculation
+  - Light wires (luminance > 0.7) get dark gray halos for visibility
+  - Dark/medium wires keep traditional white halos
+  - No configuration needed - works automatically for all wire colors
+  - Includes comprehensive test suite with 19 new tests
+  - New example: `examples/wire_visibility.yaml` showcasing the feature
 
 ## [0.11.1] - 2026-01-25
 

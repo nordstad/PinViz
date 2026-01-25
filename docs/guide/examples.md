@@ -14,6 +14,7 @@ Learn PinViz capabilities through these focused examples:
 
 | Feature | Example | What it demonstrates |
 |---------|---------|---------------------|
+| **Wire Visibility** | [Light & Dark Wires](#wire-visibility---light--dark-colors) | Automatic halo color selection for wire visibility |
 | **I2C Sensors** | [BH1750](#bh1750-light-sensor) | Automatic I2C color coding, bus sharing |
 | **Inline Components** | [LED with Resistor](#led-with-resistor) | Resistors, capacitors, diodes on wires |
 | **Multiple Devices** | [Traffic Light](#traffic-light) | Parallel connections, multiple LEDs |
@@ -44,6 +45,121 @@ All example configurations are available in the [`examples/`](https://github.com
 ---
 
 ## Example Gallery
+
+### Wire Visibility - Light & Dark Colors
+
+Demonstrates PinViz's intelligent wire visibility system that automatically ensures all wire colors remain visible against white backgrounds. Light-colored wires receive dark halos, while dark wires keep traditional white halos.
+
+**Configuration:** [`examples/wire_visibility.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/wire_visibility.yaml)
+
+```yaml
+title: "Wire Visibility - Light & Dark Colors"
+board: "raspberry_pi_5"
+
+devices:
+  - name: "Light Colors Device"
+    description: "Demonstrates automatic dark halos for light-colored wires"
+    pins:
+      - name: "WHITE"
+        role: "GPIO"
+      - name: "LIGHT_GRAY"
+        role: "GPIO"
+      - name: "PALE_YELLOW"
+        role: "GPIO"
+      - name: "CREAM"
+        role: "GPIO"
+
+  - name: "Dark Colors Device"
+    description: "Shows traditional white halos for dark-colored wires"
+    pins:
+      - name: "BLACK"
+        role: "GPIO"
+      - name: "DARK_RED"
+        role: "GPIO"
+      - name: "NAVY"
+        role: "GPIO"
+      - name: "FOREST"
+        role: "GPIO"
+
+connections:
+  # Light colored wires - automatically get dark gray halos
+  - board_pin: 1
+    device: "Light Colors Device"
+    device_pin: "WHITE"
+    color: "#FFFFFF"  # Pure white
+
+  - board_pin: 3
+    device: "Light Colors Device"
+    device_pin: "LIGHT_GRAY"
+    color: "#F0F0F0"  # Light gray
+
+  - board_pin: 5
+    device: "Light Colors Device"
+    device_pin: "PALE_YELLOW"
+    color: "#FFFFE0"  # Pale yellow
+
+  - board_pin: 7
+    device: "Light Colors Device"
+    device_pin: "CREAM"
+    color: "#FFFACD"  # Lemon chiffon
+
+  # Dark colored wires - keep traditional white halos
+  - board_pin: 11
+    device: "Dark Colors Device"
+    device_pin: "BLACK"
+    color: "#000000"  # Black
+
+  - board_pin: 13
+    device: "Dark Colors Device"
+    device_pin: "DARK_RED"
+    color: "#8B0000"  # Dark red
+
+  - board_pin: 15
+    device: "Dark Colors Device"
+    device_pin: "NAVY"
+    color: "#000080"  # Navy blue
+
+  - board_pin: 19
+    device: "Dark Colors Device"
+    device_pin: "FOREST"
+    color: "#228B22"  # Forest green
+
+show_legend: true
+```
+
+**Generate:**
+
+```bash
+pinviz render examples/wire_visibility.yaml -o wire_visibility.svg
+```
+
+**Result:**
+
+![Wire Visibility Example](https://raw.githubusercontent.com/nordstad/PinViz/main/images/wire_visibility.svg)
+
+**Key Features:**
+
+- **Automatic visibility detection**: PinViz calculates color luminance using WCAG 2.0 formula
+- **Dynamic halo colors**: Light wires (luminance > 0.7) get dark gray halos (#2C2C2C)
+- **Traditional rendering preserved**: Dark/medium wires keep white halos
+- **No configuration needed**: Works automatically for all custom wire colors
+- **Professional results**: All wires remain clearly visible on white backgrounds
+
+**How it works:**
+
+1. When you specify a wire color (e.g., `color: "#FFFFFF"`), PinViz calculates its relative luminance
+2. If the luminance exceeds 0.7 (very bright colors), a dark gray halo is used
+3. Otherwise, the traditional white halo is applied
+4. This ensures optimal visibility for both light and dark colored wires
+
+**Perfect for:**
+
+- Custom color palettes with light/pastel colors
+- Documentation requiring specific brand colors
+- Projects with white or cream colored wires
+- Diagrams that need to maintain exact color specifications
+
+---
 
 ### BH1750 Light Sensor
 
