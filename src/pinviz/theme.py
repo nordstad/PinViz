@@ -4,10 +4,10 @@ Provides centralized color management for light and dark modes.
 """
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 
-class Theme(str, Enum):
+class Theme(StrEnum):
     """Diagram theme options."""
 
     LIGHT = "light"

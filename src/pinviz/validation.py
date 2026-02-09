@@ -18,7 +18,7 @@ from the use of this validation tool.
 """
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 from .devices.registry import get_registry
 from .logging_config import get_logger
@@ -133,7 +133,7 @@ def check_pin_compatibility(source_role: PinRole, target_role: PinRole) -> tuple
     return (False, "warning")
 
 
-class ValidationLevel(str, Enum):
+class ValidationLevel(StrEnum):
     """Severity level of a validation issue."""
 
     ERROR = "error"  # Critical issue that could damage hardware

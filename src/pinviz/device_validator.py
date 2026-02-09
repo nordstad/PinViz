@@ -7,7 +7,7 @@ the DeviceConfigSchema.
 
 import json
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ValidationError
@@ -15,7 +15,7 @@ from pydantic import ValidationError
 from .schemas import validate_device_config
 
 
-class ValidationSeverity(str, Enum):
+class ValidationSeverity(StrEnum):
     """Severity level for validation issues."""
 
     ERROR = "error"

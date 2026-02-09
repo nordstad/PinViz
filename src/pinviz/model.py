@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from .theme import Theme
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from .board_renderer import BoardLayout
 
 
-class PinRole(str, Enum):
+class PinRole(StrEnum):
     """
     Role or function of a GPIO pin.
 
@@ -63,7 +63,7 @@ class PinRole(str, Enum):
     I2C_EEPROM = "I2C_EEPROM"
 
 
-class WireColor(str, Enum):
+class WireColor(StrEnum):
     """
     Standard wire colors for electronics projects.
 
@@ -348,7 +348,7 @@ class Device:
         return next((p for p in self.pins if p.name == name), None)
 
 
-class WireStyle(str, Enum):
+class WireStyle(StrEnum):
     """
     Wire routing style for connections.
 
@@ -365,7 +365,7 @@ class WireStyle(str, Enum):
     MIXED = "mixed"  # Orthogonal with rounded corners
 
 
-class ComponentType(str, Enum):
+class ComponentType(StrEnum):
     """
     Type of inline component on a wire.
 
