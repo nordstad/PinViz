@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.12.1] - 2026-02-09
+
+### Changed
+- chore(deps): bump rich from 14.2.0 to 14.3.2 (#144, #148)
+- chore(deps): bump python-multipart from 0.0.20 to 0.0.22 (#147)
+- chore(deps): bump mcp from 1.25.0 to 1.26.0 (#145)
+- chore(deps-dev): bump hypothesis from 6.150.2 to 6.151.5 (#142, #149, #152)
+- chore(deps-dev): bump ruff from 0.14.13 to 0.15.0 (#146, #150)
+- chore(deps-dev): bump mkdocstrings from 1.0.0 to 1.0.3 (#143, #153)
+- chore(deps-dev): update uv-build requirement (#151)
+
+### Fixed
+- fix: update enums to use StrEnum for ruff 0.15.0 compatibility (#150)
+
 ## [0.12.0] - 2026-01-25
 
 ### Added
