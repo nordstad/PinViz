@@ -9,23 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-
-## [0.12.1] - 2026-02-09
-
-### Changed
-- chore(deps-dev): bump ruff from 0.14.13 to 0.14.14 (https://github.com/nordstad/PinViz/pull/146)
-- chore(deps): bump mcp from 1.25.0 to 1.26.0 (https://github.com/nordstad/PinViz/pull/145)
-- chore(deps): bump rich from 14.2.0 to 14.3.1 (https://github.com/nordstad/PinViz/pull/144)
-- chore(deps-dev): bump mkdocstrings from 1.0.0 to 1.0.2 (https://github.com/nordstad/PinViz/pull/143)
-- chore(deps-dev): bump hypothesis from 6.150.2 to 6.151.2 (https://github.com/nordstad/PinViz/pull/142)
-- chore(deps): bump python-multipart from 0.0.20 to 0.0.22 (https://github.com/nordstad/PinViz/pull/147)
-- chore(deps-dev): bump hypothesis from 6.151.2 to 6.151.4 (https://github.com/nordstad/PinViz/pull/149)
-- chore(deps): bump rich from 14.3.1 to 14.3.2 (https://github.com/nordstad/PinViz/pull/148)
-- chore(deps-dev): bump mkdocstrings from 1.0.2 to 1.0.3 (https://github.com/nordstad/PinViz/pull/153)
-- chore(deps-dev): bump ruff from 0.14.14 to 0.15.0 (https://github.com/nordstad/PinViz/pull/150)
-- chore(deps-dev): bump hypothesis from 6.151.4 to 6.151.5 (https://github.com/nordstad/PinViz/pull/152)
-- chore(deps-dev): update uv-build requirement from <0.10.0,>=0.8.20 to >=0.8.20,<0.11.0 (https://github.com/nordstad/PinViz/pull/151)
-
 ## [0.12.1] - 2026-02-09
 
 ### Changed
