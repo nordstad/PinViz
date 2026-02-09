@@ -32,7 +32,8 @@ jobs:
 
       - name: Run local smoke tests
         run: |
-          # Create a clean virtual environment
+          # Remove existing venv and create a clean one
+          rm -rf .venv
           uv venv .venv
 
           # Install the built wheel
