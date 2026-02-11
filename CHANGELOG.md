@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+
+## [0.13.0] - 2026-02-11
+
 ### Added
 - Named color support for devices and connections - can now use color names like "red", "green", "blue" in addition to hex codes (#155)
   - 15 named colors available: red, green, blue, yellow, orange, purple, black, white, gray, brown, pink, cyan, magenta, lime, turquoise
