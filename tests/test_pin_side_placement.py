@@ -178,16 +178,12 @@ class TestPinSidePlacement:
         # Verify control pins are on left
         for pin_name in control_pins:
             pin = pins_by_name[pin_name]
-            assert pin.position.x < device_center, (
-                f"Control pin {pin_name} should be on left side"
-            )
+            assert pin.position.x < device_center, f"Control pin {pin_name} should be on left side"
 
         # Verify load pins are on right
         for pin_name in load_pins:
             pin = pins_by_name[pin_name]
-            assert pin.position.x > device_center, (
-                f"Load pin {pin_name} should be on right side"
-            )
+            assert pin.position.x > device_center, f"Load pin {pin_name} should be on right side"
 
     def test_device_width_affects_pin_placement(self):
         """Test that device width is considered in pin placement."""
@@ -199,9 +195,7 @@ class TestPinSidePlacement:
         # Left pins should be near left edge (around 5px from edge)
         left_pins = [p for p in device.pins if p.name in ["VCC", "GND", "IN"]]
         for pin in left_pins:
-            assert 0 < pin.position.x < 20, (
-                f"Left pin {pin.name} should be near left edge"
-            )
+            assert 0 < pin.position.x < 20, f"Left pin {pin.name} should be near left edge"
 
         # Right pins should be near right edge
         right_pins = [p for p in device.pins if p.name in ["COM", "NO", "NC"]]
