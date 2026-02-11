@@ -1,9 +1,11 @@
 """Unit tests for explicit pin side placement feature."""
 
 import pytest
+from pydantic import ValidationError
 
 from pinviz.devices.loader import load_device_from_config
 from pinviz.model import Point
+from pinviz.schemas import validate_device_config
 
 
 class TestPinSidePlacement:
@@ -137,9 +139,6 @@ class TestPinSidePlacement:
 
     def test_invalid_side_value_raises_error(self):
         """Test that invalid side values are rejected by validation."""
-        from pydantic import ValidationError
-        from pinviz.schemas import validate_device_config
-
         config = {
             "id": "test_device",
             "name": "Test Device",

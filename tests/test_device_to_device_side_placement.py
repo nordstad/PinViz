@@ -1,7 +1,5 @@
 """Unit tests for pin side placement with device-to-device connections."""
 
-import pytest
-
 from pinviz.config_loader import ConfigLoader
 from pinviz.devices.loader import load_device_from_config
 
