@@ -106,7 +106,7 @@ The following elements remain consistent across themes to maintain clarity and e
 
 - **Wire colors** - Follow electrical conventions (red=5V, orange=3.3V, black=GND, yellow=I2C, cyan=SPI, etc.)
 - **Pin role colors** - Functional identification on GPIO header (orange=3V3, red=5V, gray=GND, magenta=I2C, blue=SPI, green=GPIO)
-- **Device colors** - Category-based colors (turquoise=sensors, red=LEDs, blue=displays)
+- **Device colors** - Category-based colors (turquoise=sensors, red=LEDs, blue=displays). Can be overridden per device using named colors or hex codes (see [YAML Configuration](yaml-config.md#device-colors))
 - **Wire halos** - Dynamically adapt based on wire luminance for visibility
 
 ## Examples

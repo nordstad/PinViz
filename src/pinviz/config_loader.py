@@ -8,6 +8,7 @@ import yaml
 from pydantic import ValidationError
 
 from . import boards
+from .color_utils import resolve_color
 from .connection_graph import ConnectionGraph
 from .constants import DEVICE_LAYOUT
 from .devices import get_registry
@@ -475,7 +476,7 @@ class ConfigLoader:
             pins=pins,
             width=width,
             height=height,
-            color=config.get("color", DEVICE_LAYOUT.DEFAULT_DEVICE_COLOR),
+            color=resolve_color(config.get("color"), DEVICE_LAYOUT.DEFAULT_DEVICE_COLOR),
             description=config.get("description"),
         )
 

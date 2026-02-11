@@ -134,15 +134,23 @@ class TestCustomDeviceSchema:
             )
         assert "Duplicate pin names" in str(exc_info.value)
 
-    def test_invalid_color_format(self):
-        """Test that invalid color format is rejected."""
-        with pytest.raises(ValidationError) as exc_info:
-            CustomDeviceSchema(
-                name="Device",
-                pins=[{"name": "PIN1"}],
-                color="red",  # Should be hex
-            )
-        assert "match pattern" in str(exc_info.value).lower()
+    def test_named_color_accepted(self):
+        """Test that named colors are accepted and converted to hex."""
+        schema = CustomDeviceSchema(
+            name="Device",
+            pins=[{"name": "PIN1"}],
+            color="red",  # Named color should work
+        )
+        assert schema.color == "#FF0000"
+
+    def test_invalid_color_falls_back_to_default(self):
+        """Test that invalid colors fall back to default."""
+        schema = CustomDeviceSchema(
+            name="Device",
+            pins=[{"name": "PIN1"}],
+            color="notacolor",  # Invalid color
+        )
+        assert schema.color == "#4A90E2"  # Default color
 
     def test_negative_dimensions(self):
         """Test that negative dimensions are rejected."""
@@ -329,11 +337,15 @@ class TestConnectionSchema:
             ConnectionSchema(board_pin=1, device="Device", device_pin="PIN", style="invalid")
         assert "Invalid wire style" in str(exc_info.value)
 
-    def test_invalid_color_format(self):
-        """Test that invalid color format is rejected."""
-        with pytest.raises(ValidationError) as exc_info:
-            ConnectionSchema(board_pin=1, device="Device", device_pin="PIN", color="red")
-        assert "match pattern" in str(exc_info.value).lower()
+    def test_named_color_accepted(self):
+        """Test that named colors are accepted and converted to hex."""
+        schema = ConnectionSchema(board_pin=1, device="Device", device_pin="PIN", color="red")
+        assert schema.color == "#FF0000"
+
+    def test_invalid_color_falls_back_to_default(self):
+        """Test that invalid colors fall back to default."""
+        schema = ConnectionSchema(board_pin=1, device="Device", device_pin="PIN", color="notacolor")
+        assert schema.color == "#4A90E2"  # Default fallback
 
 
 class TestDiagramConfigSchema:

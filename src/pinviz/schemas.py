@@ -32,6 +32,8 @@ from pydantic import (
     model_validator,
 )
 
+from .color_utils import resolve_color
+
 if TYPE_CHECKING:
     from .model import Connection
 
@@ -153,12 +155,18 @@ class CustomDeviceSchema(BaseModel):
     pins: Annotated[list[DevicePinSchema], Field(min_length=1, description="List of device pins")]
     width: Annotated[float, Field(gt=0, description="Device width")] = 80.0
     height: Annotated[float, Field(gt=0, description="Device height")] = 40.0
-    color: Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$", description="Hex color code")] = (
-        "#4A90E2"
-    )
+    color: Annotated[
+        str, Field(description="Color name (e.g., 'red') or hex code (e.g., '#FF0000')")
+    ] = "#4A90E2"
     description: Annotated[str, Field(max_length=200)] | None = None
 
     model_config = ConfigDict(extra="forbid")
+
+    @field_validator("color")
+    @classmethod
+    def validate_color(cls, v: str) -> str:
+        """Validate and convert color to hex format."""
+        return resolve_color(v, "#4A90E2")
 
     @model_validator(mode="after")
     def validate_unique_pin_names(self):
@@ -420,14 +428,18 @@ class ConnectionSchema(BaseModel):
     ) = None
 
     # Common fields
-    color: (
-        Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$", description="Hex color code")] | None
-    ) = None
+    color: Annotated[str, Field(description="Color name or hex code")] | None = None
     net: Annotated[str, Field(max_length=100)] | None = None
     style: Annotated[str, Field(description="Wire routing style")] = "mixed"
     components: list[ComponentSchema] = Field(default_factory=list)
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    @field_validator("color")
+    @classmethod
+    def validate_color(cls, v: str | None) -> str | None:
+        """Validate and convert color to hex format."""
+        return resolve_color(v) if v else None
 
     @field_validator("style")
     @classmethod
@@ -949,11 +961,15 @@ class DeviceDisplaySchema(BaseModel):
 
     width: Annotated[float, Field(gt=0, description="Device width")] = 80.0
     height: Annotated[float, Field(gt=0, description="Device height")] = 40.0
-    color: (
-        Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$", description="Hex color code")] | None
-    ) = None
+    color: Annotated[str, Field(description="Color name or hex code")] | None = None
 
     model_config = ConfigDict(extra="forbid")
+
+    @field_validator("color")
+    @classmethod
+    def validate_color(cls, v: str | None) -> str | None:
+        """Validate and convert color to hex format."""
+        return resolve_color(v) if v else None
 
 
 class DeviceLayoutSchema(BaseModel):
