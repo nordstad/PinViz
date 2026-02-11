@@ -153,6 +153,23 @@ class TestPinSidePlacement:
 
         assert "side" in str(exc_info.value).lower()
 
+    def test_side_field_with_explicit_none(self):
+        """Test that explicitly passing side=None is handled correctly."""
+        config = {
+            "id": "test_device",
+            "name": "Test Device",
+            "category": "sensors",
+            "pins": [
+                {"name": "VCC", "role": "3V3", "side": None},  # Explicit None
+                {"name": "GND", "role": "GND"},  # No side field
+            ],
+        }
+
+        # Should not raise ValidationError
+        validated = validate_device_config(config)
+        assert validated.pins[0].side is None
+        assert validated.pins[1].side is None
+
     def test_side_field_none_uses_automatic(self):
         """Test that side=None falls back to automatic detection."""
         # Load a device without side field
@@ -295,3 +312,167 @@ class TestEdgeCases:
 
         # Should load without errors
         assert device is not None
+
+    def test_invalid_side_in_inline_device(self):
+        """Test that invalid side value in inline device definition raises error."""
+        from pinviz.config_loader import ConfigLoader
+
+        config = {
+            "title": "Test",
+            "board": "raspberry_pi_5",
+            "devices": [
+                {
+                    "name": "TestDev",
+                    "pins": [
+                        {"name": "P1", "role": "GPIO", "side": "middle"},  # Invalid
+                    ],
+                }
+            ],
+            "connections": [],
+        }
+
+        loader = ConfigLoader()
+        with pytest.raises(ValueError) as exc_info:
+            loader.load_from_dict(config)
+
+        assert "side" in str(exc_info.value).lower()
+        assert "middle" in str(exc_info.value).lower()
+
+    def test_centering_with_fewer_right_pins(self):
+        """Test that right pins are centered when there are fewer of them."""
+        device = load_device_from_config("mixed_sides")
+
+        left_pins = [p for p in device.pins if p.position.x < 40]
+        right_pins = [p for p in device.pins if p.position.x > 40]
+
+        # mixed_sides has 3 left, 2 right
+        assert len(left_pins) == 3
+        assert len(right_pins) == 2
+
+        # Right pins should be centered (offset by half the difference)
+        # Difference is 1 pin, so offset should be 5px (half of 10px spacing)
+        assert right_pins[0].position.y == 15.0  # 10 + 5
+        assert right_pins[1].position.y == 25.0  # 20 + 5
+
+    def test_no_offset_when_left_has_fewer_pins(self):
+        """Test that there's no offset when left side has fewer pins."""
+        from pinviz.config_loader import ConfigLoader
+
+        config = {
+            "title": "Test",
+            "board": "raspberry_pi_5",
+            "devices": [
+                {
+                    "name": "TestDev",
+                    "pins": [
+                        {"name": "L1", "role": "GPIO", "side": "left"},
+                        {"name": "R1", "role": "GPIO", "side": "right"},
+                        {"name": "R2", "role": "GPIO", "side": "right"},
+                        {"name": "R3", "role": "GPIO", "side": "right"},
+                    ],
+                }
+            ],
+            "connections": [
+                {"board_pin": 11, "device": "TestDev", "device_pin": "L1"},
+                {"board_pin": 13, "device": "TestDev", "device_pin": "R1"},
+            ],
+        }
+
+        loader = ConfigLoader()
+        diagram = loader.load_from_dict(config)
+        device = diagram.devices[0]
+
+        # Left has 1 pin, right has 3 pins
+        # Right pins should have NO offset (they're not fewer)
+        right_pins = sorted(
+            [p for p in device.pins if p.name.startswith("R")], key=lambda p: p.name
+        )
+        assert right_pins[0].position.y == 10.0  # No offset
+        assert right_pins[1].position.y == 24.0  # 10 + 14 (PIN_SPACING)
+        assert right_pins[2].position.y == 38.0  # 10 + 28
+
+    def test_invalid_side_in_device_config_json(self):
+        """Test that invalid side value in device JSON config raises error."""
+        import json
+        import tempfile
+        from pathlib import Path
+
+        # Create temporary invalid device config
+        invalid_config = {
+            "id": "test_invalid_side",
+            "name": "Test Invalid Side",
+            "category": "sensors",
+            "pins": [{"name": "P1", "role": "GPIO", "side": "top"}],
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "test_invalid_side.json"
+            config_path.write_text(json.dumps(invalid_config))
+
+            # Temporarily modify the device configs path
+            import pinviz.devices.loader as loader_module
+
+            original_get_path = loader_module._get_device_config_path
+
+            def mock_get_path(name):
+                if name == "test_invalid_side":
+                    return config_path
+                return original_get_path(name)
+
+            loader_module._get_device_config_path = mock_get_path
+
+            try:
+                with pytest.raises(ValueError) as exc_info:
+                    load_device_from_config("test_invalid_side")
+
+                assert "side" in str(exc_info.value).lower()
+                assert "top" in str(exc_info.value).lower()
+            finally:
+                loader_module._get_device_config_path = original_get_path
+
+    def test_horizontal_layout_with_sides(self):
+        """Test horizontal layout with side field (covering horizontal layout code path)."""
+        import json
+        import tempfile
+        from pathlib import Path
+
+        # Create a device config with horizontal layout and side fields
+        horizontal_config = {
+            "id": "test_horizontal",
+            "name": "Test Horizontal",
+            "category": "sensors",
+            "layout": {"type": "horizontal", "pin_spacing": 12.0},
+            "pins": [
+                {"name": "L1", "role": "GPIO", "side": "left"},
+                {"name": "R1", "role": "GPIO", "side": "right"},
+            ],
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "test_horizontal.json"
+            config_path.write_text(json.dumps(horizontal_config))
+
+            import pinviz.devices.loader as loader_module
+
+            original_get_path = loader_module._get_device_config_path
+
+            def mock_get_path(name):
+                if name == "test_horizontal":
+                    return config_path
+                return original_get_path(name)
+
+            loader_module._get_device_config_path = mock_get_path
+
+            try:
+                device = load_device_from_config("test_horizontal")
+
+                # Horizontal layout: pins should have different X positions, same Y
+                left_pin = [p for p in device.pins if p.name == "L1"][0]
+                right_pin = [p for p in device.pins if p.name == "R1"][0]
+
+                # In horizontal mode with offset=0, both should have same Y
+                assert left_pin.position.y == right_pin.position.y
+                # X positions should differ
+                assert left_pin.position.x != right_pin.position.x
+            finally:
+                loader_module._get_device_config_path = original_get_path
