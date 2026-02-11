@@ -1,0 +1,11 @@
+{
+  "id": "single_pin_each_side",
+  "name": "Single Pin Per Side",
+  "category": "actuators",
+  "description": "Test device with only one pin on each side",
+  "pins": [
+    {"name": "IN", "role": "GPIO", "side": "left"},
+    {"name": "OUT", "role": "GPIO", "side": "right"}
+  ],
+  "datasheet_url": "https://example.com/test"
+}

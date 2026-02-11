@@ -7,8 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
 
-
+- feat: Explicit pin side placement for device pins
+  - New `"side"` field in device pin configurations ("left" or "right")
+  - Works in both JSON device configs and inline YAML definitions
+  - Precedence order: explicit position > side > automatic detection > default
+  - Enables proper layout for devices like relays (control pins left, output pins right)
+  - Case-insensitive validation with clear error messages
+  - 29 new comprehensive tests (all 905 tests passing)
+  - Fully backward compatible (side field is optional)
+  - Updated documentation in guides/adding-devices.md
+  - Production-ready relay_module device config in actuators/ category
 
 ## [0.13.0] - 2026-02-11
 

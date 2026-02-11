@@ -127,12 +127,22 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
             position_data = pin_config["position"]
             position = Point(position_data["x"], position_data["y"])
             pin_side = "left"  # Default to left if explicit
-        elif is_output_pin(pin_name):
-            position = None  # Will calculate later
-            pin_side = "right"
         else:
             position = None  # Will calculate later
-            pin_side = "left"
+
+            # Check for explicit side field
+            if "side" in pin_config:
+                side_value = pin_config["side"].lower()
+                if side_value not in ("left", "right"):
+                    raise ValueError(
+                        f"Invalid 'side' value '{pin_config['side']}' for pin '{pin_name}'. "
+                        f"Must be 'left' or 'right'."
+                    )
+                pin_side = side_value
+            elif is_output_pin(pin_name):
+                pin_side = "right"
+            else:
+                pin_side = "left"
 
         pin_data = {
             "name": pin_name,

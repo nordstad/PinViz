@@ -1,0 +1,43 @@
+{
+  "id": "relay_module",
+  "name": "Relay Module",
+  "category": "actuators",
+  "description": "Single-channel relay module for switching high-power loads",
+  "pins": [
+    {
+      "name": "VCC",
+      "role": "5V",
+      "side": "left"
+    },
+    {
+      "name": "GND",
+      "role": "GND",
+      "side": "left"
+    },
+    {
+      "name": "IN",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "COM",
+      "role": "5V",
+      "side": "right"
+    },
+    {
+      "name": "NO",
+      "role": "5V",
+      "side": "right"
+    },
+    {
+      "name": "NC",
+      "role": "5V",
+      "side": "right"
+    }
+  ],
+  "display": {
+    "width": 90.0
+  },
+  "datasheet_url": "https://www.electronicwings.com/sensors-modules/relay-module",
+  "notes": "COM = Common, NO = Normally Open, NC = Normally Closed. Control input is active LOW."
+}

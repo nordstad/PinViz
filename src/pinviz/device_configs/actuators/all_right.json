@@ -1,0 +1,13 @@
+{
+  "id": "all_right",
+  "name": "All Pins Right Test",
+  "category": "actuators",
+  "description": "Test device with all pins explicitly on right side",
+  "pins": [
+    {"name": "VCC", "role": "5V", "side": "right"},
+    {"name": "GND", "role": "GND", "side": "right"},
+    {"name": "IN", "role": "GPIO", "side": "right"},
+    {"name": "DATA", "role": "GPIO", "side": "right"}
+  ],
+  "datasheet_url": "https://example.com/test"
+}

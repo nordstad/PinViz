@@ -425,14 +425,24 @@ class ConfigLoader:
                 pos = pin_config["position"]
                 position = Point(pos["x"], pos["y"])
                 pins_list = left_pins  # Default to left if explicit position
-            elif is_output_pin(pin_name):
-                # Output pins go on the right
-                position = None  # Will calculate later
-                pins_list = right_pins
             else:
-                # Input/power pins go on the left
                 position = None  # Will calculate later
-                pins_list = left_pins
+
+                # Check for explicit side field
+                if "side" in pin_config:
+                    side_value = pin_config["side"].lower()
+                    if side_value not in ("left", "right"):
+                        raise ValueError(
+                            f"Invalid 'side' value '{pin_config['side']}' for pin '{pin_name}'. "
+                            f"Must be 'left' or 'right'."
+                        )
+                    pins_list = left_pins if side_value == "left" else right_pins
+                elif is_output_pin(pin_name):
+                    # Output pins go on the right (automatic detection)
+                    pins_list = right_pins
+                else:
+                    # Input/power pins go on the left (default)
+                    pins_list = left_pins
 
             pins_list.append({"name": pin_name, "role": role, "position": position})
 
