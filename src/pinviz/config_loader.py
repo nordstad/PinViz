@@ -446,15 +446,26 @@ class ConfigLoader:
 
             pins_list.append({"name": pin_name, "role": role, "position": position})
 
-        # Stagger right pins by half spacing to prevent label collision
-        right_pin_offset = pin_spacing * DEVICE_LAYOUT.RIGHT_PIN_OFFSET_RATIO
+        # Position right pins: align when equal counts, center when different
+        if len(left_pins) != len(right_pins):
+            # Center the side with fewer pins
+            pin_count_diff = abs(len(left_pins) - len(right_pins))
+            if len(right_pins) < len(left_pins):
+                right_pin_offset = (pin_count_diff * pin_spacing) / 2
+            else:
+                right_pin_offset = 0
+        else:
+            # Equal counts: align pins (no offset)
+            right_pin_offset = 0
 
         # Calculate dynamic height based on max number of pins on either side
         # Height = top margin + offset + (n-1) spacing between pins + bottom margin
         max_pins_per_side = max(len(left_pins), len(right_pins), 1)
+        # Only include offset in height calculation if right side has fewer pins
+        offset_for_height = right_pin_offset if len(right_pins) < len(left_pins) else 0
         calculated_height = (
             pin_margin_top
-            + right_pin_offset
+            + offset_for_height
             + ((max_pins_per_side - 1) * pin_spacing)
             + pin_margin_bottom
         )
@@ -473,7 +484,7 @@ class ConfigLoader:
                 pin_data["position"] = Point(pin_x_left, pin_margin_top + i * pin_spacing)
             pins.append(DevicePin(pin_data["name"], pin_data["role"], pin_data["position"]))
 
-        # Position right side pins (offset to prevent label collision)
+        # Position right side pins
         for i, pin_data in enumerate(right_pins):
             if pin_data["position"] is None:
                 pin_data["position"] = Point(
