@@ -141,6 +141,7 @@ board: "raspberry_pi_5"
 devices:
   - type: "bh1750"
     name: "BH1750"
+    color: "turquoise"  # Named color support (or use hex: "#50E3C2")
 
 connections:
   - board_pin: 1     # 3V3

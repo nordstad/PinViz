@@ -133,4 +133,77 @@ theme: "light"
 theme: "dark"
 ```
 
+### Device Colors
+
+Devices can be customized using either named colors or hex codes. This makes it easy to color-code devices without having to look up hex values.
+
+```yaml
+devices:
+  - name: "Sensor"
+    color: "turquoise"  # Named color (case-insensitive)
+    pins:
+      - name: "VCC"
+        role: "3V3"
+      - name: "GND"
+        role: "GND"
+
+  - name: "LED"
+    color: "#E74C3C"  # Hex code (traditional format)
+    pins:
+      - name: "Anode"
+        role: "GPIO"
+      - name: "Cathode"
+        role: "GND"
+
+  - name: "Button"
+    color: "GREEN"  # Case-insensitive
+    pins:
+      - name: "+"
+        role: "GPIO"
+      - name: "-"
+        role: "GND"
+```
+
+**Available named colors:**
+
+| Color | Hex Code | Preview |
+|-------|----------|---------|
+| `red` | #FF0000 | 🔴 |
+| `green` | #00FF00 | 🟢 |
+| `blue` | #0000FF | 🔵 |
+| `yellow` | #FFFF00 | 🟡 |
+| `orange` | #FF8C00 | 🟠 |
+| `purple` | #9370DB | 🟣 |
+| `black` | #000000 | ⚫ |
+| `white` | #FFFFFF | ⚪ |
+| `gray` | #808080 | ⚫ |
+| `brown` | #8B4513 | 🟤 |
+| `pink` | #FF69B4 | 🩷 |
+| `cyan` | #00CED1 | 🩵 |
+| `magenta` | #FF00FF | 🩷 |
+| `lime` | #32CD32 | 🟢 |
+| `turquoise` | #40E0D0 | 🩵 |
+
+**Notes:**
+
+- Color names are **case-insensitive**: `"Red"`, `"RED"`, and `"red"` all work
+- Invalid colors fall back to default blue (#4A90E2)
+- Both formats work in the same config file
+- Named colors also work for wire colors in connections
+
+**Connection wire colors:**
+
+```yaml
+connections:
+  - board_pin: 1
+    device: "LED"
+    device_pin: "Anode"
+    color: "red"  # Named color for wire
+
+  - board_pin: 6
+    device: "LED"
+    device_pin: "Cathode"
+    color: "#000000"  # Hex code for wire
+```
+
 For more examples, see the [Quick Start Guide](../getting-started/quickstart.md).

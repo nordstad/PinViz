@@ -8,6 +8,7 @@ import contextlib
 import json
 from pathlib import Path
 
+from ..color_utils import resolve_color
 from ..model import Device, DevicePin, PinRole, Point
 from ..utils import is_output_pin
 
@@ -215,7 +216,7 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
         "io": "#95A5A6",  # Gray
     }
     default_color = category_colors.get(category, "#4A90E2")
-    color = display.get("color", default_color)
+    color = resolve_color(display.get("color"), default_color)
 
     # Parse I2C address if present (convert hex string to int)
     i2c_address = None

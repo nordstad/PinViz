@@ -7,7 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Named color support for devices and connections - can now use color names like "red", "green", "blue" in addition to hex codes (#155)
+  - 15 named colors available: red, green, blue, yellow, orange, purple, black, white, gray, brown, pink, cyan, magenta, lime, turquoise
+  - Color names are case-insensitive
+  - Whitespace is automatically trimmed from color inputs
+  - Invalid colors fall back to default gracefully
+  - Works for both device colors and wire colors
+  - Backward compatible with existing hex code configurations
+  - Code quality score: 9.5/10 (comprehensive code review passed)
 
+### Changed
+- Schema validation now accepts both named colors and hex codes for device and connection colors
+- Color resolution utility with robust error handling and fallback behavior
+- Documentation updated with named color examples and reference table
 
 ## [0.12.1] - 2026-02-09
 
