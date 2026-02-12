@@ -429,13 +429,9 @@ class ConfigLoader:
                 position = None  # Will calculate later
 
                 # Check for explicit side field
+                # Note: side value is already validated by Pydantic schema
                 if "side" in pin_config:
                     side_value = pin_config["side"].lower()
-                    if side_value not in ("left", "right"):
-                        raise ValueError(
-                            f"Invalid 'side' value '{pin_config['side']}' for pin '{pin_name}'. "
-                            f"Must be 'left' or 'right'."
-                        )
                     pins_list = left_pins if side_value == "left" else right_pins
                 elif is_output_pin(pin_name):
                     # Output pins go on the right (automatic detection)
