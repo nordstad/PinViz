@@ -2,7 +2,7 @@
 
 import pytest
 
-from pinviz import boards, Connection, Diagram
+from pinviz import Connection, Diagram, boards
 from pinviz.devices import get_registry
 from pinviz.layout.engine import LayoutEngine
 from pinviz.layout.types import LayoutConfig
