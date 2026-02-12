@@ -3,6 +3,7 @@
 import typer
 
 from ...config_loader import load_diagram
+from ...layout.types import LayoutConfig
 from ...render_svg import SVGRenderer
 from ...theme import Theme
 from ...validation import DiagramValidator, ValidationLevel
@@ -34,6 +35,11 @@ def render_command(
     no_board_name: NoBoardNameOption = False,
     show_legend: ShowLegendOption = False,
     theme: str = typer.Option(None, help="Theme: light or dark (overrides config)"),
+    max_complexity: int = typer.Option(
+        None,
+        "--max-complexity",
+        help="Maximum number of connections allowed (for CI/CD validation)",
+    ),
     json_output: JsonOption = False,
 ) -> None:
     """
@@ -46,6 +52,8 @@ def render_command(
       pinviz render diagram.yaml -o out/wiring.svg --show-legend
 
       pinviz render diagram.yaml --no-title --theme dark --json
+
+      pinviz render diagram.yaml --max-complexity 50  # Fail if >50 connections
     """
     ctx = AppContext()
     log = ctx.logger
@@ -111,7 +119,14 @@ def render_command(
 
             # Render
             task = progress.add_task("Rendering SVG...", total=None)
-            renderer = SVGRenderer()
+
+            # Create layout config with complexity limits if specified
+            layout_config = LayoutConfig()
+            if max_complexity is not None:
+                layout_config.max_connections = max_complexity
+                log.debug("max_complexity_set", max_connections=max_complexity)
+
+            renderer = SVGRenderer(layout_config=layout_config)
             renderer.render(diagram, output_path)
             progress.update(task, completed=True)
 

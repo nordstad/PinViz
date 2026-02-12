@@ -56,6 +56,7 @@ class DeviceRegistry:
 
     def __init__(self):
         self._templates: dict[str, DeviceTemplate] = {}
+        self._failed_configs: list[str] = []
         self._scan_device_configs()
 
     def _scan_device_configs(self) -> None:
@@ -66,8 +67,8 @@ class DeviceRegistry:
         files, extracts metadata (id, name, description, category, datasheet URL,
         I2C address), and caches them in the registry for fast lookups.
 
-        Malformed JSON files are silently skipped to ensure the registry remains
-        functional even if some configurations are invalid.
+        Malformed JSON files are logged as warnings. If zero devices load, raises
+        RuntimeError to fail fast rather than failing later with cryptic errors.
         """
         from .loader import _get_device_config_path
 
@@ -80,8 +81,12 @@ class DeviceRegistry:
             # Can't find configs, skip scanning
             return
 
+        # Track failed configs for fail-fast validation
+        total_files = 0
+
         # Scan all JSON files in all subdirectories
         for json_file in configs_dir.rglob("*.json"):
+            total_files += 1
             try:
                 with open(json_file) as f:
                     config = json.load(f)
@@ -118,6 +123,7 @@ class DeviceRegistry:
                     error=str(e),
                     line=e.lineno if hasattr(e, "lineno") else None,
                 )
+                self._failed_configs.append(json_file.name)
                 continue
             except KeyError as e:
                 # Skip configs with missing required fields but log warning
@@ -126,7 +132,40 @@ class DeviceRegistry:
                     file=str(json_file),
                     error=f"Missing required field: {e}",
                 )
+                self._failed_configs.append(json_file.name)
                 continue
+
+        # Fail-fast validation: Check if any devices loaded
+        if total_files > 0 and len(self._templates) == 0:
+            log.error(
+                "device_registry_failed_to_load_any_devices",
+                total_files=total_files,
+                failed_devices=self._failed_configs,
+            )
+            raise RuntimeError(
+                f"Device registry failed to load any devices. "
+                f"Found {total_files} config file(s), all failed to load. "
+                f"Failed configs: {', '.join(self._failed_configs)}\n"
+                f"Check device_configs/ directory and JSON syntax."
+            )
+
+        # Log warning if some devices failed (but not all)
+        if self._failed_configs:
+            log.warning(
+                "some_device_configs_failed",
+                failed_count=len(self._failed_configs),
+                loaded_count=len(self._templates),
+                failed_files=self._failed_configs,
+            )
+
+        # Log registry health check
+        if len(self._templates) > 0:
+            log.info(
+                "device_registry_loaded",
+                loaded_count=len(self._templates),
+                failed_count=len(self._failed_configs),
+                total_files=total_files,
+            )
 
     def get(self, type_id: str) -> DeviceTemplate | None:
         """
@@ -194,6 +233,39 @@ class DeviceRegistry:
             Found 8 devices
         """
         return list(self._templates.values())
+
+    def get_failed_configs(self) -> list[str]:
+        """
+        Get list of config files that failed to load.
+
+        Returns:
+            List of filenames that failed during registry initialization
+
+        Example:
+            >>> registry = get_registry()
+            >>> failed = registry.get_failed_configs()
+            >>> if failed:
+            ...     print(f"Warning: {len(failed)} configs failed to load")
+        """
+        return self._failed_configs.copy()
+
+    def get_health_status(self) -> dict[str, int]:
+        """
+        Get registry health status.
+
+        Returns:
+            Dictionary with 'loaded', 'failed', and 'total' counts
+
+        Example:
+            >>> registry = get_registry()
+            >>> status = registry.get_health_status()
+            >>> print(f"Loaded: {status['loaded']}/{status['total']}")
+        """
+        return {
+            "loaded": len(self._templates),
+            "failed": len(self._failed_configs),
+            "total": len(self._templates) + len(self._failed_configs),
+        }
 
     def list_by_category(self, category: str) -> list[DeviceTemplate]:
         """

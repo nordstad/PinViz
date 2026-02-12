@@ -229,7 +229,7 @@ class TestInvalidFilePaths:
         config_path.write_text("Some config")
 
         loader = ConfigLoader()
-        with pytest.raises(ValueError, match="Unsupported file format"):
+        with pytest.raises(ValueError, match="Unsupported file extension"):
             loader.load_from_file(config_path)
 
     def test_load_from_nonexistent_file(self):

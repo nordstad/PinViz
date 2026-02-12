@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
+from .errors import format_connection_error
 from .theme import Theme
 
 if TYPE_CHECKING:
@@ -467,13 +468,19 @@ class Connection:
         # Validate target device fields are always present
         if self.device_name is None:
             raise ValueError(
-                "Connection validation error: 'device_name' is required for all connections. "
-                f"Current value: {self.device_name}"
+                format_connection_error(
+                    "missing_device_name",
+                    device_name=self.device_name,
+                    device_pin_name=self.device_pin_name,
+                )
             )
         if self.device_pin_name is None:
             raise ValueError(
-                "Connection validation error: 'device_pin_name' is required for all connections. "
-                f"Target device: '{self.device_name}', device_pin_name: {self.device_pin_name}"
+                format_connection_error(
+                    "missing_device_pin",
+                    device_name=self.device_name,
+                    device_pin_name=self.device_pin_name,
+                )
             )
 
         # Validate source: exactly one source type must be specified
@@ -485,33 +492,37 @@ class Connection:
 
         if has_partial_device_source:
             raise ValueError(
-                "Connection validation error: Incomplete device-to-device connection. "
-                f"Both 'source_device' and 'source_pin' must be specified together. "
-                f"Current values: source_device='{self.source_device}', "
-                f"source_pin='{self.source_pin}'. "
-                f"Target: device='{self.device_name}', pin='{self.device_pin_name}'"
+                format_connection_error(
+                    "incomplete_device_source",
+                    source_device=self.source_device,
+                    source_pin=self.source_pin,
+                    device_name=self.device_name,
+                    device_pin_name=self.device_pin_name,
+                )
             )
 
         if has_board_source and has_device_source:
             raise ValueError(
-                "Connection validation error: Cannot specify both board_pin "
-                "and source_device/source_pin. "
-                f"A connection must have exactly one source. "
-                f"Current values: board_pin={self.board_pin}, "
-                f"source_device='{self.source_device}', "
-                f"source_pin='{self.source_pin}'. "
-                f"Target: device='{self.device_name}', pin='{self.device_pin_name}'"
+                format_connection_error(
+                    "both_sources",
+                    board_pin=self.board_pin,
+                    source_device=self.source_device,
+                    source_pin=self.source_pin,
+                    device_name=self.device_name,
+                    device_pin_name=self.device_pin_name,
+                )
             )
 
         if not has_board_source and not has_device_source:
             raise ValueError(
-                "Connection validation error: Must specify either 'board_pin' OR both "
-                f"'source_device' and 'source_pin'. "
-                f"A connection must have exactly one source. "
-                f"Current values: board_pin={self.board_pin}, "
-                f"source_device='{self.source_device}', "
-                f"source_pin='{self.source_pin}'. "
-                f"Target: device='{self.device_name}', pin='{self.device_pin_name}'"
+                format_connection_error(
+                    "no_source",
+                    board_pin=self.board_pin,
+                    source_device=self.source_device,
+                    source_pin=self.source_pin,
+                    device_name=self.device_name,
+                    device_pin_name=self.device_pin_name,
+                )
             )
 
     def is_board_connection(self) -> bool:

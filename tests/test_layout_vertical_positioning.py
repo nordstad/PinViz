@@ -2,7 +2,8 @@
 
 import pytest
 
-from pinviz.layout import LayoutEngine, RoutedWire
+from pinviz.layout import LayoutConfig, LayoutEngine, RoutedWire
+from pinviz.layout.positioning import DevicePositioner
 from pinviz.model import (
     Board,
     Connection,
@@ -97,7 +98,7 @@ def simple_device():
 
 def test_get_board_vertical_range_pi5(pi5_like_board):
     """Test board vertical range calculation for Pi 5-like board."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     diagram = Diagram(
         title="Test",
         board=pi5_like_board,
@@ -105,19 +106,20 @@ def test_get_board_vertical_range_pi5(pi5_like_board):
         connections=[],
         show_title=True,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(True)
+    board_margin_top = config.get_board_margin_top(True)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    board_top, board_bottom = engine._get_board_vertical_range(diagram)
+    board_top, board_bottom = positioner._get_board_vertical_range(diagram)
 
     # Board should span from margin_top to margin_top + height
-    assert board_top == engine._board_margin_top
-    assert board_bottom == engine._board_margin_top + pi5_like_board.height
+    assert board_top == board_margin_top
+    assert board_bottom == board_margin_top + pi5_like_board.height
     assert board_bottom - board_top == 220  # Pi 5 height
 
 
 def test_get_board_vertical_range_pico(pico_like_board):
     """Test board vertical range calculation for Pico-like board."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     diagram = Diagram(
         title="Test",
         board=pico_like_board,
@@ -125,18 +127,19 @@ def test_get_board_vertical_range_pico(pico_like_board):
         connections=[],
         show_title=False,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(False)
+    board_margin_top = config.get_board_margin_top(False)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    board_top, board_bottom = engine._get_board_vertical_range(diagram)
+    board_top, board_bottom = positioner._get_board_vertical_range(diagram)
 
-    assert board_top == engine._board_margin_top
-    assert board_bottom == engine._board_margin_top + pico_like_board.height
+    assert board_top == board_margin_top
+    assert board_bottom == board_margin_top + pico_like_board.height
     assert board_bottom - board_top == 101  # Pico height
 
 
 def test_calculate_device_target_y_pi5_top_pins(pi5_like_board, simple_device):
     """Test target Y calculation for device connected to top pins on Pi 5."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     # Device connected to pins 1, 2, 3 (top of board)
     connections = [
         Connection(1, "Test Device", "VCC"),
@@ -149,18 +152,19 @@ def test_calculate_device_target_y_pi5_top_pins(pi5_like_board, simple_device):
         connections=connections,
         show_title=True,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(True)
+    board_margin_top = config.get_board_margin_top(True)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    target_y = engine._calculate_device_target_y(simple_device, diagram)
+    target_y = positioner._calculate_device_target_y(simple_device, diagram)
 
     # Should be near top pins (around y=16-28)
-    expected_y = (engine._board_margin_top + 16.2 + engine._board_margin_top + 28.2) / 2
+    expected_y = (board_margin_top + 16.2 + board_margin_top + 28.2) / 2
     assert abs(target_y - expected_y) < 5
 
 
 def test_calculate_device_target_y_pi5_bottom_pins(pi5_like_board, simple_device):
     """Test target Y calculation for device connected to bottom pins on Pi 5."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     # Device connected to pins 19, 20 (bottom of board)
     connections = [
         Connection(19, "Test Device", "VCC"),
@@ -173,20 +177,21 @@ def test_calculate_device_target_y_pi5_bottom_pins(pi5_like_board, simple_device
         connections=connections,
         show_title=True,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(True)
+    board_margin_top = config.get_board_margin_top(True)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    target_y = engine._calculate_device_target_y(simple_device, diagram)
+    target_y = positioner._calculate_device_target_y(simple_device, diagram)
 
     # Should be near bottom pins
-    pin19_y = engine._board_margin_top + 16.2 + (18 * 12.0)
-    pin20_y = engine._board_margin_top + 16.2 + (19 * 12.0)
+    pin19_y = board_margin_top + 16.2 + (18 * 12.0)
+    pin20_y = board_margin_top + 16.2 + (19 * 12.0)
     expected_y = (pin19_y + pin20_y) / 2
     assert abs(target_y - expected_y) < 5
 
 
 def test_calculate_device_target_y_pico_top_row(pico_like_board, simple_device):
     """Test target Y calculation for device connected to top row on Pico."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     # Device connected to top row pins
     connections = [
         Connection(1, "Test Device", "VCC"),
@@ -199,18 +204,19 @@ def test_calculate_device_target_y_pico_top_row(pico_like_board, simple_device):
         connections=connections,
         show_title=False,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(False)
+    board_margin_top = config.get_board_margin_top(False)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    target_y = engine._calculate_device_target_y(simple_device, diagram)
+    target_y = positioner._calculate_device_target_y(simple_device, diagram)
 
     # Should be near top row (y ≈ 6.5)
-    expected_y = engine._board_margin_top + 6.5
+    expected_y = board_margin_top + 6.5
     assert abs(target_y - expected_y) < 5
 
 
 def test_calculate_device_target_y_pico_bottom_row(pico_like_board, simple_device):
     """Test target Y calculation for device connected to bottom row on Pico."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     # Device connected to bottom row pins
     connections = [
         Connection(21, "Test Device", "VCC"),
@@ -223,18 +229,19 @@ def test_calculate_device_target_y_pico_bottom_row(pico_like_board, simple_devic
         connections=connections,
         show_title=False,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(False)
+    board_margin_top = config.get_board_margin_top(False)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    target_y = engine._calculate_device_target_y(simple_device, diagram)
+    target_y = positioner._calculate_device_target_y(simple_device, diagram)
 
     # Should be near bottom row (y ≈ 94)
-    expected_y = engine._board_margin_top + 94.0
+    expected_y = board_margin_top + 94.0
     assert abs(target_y - expected_y) < 5
 
 
 def test_calculate_device_target_y_pico_both_rows(pico_like_board, simple_device):
     """Test target Y calculation for device connected to both rows on Pico."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     # Device connected to both top and bottom rows
     connections = [
         Connection(1, "Test Device", "VCC"),  # Top row
@@ -247,20 +254,21 @@ def test_calculate_device_target_y_pico_both_rows(pico_like_board, simple_device
         connections=connections,
         show_title=False,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(False)
+    board_margin_top = config.get_board_margin_top(False)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    target_y = engine._calculate_device_target_y(simple_device, diagram)
+    target_y = positioner._calculate_device_target_y(simple_device, diagram)
 
     # Should be in middle (centroid of top and bottom)
-    top_y = engine._board_margin_top + 6.5
-    bottom_y = engine._board_margin_top + 94.0
+    top_y = board_margin_top + 6.5
+    bottom_y = board_margin_top + 94.0
     expected_y = (top_y + bottom_y) / 2
     assert abs(target_y - expected_y) < 5
 
 
 def test_calculate_device_target_y_no_connections(pi5_like_board, simple_device):
     """Test target Y calculation for device with no connections (fallback)."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     diagram = Diagram(
         title="Test",
         board=pi5_like_board,
@@ -268,19 +276,20 @@ def test_calculate_device_target_y_no_connections(pi5_like_board, simple_device)
         connections=[],  # No connections
         show_title=True,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(True)
+    board_margin_top = config.get_board_margin_top(True)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    target_y = engine._calculate_device_target_y(simple_device, diagram)
+    target_y = positioner._calculate_device_target_y(simple_device, diagram)
 
     # Should fallback to center of board
-    board_top, board_bottom = engine._get_board_vertical_range(diagram)
+    board_top, board_bottom = positioner._get_board_vertical_range(diagram)
     expected_y = (board_top + board_bottom) / 2
     assert abs(target_y - expected_y) < 1
 
 
 def test_calculate_min_device_y_with_title(pi5_like_board, simple_device):
     """Test minimum Y calculation with title shown."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     connections = [Connection(1, "Test Device", "VCC")]
     diagram = Diagram(
         title="Test",
@@ -289,19 +298,20 @@ def test_calculate_min_device_y_with_title(pi5_like_board, simple_device):
         connections=connections,
         show_title=True,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(True)
+    board_margin_top = config.get_board_margin_top(True)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    min_y = engine._calculate_min_device_y(diagram)
+    min_y = positioner._calculate_min_device_y(diagram)
 
     # Should respect title clearance
-    title_bottom = engine.config.board_margin_top_base + engine.config.title_height
-    min_y_with_clearance = title_bottom + engine.config.title_margin
+    title_bottom = config.board_margin_top_base + config.title_height
+    min_y_with_clearance = title_bottom + config.title_margin
     assert min_y >= min_y_with_clearance
 
 
 def test_calculate_min_device_y_without_title(pi5_like_board, simple_device):
     """Test minimum Y calculation without title shown."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     connections = [Connection(1, "Test Device", "VCC")]
     diagram = Diagram(
         title="Test",
@@ -310,17 +320,18 @@ def test_calculate_min_device_y_without_title(pi5_like_board, simple_device):
         connections=connections,
         show_title=False,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(False)
+    board_margin_top = config.get_board_margin_top(False)
+    positioner = DevicePositioner(config, board_margin_top)
 
-    min_y = engine._calculate_min_device_y(diagram)
+    min_y = positioner._calculate_min_device_y(diagram)
 
     # Should just use board margin top
-    assert min_y == engine._board_margin_top
+    assert min_y == board_margin_top
 
 
 def test_position_devices_vertically_smart_single_device(pi5_like_board, simple_device):
     """Test smart vertical positioning with single device."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
     connections = [Connection(10, "Test Device", "VCC")]
     diagram = Diagram(
         title="Test",
@@ -329,12 +340,13 @@ def test_position_devices_vertically_smart_single_device(pi5_like_board, simple_
         connections=connections,
         show_title=True,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(True)
+    board_margin_top = config.get_board_margin_top(True)
+    positioner = DevicePositioner(config, board_margin_top)
 
     # Set initial X position
     simple_device.position = Point(450, 0)
 
-    engine._position_devices_vertically_smart([simple_device], diagram)
+    positioner._position_devices_vertically_smart([simple_device], diagram)
 
     # Device should be positioned (Y should be set)
     assert simple_device.position.y > 0
@@ -344,7 +356,7 @@ def test_position_devices_vertically_smart_single_device(pi5_like_board, simple_
 
 def test_position_devices_vertically_smart_multiple_devices(pi5_like_board):
     """Test smart vertical positioning with multiple devices."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
 
     # Create three devices
     device1 = Device(
@@ -382,13 +394,14 @@ def test_position_devices_vertically_smart_multiple_devices(pi5_like_board):
         connections=connections,
         show_title=True,
     )
-    engine._board_margin_top = engine.config.get_board_margin_top(True)
+    board_margin_top = config.get_board_margin_top(True)
+    positioner = DevicePositioner(config, board_margin_top)
 
     # Set initial X positions
     for device in diagram.devices:
         device.position = Point(450, 0)
 
-    engine._position_devices_vertically_smart(diagram.devices, diagram)
+    positioner._position_devices_vertically_smart(diagram.devices, diagram)
 
     # All devices should be positioned
     assert device1.position.y > 0
@@ -406,7 +419,8 @@ def test_position_devices_vertically_smart_multiple_devices(pi5_like_board):
 
 def test_validate_wire_clearance_sufficient(pi5_like_board, simple_device):
     """Test wire clearance validation with sufficient clearance."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
+    engine = LayoutEngine(config)
     connections = [Connection(10, "Test Device", "VCC")]
     diagram = Diagram(
         title="Test",
@@ -415,6 +429,7 @@ def test_validate_wire_clearance_sufficient(pi5_like_board, simple_device):
         connections=connections,
         show_title=True,
     )
+    board_margin_top = config.get_board_margin_top(diagram.show_title)
 
     # Create routed wires with good clearance
     routed_wires = [
@@ -427,13 +442,14 @@ def test_validate_wire_clearance_sufficient(pi5_like_board, simple_device):
         )
     ]
 
-    issues = engine._validate_wire_clearance(diagram, routed_wires)
+    issues = engine._validate_wire_clearance(diagram, routed_wires, board_margin_top)
     assert len(issues) == 0
 
 
 def test_validate_wire_clearance_insufficient(pi5_like_board, simple_device):
     """Test wire clearance validation with insufficient clearance."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
+    engine = LayoutEngine(config)
     connections = [Connection(1, "Test Device", "VCC")]
     diagram = Diagram(
         title="Test",
@@ -442,9 +458,10 @@ def test_validate_wire_clearance_insufficient(pi5_like_board, simple_device):
         connections=connections,
         show_title=True,
     )
+    board_margin_top = config.get_board_margin_top(diagram.show_title)
 
     # Create routed wires with insufficient clearance (too close to title)
-    title_bottom = engine.config.board_margin_top_base + engine.config.title_height
+    title_bottom = config.board_margin_top_base + config.title_height
     wire_y = title_bottom + 20  # Only 20px clearance (need 50px)
 
     routed_wires = [
@@ -457,7 +474,7 @@ def test_validate_wire_clearance_insufficient(pi5_like_board, simple_device):
         )
     ]
 
-    issues = engine._validate_wire_clearance(diagram, routed_wires)
+    issues = engine._validate_wire_clearance(diagram, routed_wires, board_margin_top)
     assert len(issues) == 1
     assert "Wire clearance warning" in issues[0]
     assert "20.0px" in issues[0]
@@ -465,7 +482,8 @@ def test_validate_wire_clearance_insufficient(pi5_like_board, simple_device):
 
 def test_validate_wire_clearance_no_title(pi5_like_board, simple_device):
     """Test wire clearance validation when title is not shown."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
+    engine = LayoutEngine(config)
     connections = [Connection(1, "Test Device", "VCC")]
     diagram = Diagram(
         title="Test",
@@ -474,6 +492,7 @@ def test_validate_wire_clearance_no_title(pi5_like_board, simple_device):
         connections=connections,
         show_title=False,  # No title
     )
+    board_margin_top = config.get_board_margin_top(diagram.show_title)
 
     routed_wires = [
         RoutedWire(
@@ -485,5 +504,5 @@ def test_validate_wire_clearance_no_title(pi5_like_board, simple_device):
         )
     ]
 
-    issues = engine._validate_wire_clearance(diagram, routed_wires)
+    issues = engine._validate_wire_clearance(diagram, routed_wires, board_margin_top)
     assert len(issues) == 0  # No issues when title not shown

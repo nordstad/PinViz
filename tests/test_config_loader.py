@@ -39,7 +39,7 @@ def test_load_from_unsupported_format(temp_output_dir):
     config_path.write_text("some content")
 
     loader = ConfigLoader()
-    with pytest.raises(ValueError, match="Unsupported file format"):
+    with pytest.raises(ValueError, match="Unsupported file extension"):
         loader.load_from_file(config_path)
 
 

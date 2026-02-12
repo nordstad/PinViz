@@ -15,13 +15,22 @@ pinviz [OPTIONS] COMMAND [ARGS]
 Generate a diagram from a YAML or JSON configuration file:
 
 ```bash
-pinviz render CONFIG_FILE [-o OUTPUT_FILE]
+pinviz render CONFIG_FILE [OPTIONS]
 ```
 
 **Arguments:**
 
 - `CONFIG_FILE` - Path to YAML or JSON configuration file
+
+**Options:**
+
 - `-o, --output OUTPUT_FILE` - Output SVG file path (default: `<config>.svg`)
+- `--no-title` - Hide diagram title
+- `--no-board-name` - Hide board name label
+- `--show-legend` - Show wire color legend
+- `--theme {light|dark}` - Override theme (light or dark)
+- `--max-complexity INTEGER` - Maximum connections allowed (for CI/CD validation)
+- `--json` - Output machine-readable JSON status
 
 **Examples:**
 
@@ -32,9 +41,23 @@ pinviz render my-diagram.yaml
 # Specify custom output path
 pinviz render my-diagram.yaml -o output/wiring.svg
 
+# Dark theme with legend
+pinviz render my-diagram.yaml --theme dark --show-legend
+
+# Enforce complexity limit for CI/CD
+pinviz render my-diagram.yaml --max-complexity 50
+
 # Works with JSON too
 pinviz render my-diagram.json -o output.svg
 ```
+
+**Complexity Checking:**
+
+PinViz automatically warns when diagrams become too complex:
+- **Warning** at 30+ connections or 20+ devices
+- **Error** if `--max-complexity` limit is exceeded
+
+This helps maintain readable diagrams and prevent performance issues. For large projects, split diagrams into multiple files or increase the limit.
 
 ### Generate Built-in Examples
 
