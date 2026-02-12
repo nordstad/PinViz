@@ -55,7 +55,13 @@ pinviz add-device
 2. **Board System** (`boards.py`, `board_configs/`): Board templates loaded from JSON configs
 3. **Device System** (`devices/registry.py`, `device_configs/`): Device templates from JSON with smart defaults
 4. **Config Loader** (`config_loader.py`): Parses YAML/JSON into diagram objects
-5. **Layout Engine** (`layout.py`): Positions devices and routes wires algorithmically
+5. **Layout System** (`layout/`): Modular package for positioning and routing
+   - `engine.py`: Main LayoutEngine orchestrator
+   - `positioning.py`: DevicePositioner for multi-tier device placement
+   - `routing.py`: WireRouter for smooth Bezier curve routing
+   - `sizing.py`: CanvasSizer for calculating canvas dimensions
+   - `types.py`: Layout data types and configuration
+   - `utils.py`: Utility functions (create_bezier_path)
 6. **SVG Renderer** (`render_svg.py`): Converts diagrams to SVG using `drawsvg`
 7. **CLI** (`cli/`): Modular Typer-based CLI with Rich output and JSON support
 8. **Connection Graph** (`connection_graph.py`): Multi-level device connection validation and analysis

@@ -275,7 +275,7 @@ def test_device_connection_creation():
 
 def test_invalid_connection_both_sources():
     """Test that specifying both sources raises error."""
-    with pytest.raises(ValueError, match="Cannot specify both"):
+    with pytest.raises(ValueError, match="Connection has BOTH board_pin"):
         Connection(
             board_pin=1,
             source_device="Reg",
@@ -287,7 +287,7 @@ def test_invalid_connection_both_sources():
 
 def test_invalid_connection_no_source():
     """Test that missing source raises error."""
-    with pytest.raises(ValueError, match="Must specify either.*board_pin.*OR both"):
+    with pytest.raises(ValueError, match="Connection has no source specified"):
         Connection(device_name="LED", device_pin_name="VCC")
 
 

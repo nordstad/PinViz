@@ -8,6 +8,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.15.0] - 2026-02-12
+
+### Added
+- **Complexity checking and validation** (#Phase1.3)
+  - New `--max-complexity` flag for `pinviz render` command
+  - Enforces hard limit on connection count (useful for CI/CD pipelines)
+  - Automatic warnings when diagrams exceed 30 connections or 20 devices
+  - Clear error messages suggesting to split diagrams or increase limits
+  - Configurable thresholds via `LayoutConfig`
+  - Example: `pinviz render diagram.yaml --max-complexity 50`
+
+### Improved
+- **Error messages now include examples and actionable fixes** (#Phase1.2)
+  - All connection validation errors show example of correct usage
+  - Configuration errors include fix suggestions
+  - Users can resolve issues without consulting documentation
+  - Errors are concise (<5 lines) and well-formatted
+
+- **Device registry fail-fast validation** (#Phase1.4)
+  - Registry now tracks failed device configurations
+  - Raises `RuntimeError` if zero devices load (instead of cryptic errors later)
+  - Logs health check on startup showing loaded/failed counts
+  - Warning logged if some (but not all) device configs fail
+  - New methods: `get_failed_configs()` and `get_health_status()`
+
+### Changed
+- **Layout engine refactored into modular package** (#Phase1.1)
+  - Split 1,666-line `layout.py` into 7 focused modules
+  - New package structure: `layout/engine.py`, `layout/positioning.py`, `layout/routing.py`, etc.
+  - Improved maintainability and code organization
+  - No breaking changes - all public APIs remain backward compatible
+  - All 911 tests passing
+
+### Internal
+- Improved structured logging throughout
+- Better separation of concerns in layout system
+- Enhanced code quality and maintainability
+
+
 ## [0.14.0] - 2026-02-12
 
 ### Added

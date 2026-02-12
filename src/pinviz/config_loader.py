@@ -12,6 +12,7 @@ from .color_utils import resolve_color
 from .connection_graph import ConnectionGraph
 from .constants import DEVICE_LAYOUT
 from .devices import get_registry
+from .errors import format_config_error
 from .logging_config import get_logger
 from .model import (
     Connection,
@@ -78,9 +79,12 @@ class ConfigLoader:
                 max_bytes=MAX_CONFIG_FILE_SIZE,
             )
             max_mb = MAX_CONFIG_FILE_SIZE // (1024 * 1024)
+            size_mb = file_size / (1024 * 1024)
             raise ValueError(
-                f"Config file too large: {file_size} bytes "
-                f"(maximum: {MAX_CONFIG_FILE_SIZE} bytes / {max_mb}MB)"
+                format_config_error(
+                    "file_too_large",
+                    detail=f"{size_mb:.1f}MB (max: {max_mb}MB)",
+                )
             )
 
         # Load file based on extension
@@ -94,7 +98,12 @@ class ConfigLoader:
             log.debug("json_config_parsed", config_path=str(path))
         else:
             log.error("unsupported_file_format", format=path.suffix, config_path=str(path))
-            raise ValueError(f"Unsupported file format: {path.suffix}")
+            raise ValueError(
+                format_config_error(
+                    "invalid_yaml" if path.suffix in [".yaml", ".yml"] else "invalid_json",
+                    detail=f"Unsupported file extension: {path.suffix}",
+                )
+            )
 
         return self.load_from_dict(config)
 
@@ -279,7 +288,12 @@ class ConfigLoader:
 
         loader = board_loaders.get(name.lower())
         if not loader:
-            raise ValueError(f"Unknown board: {name}")
+            raise ValueError(
+                format_config_error(
+                    "board_not_found",
+                    context={"board_name": name},
+                )
+            )
 
         return loader()
 
@@ -362,8 +376,22 @@ class ConfigLoader:
                     device.description = config["description"]
 
                 return device
+            else:
+                # Device type specified but not found in registry
+                raise ValueError(
+                    format_config_error(
+                        "device_not_found",
+                        context={"device_type": device_type},
+                    )
+                )
 
-        raise ValueError(f"Unknown or incomplete device configuration: {config}")
+        raise ValueError(
+            format_config_error(
+                "device_not_found",
+                detail="Device must have either 'type' or both 'name' and 'pins'",
+                context={"device_type": device_type or "not specified"},
+            )
+        )
 
     def _load_custom_device(self, config: dict[str, Any]) -> Device:
         """

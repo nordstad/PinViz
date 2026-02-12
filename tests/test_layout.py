@@ -2,6 +2,7 @@
 
 from pinviz.devices import get_registry
 from pinviz.layout import LayoutConfig, LayoutEngine, RoutedWire
+from pinviz.layout.positioning import DevicePositioner
 from pinviz.model import Connection, Diagram, Point
 
 
@@ -69,7 +70,7 @@ def test_layout_engine_with_custom_config():
 
 def test_position_devices_vertically(sample_board, sample_device):
     """Test that devices are positioned correctly in single tier."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
 
     # Create a diagram with one device connected to board
     connections = [Connection(1, "Test Device", "VCC")]
@@ -80,19 +81,20 @@ def test_position_devices_vertically(sample_board, sample_device):
         connections=connections,
     )
 
-    # Set board margin top for calculation
-    engine._board_margin_top = engine.config.get_board_margin_top(diagram.show_title)
-    engine._position_devices_by_level(diagram)
+    # Create positioner and position devices
+    board_margin_top = config.get_board_margin_top(diagram.show_title)
+    positioner = DevicePositioner(config, board_margin_top)
+    positioner.position_devices(diagram)
 
     assert sample_device.position is not None
-    assert sample_device.position.x == engine.config.device_area_left
+    assert sample_device.position.x == config.device_area_left
     # With smart positioning, Y is calculated based on connections, not fixed
     assert sample_device.position.y > 0
 
 
 def test_position_multiple_devices(sample_board, sample_device, bh1750_device):
     """Test positioning multiple devices with spacing in same tier."""
-    engine = LayoutEngine()
+    config = LayoutConfig()
 
     # Create diagram with two devices both connected to board (same tier)
     connections = [
@@ -106,13 +108,14 @@ def test_position_multiple_devices(sample_board, sample_device, bh1750_device):
         connections=connections,
     )
 
-    # Set board margin top for calculation
-    engine._board_margin_top = engine.config.get_board_margin_top(diagram.show_title)
-    engine._position_devices_by_level(diagram)
+    # Create positioner and position devices
+    board_margin_top = config.get_board_margin_top(diagram.show_title)
+    positioner = DevicePositioner(config, board_margin_top)
+    positioner.position_devices(diagram)
 
     # Both devices should be at same X (same tier)
-    assert sample_device.position.x == engine.config.device_area_left
-    assert bh1750_device.position.x == engine.config.device_area_left
+    assert sample_device.position.x == config.device_area_left
+    assert bh1750_device.position.x == config.device_area_left
 
     # Both devices should be positioned vertically with smart positioning
     assert sample_device.position.y > 0
@@ -120,9 +123,9 @@ def test_position_multiple_devices(sample_board, sample_device, bh1750_device):
 
     # Devices should not overlap (second device should be below first)
     assert (
-        sample_device.position.y + sample_device.height + engine.config.device_spacing_vertical
+        sample_device.position.y + sample_device.height + config.device_spacing_vertical
         <= bh1750_device.position.y
-        or bh1750_device.position.y + bh1750_device.height + engine.config.device_spacing_vertical
+        or bh1750_device.position.y + bh1750_device.height + config.device_spacing_vertical
         <= sample_device.position.y
     )
 
