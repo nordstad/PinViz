@@ -1,0 +1,18 @@
+{
+  "id": "relay_auto",
+  "name": "Relay Module (Auto Detection)",
+  "description": "General-purpose relay module with control input and relay contacts.",
+  "category": "actuators",
+  "pins": [
+    { "name": "VCC", "role": "5V" },
+    { "name": "GND", "role": "GND" },
+    { "name": "IN", "role": "GPIO" },
+    { "name": "COM", "role": "5V" },
+    { "name": "NO", "role": "5V" },
+    { "name": "NC", "role": "5V" }
+  ],
+  "display": {
+    "width": 90.0
+  },
+  "datasheet_url": "https://www.electronicwings.com/sensors-modules/relay-module"
+}

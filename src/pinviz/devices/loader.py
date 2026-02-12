@@ -127,12 +127,22 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
             position_data = pin_config["position"]
             position = Point(position_data["x"], position_data["y"])
             pin_side = "left"  # Default to left if explicit
-        elif is_output_pin(pin_name):
-            position = None  # Will calculate later
-            pin_side = "right"
         else:
             position = None  # Will calculate later
-            pin_side = "left"
+
+            # Check for explicit side field
+            if "side" in pin_config:
+                side_value = pin_config["side"].lower()
+                if side_value not in ("left", "right"):
+                    raise ValueError(
+                        f"Invalid 'side' value '{pin_config['side']}' for pin '{pin_name}'. "
+                        f"Must be 'left' or 'right'."
+                    )
+                pin_side = side_value
+            elif is_output_pin(pin_name):
+                pin_side = "right"
+            else:
+                pin_side = "left"
 
         pin_data = {
             "name": pin_name,
@@ -172,8 +182,20 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
             )
         )
 
-    # Position right side pins (offset in vertical mode to prevent label collision)
-    right_pin_offset = pin_spacing / 2 if layout_type == "vertical" else 0
+    # Position right side pins
+    # When both sides have equal pin counts, align them (no offset)
+    # When different counts, center the smaller side
+    if layout_type == "vertical" and len(left_pins) != len(right_pins):
+        # Center the side with fewer pins
+        pin_count_diff = abs(len(left_pins) - len(right_pins))
+        if len(right_pins) < len(left_pins):
+            right_pin_offset = (pin_count_diff * pin_spacing) / 2
+        else:
+            right_pin_offset = 0
+    else:
+        # Equal counts or horizontal layout: align pins (no offset)
+        right_pin_offset = 0
+
     for i, pin_data in enumerate(right_pins):
         if pin_data["position"] is None:
             if layout_type == "vertical":

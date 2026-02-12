@@ -52,6 +52,8 @@ VALID_BOARD_NAMES = {
 
 # Valid device types from the device registry
 VALID_DEVICE_TYPES = {
+    "all_left",
+    "all_right",
     "bh1750",
     "bme280",
     "button",
@@ -63,7 +65,11 @@ VALID_DEVICE_TYPES = {
     "ir_led_ring",
     "led",
     "mcp3008",
+    "mixed_sides",
     "pir",
+    "relay_auto",
+    "relay_module",
+    "single_pin_each_side",
     "spi_device",
     "spi",  # Alias for spi_device
     "ssd1306",
@@ -119,11 +125,13 @@ class DevicePinSchema(BaseModel):
         name: Pin name (e.g., "VCC", "GND", "SDA")
         role: Pin role/function (e.g., "3V3", "GND", "GPIO")
         position: Optional pin position (auto-calculated if not provided)
+        side: Optional explicit pin side ("left" or "right")
     """
 
     name: Annotated[str, Field(min_length=1, max_length=50, description="Pin name")]
     role: Annotated[str, Field(description="Pin role/function")] = "GPIO"
     position: PointSchema | None = None
+    side: Annotated[str, Field(description="Pin side placement")] | None = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -137,6 +145,17 @@ class DevicePinSchema(BaseModel):
                 f"Invalid pin role '{v}'. Must be one of: {', '.join(sorted(VALID_PIN_ROLES))}"
             )
         return role_upper
+
+    @field_validator("side")
+    @classmethod
+    def validate_side(cls, v: str | None) -> str | None:
+        """Validate that side is either 'left' or 'right'."""
+        if v is not None:
+            side_lower = v.lower()
+            if side_lower not in ("left", "right"):
+                raise ValueError(f"Invalid pin side '{v}'. Must be 'left' or 'right'.")
+            return side_lower
+        return v
 
 
 class CustomDeviceSchema(BaseModel):
@@ -1007,12 +1026,14 @@ class DeviceConfigPinSchema(BaseModel):
         role: Pin role/function (e.g., "3V3", "GND", "GPIO")
         optional: Whether the pin is optional
         position: Optional explicit pin position
+        side: Optional explicit pin side ("left" or "right")
     """
 
     name: Annotated[str, Field(min_length=1, max_length=50, description="Pin name")]
     role: Annotated[str, Field(description="Pin role/function")] = "GPIO"
     optional: bool = False
     position: PointSchema | None = None
+    side: Annotated[str, Field(description="Pin side placement")] | None = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -1026,6 +1047,17 @@ class DeviceConfigPinSchema(BaseModel):
                 f"Invalid pin role '{v}'. Must be one of: {', '.join(sorted(VALID_PIN_ROLES))}"
             )
         return role_upper
+
+    @field_validator("side")
+    @classmethod
+    def validate_side(cls, v: str | None) -> str | None:
+        """Validate that side is either 'left' or 'right'."""
+        if v is not None:
+            side_lower = v.lower()
+            if side_lower not in ("left", "right"):
+                raise ValueError(f"Invalid pin side '{v}'. Must be 'left' or 'right'.")
+            return side_lower
+        return v
 
 
 class DeviceConfigSchema(BaseModel):

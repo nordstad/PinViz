@@ -1,0 +1,14 @@
+{
+  "id": "mixed_sides",
+  "name": "Mixed Sides Test",
+  "category": "actuators",
+  "description": "Test device with mixed explicit and automatic pin placement",
+  "pins": [
+    {"name": "VCC", "role": "5V", "side": "left"},
+    {"name": "GND", "role": "GND"},
+    {"name": "IN", "role": "GPIO", "side": "left"},
+    {"name": "OUT", "role": "GPIO"},
+    {"name": "COM", "role": "GPIO", "side": "right"}
+  ],
+  "datasheet_url": "https://example.com/test"
+}

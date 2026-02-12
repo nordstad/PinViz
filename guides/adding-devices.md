@@ -161,9 +161,37 @@ sensor = registry.create('bme280')
 
 ## Advanced Features
 
+### Explicit Pin Side Placement
+
+Control which side of the device each pin appears on:
+
+```json
+{
+  "id": "relay_module",
+  "name": "Relay Module",
+  "category": "actuators",
+  "pins": [
+    {"name": "VCC", "role": "5V", "side": "left"},
+    {"name": "GND", "role": "GND", "side": "left"},
+    {"name": "IN", "role": "GPIO", "side": "left"},
+    {"name": "COM", "role": "5V", "side": "right"},
+    {"name": "NO", "role": "5V", "side": "right"},
+    {"name": "NC", "role": "5V", "side": "right"}
+  ]
+}
+```
+
+The `"side"` field accepts `"left"` or `"right"`. If not specified, pins are automatically placed based on their names (pins with names like "OUT", "TX", "COM", "NO", "NC" go on the right; others go on the left).
+
+**Precedence order** for pin placement:
+1. Explicit `"position"` coordinates (highest priority)
+2. Explicit `"side"` field
+3. Automatic name-based detection
+4. Default to "left" (fallback)
+
 ### Custom Pin Positions
 
-Override auto-calculated positions:
+Override auto-calculated positions with exact coordinates:
 
 ```json
 {
@@ -171,8 +199,8 @@ Override auto-calculated positions:
   "name": "Custom Device",
   "category": "sensors",
   "pins": [
-    {"name": "VCC", "role": "3V3", "x": 0, "y": 0},
-    {"name": "GND", "role": "GND", "x": 0, "y": 20}
+    {"name": "VCC", "role": "3V3", "position": {"x": 0, "y": 0}},
+    {"name": "GND", "role": "GND", "position": {"x": 0, "y": 20}}
   ]
 }
 ```

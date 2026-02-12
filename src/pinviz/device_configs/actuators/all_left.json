@@ -1,0 +1,14 @@
+{
+  "id": "all_left",
+  "name": "All Pins Left Test",
+  "category": "actuators",
+  "description": "Test device with all pins explicitly on left side",
+  "pins": [
+    {"name": "P1", "role": "GPIO", "side": "left"},
+    {"name": "P2", "role": "GPIO", "side": "left"},
+    {"name": "P3", "role": "GPIO", "side": "left"},
+    {"name": "OUT", "role": "GPIO", "side": "left"},
+    {"name": "TX", "role": "GPIO", "side": "left"}
+  ],
+  "datasheet_url": "https://example.com/test"
+}
