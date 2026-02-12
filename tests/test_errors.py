@@ -20,17 +20,13 @@ class TestFormatValidationError:
 
     def test_message_with_example(self):
         """Test formatting with message and example."""
-        result = format_validation_error(
-            "Invalid config", example="config: value"
-        )
+        result = format_validation_error("Invalid config", example="config: value")
         assert "Invalid config" in result
         assert "Example: config: value" in result
 
     def test_message_with_fix(self):
         """Test formatting with message and fix."""
-        result = format_validation_error(
-            "Invalid config", fix="Use correct syntax"
-        )
+        result = format_validation_error("Invalid config", fix="Use correct syntax")
         assert "Invalid config" in result
         assert "Fix: Use correct syntax" in result
 
@@ -58,9 +54,7 @@ class TestFormatConnectionError:
 
     def test_missing_device_pin(self):
         """Test missing device pin error."""
-        result = format_connection_error(
-            "missing_device_pin", device_name="LED"
-        )
+        result = format_connection_error("missing_device_pin", device_name="LED")
         assert "missing 'device_pin_name'" in result
         assert "Device: LED" in result
         assert "Example:" in result

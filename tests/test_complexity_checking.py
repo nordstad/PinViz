@@ -21,10 +21,7 @@ class TestComplexityChecking:
         for i, dev in enumerate(devices):
             dev.name = f"LED{i}"
 
-        connections = [
-            Connection.from_board(i + 1, f"LED{i}", "VCC")
-            for i in range(3)
-        ]
+        connections = [Connection.from_board(i + 1, f"LED{i}", "VCC") for i in range(3)]
 
         diagram = Diagram(
             title="Simple Diagram",
@@ -48,10 +45,7 @@ class TestComplexityChecking:
         for i, dev in enumerate(devices):
             dev.name = f"LED{i}"
 
-        connections = [
-            Connection.from_board(i + 1, f"LED{i}", "VCC")
-            for i in range(35)
-        ]
+        connections = [Connection.from_board(i + 1, f"LED{i}", "VCC") for i in range(35)]
 
         diagram = Diagram(
             title="Complex Diagram",
@@ -75,10 +69,7 @@ class TestComplexityChecking:
         for i, dev in enumerate(devices):
             dev.name = f"LED{i}"
 
-        connections = [
-            Connection.from_board(i + 1, f"LED{i}", "VCC")
-            for i in range(25)
-        ]
+        connections = [Connection.from_board(i + 1, f"LED{i}", "VCC") for i in range(25)]
 
         diagram = Diagram(
             title="Many Devices",
@@ -102,10 +93,7 @@ class TestComplexityChecking:
         for i, dev in enumerate(devices):
             dev.name = f"LED{i}"
 
-        connections = [
-            Connection.from_board(i + 1, f"LED{i}", "VCC")
-            for i in range(35)
-        ]
+        connections = [Connection.from_board(i + 1, f"LED{i}", "VCC") for i in range(35)]
 
         diagram = Diagram(
             title="Complex Diagram",
@@ -133,10 +121,7 @@ class TestComplexityChecking:
         for i, dev in enumerate(devices):
             dev.name = f"LED{i}"
 
-        connections = [
-            Connection.from_board(i + 1, f"LED{i}", "VCC")
-            for i in range(25)
-        ]
+        connections = [Connection.from_board(i + 1, f"LED{i}", "VCC") for i in range(25)]
 
         diagram = Diagram(
             title="Many Devices",
@@ -164,10 +149,7 @@ class TestComplexityChecking:
         for i, dev in enumerate(devices):
             dev.name = f"LED{i}"
 
-        connections = [
-            Connection.from_board(i + 1, f"LED{i}", "VCC")
-            for i in range(6)
-        ]
+        connections = [Connection.from_board(i + 1, f"LED{i}", "VCC") for i in range(6)]
 
         diagram = Diagram(
             title="Small Diagram",
@@ -196,10 +178,7 @@ class TestComplexityChecking:
         for i, dev in enumerate(devices):
             dev.name = f"LED{i}"
 
-        connections = [
-            Connection.from_board(1, f"LED{i}", "VCC")
-            for i in range(40)
-        ]
+        connections = [Connection.from_board(1, f"LED{i}", "VCC") for i in range(40)]
 
         diagram = Diagram(
             title="Large Diagram",
