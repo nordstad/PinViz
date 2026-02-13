@@ -1,0 +1,40 @@
+title: "Relay with Flyback Diode Protection"
+board: "raspberry_pi_5"
+devices:
+  - name: "5V Relay"
+    pins:
+      - name: "VCC"
+        role: "5V"
+        position: {x: 10, y: 10}
+      - name: "GND"
+        role: "GND"
+        position: {x: 10, y: 20}
+      - name: "IN"
+        role: "GPIO"
+        position: {x: 10, y: 30}
+    width: 80
+    height: 50
+    color: "#4A90E2"
+
+connections:
+  # Relay control signal from GPIO17
+  - board_pin: 11  # GPIO17
+    device: "5V Relay"
+    device_pin: "IN"
+    color: "#9370DB"  # Purple wire
+
+  # Relay power with flyback diode for inductive spike protection
+  - board_pin: 2  # 5V
+    device: "5V Relay"
+    device_pin: "VCC"
+    color: "#FF0000"  # Red wire
+    components:
+      - type: "diode"
+        value: "1N4148"
+        position: 0.5  # Centered on wire
+
+  # Relay ground
+  - board_pin: 6  # GND
+    device: "5V Relay"
+    device_pin: "GND"
+    color: "#000000"  # Black wire

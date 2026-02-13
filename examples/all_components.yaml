@@ -1,0 +1,75 @@
+title: "Complete Component Showcase: Resistor, Capacitor, Diode"
+board: "raspberry_pi_5"
+devices:
+  - type: "led"
+    color: "Green"
+    name: "Status LED"
+
+  - name: "Motor Driver"
+    pins:
+      - name: "VCC"
+        role: "5V"
+        position: {x: 10, y: 10}
+      - name: "GND"
+        role: "GND"
+        position: {x: 10, y: 20}
+      - name: "IN1"
+        role: "GPIO"
+        position: {x: 10, y: 30}
+      - name: "IN2"
+        role: "GPIO"
+        position: {x: 10, y: 40}
+    width: 90
+    height: 60
+    color: "#FF8C00"
+
+connections:
+  # LED Anode to GPIO22 with current-limiting resistor
+  - board_pin: 15  # GPIO22
+    device: "Status LED"
+    device_pin: "+"
+    color: "#00FF00"  # Green wire
+    components:
+      - type: "resistor"
+        value: "330Ω"
+        position: 0.6
+
+  # LED Cathode to Ground
+  - board_pin: 14  # GND
+    device: "Status LED"
+    device_pin: "-"
+    color: "#000000"  # Black wire
+
+  # Motor driver power with decoupling capacitor
+  - board_pin: 4  # 5V
+    device: "Motor Driver"
+    device_pin: "VCC"
+    color: "#FF0000"  # Red wire
+    components:
+      - type: "capacitor"
+        value: "470µF"
+        position: 0.4  # Near board for bulk decoupling
+
+  # Motor driver ground
+  - board_pin: 6  # GND
+    device: "Motor Driver"
+    device_pin: "GND"
+    color: "#000000"  # Black wire
+
+  # Motor driver input 1 with flyback diode protection
+  - board_pin: 16  # GPIO23
+    device: "Motor Driver"
+    device_pin: "IN1"
+    color: "#9370DB"  # Purple wire
+    components:
+      - type: "diode"
+        value: "1N4007"
+        position: 0.5
+
+  # Motor driver input 2
+  - board_pin: 18  # GPIO24
+    device: "Motor Driver"
+    device_pin: "IN2"
+    color: "#FFD700"  # Gold wire
+
+show_legend: true

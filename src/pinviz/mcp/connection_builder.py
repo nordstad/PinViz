@@ -155,6 +155,7 @@ class ConnectionBuilder:
                 device_pin_name=assignment.device_pin_name,
                 color=color,
                 style="mixed",  # Use mixed style for nice routing
+                components=assignment.components,  # Pass through inline components
             )
             connections.append(connection)
 

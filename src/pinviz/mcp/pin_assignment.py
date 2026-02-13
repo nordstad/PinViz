@@ -11,7 +11,7 @@ This module implements algorithms for automatic pin assignment, handling:
 
 from dataclasses import dataclass, field
 
-from pinviz.model import PinRole
+from pinviz.model import Component, PinRole
 
 
 @dataclass
@@ -22,6 +22,7 @@ class PinAssignment:
     device_name: str  # Name of device
     device_pin_name: str  # Pin name on device
     pin_role: PinRole  # Role of the pin
+    components: list[Component] = field(default_factory=list)  # Inline components on wire
 
 
 @dataclass

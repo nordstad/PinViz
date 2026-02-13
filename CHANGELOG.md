@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Complete inline components support** - All three component types now fully functional
+  - ✅ Capacitor symbol rendering with parallel plates and value labels
+  - ✅ Diode symbol rendering with anode/cathode orientation and triangle symbol
+  - ✅ All component types (resistor, capacitor, diode) render correctly at any angle
+  - 📝 New example configurations: `led_with_capacitor.yaml`, `relay_with_diode.yaml`, `all_components.yaml`
+  - 📚 Comprehensive documentation added to `docs/guide/yaml-config.md`
+  - ✅ All 949 tests pass including new component rendering tests
 
+### Fixed
+- Inline components feature now matches README advertising (previously only resistors worked)
 
 ## [0.15.0] - 2026-02-12
 

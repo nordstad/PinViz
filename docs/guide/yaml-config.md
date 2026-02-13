@@ -206,4 +206,133 @@ connections:
     color: "#000000"  # Hex code for wire
 ```
 
+**Pin Spacing Standards:**
+
+When defining custom devices with manual pin positions, use **10px vertical spacing** between pins for consistency with registry devices:
+
+```yaml
+devices:
+  - name: "Custom Device"
+    pins:
+      - name: "VCC"
+        role: "3V3"
+        position: {x: 10, y: 10}  # First pin at y: 10
+      - name: "GND"
+        role: "GND"
+        position: {x: 10, y: 20}  # Second pin at y: 20 (10px gap)
+      - name: "SDA"
+        role: "I2C_SDA"
+        position: {x: 10, y: 30}  # Third pin at y: 30 (10px gap)
+    width: 80
+    height: 50
+```
+
+This ensures visual consistency across all diagrams.
+
 For more examples, see the [Quick Start Guide](../getting-started/quickstart.md).
+
+## Inline Components
+
+PinViz supports adding electronic components directly on wires. This is useful for showing resistors, capacitors, and diodes in your circuit diagrams.
+
+### Supported Component Types
+
+**Resistor** - Current-limiting or pull-up/down resistors
+```yaml
+connections:
+  - board_pin: 11  # GPIO17
+    device: "LED"
+    device_pin: "Anode"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+        position: 0.55  # 55% along wire (optional, default: 0.55)
+```
+
+**Capacitor** - Decoupling or filtering capacitors
+```yaml
+connections:
+  - board_pin: 1  # 3.3V
+    device: "Sensor"
+    device_pin: "VCC"
+    components:
+      - type: "capacitor"
+        value: "100µF"
+        position: 0.4  # Closer to board for decoupling
+```
+
+**Diode** - Flyback protection or rectification diodes
+```yaml
+connections:
+  - board_pin: 2  # 5V
+    device: "Relay"
+    device_pin: "VCC"
+    components:
+      - type: "diode"
+        value: "1N4148"
+        position: 0.5  # Centered on wire
+```
+
+### Multiple Components on One Wire
+
+You can add multiple components to a single wire:
+
+```yaml
+connections:
+  - board_pin: 11
+    device: "Motor Driver"
+    device_pin: "IN1"
+    components:
+      - type: "resistor"
+        value: "10kΩ"
+        position: 0.3
+      - type: "capacitor"
+        value: "10nF"
+        position: 0.7
+```
+
+### Component Position
+
+The `position` field specifies where along the wire to place the component:
+
+- `0.0` = At the board pin (start of wire)
+- `0.5` = Middle of wire (default for most components)
+- `1.0` = At the device pin (end of wire)
+
+**Best practices:**
+- **Resistors**: `0.55-0.6` (slightly toward device)
+- **Capacitors**: `0.3-0.4` (closer to power source for decoupling)
+- **Diodes**: `0.5` (centered, direction matters for polarity)
+
+### Complete Example
+
+```yaml
+title: "LED with Current-Limiting Resistor"
+board: "raspberry_pi_5"
+
+devices:
+  - type: "led"
+    name: "Red LED"
+    color: "red"
+
+connections:
+  # LED anode with current-limiting resistor
+  - board_pin: 11  # GPIO17
+    device: "Red LED"
+    device_pin: "+"
+    color: "#FF0000"
+    components:
+      - type: "resistor"
+        value: "220Ω"
+
+  # LED cathode to ground
+  - board_pin: 9  # GND
+    device: "Red LED"
+    device_pin: "-"
+    color: "#000000"
+```
+
+See the [examples directory](https://github.com/nordstad/PinViz/tree/main/examples) for more component usage examples:
+- `led_with_capacitor.yaml` - Decoupling capacitor example
+- `relay_with_diode.yaml` - Flyback diode protection
+- `all_components.yaml` - All three component types together
