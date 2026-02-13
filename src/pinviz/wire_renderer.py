@@ -261,6 +261,10 @@ class WireRenderer:
             comp_pt, angle = self._point_along_path(wire.path_points, comp_pos)
             if comp.type == ComponentType.RESISTOR:
                 self._draw_resistor_symbol(dwg, comp_pt, angle, wire.color, comp.value)
+            elif comp.type == ComponentType.CAPACITOR:
+                self._draw_capacitor_symbol(dwg, comp_pt, angle, wire.color, comp.value)
+            elif comp.type == ComponentType.DIODE:
+                self._draw_diode_symbol(dwg, comp_pt, angle, wire.color, comp.value)
 
             prev_pos = comp_pos
 
@@ -440,6 +444,155 @@ class WireRenderer:
             10,
             0,
             -height / 2 - 5,
+            text_anchor="middle",
+            font_family="Arial, sans-serif",
+            fill=self.color_scheme.text_primary,
+            font_weight="bold",
+        )
+        g.append(text)
+
+        dwg.append(g)
+
+    def _draw_capacitor_symbol(
+        self, dwg: draw.Drawing, center: Point, angle: float, color: str, value: str
+    ) -> None:
+        """Draw a capacitor symbol at the given position and angle."""
+        # Capacitor dimensions
+        plate_gap = 6.0
+        plate_height = 12.0
+        lead_length = 8.0
+
+        # Create group for capacitor with transform
+        g = draw.Group(transform=f"translate({center.x}, {center.y}) rotate({angle})")
+
+        # Draw left plate (vertical line)
+        left_plate = draw.Line(
+            -plate_gap / 2,
+            -plate_height / 2,
+            -plate_gap / 2,
+            plate_height / 2,
+            stroke=color,
+            stroke_width=2.5,
+        )
+
+        # Draw right plate (vertical line)
+        right_plate = draw.Line(
+            plate_gap / 2,
+            -plate_height / 2,
+            plate_gap / 2,
+            plate_height / 2,
+            stroke=color,
+            stroke_width=2.5,
+        )
+
+        # Draw lead lines (horizontal lines extending from plates)
+        left_lead = draw.Line(
+            -plate_gap / 2 - lead_length,
+            0,
+            -plate_gap / 2,
+            0,
+            stroke=color,
+            stroke_width=2,
+        )
+        right_lead = draw.Line(
+            plate_gap / 2,
+            0,
+            plate_gap / 2 + lead_length,
+            0,
+            stroke=color,
+            stroke_width=2,
+        )
+
+        g.append(left_plate)
+        g.append(right_plate)
+        g.append(left_lead)
+        g.append(right_lead)
+
+        # Add value label
+        text = draw.Text(
+            value,
+            10,
+            0,
+            -plate_height / 2 - 5,
+            text_anchor="middle",
+            font_family="Arial, sans-serif",
+            fill=self.color_scheme.text_primary,
+            font_weight="bold",
+        )
+        g.append(text)
+
+        dwg.append(g)
+
+    def _draw_diode_symbol(
+        self, dwg: draw.Drawing, center: Point, angle: float, color: str, value: str
+    ) -> None:
+        """Draw a diode symbol at the given position and angle."""
+        # Diode dimensions
+        triangle_width = 8.0
+        triangle_height = 8.0
+        cathode_height = 10.0
+        lead_length = 6.0
+
+        # Create group for diode with transform
+        g = draw.Group(transform=f"translate({center.x}, {center.y}) rotate({angle})")
+
+        # Draw anode lead (left side)
+        anode_lead = draw.Line(
+            -triangle_width - lead_length,
+            0,
+            -triangle_width,
+            0,
+            stroke=color,
+            stroke_width=2,
+        )
+
+        # Draw triangle (anode → cathode, pointing right)
+        triangle = draw.Lines(
+            -triangle_width,
+            -triangle_height / 2,
+            0,
+            0,
+            -triangle_width,
+            triangle_height / 2,
+            -triangle_width,
+            -triangle_height / 2,
+            fill=color,
+            stroke=color,
+            stroke_width=1.5,
+            close=True,
+        )
+
+        # Draw cathode bar (vertical line at triangle tip)
+        cathode_bar = draw.Line(
+            0,
+            -cathode_height / 2,
+            0,
+            cathode_height / 2,
+            stroke=color,
+            stroke_width=2.5,
+        )
+
+        # Draw cathode lead (right side)
+        cathode_lead = draw.Line(
+            0,
+            0,
+            lead_length,
+            0,
+            stroke=color,
+            stroke_width=2,
+        )
+
+        g.append(anode_lead)
+        g.append(triangle)
+        g.append(cathode_bar)
+        g.append(cathode_lead)
+
+        # Add value label
+        text = draw.Text(
+            value,
+            9,
+            0,
+            -cathode_height / 2 - 5,
             text_anchor="middle",
             font_family="Arial, sans-serif",
             fill=self.color_scheme.text_primary,

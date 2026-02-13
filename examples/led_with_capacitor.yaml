@@ -1,0 +1,32 @@
+title: "LED with Decoupling Capacitor"
+board: "raspberry_pi_5"
+devices:
+  - type: "led"
+    color: "Blue"
+    name: "Blue LED"
+connections:
+  # LED Anode to GPIO17 via resistor
+  - board_pin: 11  # GPIO17
+    device: "Blue LED"
+    device_pin: "+"
+    color: "#0000FF"  # Blue wire
+    components:
+      - type: "resistor"
+        value: "220Ω"
+        position: 0.55
+
+  # LED Cathode to Ground
+  - board_pin: 9  # GND
+    device: "Blue LED"
+    device_pin: "-"
+    color: "#000000"  # Black wire
+
+  # 3.3V to LED power with decoupling capacitor
+  - board_pin: 1  # 3.3V
+    device: "Blue LED"
+    device_pin: "+"
+    color: "#FF0000"  # Red wire
+    components:
+      - type: "capacitor"
+        value: "100µF"
+        position: 0.45  # Closer to board side for decoupling

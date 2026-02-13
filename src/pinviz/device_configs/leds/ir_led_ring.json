@@ -20,7 +20,7 @@
 
   "layout": {
     "pin_spacing": 10.0,
-    "start_y": 15.0
+    "start_y": 10.0
   },
 
   "display": {
