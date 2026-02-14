@@ -216,6 +216,7 @@ class Board:
     )  # GPIO header pin 1 position (legacy)
     layout: BoardLayout | None = None  # Standardized layout (preferred)
     style_overrides: dict = field(default_factory=dict)  # Custom styling
+    svg_scale: float = 1.0  # Scale factor for SVG asset rendering
 
     def get_pin_by_number(self, pin_number: int) -> HeaderPin | None:
         """

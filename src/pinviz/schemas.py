@@ -886,6 +886,10 @@ class BoardConfigSchema(BaseModel):
         str,
         Field(default="programmatic", description="Render mode: 'programmatic' or 'svg_asset'"),
     ] = "programmatic"
+    svg_scale: Annotated[
+        float,
+        Field(default=1.0, gt=0, le=10, description="Scale factor for SVG asset rendering"),
+    ] = 1.0
     pins: Annotated[
         list[BoardPinConfigSchema],
         Field(min_length=1, description="List of GPIO header pins"),

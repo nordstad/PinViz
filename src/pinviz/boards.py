@@ -241,14 +241,21 @@ def load_board_from_config(config_name: str) -> Board:
     # embedding path is used (board.layout == None triggers SVG asset rendering).
     render_mode = getattr(config, "render_mode", "programmatic")
     if render_mode == "svg_asset":
+        svg_scale = getattr(config, 'svg_scale', 1.0)
+        # Scale pin positions to match SVG scaling
+        if svg_scale != 1.0:
+            for pin in pins:
+                if pin.position:
+                    pin.position = Point(pin.position.x * svg_scale, pin.position.y * svg_scale)
         return Board(
             name=config.name,
             pins=pins,
             svg_asset_path=_get_asset_path(config.svg_asset),
-            width=config.width,
-            height=config.height,
+            width=config.width * svg_scale,
+            height=config.height * svg_scale,
             header_offset=Point(config.header_offset.x, config.header_offset.y),
             layout=None,
+            svg_scale=svg_scale,
         )
 
     # Build BoardLayout from config dimensions for programmatic rendering.

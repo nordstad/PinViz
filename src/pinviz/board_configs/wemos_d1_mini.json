@@ -111,5 +111,6 @@
       "gpio_bcm": null
     }
   ],
-  "render_mode": "svg_asset"
+  "render_mode": "svg_asset",
+  "svg_scale": 1.5
 }

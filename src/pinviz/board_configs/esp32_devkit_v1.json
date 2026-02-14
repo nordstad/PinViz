@@ -8,9 +8,9 @@
     "y": 0
   },
   "layout": {
-    "left_col_x": 4.2,
-    "right_col_x": 94.2,
-    "start_y": 35.7,
+    "left_col_x": 5.2,
+    "right_col_x": 95.3,
+    "start_y": 35.0,
     "row_spacing": 9.0
   },
   "pins": [
@@ -195,5 +195,6 @@
       "gpio_bcm": null
     }
   ],
-  "render_mode": "svg_asset"
+  "render_mode": "svg_asset",
+  "svg_scale": 1.5
 }
