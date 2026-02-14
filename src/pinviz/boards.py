@@ -367,6 +367,72 @@ def raspberry_pi() -> Board:
     return raspberry_pi_5()
 
 
+def wemos_d1_mini() -> Board:
+    """
+    Create a Wemos D1 Mini board with 16-pin GPIO header.
+
+    The D1 Mini is a compact ESP8266-based board popular for small IoT projects.
+    It has 8 pins on each side (16 total) with D0-D8 pin naming convention.
+
+    Returns:
+        Board: Configured Wemos D1 Mini board with all pins positioned
+
+    Examples:
+        >>> board = wemos_d1_mini()
+        >>> print(board.name)
+        Wemos D1 Mini
+        >>> print(len(board.pins))
+        16
+    """
+    return load_board_from_config("wemos_d1_mini")
+
+
+def esp8266_nodemcu() -> Board:
+    """
+    Create an ESP8266 NodeMCU board with 30-pin GPIO header.
+
+    The NodeMCU is one of the most popular ESP8266 development boards
+    with built-in USB-to-serial and 30 pins in a dual-row layout.
+
+    Returns:
+        Board: Configured ESP8266 NodeMCU board with all pins positioned
+
+    Examples:
+        >>> board = esp8266_nodemcu()
+        >>> print(board.name)
+        ESP8266 NodeMCU
+        >>> print(len(board.pins))
+        30
+    """
+    return load_board_from_config("esp8266_nodemcu")
+
+
+def esp32_devkit_v1() -> Board:
+    """
+    Create an ESP32 DevKit V1 board with 30-pin GPIO header.
+
+    The ESP32 DevKit V1 is one of the most popular IoT development boards,
+    featuring Wi-Fi and Bluetooth connectivity. It has a dual-row vertical
+    pin layout with 15 pins on each side (30 total).
+
+    Pin layout (physical pin numbers):
+    Standard 2x15 header layout:
+    - Left column (odd pins): 1, 3, 5, ..., 29 (top to bottom)
+    - Right column (even pins): 2, 4, 6, ..., 30 (top to bottom)
+
+    Returns:
+        Board: Configured ESP32 DevKit V1 board with all pins positioned
+
+    Examples:
+        >>> board = esp32_devkit_v1()
+        >>> print(board.name)
+        ESP32 DevKit V1
+        >>> print(len(board.pins))
+        30
+    """
+    return load_board_from_config("esp32_devkit_v1")
+
+
 def get_available_boards() -> list[dict[str, str | list[str]]]:
     """
     Get a list of all available board configurations.
@@ -398,6 +464,9 @@ def get_available_boards() -> list[dict[str, str | list[str]]]:
         "raspberry_pi_5": ["rpi5", "rpi"],
         "raspberry_pi_4": ["rpi4", "pi4"],
         "raspberry_pi_pico": ["pico"],
+        "esp32_devkit_v1": ["esp32", "esp32dev", "esp32_devkit"],
+        "wemos_d1_mini": ["d1mini", "d1_mini", "wemos"],
+        "esp8266_nodemcu": ["esp8266", "nodemcu"],
     }
 
     boards_list = []

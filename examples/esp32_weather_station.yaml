@@ -1,0 +1,41 @@
+# ESP32 DevKit V1 Weather Station
+# BME280 temperature/humidity/pressure sensor + SSD1306 OLED display
+# Both devices use I2C (GPIO21=SDA, GPIO22=SCL)
+
+title: "ESP32 Weather Station"
+board: esp32_devkit_v1
+
+devices:
+  - type: bme280
+    name: "BME280"
+  - type: ssd1306
+    name: "OLED Display"
+
+connections:
+  # BME280 sensor (I2C address 0x76)
+  - board_pin: 1
+    device: "BME280"
+    device_pin: "VCC"
+  - board_pin: 3
+    device: "BME280"
+    device_pin: "GND"
+  - board_pin: 21
+    device: "BME280"
+    device_pin: "SDA"
+  - board_pin: 27
+    device: "BME280"
+    device_pin: "SCL"
+
+  # SSD1306 OLED (I2C address 0x3C)
+  - board_pin: 1
+    device: "OLED Display"
+    device_pin: "VCC"
+  - board_pin: 3
+    device: "OLED Display"
+    device_pin: "GND"
+  - board_pin: 21
+    device: "OLED Display"
+    device_pin: "SDA"
+  - board_pin: 27
+    device: "OLED Display"
+    device_pin: "SCL"

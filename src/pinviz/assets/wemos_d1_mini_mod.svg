@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="130" height="180" viewBox="0 0 130 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .board-body { fill: #0066cc; stroke: #004499; stroke-width: 1.5; }
+      .usb-connector { fill: #888; stroke: #555; stroke-width: 1; }
+      .chip { fill: #222; stroke: #444; stroke-width: 0.8; }
+      .chip-dot { fill: #666; }
+      .antenna { fill: none; stroke: #c0a030; stroke-width: 1; }
+      .pin-pad { fill: #c8a000; stroke: #000; stroke-width: 0.5; }
+      .board-label { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: bold; fill: #fff; }
+      .led { fill: #300; stroke: #500; stroke-width: 0.5; }
+      .btn { fill: #444; stroke: #222; stroke-width: 0.5; rx: 1; }
+    </style>
+  </defs>
+
+  <!-- Board body -->
+  <rect class="board-body" x="16" y="8" width="98" height="164" rx="3" ry="3"/>
+
+  <!-- USB Micro-B connector -->
+  <rect class="usb-connector" x="40" y="3" width="50" height="16" rx="2" ry="2"/>
+  <rect fill="#666" x="44" y="5" width="42" height="10" rx="1" ry="1"/>
+
+  <!-- ESP-8266EX module -->
+  <rect class="chip" x="28" y="24" width="74" height="50" rx="2" ry="2"/>
+  <circle class="chip-dot" cx="34" cy="30" r="1.5"/>
+  <text class="board-label" x="65" y="47" text-anchor="middle" font-size="6">ESP8266</text>
+
+  <!-- Antenna trace -->
+  <path class="antenna" d="M 38 28 L 38 22 L 92 22 L 92 28"/>
+
+  <!-- Reset button -->
+  <rect class="btn" x="28" y="82" width="8" height="5"/>
+
+  <!-- Board title -->
+  <text class="board-label" x="65" y="100" text-anchor="middle" font-size="5.5">D1 Mini</text>
+
+  <!-- Left column pins (odd: 1,3,5,...,15) -->
+  <circle class="pin-pad" cx="8" cy="52" r="3"/>
+  <circle class="pin-pad" cx="8" cy="66" r="3"/>
+  <circle class="pin-pad" cx="8" cy="80" r="3"/>
+  <circle class="pin-pad" cx="8" cy="94" r="3"/>
+  <circle class="pin-pad" cx="8" cy="108" r="3"/>
+  <circle class="pin-pad" cx="8" cy="122" r="3"/>
+  <circle class="pin-pad" cx="8" cy="136" r="3"/>
+  <circle class="pin-pad" cx="8" cy="150" r="3"/>
+
+  <!-- Right column pins (even: 2,4,6,...,16) -->
+  <circle class="pin-pad" cx="122" cy="52" r="3"/>
+  <circle class="pin-pad" cx="122" cy="66" r="3"/>
+  <circle class="pin-pad" cx="122" cy="80" r="3"/>
+  <circle class="pin-pad" cx="122" cy="94" r="3"/>
+  <circle class="pin-pad" cx="122" cy="108" r="3"/>
+  <circle class="pin-pad" cx="122" cy="122" r="3"/>
+  <circle class="pin-pad" cx="122" cy="136" r="3"/>
+  <circle class="pin-pad" cx="122" cy="150" r="3"/>
+</svg>
