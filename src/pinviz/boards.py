@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 
+from .board_renderer import BoardLayout
 from .model import Board, HeaderPin, PinRole, Point
 from .schemas import BoardConfigSchema, validate_board_config
 
@@ -236,6 +237,39 @@ def load_board_from_config(config_name: str) -> Board:
     # Sort pins by physical pin number for consistency
     pins.sort(key=lambda p: p.number)
 
+    # Build BoardLayout from config dimensions for programmatic rendering.
+    # Config width/height are in pixels; BoardLayout expects mm.
+    # Use default scale_factor (3.0 px/mm) to convert.
+    from .board_renderer import BoardStyle
+
+    scale = BoardStyle().scale_factor
+    num_rows = len(config.pins) // 2  # pins per side
+
+    # Header position and size from layout parameters
+    if is_dual_header:
+        # Dual-header boards (like Pico) — compute from top/bottom header params
+        header_x = layout_dict["top_header"]["start_x"] / scale
+        header_y = layout_dict["top_header"]["y"] / scale
+        header_w = (num_rows * layout_dict["top_header"]["pin_spacing"]) / scale
+        header_h = (
+            layout_dict["bottom_header"]["y"] - layout_dict["top_header"]["y"]
+        ) / scale
+    else:
+        # Single-header boards (Pi, ESP) — vertical two-column layout
+        header_x = layout_dict["left_col_x"] / scale
+        header_y = layout_dict["start_y"] / scale
+        header_w = (layout_dict["right_col_x"] - layout_dict["left_col_x"]) / scale
+        header_h = ((num_rows - 1) * layout_dict["row_spacing"]) / scale
+
+    board_layout = BoardLayout(
+        width_mm=config.width / scale,
+        height_mm=config.height / scale,
+        header_x_mm=header_x,
+        header_y_mm=header_y,
+        header_width_mm=header_w,
+        header_height_mm=header_h,
+    )
+
     return Board(
         name=config.name,
         pins=pins,
@@ -243,7 +277,7 @@ def load_board_from_config(config_name: str) -> Board:
         width=config.width,
         height=config.height,
         header_offset=Point(config.header_offset.x, config.header_offset.y),
-        layout=None,  # Using SVG asset instead of programmatic rendering
+        layout=board_layout,
     )
 
 
