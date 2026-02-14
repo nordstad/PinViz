@@ -542,7 +542,7 @@ class SVGRenderer:
                     x = _parse_numeric_value(coords[0])
                     y = _parse_numeric_value(coords[1])
                     points_flat.extend([x, y])
-            return draw.Polygon(*points_flat, **attribs)
+            return draw.Lines(*points_flat, close=True, **attribs)
         return None
 
     def _handle_path(self, element, attribs, dwg, svg_ns, show_board_name=True):

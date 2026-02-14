@@ -1,34 +1,115 @@
 {
   "name": "Wemos D1 Mini",
   "svg_asset": "wemos_d1_mini_mod.svg",
-  "width": 130,
-  "height": 180,
+  "width": 72.6,
+  "height": 96.9,
   "header_offset": {
     "x": 0,
     "y": 0
   },
   "layout": {
-    "left_col_x": 8,
-    "right_col_x": 122,
-    "start_y": 52,
-    "row_spacing": 14.0
+    "left_col_x": 3.9,
+    "right_col_x": 68.7,
+    "start_y": 20.6,
+    "row_spacing": 7.2
   },
   "pins": [
-    {"physical_pin": 1, "name": "RST", "role": "GPIO", "gpio_bcm": null},
-    {"physical_pin": 2, "name": "TX", "role": "UART_TX", "gpio_bcm": 1},
-    {"physical_pin": 3, "name": "A0", "role": "GPIO", "gpio_bcm": null},
-    {"physical_pin": 4, "name": "RX", "role": "UART_RX", "gpio_bcm": 3},
-    {"physical_pin": 5, "name": "D0", "role": "GPIO", "gpio_bcm": 16},
-    {"physical_pin": 6, "name": "D1", "role": "I2C_SCL", "gpio_bcm": 5},
-    {"physical_pin": 7, "name": "D5", "role": "SPI_SCLK", "gpio_bcm": 14},
-    {"physical_pin": 8, "name": "D2", "role": "I2C_SDA", "gpio_bcm": 4},
-    {"physical_pin": 9, "name": "D6", "role": "SPI_MISO", "gpio_bcm": 12},
-    {"physical_pin": 10, "name": "D3", "role": "GPIO", "gpio_bcm": 0},
-    {"physical_pin": 11, "name": "D7", "role": "SPI_MOSI", "gpio_bcm": 13},
-    {"physical_pin": 12, "name": "D4", "role": "GPIO", "gpio_bcm": 2},
-    {"physical_pin": 13, "name": "D8", "role": "GPIO", "gpio_bcm": 15},
-    {"physical_pin": 14, "name": "GND", "role": "GND", "gpio_bcm": null},
-    {"physical_pin": 15, "name": "3V3", "role": "3V3", "gpio_bcm": null},
-    {"physical_pin": 16, "name": "5V", "role": "5V", "gpio_bcm": null}
-  ]
+    {
+      "physical_pin": 1,
+      "name": "RST",
+      "role": "GPIO",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 2,
+      "name": "TX",
+      "role": "UART_TX",
+      "gpio_bcm": 1
+    },
+    {
+      "physical_pin": 3,
+      "name": "A0",
+      "role": "GPIO",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 4,
+      "name": "RX",
+      "role": "UART_RX",
+      "gpio_bcm": 3
+    },
+    {
+      "physical_pin": 5,
+      "name": "D0",
+      "role": "GPIO",
+      "gpio_bcm": 16
+    },
+    {
+      "physical_pin": 6,
+      "name": "D1",
+      "role": "I2C_SCL",
+      "gpio_bcm": 5
+    },
+    {
+      "physical_pin": 7,
+      "name": "D5",
+      "role": "SPI_SCLK",
+      "gpio_bcm": 14
+    },
+    {
+      "physical_pin": 8,
+      "name": "D2",
+      "role": "I2C_SDA",
+      "gpio_bcm": 4
+    },
+    {
+      "physical_pin": 9,
+      "name": "D6",
+      "role": "SPI_MISO",
+      "gpio_bcm": 12
+    },
+    {
+      "physical_pin": 10,
+      "name": "D3",
+      "role": "GPIO",
+      "gpio_bcm": 0
+    },
+    {
+      "physical_pin": 11,
+      "name": "D7",
+      "role": "SPI_MOSI",
+      "gpio_bcm": 13
+    },
+    {
+      "physical_pin": 12,
+      "name": "D4",
+      "role": "GPIO",
+      "gpio_bcm": 2
+    },
+    {
+      "physical_pin": 13,
+      "name": "D8",
+      "role": "GPIO",
+      "gpio_bcm": 15
+    },
+    {
+      "physical_pin": 14,
+      "name": "GND",
+      "role": "GND",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 15,
+      "name": "3V3",
+      "role": "3V3",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 16,
+      "name": "5V",
+      "role": "5V",
+      "gpio_bcm": null
+    }
+  ],
+  "render_mode": "svg_asset"
 }

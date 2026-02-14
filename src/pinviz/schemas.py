@@ -882,6 +882,10 @@ class BoardConfigSchema(BaseModel):
     height: Annotated[float, Field(gt=0, description="Board height (legacy)")]
     header_offset: PointSchema
     layout: BoardLayoutConfigSchema
+    render_mode: Annotated[
+        str,
+        Field(default="programmatic", description="Render mode: 'programmatic' or 'svg_asset'"),
+    ] = "programmatic"
     pins: Annotated[
         list[BoardPinConfigSchema],
         Field(min_length=1, description="List of GPIO header pins"),

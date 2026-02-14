@@ -237,6 +237,20 @@ def load_board_from_config(config_name: str) -> Board:
     # Sort pins by physical pin number for consistency
     pins.sort(key=lambda p: p.number)
 
+    # Check render mode: svg_asset mode skips BoardLayout so the legacy SVG
+    # embedding path is used (board.layout == None triggers SVG asset rendering).
+    render_mode = getattr(config, "render_mode", "programmatic")
+    if render_mode == "svg_asset":
+        return Board(
+            name=config.name,
+            pins=pins,
+            svg_asset_path=_get_asset_path(config.svg_asset),
+            width=config.width,
+            height=config.height,
+            header_offset=Point(config.header_offset.x, config.header_offset.y),
+            layout=None,
+        )
+
     # Build BoardLayout from config dimensions for programmatic rendering.
     # Config width/height are in pixels; BoardLayout expects mm.
     # Use default scale_factor (3.0 px/mm) to convert.
