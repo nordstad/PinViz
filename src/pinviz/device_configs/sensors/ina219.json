@@ -1,0 +1,17 @@
+{
+  "id": "ina219",
+  "name": "INA219 Current Sensor",
+  "category": "sensors",
+  "description": "High-side current/voltage/power monitor with I2C interface",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"}
+  ],
+
+  "i2c_address": "0x40",
+  "datasheet_url": "https://www.ti.com/product/INA219",
+  "notes": "Measures voltage (0-26V), current (up to ±3.2A), and power. I2C address configurable via A0/A1 jumpers (0x40-0x4F). Useful for battery monitoring and power profiling."
+}

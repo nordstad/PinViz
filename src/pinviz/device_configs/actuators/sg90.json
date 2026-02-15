@@ -1,0 +1,22 @@
+{
+  "id": "sg90",
+  "name": "SG90 Servo Motor",
+  "category": "actuators",
+  "description": "Micro servo motor with 180° rotation, controlled by PWM signal",
+  "pins": [
+    {
+      "name": "GND",
+      "role": "GND"
+    },
+    {
+      "name": "VCC",
+      "role": "5V"
+    },
+    {
+      "name": "Signal",
+      "role": "PWM"
+    }
+  ],
+  "datasheet_url": "http://www.towerpro.com.tw/product/sg90-7/",
+  "notes": "Micro servo with 180° rotation. Control via PWM: 1ms pulse = 0°, 1.5ms = 90°, 2ms = 180°. Operating voltage: 4.8-6V. Torque: 1.8 kg/cm at 4.8V. Speed: 0.1s/60° at 4.8V. Use external power supply for multiple servos."
+}

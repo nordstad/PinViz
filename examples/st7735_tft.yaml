@@ -1,0 +1,44 @@
+title: "ST7735 1.8\" Color TFT Display"
+board: "raspberry_pi_5"
+show_legend: true
+
+devices:
+  - type: "st7735"
+    name: "ST7735"
+
+connections:
+  # Power
+  - board_pin: 1  # 3.3V
+    device: "ST7735"
+    device_pin: "VCC"
+
+  - board_pin: 6  # Ground
+    device: "ST7735"
+    device_pin: "GND"
+
+  # Backlight (connect to 3.3V or PWM for dimming)
+  - board_pin: 17  # 3.3V
+    device: "ST7735"
+    device_pin: "LED"
+
+  # SPI Communication
+  - board_pin: 19  # SPI MOSI (GPIO 10)
+    device: "ST7735"
+    device_pin: "MOSI"
+
+  - board_pin: 23  # SPI SCLK (GPIO 11)
+    device: "ST7735"
+    device_pin: "SCLK"
+
+  - board_pin: 24  # SPI CE0 (GPIO 8)
+    device: "ST7735"
+    device_pin: "CS"
+
+  # Control pins
+  - board_pin: 11  # GPIO 17 (Data/Command)
+    device: "ST7735"
+    device_pin: "DC"
+
+  - board_pin: 13  # GPIO 27 (Reset)
+    device: "ST7735"
+    device_pin: "RESET"

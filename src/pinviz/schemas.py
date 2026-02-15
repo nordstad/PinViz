@@ -52,6 +52,7 @@ VALID_BOARD_NAMES = {
 
 # Valid device types from the device registry
 VALID_DEVICE_TYPES = {
+    "ads1115",
     "all_left",
     "all_right",
     "bh1750",
@@ -59,20 +60,40 @@ VALID_DEVICE_TYPES = {
     "button",
     "dht22",
     "ds18b20",
+    "ds3231",
+    "esp8266",
+    "hc05",
     "hcsr04",
     "i2c_device",
     "i2c",  # Alias for i2c_device
+    "ina219",
     "ir_led_ring",
+    "l298n",
+    "lcd1602",
     "led",
+    "max30102",
+    "mcp2515",
     "mcp3008",
     "mixed_sides",
+    "mpu6050",
+    "mpu9250",
+    "nrf24l01",
     "pir",
+    "rc522",
     "relay_auto",
     "relay_module",
+    "sg90",
+    "sim800l",
     "single_pin_each_side",
     "spi_device",
     "spi",  # Alias for spi_device
     "ssd1306",
+    "st7735",
+    "sx1278",
+    "tb6612fng",
+    "tsl2561",
+    "uln2003",
+    "vl53l0x",
 }
 
 # Valid pin roles

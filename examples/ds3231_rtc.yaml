@@ -1,0 +1,31 @@
+title: "DS3231 Real-Time Clock"
+board: "raspberry_pi_5"
+show_legend: true
+
+devices:
+  - type: "ds3231"
+    name: "DS3231"
+
+connections:
+  # Power
+  - board_pin: 1  # 3.3V
+    device: "DS3231"
+    device_pin: "VCC"
+
+  - board_pin: 6  # Ground
+    device: "DS3231"
+    device_pin: "GND"
+
+  # I2C Communication
+  - board_pin: 3  # I2C SDA (GPIO 2)
+    device: "DS3231"
+    device_pin: "SDA"
+
+  - board_pin: 5  # I2C SCL (GPIO 3)
+    device: "DS3231"
+    device_pin: "SCL"
+
+  # Square wave output (optional - to GPIO)
+  - board_pin: 11  # GPIO 17
+    device: "DS3231"
+    device_pin: "SQW"

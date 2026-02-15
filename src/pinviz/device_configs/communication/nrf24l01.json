@@ -1,0 +1,20 @@
+{
+  "id": "nrf24l01",
+  "name": "nRF24L01+ Wireless Transceiver",
+  "category": "communication",
+  "description": "2.4GHz wireless transceiver module with SPI interface",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "CE", "role": "GPIO"},
+    {"name": "CSN", "role": "SPI_CE0"},
+    {"name": "SCK", "role": "SPI_SCLK"},
+    {"name": "MOSI", "role": "SPI_MOSI"},
+    {"name": "MISO", "role": "SPI_MISO"},
+    {"name": "IRQ", "role": "GPIO", "optional": true}
+  ],
+
+  "datasheet_url": "https://www.sparkfun.com/datasheets/Components/SMD/nRF24L01Pluss_Preliminary_Product_Specification_v1_0.pdf",
+  "notes": "2.4GHz transceiver with 250kbps-2Mbps data rates. Requires 3.3V power. CE pin controls TX/RX mode. CSN is chip select. IRQ indicates data ready/TX complete."
+}

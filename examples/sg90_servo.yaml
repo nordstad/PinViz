@@ -1,0 +1,22 @@
+title: "SG90 Servo Motor"
+board: "raspberry_pi_5"
+show_legend: true
+
+devices:
+  - type: "sg90"
+    name: "Servo"
+
+connections:
+  # Power (5V recommended for servo)
+  - board_pin: 2  # 5V
+    device: "Servo"
+    device_pin: "VCC"
+
+  - board_pin: 6  # Ground
+    device: "Servo"
+    device_pin: "GND"
+
+  # PWM Control Signal
+  - board_pin: 12  # GPIO 18 (PWM0)
+    device: "Servo"
+    device_pin: "Signal"

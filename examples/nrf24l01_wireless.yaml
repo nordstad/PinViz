@@ -1,0 +1,44 @@
+title: "nRF24L01+ Wireless Transceiver"
+board: "raspberry_pi_5"
+
+devices:
+  - type: "nrf24l01"
+    name: "nRF24L01+"
+
+connections:
+  # Power connections
+  - board_pin: 1    # 3.3V
+    device: "nRF24L01+"
+    device_pin: "VCC"
+
+  - board_pin: 6    # GND
+    device: "nRF24L01+"
+    device_pin: "GND"
+
+  # SPI connections
+  - board_pin: 23   # SPI0 SCLK (GPIO11)
+    device: "nRF24L01+"
+    device_pin: "SCK"
+
+  - board_pin: 19   # SPI0 MOSI (GPIO10)
+    device: "nRF24L01+"
+    device_pin: "MOSI"
+
+  - board_pin: 21   # SPI0 MISO (GPIO9)
+    device: "nRF24L01+"
+    device_pin: "MISO"
+
+  - board_pin: 24   # SPI0 CE0 (GPIO8)
+    device: "nRF24L01+"
+    device_pin: "CSN"
+
+  # Control pins
+  - board_pin: 22   # GPIO25
+    device: "nRF24L01+"
+    device_pin: "CE"
+
+  - board_pin: 18   # GPIO24 (optional IRQ)
+    device: "nRF24L01+"
+    device_pin: "IRQ"
+
+show_legend: true

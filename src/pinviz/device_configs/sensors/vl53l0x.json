@@ -1,0 +1,19 @@
+{
+  "id": "vl53l0x",
+  "name": "VL53L0X ToF Sensor",
+  "category": "sensors",
+  "description": "Time-of-Flight ranging sensor with I2C interface, measures distances up to 2 meters",
+
+  "pins": [
+    {"name": "VIN", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"},
+    {"name": "XSHUT", "role": "GPIO", "optional": true},
+    {"name": "GPIO1", "role": "GPIO", "optional": true}
+  ],
+
+  "i2c_address": "0x29",
+  "datasheet_url": "https://www.st.com/resource/en/datasheet/vl53l0x.pdf",
+  "notes": "Time-of-Flight (ToF) laser ranging sensor. Accurate distance measurements from 30mm to 2000mm. Independent of target reflectance. XSHUT pin for hardware standby. GPIO1 pin for interrupt output (measurement ready, threshold events)."
+}

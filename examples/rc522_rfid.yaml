@@ -1,0 +1,40 @@
+title: "RC522 RFID Reader"
+board: "raspberry_pi_5"
+
+devices:
+  - type: "rc522"
+    name: "RC522"
+
+connections:
+  # Power connections
+  - board_pin: 1    # 3.3V
+    device: "RC522"
+    device_pin: "VCC"
+
+  - board_pin: 6    # GND
+    device: "RC522"
+    device_pin: "GND"
+
+  # SPI connections
+  - board_pin: 23   # SPI0 SCLK (GPIO11)
+    device: "RC522"
+    device_pin: "SCK"
+
+  - board_pin: 19   # SPI0 MOSI (GPIO10)
+    device: "RC522"
+    device_pin: "MOSI"
+
+  - board_pin: 21   # SPI0 MISO (GPIO9)
+    device: "RC522"
+    device_pin: "MISO"
+
+  - board_pin: 24   # SPI0 CE0 (GPIO8)
+    device: "RC522"
+    device_pin: "SDA"
+
+  # Control pins
+  - board_pin: 22   # GPIO25
+    device: "RC522"
+    device_pin: "RST"
+
+show_legend: true

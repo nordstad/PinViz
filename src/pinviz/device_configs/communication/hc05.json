@@ -1,0 +1,18 @@
+{
+  "id": "hc05",
+  "name": "HC-05 Bluetooth Module",
+  "category": "communication",
+  "description": "Bluetooth 2.0 SPP module with UART interface",
+
+  "pins": [
+    {"name": "VCC", "role": "5V"},
+    {"name": "GND", "role": "GND"},
+    {"name": "TXD", "role": "UART_TX"},
+    {"name": "RXD", "role": "UART_RX"},
+    {"name": "KEY", "role": "GPIO", "optional": true},
+    {"name": "STATE", "role": "GPIO", "optional": true}
+  ],
+
+  "datasheet_url": "https://www.electronicwings.com/sensors-modules/bluetooth-module-hc-05-",
+  "notes": "Bluetooth 2.0 module with SPP profile. TXD/RXD are 3.3V logic. Use voltage divider on RXD to Pi. KEY pin enables AT command mode. STATE indicates connection status."
+}

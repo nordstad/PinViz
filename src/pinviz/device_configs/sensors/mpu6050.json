@@ -1,0 +1,19 @@
+{
+  "id": "mpu6050",
+  "name": "MPU6050 IMU",
+  "category": "sensors",
+  "description": "6-axis gyroscope and accelerometer I2C sensor",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"},
+    {"name": "AD0", "role": "GPIO", "optional": true},
+    {"name": "INT", "role": "GPIO", "optional": true}
+  ],
+
+  "i2c_address": "0x68",
+  "datasheet_url": "https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf",
+  "notes": "I2C address is 0x68 (AD0 low) or 0x69 (AD0 high). Measures 3-axis gyroscope and 3-axis accelerometer. INT pin provides motion detection interrupts."
+}

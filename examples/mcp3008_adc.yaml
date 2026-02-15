@@ -1,0 +1,42 @@
+title: "MCP3008 8-Channel ADC"
+board: "raspberry_pi_5"
+show_legend: true
+
+devices:
+  - type: "mcp3008"
+    name: "MCP3008"
+
+connections:
+  # Power
+  - board_pin: 17  # 3.3V
+    device: "MCP3008"
+    device_pin: "VDD"
+
+  - board_pin: 17  # 3.3V for reference
+    device: "MCP3008"
+    device_pin: "VREF"
+
+  - board_pin: 20  # Ground
+    device: "MCP3008"
+    device_pin: "AGND"
+
+  - board_pin: 20  # Ground
+    device: "MCP3008"
+    device_pin: "DGND"
+
+  # SPI Communication
+  - board_pin: 23  # SPI SCLK (GPIO 11)
+    device: "MCP3008"
+    device_pin: "CLK"
+
+  - board_pin: 21  # SPI MISO (GPIO 9)
+    device: "MCP3008"
+    device_pin: "DOUT"
+
+  - board_pin: 19  # SPI MOSI (GPIO 10)
+    device: "MCP3008"
+    device_pin: "DIN"
+
+  - board_pin: 24  # SPI CE0 (GPIO 8)
+    device: "MCP3008"
+    device_pin: "CS"

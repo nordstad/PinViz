@@ -1,0 +1,18 @@
+{
+  "id": "tsl2561",
+  "name": "TSL2561 Light Sensor",
+  "category": "sensors",
+  "description": "Digital light sensor with I2C interface, measures visible and infrared light",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"},
+    {"name": "INT", "role": "GPIO", "optional": true}
+  ],
+
+  "i2c_address": "0x39",
+  "datasheet_url": "https://ams.com/documents/20143/36005/TSL2561_DS000110_3-00.pdf",
+  "notes": "I2C address can be 0x29, 0x39, or 0x49 depending on ADDR pin. Dual photodiodes measure visible + IR and IR only. Dynamic range of 0.1 to 40,000 lux. Programmable interrupt thresholds."
+}
