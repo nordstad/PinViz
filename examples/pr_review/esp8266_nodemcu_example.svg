@@ -1,0 +1,1057 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="540.0" height="506.5" viewBox="0 0 540.0 506.5">
+<defs>
+</defs>
+<rect x="0" y="0" width="540.0" height="506.5" fill="white" />
+<text x="270.0" y="25" font-size="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">ESP8266 NodeMCU - LED Example</text>
+<g transform="translate(40.0, 130.0) scale(1.5)">
+<g transform="translate(72.0, 0) rotate(90)">
+<g>
+<path d="M131.751-0.001H5.004C2.24-0.001,0,2.265,0,5.062v61.874c0,2.795,2.24,5.062,5.004,5.062h126.747c2.765,0,5.007-2.268,5.007-5.062V5.061C136.758,2.265,134.516-0.001,131.751-0.001z M6.533,1.818c2.352,0,4.259,1.924,4.259,4.295c0,2.37-1.905,4.293-4.259,4.293c-2.355,0-4.261-1.922-4.261-4.293C2.272,3.743,4.178,1.818,6.533,1.818z M6.533,70.404c-2.355,0-4.261-1.92-4.261-4.291c0-2.373,1.905-4.299,4.261-4.299c2.352,0,4.259,1.926,4.259,4.299C10.792,68.484,8.885,70.404,6.533,70.404z M130.55,70.404c-2.354,0-4.26-1.92-4.26-4.291c0-2.373,1.905-4.299,4.26-4.299c2.353,0,4.259,1.926,4.259,4.299C134.809,68.484,132.902,70.404,130.55,70.404z M130.55,10.406c-2.354,0-4.26-1.923-4.26-4.293c0-2.37,1.905-4.294,4.26-4.294c2.353,0,4.259,1.923,4.259,4.294C134.809,8.482,132.902,10.406,130.55,10.406z" fill="#1E2C5C" />
+<rect x="16.258" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M14.4,66.428 L16.258,64.572 L16.258,71.998 L14.4,70.141 Z" fill="#454545" />
+<path d="M19.97,64.572 L21.829,66.428 L21.829,70.141 L19.97,71.998 Z" fill="#454545" />
+<rect x="17.458" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector42pin" gorn="0.1.4" />
+<rect x="23.458" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M21.6,66.428 L23.458,64.572 L23.458,71.998 L21.6,70.141 Z" fill="#454545" />
+<path d="M27.17,64.572 L29.029,66.428 L29.029,70.141 L27.17,71.998 Z" fill="#454545" />
+<rect x="24.658" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector41pin" gorn="0.1.8" />
+<rect x="30.658" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M28.8,66.428 L30.658,64.572 L30.658,71.998 L28.8,70.141 Z" fill="#454545" />
+<path d="M34.37,64.572 L36.229,66.428 L36.229,70.141 L34.37,71.998 Z" fill="#454545" />
+<rect x="31.858" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector40pin" gorn="0.1.12" />
+<rect x="37.858" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M36.0,66.428 L37.858,64.572 L37.858,71.998 L36.0,70.141 Z" fill="#454545" />
+<path d="M41.57,64.572 L43.429,66.428 L43.429,70.141 L41.57,71.998 Z" fill="#454545" />
+<rect x="39.059" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector39pin" gorn="0.1.16" />
+<rect x="45.058" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M43.2,66.428 L45.058,64.572 L45.058,71.998 L43.2,70.141 Z" fill="#454545" />
+<path d="M48.77,64.572 L50.629,66.428 L50.629,70.141 L48.77,71.998 Z" fill="#454545" />
+<rect x="46.258" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector38pin" gorn="0.1.20" />
+<rect x="52.258" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M50.4,66.428 L52.258,64.572 L52.258,71.998 L50.4,70.141 Z" fill="#454545" />
+<path d="M55.97,64.572 L57.829,66.428 L57.829,70.141 L55.97,71.998 Z" fill="#454545" />
+<rect x="53.458" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector37pin" gorn="0.1.24" />
+<rect x="59.458" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M57.601,66.428 L59.458,64.572 L59.458,71.998 L57.601,70.141 Z" fill="#454545" />
+<path d="M63.17,64.572 L65.029,66.428 L65.029,70.141 L63.17,71.998 Z" fill="#454545" />
+<rect x="60.659" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector36pin" gorn="0.1.28" />
+<rect x="66.659" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M64.801,66.428 L66.659,64.572 L66.659,71.998 L64.801,70.141 Z" fill="#454545" />
+<path d="M70.371,64.572 L72.229,66.428 L72.229,70.141 L70.371,71.998 Z" fill="#454545" />
+<rect x="67.859" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector35pin" gorn="0.1.32" />
+<rect x="73.857" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M72.0,66.428 L73.857,64.572 L73.857,71.998 L72.0,70.141 Z" fill="#454545" />
+<path d="M77.568,64.572 L79.43,66.428 L79.43,70.141 L77.568,71.998 Z" fill="#454545" />
+<rect x="75.059" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector34pin" gorn="0.1.36" />
+<rect x="81.059" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M79.2,66.428 L81.059,64.572 L81.059,71.998 L79.2,70.141 Z" fill="#454545" />
+<path d="M84.771,64.572 L86.63,66.428 L86.63,70.141 L84.771,71.998 Z" fill="#454545" />
+<rect x="82.259" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector33pin" gorn="0.1.40" />
+<rect x="88.259" y="64.572" width="3.714" height="7.428" fill="#454545" />
+<path d="M86.4,66.428 L88.259,64.572 L88.259,71.998 L86.4,70.141 Z" fill="#454545" />
+<path d="M91.971,64.572 L93.829,66.428 L93.829,70.141 L91.971,71.998 Z" fill="#454545" />
+<rect x="89.458" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector19pin" gorn="0.1.44" />
+<rect x="95.458" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M93.602,66.428 L95.458,64.572 L95.458,71.998 L93.602,70.141 Z" fill="#454545" />
+<path d="M99.171,64.572 L101.029,66.428 L101.029,70.141 L99.171,71.998 Z" fill="#454545" />
+<rect x="96.659" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector18pin" gorn="0.1.48" />
+<rect x="102.659" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M100.8,66.428 L102.659,64.572 L102.659,71.998 L100.8,70.141 Z" fill="#454545" />
+<path d="M106.37,64.572 L108.229,66.428 L108.229,70.141 L106.37,71.998 Z" fill="#454545" />
+<rect x="103.857" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector17pin" gorn="0.1.52" />
+<rect x="104.512" y="67.4473" width="0.002624" height="0.003336" fill="none" id="connector17terminal" stroke-width="0" gorn="0.1.53" stroke="none" />
+<rect x="109.857" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M108.001,66.428 L109.857,64.572 L109.857,71.998 L108.001,70.141 Z" fill="#454545" />
+<path d="M113.57,64.572 L115.43,66.428 L115.43,70.141 L113.57,71.998 Z" fill="#454545" />
+<rect x="111.061" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector16pin" gorn="0.1.57" />
+<rect x="117.061" y="64.572" width="3.713" height="7.428" fill="#454545" />
+<path d="M115.2,66.428 L117.061,64.572 L117.061,71.998 L115.2,70.141 Z" fill="#454545" />
+<path d="M120.771,64.572 L122.63,66.428 L122.63,70.141 L120.771,71.998 Z" fill="#454545" />
+<rect x="118.259" y="67.449" width="1.312" height="1.668" fill="#B68B2D" id="connector15pin" gorn="0.1.61" />
+<rect x="16.028" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M14.17,1.854 L16.028,-0.001 L16.028,7.425 L14.17,5.566 Z" fill="#454545" />
+<path d="M19.74,-0.001 L21.599,1.854 L21.599,5.566 L19.74,7.425 Z" fill="#454545" />
+<rect x="17.228" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector0pin" gorn="0.1.65" />
+<rect x="23.228" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M21.37,1.854 L23.228,-0.001 L23.228,7.425 L21.37,5.566 Z" fill="#454545" />
+<path d="M26.94,-0.001 L28.799,1.854 L28.799,5.566 L26.94,7.425 Z" fill="#454545" />
+<rect x="24.428" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector1pin" gorn="0.1.69" />
+<rect x="30.428" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M28.57,1.854 L30.428,-0.001 L30.428,7.425 L28.57,5.566 Z" fill="#454545" />
+<path d="M34.14,-0.001 L35.999,1.854 L35.999,5.566 L34.14,7.425 Z" fill="#454545" />
+<rect x="31.628" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector2pin" gorn="0.1.73" />
+<rect x="37.628" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M35.771,1.854 L37.628,-0.001 L37.628,7.425 L35.771,5.566 Z" fill="#454545" />
+<path d="M41.34,-0.001 L43.199,1.854 L43.199,5.566 L41.34,7.425 Z" fill="#454545" />
+<rect x="38.829" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector3pin" gorn="0.1.77" />
+<rect x="44.828" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M42.97,1.854 L44.828,-0.001 L44.828,7.425 L42.97,5.566 Z" fill="#454545" />
+<path d="M48.54,-0.001 L50.399,1.854 L50.399,5.566 L48.54,7.425 Z" fill="#454545" />
+<rect x="46.028" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector4pin" gorn="0.1.81" />
+<rect x="52.028" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M50.17,1.854 L52.028,-0.001 L52.028,7.425 L50.17,5.566 Z" fill="#454545" />
+<path d="M55.74,-0.001 L57.599,1.854 L57.599,5.566 L55.74,7.425 Z" fill="#454545" />
+<rect x="53.229" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector5pin" gorn="0.1.85" />
+<rect x="59.229" y="-0.001" width="3.712" height="7.427" fill="#454545" />
+<path d="M57.371,1.854 L59.229,-0.001 L59.229,7.425 L57.371,5.566 Z" fill="#454545" />
+<path d="M62.939,-0.001 L64.799,1.854 L64.799,5.566 L62.939,7.425 Z" fill="#454545" />
+<rect x="60.43" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector6pin" gorn="0.1.89" />
+<rect x="66.43" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M64.57,1.854 L66.43,-0.001 L66.43,7.425 L64.57,5.566 Z" fill="#454545" />
+<path d="M70.141,-0.001 L71.999,1.854 L71.999,5.566 L70.141,7.425 Z" fill="#454545" />
+<rect x="67.629" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector7pin" gorn="0.1.93" />
+<rect x="73.628" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M71.771,1.854 L73.628,-0.001 L73.628,7.425 L71.771,5.566 Z" fill="#454545" />
+<path d="M77.34,-0.001 L79.197,1.854 L79.197,5.566 L77.34,7.425 Z" fill="#454545" />
+<rect x="74.828" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector8pin" gorn="0.1.97" />
+<rect x="80.828" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M78.971,1.854 L80.828,-0.001 L80.828,7.425 L78.971,5.566 Z" fill="#454545" />
+<path d="M84.54,-0.001 L86.398,1.854 L86.398,5.566 L84.54,7.425 Z" fill="#454545" />
+<rect x="82.027" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector9pin" gorn="0.1.101" />
+<rect x="88.027" y="-0.001" width="3.714" height="7.427" fill="#454545" />
+<path d="M86.171,1.854 L88.027,-0.001 L88.027,7.425 L86.171,5.566 Z" fill="#454545" />
+<path d="M91.74,-0.001 L93.6,1.854 L93.6,5.566 L91.74,7.425 Z" fill="#454545" />
+<rect x="89.229" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector10pin" gorn="0.1.105" />
+<rect x="95.229" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M93.37,1.854 L95.229,-0.001 L95.229,7.425 L93.37,5.566 Z" fill="#454545" />
+<path d="M98.939,-0.001 L100.8,1.854 L100.8,5.566 L98.939,7.425 Z" fill="#454545" />
+<rect x="96.43" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector11pin" gorn="0.1.109" />
+<rect x="102.43" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M100.57,1.854 L102.43,-0.001 L102.43,7.425 L100.57,5.566 Z" fill="#454545" />
+<path d="M106.141,-0.001 L107.999,1.854 L107.999,5.566 L106.141,7.425 Z" fill="#454545" />
+<rect x="103.628" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector12pin" gorn="0.1.113" />
+<rect x="109.628" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M107.771,1.854 L109.628,-0.001 L109.628,7.425 L107.771,5.566 Z" fill="#454545" />
+<path d="M113.341,-0.001 L115.199,1.854 L115.199,5.566 L113.341,7.425 Z" fill="#454545" />
+<rect x="110.829" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector13pin" gorn="0.1.117" />
+<rect x="116.829" y="-0.001" width="3.713" height="7.427" fill="#454545" />
+<path d="M114.971,1.854 L116.829,-0.001 L116.829,7.425 L114.971,5.566 Z" fill="#454545" />
+<path d="M120.54,-0.001 L122.398,1.854 L122.398,5.566 L120.54,7.425 Z" fill="#454545" />
+<rect x="118.027" y="2.875" width="1.312" height="1.668" fill="#B68B2D" id="connector14pin" gorn="0.1.121" />
+<g transform="matrix(1 0 0 1 14.7988 10.7676)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">D0</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 22.0894 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">D1</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 29.3804 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">D2</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 36.6709 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">D3</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 43.9614 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">D4</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 50.3486 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">3V3</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 57.6392 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">GND</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 65.8335 10.7676)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">D5</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 73.124 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">D6</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 80.415 10.7676)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">D7</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 87.7061 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">D8</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 94.9961 10.7676)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">RX</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 102.2871 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">TX</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 108.6738 10.7676)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">GND</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 115.9648 10.7656)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">3V3</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 121.6289 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">Vin</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 114.4805 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">GND</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 107.332 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">RST</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 99.0996 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">EN</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 93.0352 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">3V3</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 85.8867 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">GND</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 78.7383 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">CLK</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 71.5898 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">SD0</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 64.4395 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">CMD</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 57.291 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">SD1</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 50.1426 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">SD2</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 42.9941 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">SD3</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 35.8457 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">RSV</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 28.6973 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">RSV</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(-1 0 0 -1 20.4648 60.9414)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">A0</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<rect x="124.133" y="25.099" width="17.333" height="21.833" fill="#BEC0C2" />
+<rect x="123.962" y="13.599" width="7.833" height="8.0" fill="#BEC0C2" />
+<circle cx="127.883" cy="17.683" r="2.75" fill="#231F20" />
+<rect x="123.962" y="50.398" width="7.833" height="8.0" fill="#BEC0C2" />
+<circle cx="127.883" cy="54.482" r="2.75" fill="#231F20" />
+<g transform="matrix(4.489659e-11 -1 1 4.489659e-11 122.7988 21.7637)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">FLASH</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(4.489659e-11 -1 1 4.489659e-11 122.7969 56.5977)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="2.5" fill="#FFFFFF" font-family="OCRA">RST</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<rect x="21.133" y="16.432" width="43.5" height="39.033" fill="#5F5758" />
+<rect x="2.362" y="18.767" width="1.312" height="11.834" fill="#B68B2D" />
+<rect x="2.468" y="29.434" width="11.099" height="1.168" fill="#B68B2D" />
+<rect x="2.468" y="33.238" width="11.099" height="1.168" fill="#B68B2D" />
+<rect x="2.468" y="37.043" width="11.099" height="1.168" fill="#B68B2D" />
+<rect x="2.468" y="40.848" width="11.099" height="1.168" fill="#B68B2D" />
+<rect x="2.468" y="44.654" width="11.099" height="1.168" fill="#B68B2D" />
+<rect x="2.468" y="48.457" width="11.099" height="1.168" fill="#B68B2D" />
+<rect x="12.255" y="29.434" width="1.312" height="4.973" fill="#B68B2D" />
+<rect x="2.468" y="34.043" width="1.312" height="4.168" fill="#B68B2D" />
+<rect x="12.255" y="37.043" width="1.312" height="4.973" fill="#B68B2D" />
+<rect x="2.468" y="40.848" width="1.312" height="4.976" fill="#B68B2D" />
+<rect x="12.255" y="44.654" width="1.312" height="4.973" fill="#B68B2D" />
+<rect x="2.599" y="48.41" width="1.312" height="5.992" fill="#B68B2D" />
+<rect x="3.018" y="53.234" width="18.582" height="1.168" fill="#B68B2D" />
+<rect x="16.495" y="30.018" width="1.312" height="24.312" fill="#B68B2D" />
+<rect x="107.766" y="25.857" width="9.209" height="8.264" fill="#524B4C" />
+<rect x="70.453" y="23.773" width="15.945" height="6.217" fill="#4D4648" />
+</g>
+<g transform="matrix(1 0 0 1 71.0703 41.374)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="7.0" fill="#FFFFFF" font-family="OCRA">NodeMCU </text>
+<text x="0.0" y="8.4" font-size="7.0" fill="#FFFFFF" font-family="OCRA">V1.0</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="matrix(1 0 0 1 70.083 18.7642)">
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<g>
+<text x="0.0" y="0.0" font-size="4.0" fill="#FFFFFF" font-family="OCRA">blog.squix.ch</text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<text x="94.0" y="361.5" font-size="14" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">ESP8266 NodeMCU</text>
+<circle cx="46.9" cy="156.25" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="45.55" y="157.75" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">1</text>
+<circle cx="143.64999999999998" cy="156.25" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="142.29999999999998" y="157.75" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">2</text>
+<circle cx="46.9" cy="167.05" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="45.55" y="168.55" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">3</text>
+<circle cx="143.64999999999998" cy="167.05" r="4.5" fill="#FF00FF" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="142.29999999999998" y="168.55" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#FFFFFF">4</text>
+<circle cx="46.9" cy="177.85" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="45.55" y="179.35" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">5</text>
+<circle cx="143.64999999999998" cy="177.85" r="4.5" fill="#FF00FF" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="142.29999999999998" y="179.35" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#FFFFFF">6</text>
+<circle cx="46.9" cy="188.65" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="45.55" y="190.15" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">7</text>
+<circle cx="143.64999999999998" cy="188.65" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="142.29999999999998" y="190.15" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">8</text>
+<circle cx="46.9" cy="199.45" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="45.55" y="200.95" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">9</text>
+<circle cx="143.64999999999998" cy="199.45" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="200.95" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">10</text>
+<circle cx="46.9" cy="210.25" r="4.5" fill="#0000FF" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="211.75" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#FFFFFF">11</text>
+<circle cx="143.64999999999998" cy="210.25" r="4.5" fill="#FFA500" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="211.75" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">12</text>
+<circle cx="46.9" cy="221.05" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="222.55" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">13</text>
+<circle cx="143.64999999999998" cy="221.05" r="4.5" fill="#D3D3D3" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="222.55" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">14</text>
+<circle cx="46.9" cy="231.85000000000002" r="4.5" fill="#0000FF" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="233.35000000000002" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#FFFFFF">15</text>
+<circle cx="143.64999999999998" cy="231.85000000000002" r="4.5" fill="#0000FF" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="233.35000000000002" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#FFFFFF">16</text>
+<circle cx="46.9" cy="242.64999999999998" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="244.14999999999998" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">17</text>
+<circle cx="143.64999999999998" cy="242.64999999999998" r="4.5" fill="#0000FF" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="244.14999999999998" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#FFFFFF">18</text>
+<circle cx="46.9" cy="253.45" r="4.5" fill="#D3D3D3" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="254.95" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">19</text>
+<circle cx="143.64999999999998" cy="253.45" r="4.5" fill="#0000FF" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="254.95" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#FFFFFF">20</text>
+<circle cx="46.9" cy="264.25" r="4.5" fill="#FFA500" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="265.75" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">21</text>
+<circle cx="143.64999999999998" cy="264.25" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="265.75" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">22</text>
+<circle cx="46.9" cy="275.05" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="276.55" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">23</text>
+<circle cx="143.64999999999998" cy="275.05" r="4.5" fill="#0000FF" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="276.55" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#FFFFFF">24</text>
+<circle cx="46.9" cy="285.85" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="287.35" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">25</text>
+<circle cx="143.64999999999998" cy="285.85" r="4.5" fill="#0000FF" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="287.35" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#FFFFFF">26</text>
+<circle cx="46.9" cy="296.65" r="4.5" fill="#D3D3D3" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="298.15" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">27</text>
+<circle cx="143.64999999999998" cy="296.65" r="4.5" fill="#D3D3D3" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="298.15" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">28</text>
+<circle cx="46.9" cy="307.45" r="4.5" fill="#FF0000" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="44.199999999999996" y="308.95" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">29</text>
+<circle cx="143.64999999999998" cy="307.45" r="4.5" fill="#FFA500" stroke="#333" stroke-width="0.5" opacity="0.95" />
+<text x="140.95" y="308.95" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">30</text>
+<path d="M 46.90,253.45 C 97.63,254.25 283.20,279.75 440.00,279.45" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 46.90,253.45 C 97.63,254.25 283.20,279.75 440.00,279.45" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<circle cx="46.9" cy="253.45" r="4.0" fill="white" />
+<circle cx="46.9" cy="253.45" r="3.0" fill="#000000" />
+<path d="M 46.90,177.85 C 88.03,146.02 260.80,197.51 440.00,209.45" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 46.90,177.85 C 88.03,146.02 260.80,197.51 440.00,209.45" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<circle cx="46.9" cy="177.85" r="4.0" fill="white" />
+<circle cx="46.9" cy="177.85" r="3.0" fill="#808080" />
+<path d="M 143.65,177.85 C 169.39,178.76 347.20,269.75 440.00,269.45" stroke="#2C2C2C" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 143.65,177.85 C 169.39,178.76 347.20,269.75 440.00,269.45" stroke="#00FF00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<circle cx="143.64999999999998" cy="177.85" r="4.0" fill="white" />
+<circle cx="143.64999999999998" cy="177.85" r="3.0" fill="#00FF00" />
+<path d="M 143.65,221.05 C 158.15,251.27 266.40,230.78 440.00,219.45" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 143.65,221.05 C 158.15,251.27 266.40,230.78 440.00,219.45" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<circle cx="143.64999999999998" cy="221.05" r="4.0" fill="white" />
+<circle cx="143.64999999999998" cy="221.05" r="3.0" fill="#000000" />
+<text x="475.0" y="194.45" font-size="12.0" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">LED1</text>
+<rect x="450.0" y="199.45" width="50.0" height="40.0" rx="5" ry="5" fill="#E74C3C" stroke="#333" stroke-width="2" opacity="0.9" />
+<text x="475.0" y="254.45" font-size="12.0" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">LED2</text>
+<rect x="450.0" y="259.45" width="50.0" height="40.0" rx="5" ry="5" fill="#E74C3C" stroke="#333" stroke-width="2" opacity="0.9" />
+<path d="M 440.00,279.45 L 457.00,279.45" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 440.00,279.45 L 457.00,279.45" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 440.00,209.45 L 457.00,209.45" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 440.00,209.45 L 457.00,209.45" stroke="#808080" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 440.00,269.45 L 457.00,269.45" stroke="#2C2C2C" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 440.00,269.45 L 457.00,269.45" stroke="#00FF00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 440.00,219.45 L 457.00,219.45" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 440.00,219.45 L 457.00,219.45" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<circle cx="455.0" cy="209.45" r="4.0" fill="white" opacity="0.8" />
+<circle cx="455.0" cy="209.45" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="204.45" width="12.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="465.0" y="211.95" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">+</text>
+<circle cx="455.0" cy="219.45" r="4.0" fill="white" opacity="0.8" />
+<circle cx="455.0" cy="219.45" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="214.45" width="12.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="465.0" y="221.95" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">-</text>
+<circle cx="455.0" cy="269.45" r="4.0" fill="white" opacity="0.8" />
+<circle cx="455.0" cy="269.45" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="264.45" width="12.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="465.0" y="271.95" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">+</text>
+<circle cx="455.0" cy="279.45" r="4.0" fill="white" opacity="0.8" />
+<circle cx="455.0" cy="279.45" r="3.0" fill="#FFD700" stroke="#333" stroke-width="1" opacity="1.0" />
+<rect x="461.0" y="274.45" width="12.5" height="10" rx="2" ry="2" fill="#000000" opacity="0.8" />
+<text x="465.0" y="281.95" font-size="7" text-anchor="start" font-family="Arial, sans-serif" fill="#FFFFFF">-</text>
+<rect x="40.0" y="371.5" width="460.0" height="95.0" fill="#F8F9FA" stroke="#333" stroke-width="1" rx="4" ry="4" />
+<rect x="40.0" y="371.5" width="460.0" height="35.0" fill="#E9ECEF" stroke="#333" stroke-width="1" />
+<text x="50.0" y="391.5" font-size="12" font-family="Arial, sans-serif" font-weight="bold" fill="#333">Device Specifications</text>
+<text x="50.0" y="426.5" font-size="9" font-family="Arial, sans-serif" font-weight="bold" fill="#333">LED1</text>
+<text x="160.0" y="426.5" font-size="9" font-family="Arial, sans-serif" fill="#666">Simple LED with anode/cathode pins</text>
+<path d="M40.0,436.5 L500.0,436.5" stroke="#DEE2E6" stroke-width="1" />
+<text x="50.0" y="456.5" font-size="9" font-family="Arial, sans-serif" font-weight="bold" fill="#333">LED2</text>
+<text x="160.0" y="456.5" font-size="9" font-family="Arial, sans-serif" fill="#666">Simple LED with anode/cathode pins</text>
+</svg>
