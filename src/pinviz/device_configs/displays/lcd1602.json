@@ -1,0 +1,27 @@
+{
+  "id": "lcd1602",
+  "name": "LCD1602 Character Display",
+  "category": "displays",
+  "description": "16x2 character LCD display with I2C interface (PCF8574 backpack)",
+  "pins": [
+    {
+      "name": "VCC",
+      "role": "5V"
+    },
+    {
+      "name": "GND",
+      "role": "GND"
+    },
+    {
+      "name": "SDA",
+      "role": "I2C_SDA"
+    },
+    {
+      "name": "SCL",
+      "role": "I2C_SCL"
+    }
+  ],
+  "i2c_address": "0x27",
+  "datasheet_url": "https://www.sparkfun.com/datasheets/LCD/HD44780.pdf",
+  "notes": "16 columns x 2 rows character LCD with I2C backpack (PCF8574). Common I2C addresses: 0x27 or 0x3F. 5V recommended for backlight brightness. HD44780 compatible. Supports custom characters and backlight control."
+}

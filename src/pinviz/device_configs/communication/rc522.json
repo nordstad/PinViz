@@ -1,0 +1,20 @@
+{
+  "id": "rc522",
+  "name": "RC522 RFID Reader",
+  "category": "communication",
+  "description": "13.56MHz RFID/NFC reader module with SPI interface",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCK", "role": "SPI_SCLK"},
+    {"name": "MOSI", "role": "SPI_MOSI"},
+    {"name": "MISO", "role": "SPI_MISO"},
+    {"name": "SDA", "role": "SPI_CE0"},
+    {"name": "RST", "role": "GPIO"},
+    {"name": "IRQ", "role": "GPIO", "optional": true}
+  ],
+
+  "datasheet_url": "https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf",
+  "notes": "RFID reader for Mifare cards. SDA pin is chip select (not I2C). RST for reset. IRQ indicates card detection. Supports ISO/IEC 14443 A/MIFARE."
+}

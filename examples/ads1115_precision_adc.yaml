@@ -1,0 +1,36 @@
+title: "ADS1115 16-bit Precision ADC"
+board: "raspberry_pi_5"
+show_legend: true
+
+devices:
+  - type: "ads1115"
+    name: "ADS1115"
+
+connections:
+  # Power
+  - board_pin: 1  # 3.3V
+    device: "ADS1115"
+    device_pin: "VDD"
+
+  - board_pin: 6  # Ground
+    device: "ADS1115"
+    device_pin: "GND"
+
+  # I2C Communication
+  - board_pin: 3  # I2C SDA (GPIO 2)
+    device: "ADS1115"
+    device_pin: "SDA"
+
+  - board_pin: 5  # I2C SCL (GPIO 3)
+    device: "ADS1115"
+    device_pin: "SCL"
+
+  # Address pin to ground for default address (0x48)
+  - board_pin: 9  # Ground
+    device: "ADS1115"
+    device_pin: "ADDR"
+
+  # Alert/Ready pin (optional - to GPIO)
+  - board_pin: 11  # GPIO 17
+    device: "ADS1115"
+    device_pin: "ALRT"

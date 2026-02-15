@@ -1,0 +1,83 @@
+{
+  "id": "tb6612fng",
+  "name": "TB6612FNG Motor Driver",
+  "category": "actuators",
+  "description": "Compact dual motor driver with PWM control and standby mode",
+  "pins": [
+    {
+      "name": "VM",
+      "role": "5V",
+      "side": "left"
+    },
+    {
+      "name": "VCC",
+      "role": "3V3",
+      "side": "left"
+    },
+    {
+      "name": "GND",
+      "role": "GND",
+      "side": "left"
+    },
+    {
+      "name": "STBY",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "PWMA",
+      "role": "PWM",
+      "side": "left"
+    },
+    {
+      "name": "AIN1",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "AIN2",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "BIN1",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "BIN2",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "PWMB",
+      "role": "PWM",
+      "side": "left"
+    },
+    {
+      "name": "A01",
+      "role": "5V",
+      "side": "right"
+    },
+    {
+      "name": "A02",
+      "role": "5V",
+      "side": "right"
+    },
+    {
+      "name": "B01",
+      "role": "5V",
+      "side": "right"
+    },
+    {
+      "name": "B02",
+      "role": "5V",
+      "side": "right"
+    }
+  ],
+  "display": {
+    "width": 90.0
+  },
+  "datasheet_url": "https://www.sparkfun.com/datasheets/Robotics/TB6612FNG.pdf",
+  "notes": "Dual motor driver. VM is motor voltage (4.5-13.5V), VCC is logic voltage (2.7-5.5V). STBY must be HIGH to enable (built-in pull-down). PWMA/PWMB control speed, AIN1-AIN2/BIN1-BIN2 control direction. Supports up to 1.2A per channel (3.2A peak). More efficient than L298N."
+}

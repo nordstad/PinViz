@@ -1,0 +1,80 @@
+{
+  "id": "l298n",
+  "name": "L298N Motor Driver",
+  "category": "actuators",
+  "description": "Dual H-bridge motor driver module for DC motors and stepper motors",
+  "pins": [
+    {
+      "name": "12V",
+      "role": "5V",
+      "side": "left",
+      "optional": true
+    },
+    {
+      "name": "GND",
+      "role": "GND",
+      "side": "left"
+    },
+    {
+      "name": "5V",
+      "role": "5V",
+      "side": "left",
+      "optional": true
+    },
+    {
+      "name": "ENA",
+      "role": "PWM",
+      "side": "left"
+    },
+    {
+      "name": "IN1",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "IN2",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "IN3",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "IN4",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "ENB",
+      "role": "PWM",
+      "side": "left"
+    },
+    {
+      "name": "OUT1",
+      "role": "5V",
+      "side": "right"
+    },
+    {
+      "name": "OUT2",
+      "role": "5V",
+      "side": "right"
+    },
+    {
+      "name": "OUT3",
+      "role": "5V",
+      "side": "right"
+    },
+    {
+      "name": "OUT4",
+      "role": "5V",
+      "side": "right"
+    }
+  ],
+  "display": {
+    "width": 100.0
+  },
+  "datasheet_url": "https://www.sparkfun.com/datasheets/Robotics/L298_H_Bridge.pdf",
+  "notes": "Dual H-bridge driver. ENA/ENB enable motor A/B (PWM for speed control). IN1-IN2 control motor A direction, IN3-IN4 control motor B. Supports 5-35V motors up to 2A per channel. OUT1-OUT2 connect to motor A, OUT3-OUT4 to motor B."
+}

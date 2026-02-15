@@ -1,0 +1,40 @@
+{
+  "id": "uln2003",
+  "name": "28BYJ-48 Stepper with ULN2003",
+  "category": "actuators",
+  "description": "5V stepper motor with ULN2003 Darlington driver board",
+  "pins": [
+    {
+      "name": "IN1",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "IN2",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "IN3",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "IN4",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "VCC",
+      "role": "5V",
+      "side": "left"
+    },
+    {
+      "name": "GND",
+      "role": "GND",
+      "side": "left"
+    }
+  ],
+  "datasheet_url": "https://components101.com/motors/28byj-48-stepper-motor",
+  "notes": "28BYJ-48 stepper motor with ULN2003 driver board. 5V unipolar stepper with 4 coils. Stride angle: 5.625°/64 (with gear reduction: 2048 steps/revolution). Sequence for full-step: IN1-IN3-IN2-IN4 (or use half-step for smoother motion). Max speed: ~15 RPM."
+}

@@ -1,0 +1,32 @@
+title: "SIM800L GSM Module"
+board: "raspberry_pi_5"
+
+devices:
+  - type: "sim800l"
+    name: "SIM800L"
+
+connections:
+  # Power connections (SIM800L needs 5V but check your specific module)
+  - board_pin: 2    # 5V
+    device: "SIM800L"
+    device_pin: "VCC"
+
+  - board_pin: 6    # GND
+    device: "SIM800L"
+    device_pin: "GND"
+
+  # UART connections (note: TXD->RX, RXD->TX crossover)
+  - board_pin: 8    # UART TX (GPIO14)
+    device: "SIM800L"
+    device_pin: "RXD"
+
+  - board_pin: 10   # UART RX (GPIO15)
+    device: "SIM800L"
+    device_pin: "TXD"
+
+  # Optional: Reset pin
+  - board_pin: 16   # GPIO23
+    device: "SIM800L"
+    device_pin: "RST"
+
+show_legend: true
