@@ -19,11 +19,11 @@ Wiring:
     OLED SCL    → GPIO22 (pin 27)
 """
 
-from machine import I2C, Pin
 from time import sleep
 
 import bme280
 import ssd1306
+from machine import I2C, Pin
 
 # Initialize I2C bus on ESP32 default pins
 i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=400000)
