@@ -123,7 +123,7 @@ def test_esp32_board_svg_scale():
     """Test ESP32 board loads with svg_scale attribute."""
     board = boards.load_board_from_config("esp32_devkit_v1")
     assert board is not None
-    assert hasattr(board, 'svg_scale')
+    assert hasattr(board, "svg_scale")
     assert board.svg_scale > 0
 
 
