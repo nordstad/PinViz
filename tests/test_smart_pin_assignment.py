@@ -132,7 +132,7 @@ def test_esp8266_board_dual_sided_layout():
     board = boards.load_board_from_config("esp8266_nodemcu")
 
     # Verify pins are on both sides (different X coordinates)
-    x_coords = set(pin.position.x for pin in board.pins if pin.position)
+    x_coords = {pin.position.x for pin in board.pins if pin.position}
     assert len(x_coords) >= 2, "Should have pins on both sides"
 
 
