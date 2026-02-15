@@ -22,6 +22,7 @@ Learn PinViz capabilities through these focused examples:
 | **Multi-Tier Connections** | [Motor Control](#motor-control-with-l293d) | Device-to-device chains, motor drivers, relay control |
 | **Wire Routing** | [Multi-Device Setup](#multi-device-setup) | Custom wire colors, complex routing |
 | **Pico Board** | [Pico LED](#pico-led-circuit) | Dual-sided board, horizontal pin layout |
+| **ESP32/ESP8266 Boards** | [ESP32 Weather](#esp32-weather-station) • [NodeMCU](#esp8266-nodemcu---led-example) • [D1 Mini](#wemos-d1-mini---oled-display) | IoT boards with WiFi, dual-sided headers |
 | **Specifications Table** | [Pico LEDs with Specs](#pico-multi-led-circuit-with-specifications) | Device specs, part numbers, --show-legend |
 
 ## Quick Start with Built-in Examples
@@ -36,6 +37,7 @@ pinviz list
 pinviz example bh1750 -o bh1750.svg
 pinviz example ir_led -o ir_led.svg
 pinviz example i2c_spi -o i2c_spi.svg
+pinviz example esp32_weather -o esp32_weather.svg
 
 # Include device specifications table (--show-legend flag)
 pinviz render examples/leds_with_specs.yaml --show-legend
@@ -1154,6 +1156,152 @@ You can use any of these board names in your configuration:
 - `raspberry_pi_pico`
 - `pico`
 - `rpi pico`
+
+---
+
+## ESP32/ESP8266 Board Examples
+
+PinViz supports popular ESP-based development boards for IoT projects. These boards feature WiFi/Bluetooth connectivity and are perfect for sensors, displays, and smart home applications.
+
+### ESP32 Weather Station
+
+Complete weather station with BME280 environmental sensor and SSD1306 OLED display on ESP32 DevKit V1. Demonstrates I2C bus sharing between multiple devices.
+
+**Configuration:** [`examples/esp32_weather_station.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/esp32_weather_station.yaml)
+
+```yaml
+title: "ESP32 Weather Station"
+board: "esp32_devkit_v1"
+
+devices:
+  - type: "bme280"
+    name: "BME280 Environmental Sensor"
+  - type: "ssd1306"
+    name: "SSD1306 OLED Display"
+
+connections:
+  # BME280 Sensor
+  - board_pin: 1   # 3V3
+    device: "BME280 Environmental Sensor"
+    device_pin: "VCC"
+  - board_pin: 3   # GND
+    device: "BME280 Environmental Sensor"
+    device_pin: "GND"
+  - board_pin: 21  # GPIO21 (I2C SDA)
+    device: "BME280 Environmental Sensor"
+    device_pin: "SDA"
+  - board_pin: 27  # GPIO22 (I2C SCL)
+    device: "BME280 Environmental Sensor"
+    device_pin: "SCL"
+
+  # SSD1306 OLED Display
+  - board_pin: 1   # 3V3 (shared)
+    device: "SSD1306 OLED Display"
+    device_pin: "VCC"
+  - board_pin: 4   # GND
+    device: "SSD1306 OLED Display"
+    device_pin: "GND"
+  - board_pin: 21  # GPIO21 (I2C SDA, shared)
+    device: "SSD1306 OLED Display"
+    device_pin: "SDA"
+  - board_pin: 27  # GPIO22 (I2C SCL, shared)
+    device: "SSD1306 OLED Display"
+    device_pin: "SCL"
+
+show_legend: true
+```
+
+**Generate:**
+
+```bash
+pinviz example esp32_weather -o esp32_weather.svg
+# Or from YAML file
+pinviz render examples/esp32_weather_station.yaml -o esp32_weather.svg
+```
+
+**Result:**
+
+![ESP32 Weather Station](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_weather_station.svg)
+
+**Key Features:**
+- ESP32 DevKit V1 with dual-sided 30-pin header
+- I2C bus sharing between BME280 and SSD1306
+- Temperature, humidity, pressure sensor + OLED display
+- Perfect for IoT weather monitoring projects
+- MicroPython/Arduino compatible
+
+**Board Aliases:**
+- `esp32_devkit_v1`
+- `esp32`
+- `esp32_devkit`
+
+---
+
+### ESP32 DevKit V1 - I2C Sensor
+
+Simple BME280 sensor connection on ESP32 DevKit V1 demonstrating I2C communication.
+
+**Result:**
+
+![ESP32 I2C Sensor](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_example.svg)
+
+**Key Features:**
+- ESP32 DevKit V1 board (30 pins, dual-sided)
+- I2C sensor connection (GPIO21=SDA, GPIO22=SCL)
+- 3.3V power and ground connections
+- Ideal for environmental monitoring
+
+---
+
+### ESP8266 NodeMCU - LED Example
+
+Multiple LEDs with smart GND pin distribution on ESP8266 NodeMCU.
+
+**Result:**
+
+![ESP8266 NodeMCU LEDs](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp8266_nodemcu_example.svg)
+
+**Key Features:**
+- ESP8266 NodeMCU board (30 pins, dual-sided)
+- Smart pin assignment using `board_pin_role: "GND"`
+- Automatic GND pin distribution across multiple LEDs
+- Demonstrates round-robin pin allocation
+
+**Board Aliases:**
+- `esp8266_nodemcu`
+- `esp8266`
+- `nodemcu`
+
+---
+
+### Wemos D1 Mini - OLED Display
+
+Compact I2C OLED display on Wemos D1 Mini demonstrating the smallest ESP8266 board.
+
+**Result:**
+
+![Wemos D1 Mini OLED](https://raw.githubusercontent.com/nordstad/PinViz/main/images/wemos_d1_mini_example.svg)
+
+**Key Features:**
+- Wemos D1 Mini compact board (16 pins, dual-sided)
+- I2C display connection (GPIO4=SDA, GPIO5=SCL)
+- Small form factor perfect for space-constrained projects
+- Battery-powered IoT applications
+
+**Board Aliases:**
+- `wemos_d1_mini`
+- `d1mini`
+- `wemos`
+
+---
+
+**ESP Board Pin Notes:**
+
+| Board | I2C Pins | SPI Pins | Power Pins |
+|-------|----------|----------|------------|
+| **ESP32 DevKit V1** | GPIO21 (SDA), GPIO22 (SCL) | GPIO18 (SCK), GPIO19 (MISO), GPIO23 (MOSI), GPIO5 (CS) | 3V3, 5V, GND (multiple) |
+| **ESP8266 NodeMCU** | GPIO4 (SDA), GPIO5 (SCL) | GPIO14 (SCK), GPIO12 (MISO), GPIO13 (MOSI), GPIO15 (CS) | 3V3, GND (4x) |
+| **Wemos D1 Mini** | GPIO4 (SDA), GPIO5 (SCL) | GPIO14 (SCK), GPIO12 (MISO), GPIO13 (MOSI), GPIO15 (CS) | 3V3, 5V, GND |
 
 ---
 
