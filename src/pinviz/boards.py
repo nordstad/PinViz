@@ -241,7 +241,7 @@ def load_board_from_config(config_name: str) -> Board:
     # embedding path is used (board.layout == None triggers SVG asset rendering).
     render_mode = getattr(config, "render_mode", "programmatic")
     if render_mode == "svg_asset":
-        svg_scale = getattr(config, 'svg_scale', 1.0)
+        svg_scale = getattr(config, "svg_scale", 1.0)
         # Scale pin positions to match SVG scaling
         if svg_scale != 1.0:
             for pin in pins:
@@ -272,9 +272,7 @@ def load_board_from_config(config_name: str) -> Board:
         header_x = layout_dict["top_header"]["start_x"] / scale
         header_y = layout_dict["top_header"]["y"] / scale
         header_w = (num_rows * layout_dict["top_header"]["pin_spacing"]) / scale
-        header_h = (
-            layout_dict["bottom_header"]["y"] - layout_dict["top_header"]["y"]
-        ) / scale
+        header_h = (layout_dict["bottom_header"]["y"] - layout_dict["top_header"]["y"]) / scale
     else:
         # Single-header boards (Pi, ESP) — vertical two-column layout
         header_x = layout_dict["left_col_x"] / scale

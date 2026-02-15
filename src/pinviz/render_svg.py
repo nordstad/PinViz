@@ -246,7 +246,7 @@ class SVGRenderer:
                 root = tree.getroot()
 
                 # Create a group for the board with proper positioning and scaling
-                svg_scale = getattr(board, 'svg_scale', 1.0)
+                svg_scale = getattr(board, "svg_scale", 1.0)
                 if svg_scale != 1.0:
                     board_group = draw.Group(transform=f"translate({x}, {y}) scale({svg_scale})")
                 else:
