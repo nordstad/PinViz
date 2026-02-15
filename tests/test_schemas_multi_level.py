@@ -28,17 +28,17 @@ class TestConnectionSourceSchema:
         assert source.board_pin is None
 
     def test_board_pin_range_validation(self):
-        """Test board pin must be between 1 and 40."""
+        """Test board pin must be between 1 and 50."""
         # Valid pins
         ConnectionSourceSchema(board_pin=1)
-        ConnectionSourceSchema(board_pin=40)
+        ConnectionSourceSchema(board_pin=50)
 
         # Invalid pins
         with pytest.raises(ValidationError):
             ConnectionSourceSchema(board_pin=0)
 
         with pytest.raises(ValidationError):
-            ConnectionSourceSchema(board_pin=41)
+            ConnectionSourceSchema(board_pin=51)
 
     def test_both_sources_invalid(self):
         """Test that specifying both board and device source is invalid."""

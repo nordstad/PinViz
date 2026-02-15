@@ -48,6 +48,17 @@ VALID_BOARD_NAMES = {
     "pi4",
     "rpi",
     "pico",
+    "esp32_devkit_v1",
+    "esp32",
+    "esp32dev",
+    "esp32_devkit",
+    "wemos_d1_mini",
+    "d1mini",
+    "d1_mini",
+    "wemos",
+    "esp8266_nodemcu",
+    "esp8266",
+    "nodemcu",
 }
 
 # Valid device types from the device registry
@@ -348,7 +359,7 @@ class ConnectionSourceSchema(BaseModel):
         >>> source = ConnectionSourceSchema(device="Regulator", device_pin="VOUT")
     """
 
-    board_pin: Annotated[int, Field(ge=1, le=40, description="Board pin number")] | None = None
+    board_pin: Annotated[int, Field(ge=1, le=50, description="Board pin number")] | None = None
     device: (
         Annotated[str, Field(min_length=1, max_length=100, description="Device name")] | None
     ) = None
@@ -459,7 +470,7 @@ class ConnectionSchema(BaseModel):
     to: ConnectionTargetSchema | None = None
 
     # Legacy format fields (backward compatibility)
-    board_pin: Annotated[int, Field(ge=1, le=40, description="Board pin number")] | None = None
+    board_pin: Annotated[int, Field(ge=1, le=50, description="Board pin number")] | None = None
     device: (
         Annotated[str, Field(min_length=1, max_length=100, description="Device name")] | None
     ) = None
@@ -892,6 +903,14 @@ class BoardConfigSchema(BaseModel):
     height: Annotated[float, Field(gt=0, description="Board height (legacy)")]
     header_offset: PointSchema
     layout: BoardLayoutConfigSchema
+    render_mode: Annotated[
+        str,
+        Field(default="programmatic", description="Render mode: 'programmatic' or 'svg_asset'"),
+    ] = "programmatic"
+    svg_scale: Annotated[
+        float,
+        Field(default=1.0, gt=0, le=10, description="Scale factor for SVG asset rendering"),
+    ] = 1.0
     pins: Annotated[
         list[BoardPinConfigSchema],
         Field(min_length=1, description="List of GPIO header pins"),

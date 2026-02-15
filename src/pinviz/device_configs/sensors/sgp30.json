@@ -1,0 +1,17 @@
+{
+  "id": "sgp30",
+  "name": "SGP30 TVOC/eCO2 Sensor",
+  "category": "sensors",
+  "description": "Multi-pixel gas sensor for indoor air quality (TVOC and eCO2)",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"}
+  ],
+
+  "i2c_address": "0x58",
+  "datasheet_url": "https://sensirion.com/media/documents/984E0DD5/61644B8B/Sensirion_Gas_Sensors_Datasheet_SGP30.pdf",
+  "notes": "Fixed I2C address 0x58. Measures TVOC (0-60000 ppb) and eCO2 (400-60000 ppm). Requires 15s initialization after power-on."
+}

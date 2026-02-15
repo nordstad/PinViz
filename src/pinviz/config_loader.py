@@ -281,6 +281,20 @@ class ConfigLoader:
             # Raspberry Pi Pico
             "raspberry_pi_pico": boards.raspberry_pi_pico,
             "pico": boards.raspberry_pi_pico,
+            # ESP32 DevKit V1
+            "esp32_devkit_v1": boards.esp32_devkit_v1,
+            "esp32": boards.esp32_devkit_v1,
+            "esp32dev": boards.esp32_devkit_v1,
+            "esp32_devkit": boards.esp32_devkit_v1,
+            # Wemos D1 Mini
+            "wemos_d1_mini": boards.wemos_d1_mini,
+            "d1mini": boards.wemos_d1_mini,
+            "d1_mini": boards.wemos_d1_mini,
+            "wemos": boards.wemos_d1_mini,
+            # ESP8266 NodeMCU
+            "esp8266_nodemcu": boards.esp8266_nodemcu,
+            "esp8266": boards.esp8266_nodemcu,
+            "nodemcu": boards.esp8266_nodemcu,
             # Aliases
             "raspberry_pi": boards.raspberry_pi,
             "rpi": boards.raspberry_pi,
