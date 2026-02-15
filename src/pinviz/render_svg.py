@@ -370,10 +370,10 @@ class SVGRenderer:
             PinRole.PCM_DOUT: "#00FF00",  # Green
         }
 
-        # Pin size configuration - scale with board's svg_scale
-        svg_scale = getattr(board, 'svg_scale', 1.0)
-        pin_radius = RENDER_CONSTANTS.PIN_RADIUS * svg_scale
-        pin_font_size_val = _parse_font_size(RENDER_CONSTANTS.PIN_FONT_SIZE) * svg_scale
+        # Pin size configuration - don't scale with svg_scale since positions are already scaled
+        # (svg_scale is used for board SVG transform but not for pin rendering)
+        pin_radius = RENDER_CONSTANTS.PIN_RADIUS  # Keep constant size
+        pin_font_size_val = _parse_font_size(RENDER_CONSTANTS.PIN_FONT_SIZE)
         pin_font_size = f"{pin_font_size_val}px"
 
         for pin in board.pins:
@@ -408,7 +408,7 @@ class SVGRenderer:
                     pin_text,
                     _parse_font_size(font_size),
                     pin_x + text_x_offset,
-                    pin_y + RENDER_CONSTANTS.PIN_TEXT_Y_OFFSET * svg_scale,
+                    pin_y + RENDER_CONSTANTS.PIN_TEXT_Y_OFFSET,
                     font_family="Arial, sans-serif",
                     font_weight="bold",
                     fill=text_color,
