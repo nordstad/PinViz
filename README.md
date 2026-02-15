@@ -14,9 +14,9 @@
   <a href="https://pepy.tech/projects/pinviz"><img src="https://static.pepy.tech/personalized-badge/pinviz?period=total&units=international_system&left_color=black&right_color=green&left_text=downloads" alt="PyPI Downloads"></a>
 </p>
 
-**Programmatically generate beautiful Raspberry Pi GPIO connection diagrams in SVG format.**
+**Programmatically generate beautiful GPIO connection diagrams for Raspberry Pi and ESP32/ESP8266 boards in SVG format.**
 
-PinViz makes it easy to create clear, professional wiring diagrams for your Raspberry Pi projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
+PinViz makes it easy to create clear, professional wiring diagrams for your microcontroller projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
 
 ## Example Diagram
 
@@ -32,7 +32,7 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - 🎨 **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - 🎯 **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
 - ⚡ **Inline Components**: Add resistors, capacitors, and diodes directly on wires
-- 🔌 **Built-in Templates**: Pre-configured boards (Raspberry Pi 4, 5 & Pico) and common devices
+- 🔌 **Built-in Templates**: Pre-configured boards (Raspberry Pi, ESP32, ESP8266) and common devices
 - 🐍 **Python API**: Create diagrams programmatically with Python code
 - 🤖 **MCP Server**: Generate diagrams from natural language with AI assistants
 - 🌙 **Dark Mode**: Built-in light and dark themes for better visibility
@@ -88,11 +88,14 @@ See [examples/bh1750_dark.yaml](examples/bh1750_dark.yaml) for a complete exampl
 
 ## Supported Boards
 
-| Board              | Aliases                            | GPIO Pins            | Description                                          |
-| ------------------ | ---------------------------------- | -------------------- | ---------------------------------------------------- |
-| Raspberry Pi 5     | `raspberry_pi_5`, `rpi5`, `rpi`    | 40-pin               | Latest Raspberry Pi with improved GPIO capabilities  |
-| Raspberry Pi 4     | `raspberry_pi_4`, `rpi4`           | 40-pin               | Popular Raspberry Pi model with full GPIO header     |
-| Raspberry Pi Pico  | `raspberry_pi_pico`, `pico`        | 40-pin (dual-sided)  | RP2040-based microcontroller board                   |
+| Board              | Aliases                                      | GPIO Pins            | Description                                          |
+| ------------------ | -------------------------------------------- | -------------------- | ---------------------------------------------------- |
+| Raspberry Pi 5     | `raspberry_pi_5`, `rpi5`, `rpi`              | 40-pin               | Latest Raspberry Pi with improved GPIO capabilities  |
+| Raspberry Pi 4     | `raspberry_pi_4`, `rpi4`                     | 40-pin               | Popular Raspberry Pi model with full GPIO header     |
+| Raspberry Pi Pico  | `raspberry_pi_pico`, `pico`                  | 40-pin (dual-sided)  | RP2040-based microcontroller board                   |
+| ESP32 DevKit V1    | `esp32_devkit_v1`, `esp32`, `esp32_devkit`   | 30-pin (dual-sided)  | ESP32 development board with WiFi/Bluetooth          |
+| ESP8266 NodeMCU    | `esp8266_nodemcu`, `esp8266`, `nodemcu`      | 30-pin (dual-sided)  | ESP8266 WiFi development board                       |
+| Wemos D1 Mini      | `wemos_d1_mini`, `d1mini`, `wemos`           | 16-pin (dual-sided)  | Compact ESP8266 development board                    |
 
 All boards include full pin definitions with GPIO numbers, I2C, SPI, UART, and PWM support.
 

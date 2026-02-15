@@ -13,9 +13,9 @@
   <a href="https://pepy.tech/projects/pinviz"><img src="https://static.pepy.tech/personalized-badge/pinviz?period=total&units=international_system&left_color=black&right_color=green&left_text=downloads" alt="PyPI Downloads"></a>
 </p>
 
-Programmatically generate beautiful Raspberry Pi GPIO connection diagrams in SVG format.
+Programmatically generate beautiful GPIO connection diagrams for Raspberry Pi and ESP32/ESP8266 boards in SVG format.
 
-PinViz makes it easy to create clear, professional wiring diagrams for your Raspberry Pi projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
+PinViz makes it easy to create clear, professional wiring diagrams for your microcontroller projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
 
 ## See It In Action
 
@@ -32,7 +32,7 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
 - **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
-- **Built-in Templates**: Pre-configured boards (Raspberry Pi 4, 5, Pico) and common devices (BH1750, IR LED rings, etc.)
+- **Built-in Templates**: Pre-configured boards (Raspberry Pi 4, 5, Pico, ESP32, ESP8266) and common devices (BH1750, IR LED rings, etc.)
 - **Hardware Validation**: Catch wiring mistakes before building (pin conflicts, voltage mismatches, I2C address collisions)
 - **MCP Server**: Generate diagrams using natural language with Claude (via Model Context Protocol)
 - **Structured Logging**: Professional logging with contextual information using structlog
