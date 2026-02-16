@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.16.0] - 2026-02-16
+
+### Added
+- feat: Add ESP32 and ESP8266 board support (https://github.com/nordstad/PinViz/pull/161)
+
+### Changed
+- feat: Complete inline components feature (v0.16.0) (https://github.com/nordstad/PinViz/pull/160)
+- feat: Expand device library to 40+ devices with communication modules (https://github.com/nordstad/PinViz/pull/162)
+- chore(deps-dev): bump hypothesis from 6.151.5 to 6.151.6 (https://github.com/nordstad/PinViz/pull/163)
+- chore(deps): bump pydantic-settings from 2.12.0 to 2.13.0 (https://github.com/nordstad/PinViz/pull/164)
+- chore(deps-dev): bump platformdirs from 4.5.1 to 4.9.2 (https://github.com/nordstad/PinViz/pull/165)
+- chore(deps): bump typer from 0.21.1 to 0.23.1 (https://github.com/nordstad/PinViz/pull/166)
+- chore(deps-dev): bump ruff from 0.15.0 to 0.15.1 (https://github.com/nordstad/PinViz/pull/167)
+
 ## [0.16.0] - 2026-02-16
 
 ### Added
@@ -655,7 +670,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md for AI assistant context
 - Example configurations and diagrams
 
-[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/nordstad/PinViz/compare/v0.16.0...v0.16.0
 [0.15.0]: https://github.com/nordstad/PinViz/compare/v0.15.0...v0.15.0
 [0.14.0]: https://github.com/nordstad/PinViz/compare/v0.14.0...v0.14.0
 [0.13.0]: https://github.com/nordstad/PinViz/compare/v0.13.0...v0.13.0
