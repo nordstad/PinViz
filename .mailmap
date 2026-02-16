@@ -1,5 +1,0 @@
-# Map contributor emails to their canonical GitHub identities
-# Format: Canonical Name <canonical@email> Local Name <local@email>
-
-# f2daz - ESP32/ESP8266 board support contributor
-f2daz <11297379+f2daz@users.noreply.github.com> Moltbot <felix@MacBook-Pro-2020.local>
