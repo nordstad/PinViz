@@ -7,17 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-02-16
+
 ### Added
+- **ESP32/ESP8266 board support** (#161)
+  - ESP32 DevKit V1 board with 30 GPIO pins (dual-sided layout)
+  - ESP8266 NodeMCU board with full GPIO pinout
+  - Wemos D1 Mini board for compact ESP8266 projects
+  - New `esp32_weather` built-in example with BME280 sensor and OLED display
+  - Smart pin assignment feature for automatic GND/VCC pin distribution
+  - Documentation and examples for all ESP boards
+  - SVG assets with proper pin alignment and scaling
+
 - **Complete inline components support** - All three component types now fully functional
   - ✅ Capacitor symbol rendering with parallel plates and value labels
   - ✅ Diode symbol rendering with anode/cathode orientation and triangle symbol
   - ✅ All component types (resistor, capacitor, diode) render correctly at any angle
   - 📝 New example configurations: `led_with_capacitor.yaml`, `relay_with_diode.yaml`, `all_components.yaml`
   - 📚 Comprehensive documentation added to `docs/guide/yaml-config.md`
-  - ✅ All 949 tests pass including new component rendering tests
+  - ✅ All tests pass including new component rendering tests
 
 ### Fixed
+- Validation warnings for I2C/SPI bus devices sharing power pins - now correctly recognizes that power sharing on shared buses is normal and expected
 - Inline components feature now matches README advertising (previously only resistors worked)
+- ESP board pin rendering with correct scaling and text alignment
 
 ## [0.15.0] - 2026-02-12
 
