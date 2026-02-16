@@ -48,6 +48,17 @@ VALID_BOARD_NAMES = {
     "pi4",
     "rpi",
     "pico",
+    "esp32_devkit_v1",
+    "esp32",
+    "esp32dev",
+    "esp32_devkit",
+    "wemos_d1_mini",
+    "d1mini",
+    "d1_mini",
+    "wemos",
+    "esp8266_nodemcu",
+    "esp8266",
+    "nodemcu",
 }
 
 # Valid device types from the device registry
@@ -330,25 +341,32 @@ class ConnectionSourceSchema(BaseModel):
     """Schema for connection source (board or device).
 
     A connection source is either:
-    - A board pin (specified by board_pin number)
+    - A board pin (specified by board_pin number OR board_pin_role)
     - A device pin (specified by device name and device_pin name)
 
     Exactly one source type must be specified.
 
     Attributes:
         board_pin: Physical pin number on board (1-40 for Raspberry Pi)
+        board_pin_role: Pin role for automatic pin assignment (e.g., "GND", "3V3")
         device: Device name for device source
         device_pin: Pin name on device for device source
 
     Examples:
-        >>> # Board source
+        >>> # Board source by pin number
         >>> source = ConnectionSourceSchema(board_pin=1)
+        >>>
+        >>> # Board source by role (auto-assigned)
+        >>> source = ConnectionSourceSchema(board_pin_role="GND")
         >>>
         >>> # Device source
         >>> source = ConnectionSourceSchema(device="Regulator", device_pin="VOUT")
     """
 
-    board_pin: Annotated[int, Field(ge=1, le=40, description="Board pin number")] | None = None
+    board_pin: Annotated[int, Field(ge=1, le=50, description="Board pin number")] | None = None
+    board_pin_role: Annotated[str, Field(description="Board pin role (e.g., GND, 3V3)")] | None = (
+        None
+    )
     device: (
         Annotated[str, Field(min_length=1, max_length=100, description="Device name")] | None
     ) = None
@@ -361,18 +379,23 @@ class ConnectionSourceSchema(BaseModel):
     @model_validator(mode="after")
     def validate_source(self) -> "ConnectionSourceSchema":
         """Ensure exactly one source type is specified."""
-        has_board = self.board_pin is not None
+        has_board_pin = self.board_pin is not None
+        has_board_role = self.board_pin_role is not None
         has_device = self.device is not None and self.device_pin is not None
 
-        if has_board and has_device:
+        # Count how many source types are specified
+        source_count = sum([has_board_pin, has_board_role, has_device])
+
+        if source_count > 1:
             raise ValueError(
-                "Connection source cannot specify both board_pin and device source. "
-                "Use either 'board_pin' or 'device' + 'device_pin'."
+                "Connection source cannot specify multiple types. "
+                "Use either 'board_pin', 'board_pin_role', or 'device' + 'device_pin'."
             )
 
-        if not has_board and not has_device:
+        if source_count == 0:
             raise ValueError(
-                "Connection source must specify either 'board_pin' or 'device' + 'device_pin'."
+                "Connection source must specify one of: 'board_pin', 'board_pin_role', "
+                "or 'device' + 'device_pin'."
             )
 
         # If device is specified, device_pin must also be specified
@@ -459,7 +482,10 @@ class ConnectionSchema(BaseModel):
     to: ConnectionTargetSchema | None = None
 
     # Legacy format fields (backward compatibility)
-    board_pin: Annotated[int, Field(ge=1, le=40, description="Board pin number")] | None = None
+    board_pin: Annotated[int, Field(ge=1, le=50, description="Board pin number")] | None = None
+    board_pin_role: Annotated[str, Field(description="Board pin role (e.g., GND, 3V3)")] | None = (
+        None
+    )
     device: (
         Annotated[str, Field(min_length=1, max_length=100, description="Device name")] | None
     ) = None
@@ -497,19 +523,24 @@ class ConnectionSchema(BaseModel):
         """Ensure exactly one format is used (new or legacy)."""
         has_new_format = self.from_ is not None and self.to is not None
         has_legacy_format = (
-            self.board_pin is not None and self.device is not None and self.device_pin is not None
+            (self.board_pin is not None or self.board_pin_role is not None)
+            and self.device is not None
+            and self.device_pin is not None
         )
 
-        if has_new_format and has_legacy_format:
+        # Check for conflicting legacy pin specifications
+        if self.board_pin is not None and self.board_pin_role is not None:
             raise ValueError(
-                "Cannot mix 'from/to' format with legacy 'board_pin/device/device_pin' format. "
-                "Use one format only."
+                "Cannot specify both 'board_pin' and 'board_pin_role'. Use one or the other."
             )
+
+        if has_new_format and has_legacy_format:
+            raise ValueError("Cannot mix 'from/to' format with legacy format. Use one format only.")
 
         if not has_new_format and not has_legacy_format:
             raise ValueError(
                 "Connection must use either 'from/to' format or "
-                "legacy 'board_pin/device/device_pin' format."
+                "legacy format with board pin and device."
             )
 
         return self
@@ -892,6 +923,14 @@ class BoardConfigSchema(BaseModel):
     height: Annotated[float, Field(gt=0, description="Board height (legacy)")]
     header_offset: PointSchema
     layout: BoardLayoutConfigSchema
+    render_mode: Annotated[
+        str,
+        Field(default="programmatic", description="Render mode: 'programmatic' or 'svg_asset'"),
+    ] = "programmatic"
+    svg_scale: Annotated[
+        float,
+        Field(default=1.0, gt=0, le=10, description="Scale factor for SVG asset rendering"),
+    ] = 1.0
     pins: Annotated[
         list[BoardPinConfigSchema],
         Field(min_length=1, description="List of GPIO header pins"),

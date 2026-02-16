@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 
+from .board_renderer import BoardLayout
 from .model import Board, HeaderPin, PinRole, Point
 from .schemas import BoardConfigSchema, validate_board_config
 
@@ -236,6 +237,58 @@ def load_board_from_config(config_name: str) -> Board:
     # Sort pins by physical pin number for consistency
     pins.sort(key=lambda p: p.number)
 
+    # Check render mode: svg_asset mode skips BoardLayout so the legacy SVG
+    # embedding path is used (board.layout == None triggers SVG asset rendering).
+    render_mode = getattr(config, "render_mode", "programmatic")
+    if render_mode == "svg_asset":
+        svg_scale = getattr(config, "svg_scale", 1.0)
+        # Scale pin positions to match SVG scaling
+        if svg_scale != 1.0:
+            for pin in pins:
+                if pin.position:
+                    pin.position = Point(pin.position.x * svg_scale, pin.position.y * svg_scale)
+        return Board(
+            name=config.name,
+            pins=pins,
+            svg_asset_path=_get_asset_path(config.svg_asset),
+            width=config.width * svg_scale,
+            height=config.height * svg_scale,
+            header_offset=Point(config.header_offset.x, config.header_offset.y),
+            layout=None,
+            svg_scale=svg_scale,
+        )
+
+    # Build BoardLayout from config dimensions for programmatic rendering.
+    # Config width/height are in pixels; BoardLayout expects mm.
+    # Use default scale_factor (3.0 px/mm) to convert.
+    from .board_renderer import BoardStyle
+
+    scale = BoardStyle().scale_factor
+    num_rows = len(config.pins) // 2  # pins per side
+
+    # Header position and size from layout parameters
+    if is_dual_header:
+        # Dual-header boards (like Pico) — compute from top/bottom header params
+        header_x = layout_dict["top_header"]["start_x"] / scale
+        header_y = layout_dict["top_header"]["y"] / scale
+        header_w = (num_rows * layout_dict["top_header"]["pin_spacing"]) / scale
+        header_h = (layout_dict["bottom_header"]["y"] - layout_dict["top_header"]["y"]) / scale
+    else:
+        # Single-header boards (Pi, ESP) — vertical two-column layout
+        header_x = layout_dict["left_col_x"] / scale
+        header_y = layout_dict["start_y"] / scale
+        header_w = (layout_dict["right_col_x"] - layout_dict["left_col_x"]) / scale
+        header_h = ((num_rows - 1) * layout_dict["row_spacing"]) / scale
+
+    board_layout = BoardLayout(
+        width_mm=config.width / scale,
+        height_mm=config.height / scale,
+        header_x_mm=header_x,
+        header_y_mm=header_y,
+        header_width_mm=header_w,
+        header_height_mm=header_h,
+    )
+
     return Board(
         name=config.name,
         pins=pins,
@@ -243,7 +296,7 @@ def load_board_from_config(config_name: str) -> Board:
         width=config.width,
         height=config.height,
         header_offset=Point(config.header_offset.x, config.header_offset.y),
-        layout=None,  # Using SVG asset instead of programmatic rendering
+        layout=board_layout,
     )
 
 
@@ -367,6 +420,72 @@ def raspberry_pi() -> Board:
     return raspberry_pi_5()
 
 
+def wemos_d1_mini() -> Board:
+    """
+    Create a Wemos D1 Mini board with 16-pin GPIO header.
+
+    The D1 Mini is a compact ESP8266-based board popular for small IoT projects.
+    It has 8 pins on each side (16 total) with D0-D8 pin naming convention.
+
+    Returns:
+        Board: Configured Wemos D1 Mini board with all pins positioned
+
+    Examples:
+        >>> board = wemos_d1_mini()
+        >>> print(board.name)
+        Wemos D1 Mini
+        >>> print(len(board.pins))
+        16
+    """
+    return load_board_from_config("wemos_d1_mini")
+
+
+def esp8266_nodemcu() -> Board:
+    """
+    Create an ESP8266 NodeMCU board with 30-pin GPIO header.
+
+    The NodeMCU is one of the most popular ESP8266 development boards
+    with built-in USB-to-serial and 30 pins in a dual-row layout.
+
+    Returns:
+        Board: Configured ESP8266 NodeMCU board with all pins positioned
+
+    Examples:
+        >>> board = esp8266_nodemcu()
+        >>> print(board.name)
+        ESP8266 NodeMCU
+        >>> print(len(board.pins))
+        30
+    """
+    return load_board_from_config("esp8266_nodemcu")
+
+
+def esp32_devkit_v1() -> Board:
+    """
+    Create an ESP32 DevKit V1 board with 30-pin GPIO header.
+
+    The ESP32 DevKit V1 is one of the most popular IoT development boards,
+    featuring Wi-Fi and Bluetooth connectivity. It has a dual-row vertical
+    pin layout with 15 pins on each side (30 total).
+
+    Pin layout (physical pin numbers):
+    Standard 2x15 header layout:
+    - Left column (odd pins): 1, 3, 5, ..., 29 (top to bottom)
+    - Right column (even pins): 2, 4, 6, ..., 30 (top to bottom)
+
+    Returns:
+        Board: Configured ESP32 DevKit V1 board with all pins positioned
+
+    Examples:
+        >>> board = esp32_devkit_v1()
+        >>> print(board.name)
+        ESP32 DevKit V1
+        >>> print(len(board.pins))
+        30
+    """
+    return load_board_from_config("esp32_devkit_v1")
+
+
 def get_available_boards() -> list[dict[str, str | list[str]]]:
     """
     Get a list of all available board configurations.
@@ -398,6 +517,9 @@ def get_available_boards() -> list[dict[str, str | list[str]]]:
         "raspberry_pi_5": ["rpi5", "rpi"],
         "raspberry_pi_4": ["rpi4", "pi4"],
         "raspberry_pi_pico": ["pico"],
+        "esp32_devkit_v1": ["esp32", "esp32dev", "esp32_devkit"],
+        "wemos_d1_mini": ["d1mini", "d1_mini", "wemos"],
+        "esp8266_nodemcu": ["esp8266", "nodemcu"],
     }
 
     boards_list = []

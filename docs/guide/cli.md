@@ -130,7 +130,7 @@ pinviz list
 
 This displays:
 
-- Available board templates (Raspberry Pi 4, Raspberry Pi 5)
+- Available board templates (Raspberry Pi, ESP32, ESP8266)
 - Available device templates
 - Available example diagrams
 
@@ -138,6 +138,10 @@ This displays:
 
 - `raspberry_pi_5` (aliases: `rpi5`) - Raspberry Pi 5 with 40-pin GPIO header
 - `raspberry_pi_4` (aliases: `rpi4`, `pi4`) - Raspberry Pi 4 Model B with 40-pin GPIO header
+- `raspberry_pi_pico` (aliases: `pico`) - Raspberry Pi Pico with dual-sided 40-pin header
+- `esp32_devkit_v1` (aliases: `esp32`, `esp32_devkit`) - ESP32 DevKit V1 with 30-pin dual-sided header
+- `esp8266_nodemcu` (aliases: `esp8266`, `nodemcu`) - ESP8266 NodeMCU with 30-pin dual-sided header
+- `wemos_d1_mini` (aliases: `d1mini`, `wemos`) - Wemos D1 Mini with 16-pin dual-sided header
 - `raspberry_pi` (aliases: `rpi`) - Default board (currently Raspberry Pi 5)
 
 ### Add Device (Interactive Wizard)

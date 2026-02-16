@@ -28,36 +28,36 @@ class TestConnectionSourceSchema:
         assert source.board_pin is None
 
     def test_board_pin_range_validation(self):
-        """Test board pin must be between 1 and 40."""
+        """Test board pin must be between 1 and 50."""
         # Valid pins
         ConnectionSourceSchema(board_pin=1)
-        ConnectionSourceSchema(board_pin=40)
+        ConnectionSourceSchema(board_pin=50)
 
         # Invalid pins
         with pytest.raises(ValidationError):
             ConnectionSourceSchema(board_pin=0)
 
         with pytest.raises(ValidationError):
-            ConnectionSourceSchema(board_pin=41)
+            ConnectionSourceSchema(board_pin=51)
 
     def test_both_sources_invalid(self):
         """Test that specifying both board and device source is invalid."""
-        with pytest.raises(ValidationError, match="both board_pin and device source"):
+        with pytest.raises(ValidationError, match="cannot specify multiple types"):
             ConnectionSourceSchema(board_pin=1, device="Reg", device_pin="OUT")
 
     def test_no_source_invalid(self):
         """Test that omitting both sources is invalid."""
-        with pytest.raises(ValidationError, match="must specify either"):
+        with pytest.raises(ValidationError, match="must specify one of"):
             ConnectionSourceSchema()
 
     def test_device_without_pin_invalid(self):
         """Test that device source requires device_pin."""
-        with pytest.raises(ValidationError, match="must specify either"):
+        with pytest.raises(ValidationError, match="must specify one of"):
             ConnectionSourceSchema(device="Regulator")
 
     def test_pin_without_device_invalid(self):
         """Test that device_pin requires device."""
-        with pytest.raises(ValidationError, match="must specify either"):
+        with pytest.raises(ValidationError, match="must specify one of"):
             ConnectionSourceSchema(device_pin="OUT")
 
 

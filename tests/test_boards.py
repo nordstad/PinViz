@@ -535,3 +535,181 @@ def test_raspberry_pi_pico_special_pins():
     assert adc_pin.name == "ADC_VREF"
     assert adc_pin.role == PinRole.GPIO
     assert adc_pin.gpio_bcm is None
+
+
+# ESP32 DevKit V1 Tests
+def test_esp32_devkit_v1_board_creation():
+    """Test creating an ESP32 DevKit V1 board."""
+    board = boards.load_board_from_config("esp32_devkit_v1")
+    assert board is not None
+    assert board.name == "ESP32 DevKit V1"
+
+
+def test_esp32_devkit_v1_has_30_pins():
+    """Test that ESP32 DevKit V1 has 30 GPIO pins."""
+    board = boards.load_board_from_config("esp32_devkit_v1")
+    assert len(board.pins) == 30
+
+
+def test_esp32_devkit_v1_power_pins():
+    """Test power pin roles on ESP32."""
+    board = boards.load_board_from_config("esp32_devkit_v1")
+
+    # 3V3 pin (1)
+    pin1 = board.get_pin_by_number(1)
+    assert pin1.role == PinRole.POWER_3V3
+
+    # 5V pin (2)
+    pin2 = board.get_pin_by_number(2)
+    assert pin2.role == PinRole.POWER_5V
+
+
+def test_esp32_devkit_v1_ground_pins():
+    """Test ground pin roles on ESP32."""
+    board = boards.load_board_from_config("esp32_devkit_v1")
+    ground_pins = [3, 4]  # GND pins
+    for pin_num in ground_pins:
+        pin = board.get_pin_by_number(pin_num)
+        assert pin.role == PinRole.GROUND, f"Pin {pin_num} should be GROUND"
+
+
+def test_esp32_devkit_v1_i2c_pins():
+    """Test I2C pin roles on ESP32."""
+    board = boards.load_board_from_config("esp32_devkit_v1")
+
+    # SDA on GPIO21 (pin 21)
+    sda_pin = board.get_pin_by_number(21)
+    assert sda_pin.role == PinRole.I2C_SDA
+    assert sda_pin.gpio_bcm == 21
+
+    # SCL on GPIO22 (pin 27)
+    scl_pin = board.get_pin_by_number(27)
+    assert scl_pin.role == PinRole.I2C_SCL
+    assert scl_pin.gpio_bcm == 22
+
+
+def test_esp32_devkit_v1_svg_asset_path():
+    """Test that SVG asset path is set for ESP32."""
+    board = boards.load_board_from_config("esp32_devkit_v1")
+    assert board.svg_asset_path is not None
+    assert "esp32_devkit_v1_mod.svg" in board.svg_asset_path
+
+
+# ESP8266 NodeMCU Tests
+def test_esp8266_nodemcu_board_creation():
+    """Test creating an ESP8266 NodeMCU board."""
+    board = boards.load_board_from_config("esp8266_nodemcu")
+    assert board is not None
+    assert board.name == "ESP8266 NodeMCU"
+
+
+def test_esp8266_nodemcu_has_30_pins():
+    """Test that ESP8266 NodeMCU has 30 GPIO pins."""
+    board = boards.load_board_from_config("esp8266_nodemcu")
+    assert len(board.pins) == 30
+
+
+def test_esp8266_nodemcu_power_pins():
+    """Test power pin roles on NodeMCU."""
+    board = boards.load_board_from_config("esp8266_nodemcu")
+
+    # 3V3 pins (12, 21, 30)
+    pin12 = board.get_pin_by_number(12)
+    pin21 = board.get_pin_by_number(21)
+    pin30 = board.get_pin_by_number(30)
+    assert pin12.role == PinRole.POWER_3V3
+    assert pin21.role == PinRole.POWER_3V3
+    assert pin30.role == PinRole.POWER_3V3
+
+    # 5V pin (29)
+    pin29 = board.get_pin_by_number(29)
+    assert pin29.role == PinRole.POWER_5V
+
+
+def test_esp8266_nodemcu_ground_pins():
+    """Test ground pin roles on NodeMCU."""
+    board = boards.load_board_from_config("esp8266_nodemcu")
+    ground_pins = [14, 19, 27, 28]  # GND pins
+    for pin_num in ground_pins:
+        pin = board.get_pin_by_number(pin_num)
+        assert pin.role == PinRole.GROUND, f"Pin {pin_num} should be GROUND"
+
+
+def test_esp8266_nodemcu_i2c_pins():
+    """Test I2C pin roles on NodeMCU."""
+    board = boards.load_board_from_config("esp8266_nodemcu")
+
+    # SCL on D1/GPIO5 (pin 4)
+    scl_pin = board.get_pin_by_number(4)
+    assert scl_pin.role == PinRole.I2C_SCL
+    assert scl_pin.gpio_bcm == 5
+
+    # SDA on D2/GPIO4 (pin 6)
+    sda_pin = board.get_pin_by_number(6)
+    assert sda_pin.role == PinRole.I2C_SDA
+    assert sda_pin.gpio_bcm == 4
+
+
+def test_esp8266_nodemcu_svg_asset_path():
+    """Test that SVG asset path is set for NodeMCU."""
+    board = boards.load_board_from_config("esp8266_nodemcu")
+    assert board.svg_asset_path is not None
+    assert "esp8266_nodemcu_mod.svg" in board.svg_asset_path
+
+
+# Wemos D1 Mini Tests
+def test_wemos_d1_mini_board_creation():
+    """Test creating a Wemos D1 Mini board."""
+    board = boards.load_board_from_config("wemos_d1_mini")
+    assert board is not None
+    assert board.name == "Wemos D1 Mini"
+
+
+def test_wemos_d1_mini_has_16_pins():
+    """Test that Wemos D1 Mini has 16 GPIO pins."""
+    board = boards.load_board_from_config("wemos_d1_mini")
+    assert len(board.pins) == 16
+
+
+def test_wemos_d1_mini_power_pins():
+    """Test power pin roles on D1 Mini."""
+    board = boards.load_board_from_config("wemos_d1_mini")
+
+    # 3V3 pin (15)
+    pin15 = board.get_pin_by_number(15)
+    assert pin15.role == PinRole.POWER_3V3
+
+    # 5V pin (16)
+    pin16 = board.get_pin_by_number(16)
+    assert pin16.role == PinRole.POWER_5V
+
+
+def test_wemos_d1_mini_ground_pins():
+    """Test ground pin roles on D1 Mini."""
+    board = boards.load_board_from_config("wemos_d1_mini")
+    ground_pins = [14]  # GND pin
+    for pin_num in ground_pins:
+        pin = board.get_pin_by_number(pin_num)
+        assert pin.role == PinRole.GROUND, f"Pin {pin_num} should be GROUND"
+
+
+def test_wemos_d1_mini_i2c_pins():
+    """Test I2C pin roles on D1 Mini."""
+    board = boards.load_board_from_config("wemos_d1_mini")
+
+    # SCL on D1/GPIO5 (pin 6)
+    scl_pin = board.get_pin_by_number(6)
+    assert scl_pin.role == PinRole.I2C_SCL
+    assert scl_pin.gpio_bcm == 5
+
+    # SDA on D2/GPIO4 (pin 8)
+    sda_pin = board.get_pin_by_number(8)
+    assert sda_pin.role == PinRole.I2C_SDA
+    assert sda_pin.gpio_bcm == 4
+
+
+def test_wemos_d1_mini_svg_asset_path():
+    """Test that SVG asset path is set for D1 Mini."""
+    board = boards.load_board_from_config("wemos_d1_mini")
+    assert board.svg_asset_path is not None
+    assert "wemos_d1_mini_mod.svg" in board.svg_asset_path

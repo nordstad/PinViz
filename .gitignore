@@ -34,6 +34,7 @@ htmlcov/
 # Note: images/ is NOT ignored - example diagrams should be committed
 out/
 /output/
+test_output/
 test_*.svg
 
 # Development tools

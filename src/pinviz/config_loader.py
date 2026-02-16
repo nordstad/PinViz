@@ -15,6 +15,7 @@ from .devices import get_registry
 from .errors import format_config_error
 from .logging_config import get_logger
 from .model import (
+    Board,
     Connection,
     Device,
     DevicePin,
@@ -31,6 +32,107 @@ log = get_logger(__name__)
 
 # Maximum config file size in bytes (10MB)
 MAX_CONFIG_FILE_SIZE = 10 * 1024 * 1024
+
+
+class PinAssigner:
+    """
+    Manages automatic pin assignment for role-based connections.
+
+    Distributes connections across multiple available pins of the same role
+    to avoid multiple wires on a single pin (better for soldering/connections).
+
+    Example:
+        >>> assigner = PinAssigner(board)
+        >>> # First GND connection gets pin 14
+        >>> pin1 = assigner.assign_pin("GND")
+        >>> # Second GND connection gets pin 19 (next available GND)
+        >>> pin2 = assigner.assign_pin("GND")
+    """
+
+    def __init__(self, board: Board) -> None:
+        """
+        Initialize pin assigner with a board.
+
+        Args:
+            board: Board object with pins to assign
+        """
+        self.board = board
+        # Track which pins have been assigned: role -> list of assigned pin numbers
+        self._role_assignment_index: dict[PinRole, int] = {}
+        # Build lookup: role -> list of available pin numbers
+        self._pins_by_role: dict[PinRole, list[int]] = {}
+
+        for pin in board.pins:
+            if pin.role not in self._pins_by_role:
+                self._pins_by_role[pin.role] = []
+            self._pins_by_role[pin.role].append(pin.number)
+
+        log.debug(
+            "pin_assigner_initialized",
+            board=board.name,
+            role_counts={role.value: len(pins) for role, pins in self._pins_by_role.items()},
+        )
+
+    def assign_pin(self, role: str | PinRole) -> int:
+        """
+        Assign next available pin of the specified role.
+
+        Uses round-robin distribution to spread connections across multiple
+        pins of the same role.
+
+        Args:
+            role: Pin role (e.g., "GND", "3V3") as string or PinRole enum
+
+        Returns:
+            Physical pin number
+
+        Raises:
+            ValueError: If no pins of the specified role are available
+        """
+        # Convert string to PinRole
+        if isinstance(role, str):
+            try:
+                pin_role = PinRole(role.upper())
+            except ValueError:
+                # Try without upper() in case it's already correct case
+                try:
+                    pin_role = PinRole(role)
+                except ValueError as e:
+                    raise ValueError(
+                        f"Invalid pin role '{role}'. Must be one of: "
+                        f"{', '.join(r.value for r in PinRole)}"
+                    ) from e
+        else:
+            pin_role = role
+
+        # Check if this role exists on the board
+        if pin_role not in self._pins_by_role:
+            available_roles = sorted(r.value for r in self._pins_by_role)
+            raise ValueError(
+                f"Board '{self.board.name}' has no pins with role '{pin_role.value}'. "
+                f"Available roles: {', '.join(available_roles)}"
+            )
+
+        available_pins = self._pins_by_role[pin_role]
+
+        # Get current index for this role (default to 0)
+        current_index = self._role_assignment_index.get(pin_role, 0)
+
+        # Round-robin: cycle through available pins
+        assigned_pin = available_pins[current_index % len(available_pins)]
+
+        # Update index for next assignment
+        self._role_assignment_index[pin_role] = current_index + 1
+
+        log.debug(
+            "pin_assigned",
+            role=pin_role.value,
+            assigned_pin=assigned_pin,
+            available_count=len(available_pins),
+            assignment_index=current_index + 1,
+        )
+
+        return assigned_pin
 
 
 class ConfigLoader:
@@ -192,13 +294,16 @@ class ConfigLoader:
                 device_type=dev_config.get("type", "custom"),
             )
 
-        # Load connections
+        # Load connections with smart pin assignment
         connection_configs = config.get("connections", [])
         connections = []
 
+        # Create pin assigner for automatic role-based pin distribution
+        pin_assigner = PinAssigner(board)
+
         log.debug("loading_connections", connection_count=len(connection_configs))
         for conn_config in connection_configs:
-            connection = self._load_connection(conn_config)
+            connection = self._load_connection(conn_config, pin_assigner)
             connections.append(connection)
 
         # Validate graph structure
@@ -281,6 +386,20 @@ class ConfigLoader:
             # Raspberry Pi Pico
             "raspberry_pi_pico": boards.raspberry_pi_pico,
             "pico": boards.raspberry_pi_pico,
+            # ESP32 DevKit V1
+            "esp32_devkit_v1": boards.esp32_devkit_v1,
+            "esp32": boards.esp32_devkit_v1,
+            "esp32dev": boards.esp32_devkit_v1,
+            "esp32_devkit": boards.esp32_devkit_v1,
+            # Wemos D1 Mini
+            "wemos_d1_mini": boards.wemos_d1_mini,
+            "d1mini": boards.wemos_d1_mini,
+            "d1_mini": boards.wemos_d1_mini,
+            "wemos": boards.wemos_d1_mini,
+            # ESP8266 NodeMCU
+            "esp8266_nodemcu": boards.esp8266_nodemcu,
+            "esp8266": boards.esp8266_nodemcu,
+            "nodemcu": boards.esp8266_nodemcu,
             # Aliases
             "raspberry_pi": boards.raspberry_pi,
             "rpi": boards.raspberry_pi,
@@ -588,10 +707,38 @@ class ConfigLoader:
                 )
                 log.warning("orphaned_device_detected", device_name=device.name)
 
+        # Check for multiple connections to the same board pin
+        board_pin_usage: dict[int, list[tuple[str, str]]] = {}
+        for conn in connections:
+            if conn.is_board_connection() and conn.board_pin is not None:
+                if conn.board_pin not in board_pin_usage:
+                    board_pin_usage[conn.board_pin] = []
+                board_pin_usage[conn.board_pin].append((conn.device_name, conn.device_pin_name))
+
+        for pin_num, connections_list in board_pin_usage.items():
+            if len(connections_list) > 1:
+                devices_str = ", ".join(f"{dev}:{pin}" for dev, pin in connections_list)
+                issues.append(
+                    ValidationIssue(
+                        level=ValidationLevel.WARNING,
+                        message=f"Multiple connections to board pin {pin_num}: {devices_str}",
+                        location=f"Board pin {pin_num}",
+                    )
+                )
+                log.warning(
+                    "multiple_connections_to_pin",
+                    board_pin=pin_num,
+                    connection_count=len(connections_list),
+                    connections=connections_list,
+                )
+
         log.debug(
             "graph_validation_completed",
             cycle_count=len([i for i in issues if "Cycle detected" in i.message]),
             orphaned_count=len([i for i in issues if "has no connections" in i.message]),
+            overloaded_pins=len(
+                [i for i in issues if "Multiple connections to board pin" in i.message]
+            ),
         )
 
         return issues
@@ -638,22 +785,35 @@ class ConfigLoader:
             # Add contextual suggestions based on warning type
             if "has no connections" in issue.message:
                 print("    💡 Suggestion: Connect device to board or remove it from configuration")
+            elif "Multiple connections to board pin" in issue.message:
+                print(
+                    "    💡 Suggestion: Use 'board_pin_role' instead of 'board_pin' to "
+                    "automatically distribute connections"
+                )
+                print("    Example: board_pin_role: 'GND' instead of board_pin: 14")
         print()
 
-    def _load_connection(self, config: dict[str, Any]) -> Connection:
+    def _load_connection(self, config: dict[str, Any], pin_assigner: PinAssigner) -> Connection:
         """
         Load a connection from configuration dictionary.
 
-        Supports both legacy and new connection formats:
+        Supports both legacy and new connection formats, with role-based pin assignment:
 
         Legacy format (board-to-device):
             {
-                "board_pin": 1,
+                "board_pin": 1,  # Explicit pin number
                 "device": "LED",
                 "device_pin": "VCC",
                 "color": "#FF0000",  # optional
                 "style": "mixed",  # optional
                 "components": [...]  # optional
+            }
+
+        Legacy format (board-to-device with role-based pin):
+            {
+                "board_pin_role": "GND",  # Automatic pin assignment
+                "device": "LED",
+                "device_pin": "Cathode",
             }
 
         New format (board-to-device):
@@ -663,6 +823,12 @@ class ConfigLoader:
                 "color": "#FF0000",  # optional
                 "style": "mixed",  # optional
                 "components": [...]  # optional
+            }
+
+        New format (board-to-device with role):
+            {
+                "from": {"board_pin_role": "GND"},
+                "to": {"device": "LED", "device_pin": "Cathode"},
             }
 
         New format (device-to-device):
@@ -676,33 +842,73 @@ class ConfigLoader:
 
         Args:
             config: Connection configuration dictionary
+            pin_assigner: PinAssigner for role-based pin resolution
 
         Returns:
             Connection object
 
         Examples:
-            >>> # Legacy format
+            >>> # Legacy format with explicit pin
             >>> config = {"board_pin": 11, "device": "LED", "device_pin": "Anode"}
-            >>> conn = loader._load_connection(config)
+            >>> conn = loader._load_connection(config, pin_assigner)
+            >>>
+            >>> # Legacy format with role-based pin
+            >>> config = {"board_pin_role": "GND", "device": "LED", "device_pin": "Cathode"}
+            >>> conn = loader._load_connection(config, pin_assigner)
             >>>
             >>> # New format (board source)
             >>> config = {
             ...     "from": {"board_pin": 1},
             ...     "to": {"device": "LED", "device_pin": "VCC"}
             ... }
-            >>> conn = loader._load_connection(config)
+            >>> conn = loader._load_connection(config, pin_assigner)
             >>>
             >>> # New format (device source)
             >>> config = {
             ...     "from": {"device": "Regulator", "device_pin": "VOUT"},
             ...     "to": {"device": "LED", "device_pin": "VCC"}
             ... }
-            >>> conn = loader._load_connection(config)
+            >>> conn = loader._load_connection(config, pin_assigner)
         """
         # Use ConnectionSchema to parse and validate the connection
         # This automatically supports both legacy and new formats
         schema = ConnectionSchema(**config)
-        return schema.to_connection()
+
+        # Resolve role-based pins to actual pin numbers
+        resolved_config = config.copy()
+
+        # Check legacy format
+        if schema.board_pin_role is not None:
+            assigned_pin = pin_assigner.assign_pin(schema.board_pin_role)
+            resolved_config["board_pin"] = assigned_pin
+            del resolved_config["board_pin_role"]
+            log.info(
+                "pin_role_resolved",
+                role=schema.board_pin_role,
+                assigned_pin=assigned_pin,
+                device=schema.device,
+                device_pin=schema.device_pin,
+            )
+
+        # Check new format
+        if schema.from_ is not None and schema.from_.board_pin_role is not None:
+            assigned_pin = pin_assigner.assign_pin(schema.from_.board_pin_role)
+            if "from" not in resolved_config:
+                resolved_config["from"] = {}
+            resolved_config["from"]["board_pin"] = assigned_pin
+            if "board_pin_role" in resolved_config["from"]:
+                del resolved_config["from"]["board_pin_role"]
+            log.info(
+                "pin_role_resolved",
+                role=schema.from_.board_pin_role,
+                assigned_pin=assigned_pin,
+                device=schema.to.device if schema.to else None,
+                device_pin=schema.to.device_pin if schema.to else None,
+            )
+
+        # Create new schema with resolved pins and convert to Connection
+        resolved_schema = ConnectionSchema(**resolved_config)
+        return resolved_schema.to_connection()
 
 
 def load_diagram(config_path: str | Path) -> Diagram:

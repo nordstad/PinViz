@@ -245,8 +245,12 @@ class SVGRenderer:
                 tree = ET.parse(board.svg_asset_path)
                 root = tree.getroot()
 
-                # Create a group for the board with proper positioning
-                board_group = draw.Group(transform=f"translate({x}, {y})")
+                # Create a group for the board with proper positioning and scaling
+                svg_scale = getattr(board, "svg_scale", 1.0)
+                if svg_scale != 1.0:
+                    board_group = draw.Group(transform=f"translate({x}, {y}) scale({svg_scale})")
+                else:
+                    board_group = draw.Group(transform=f"translate({x}, {y})")
 
                 # Inline the SVG content by parsing and recreating elements
                 self._inline_svg_elements(board_group, root, dwg, show_board_name)
@@ -366,9 +370,11 @@ class SVGRenderer:
             PinRole.PCM_DOUT: "#00FF00",  # Green
         }
 
-        # Pin size configuration
-        pin_radius = RENDER_CONSTANTS.PIN_RADIUS
-        pin_font_size = RENDER_CONSTANTS.PIN_FONT_SIZE
+        # Pin size configuration - don't scale with svg_scale since positions are already scaled
+        # (svg_scale is used for board SVG transform but not for pin rendering)
+        pin_radius = RENDER_CONSTANTS.PIN_RADIUS  # Keep constant size
+        pin_font_size_val = _parse_font_size(RENDER_CONSTANTS.PIN_FONT_SIZE)
+        pin_font_size = f"{pin_font_size_val}px"
 
         for pin in board.pins:
             pin_x = x + pin.position.x
@@ -394,13 +400,15 @@ class SVGRenderer:
             font_size = pin_font_size  # Scaled to fit in circle
             # Use appropriate text color based on background for readability
             text_color = "#FFFFFF" if bg_color in ["#0000FF", "#FF00FF"] else "#000000"
+            # Adjust x for text centering (compensate for renderer quirks)
+            pin_text = str(pin.number)
+            text_x_offset = -(_parse_font_size(font_size) * len(pin_text) * 0.3)
             dwg.append(
                 draw.Text(
-                    str(pin.number),
+                    pin_text,
                     _parse_font_size(font_size),
-                    pin_x,
+                    pin_x + text_x_offset,
                     pin_y + RENDER_CONSTANTS.PIN_TEXT_Y_OFFSET,
-                    text_anchor="middle",
                     font_family="Arial, sans-serif",
                     font_weight="bold",
                     fill=text_color,
@@ -542,7 +550,7 @@ class SVGRenderer:
                     x = _parse_numeric_value(coords[0])
                     y = _parse_numeric_value(coords[1])
                     points_flat.extend([x, y])
-            return draw.Polygon(*points_flat, **attribs)
+            return draw.Lines(*points_flat, close=True, **attribs)
         return None
 
     def _handle_path(self, element, attribs, dwg, svg_ns, show_board_name=True):
