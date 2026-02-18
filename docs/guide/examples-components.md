@@ -65,7 +65,12 @@ pinviz render examples/led_with_resistor.yaml -o led.svg
 
 ## LED with Decoupling Capacitor
 
-Capacitor on the power line for noise filtering.
+Capacitor on the 3.3V supply wire for noise filtering.
+
+> **Visualisation note:** PinViz renders inline (series) components only. A decoupling
+> capacitor should be placed in parallel between VCC and GND in a real circuit. The
+> example below shows the capacitor on a separate power-rail device's supply wire as a
+> visualisation aid — do not use this as an electrical design reference.
 
 **Configuration:** [`examples/led_with_capacitor.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/led_with_capacitor.yaml)
 
@@ -77,6 +82,18 @@ devices:
   - type: "led"
     color: "Blue"
     name: "Blue LED"
+
+  - name: "Power Rail"
+    pins:
+      - name: "VCC"
+        role: "3V3"
+        position: {x: 10, y: 20}
+      - name: "GND"
+        role: "GND"
+        position: {x: 10, y: 40}
+    width: 80
+    height: 60
+    color: "#888888"
 
 connections:
   - board_pin: 11  # GPIO17
@@ -93,15 +110,20 @@ connections:
     device_pin: "-"
     color: "#000000"
 
-  # 3.3V with decoupling capacitor — position 0.4 places it closer to the power source
+  # Decoupling capacitor shown on 3.3V supply wire — visualisation only
   - board_pin: 1  # 3.3V
-    device: "Blue LED"
-    device_pin: "+"
+    device: "Power Rail"
+    device_pin: "VCC"
     color: "#FF0000"
     components:
       - type: "capacitor"
         value: "100µF"
         position: 0.4
+
+  - board_pin: 9  # GND
+    device: "Power Rail"
+    device_pin: "GND"
+    color: "#000000"
 ```
 
 **Generate:**
@@ -118,7 +140,13 @@ pinviz render examples/led_with_capacitor.yaml -o led_capacitor.svg
 
 ## Relay with Flyback Diode
 
-Flyback diode protection against inductive voltage spikes on a 5V relay.
+Inline diode component rendering on a 5V relay circuit.
+
+> **Visualisation note:** PinViz renders inline (series) components only. A true flyback
+> diode must be placed in reverse-parallel across the relay coil (cathode to VCC, anode
+> to GND) to safely dissipate inductive kickback. The example below shows the diode
+> rendered inline on the VCC wire as a component visualisation demo — do not use this as
+> an electrical design reference.
 
 **Configuration:** [`examples/relay_with_diode.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/relay_with_diode.yaml)
 
@@ -173,13 +201,18 @@ pinviz render examples/relay_with_diode.yaml -o relay_diode.svg
 
 ![Relay with Diode](https://raw.githubusercontent.com/nordstad/PinViz/main/images/components/relay_with_diode.svg)
 
-**Key Features:** Diode rendered as triangle with cathode bar. Flyback protection for inductive loads.
+**Key Features:** Diode rendered as triangle with cathode bar. For real circuits, flyback diodes must be placed in reverse-parallel across the inductive load, not inline on the supply wire.
 
 ---
 
 ## All Component Types Showcase
 
-All three inline component types in a single circuit.
+All three inline component types in a single diagram.
+
+> **Visualisation note:** This example demonstrates PinViz's component rendering
+> capabilities, not a complete or electrically correct circuit design. Inline components
+> are rendered in series on a wire; parallel placement (e.g., a bulk capacitor across
+> VCC/GND, or a flyback diode across a motor) is not currently supported by PinViz.
 
 **Configuration:** [`examples/all_components.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/all_components.yaml)
 
@@ -221,7 +254,7 @@ connections:
         value: "330Ω"
         position: 0.6
 
-  # Motor driver power with bulk capacitor
+  # Motor driver power — capacitor shown inline on VCC wire (visualisation only)
   - board_pin: 4  # 5V
     device: "Motor Driver"
     device_pin: "VCC"
@@ -231,7 +264,7 @@ connections:
         value: "470µF"
         position: 0.4
 
-  # Motor driver input with flyback diode
+  # Motor driver control — diode shown inline on signal wire (visualisation only)
   - board_pin: 16  # GPIO23
     device: "Motor Driver"
     device_pin: "IN1"
@@ -256,8 +289,13 @@ pinviz render examples/all_components.yaml -o all_components.svg
 
 **Component Positioning Guide:**
 
+> These positions control where the component symbol appears along the wire (0.0 = board
+> end, 1.0 = device end). They are rendering hints only — PinViz inline components are
+> drawn in series on a wire and do not represent electrically correct placement for all
+> component types.
+
 | Component | Typical position | Use case |
-|-----------|-----------------|----------|
+| --------- | --------------- | -------- |
 | Resistor | 0.55–0.6 | Current limiting, pull-up/down |
-| Capacitor | 0.3–0.4 | Decoupling (closer to power source) |
-| Diode | 0.5 | Flyback protection (centred on wire) |
+| Capacitor | 0.3–0.4 | Supply wire visualisation (closer to power source) |
+| Diode | 0.5 | Inline diode symbol (centred on wire) |

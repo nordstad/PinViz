@@ -97,7 +97,7 @@ uv run mkdocs build --strict
 uv run python scripts/check_cli_docs.py
 
 # 3. Manually verify any board/device list pages match pinviz list output
-pinviz list
+uv run pinviz list
 ```
 
 Manual checks:
@@ -110,4 +110,5 @@ Manual checks:
 - [ ] Any new CLI commands or options are documented in `docs/guide/cli.md`
 
 The `check_cli_docs.py` script catches drift between `pinviz --help` and `cli.md`
-automatically. It exits 1 if any documented options are missing from the docs.
+automatically. It exits with status 1 if any CLI options are not documented in `cli.md`,
+or if options documented in `cli.md` no longer match the CLI.
