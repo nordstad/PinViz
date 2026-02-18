@@ -2,6 +2,12 @@
 
 Explore example diagrams and configurations to learn how to use PinViz.
 
+## Demo - ESP32 Weather Station
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/esp32_demo.gif" alt="PinViz ESP32 Demo" width="800">
+</p>
+
 ## Demo - Custom Device Creation
 
 <p align="center">

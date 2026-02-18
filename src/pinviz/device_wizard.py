@@ -233,13 +233,23 @@ def get_role_choices_for_pin(pin_name: str, detected_i2c: bool = False) -> list[
         # Add separator
         choices.append(Choice(title="─" * 40, value="separator", disabled=True))
 
-        # Add remaining roles (not already suggested)
-        choices.extend([c for c in PIN_ROLES if c.value not in suggested_roles])
+        # Add remaining roles (not already suggested).
+        # Create fresh Choice objects to avoid shortcut_key pollution: questionary
+        # mutates Choice.shortcut_key in-place during select rendering, so reusing
+        # the global PIN_ROLES objects across multiple select calls causes duplicate
+        # shortcut key errors on subsequent pins.
+        choices.extend(
+            [
+                Choice(title=c.title, value=c.value)
+                for c in PIN_ROLES
+                if c.value not in suggested_roles
+            ]
+        )
 
         return choices
 
-    # No suggestions, return original list
-    return list(PIN_ROLES)
+    # No suggestions — return fresh copies for the same reason
+    return [Choice(title=c.title, value=c.value) for c in PIN_ROLES]
 
 
 def validate_device_id(device_id: str) -> bool:
