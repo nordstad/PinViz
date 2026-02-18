@@ -84,3 +84,30 @@ uv run mkdocs serve
 # Build docs
 uv run mkdocs build
 ```
+
+## Docs Release Checklist
+
+Run these checks before publishing docs or cutting a release that includes documentation changes:
+
+```bash
+# 1. Build docs — confirms no broken nav or missing pages
+uv run mkdocs build --strict
+
+# 2. Check CLI docs are in sync with pinviz --help output
+uv run python scripts/check_cli_docs.py
+
+# 3. Manually verify any board/device list pages match pinviz list output
+pinviz list
+```
+
+Manual checks:
+
+- [ ] `docs/guide/cli.md` board list matches `pinviz list` output
+- [ ] `docs/guide/yaml-config.md` board list matches `pinviz list` output
+- [ ] `docs/troubleshooting.md` board alias table matches `pinviz list` output
+- [ ] `CHANGELOG.md` has an entry for any user-facing changes in this release
+- [ ] New features have corresponding docs pages added to `mkdocs.yml` nav
+- [ ] Any new CLI commands or options are documented in `docs/guide/cli.md`
+
+The `check_cli_docs.py` script catches drift between `pinviz --help` and `cli.md`
+automatically. It exits 1 if any documented options are missing from the docs.

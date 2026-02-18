@@ -312,9 +312,10 @@ Validate all device configuration files in the library:
 pinviz validate-devices [--strict]
 ```
 
-**Arguments:**
+**Options:**
 
 - `--strict` - Treat warnings as errors (exits with code 1)
+- `--json` - Output machine-readable JSON status
 
 **Examples:**
 
@@ -324,6 +325,9 @@ pinviz validate-devices
 
 # Strict mode - warnings cause failure (useful for CI/CD)
 pinviz validate-devices --strict
+
+# Machine-readable output
+pinviz validate-devices --json
 ```
 
 **Validation checks:**

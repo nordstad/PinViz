@@ -33,6 +33,8 @@ show_legend: true
 - `esp8266_nodemcu` (aliases: `esp8266`, `nodemcu`) - ESP8266 NodeMCU with 30-pin dual-sided header
 - `wemos_d1_mini` (aliases: `d1mini`, `wemos`) - Wemos D1 Mini with 16-pin dual-sided header
 
+Run `pinviz list` for the definitive, up-to-date list of supported boards and aliases.
+
 ## Built-in Device Types
 
 PinViz includes several pre-configured device templates that you can use in your YAML files.
