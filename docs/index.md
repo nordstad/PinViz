@@ -139,6 +139,13 @@ Generate the diagram:
 pinviz render my-diagram.yaml -o output.svg
 ```
 
+!!! note "What changed recently"
+    **v0.16.0** — ESP32/ESP8266 board support (ESP32 DevKit V1, NodeMCU, Wemos D1 Mini) and fully functional inline components (resistors, capacitors, diodes). Smart pin assignment (`board_pin_role`) for automatic GND/VCC distribution.
+
+    **v0.16.1** — Bug fix: `communication` device category now passes validation; duplicate `mcp3008.json` removed.
+
+    See the full [Changelog](changelog.md) for details.
+
 ## Next Steps
 
 - [Installation Guide](getting-started/installation.md) - Detailed installation instructions

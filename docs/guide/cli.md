@@ -18,6 +18,13 @@ Generate a diagram from a YAML or JSON configuration file:
 pinviz render CONFIG_FILE [OPTIONS]
 ```
 
+??? tip "`pinviz: command not found`?"
+    If you installed via `uv add` (library mode), prefix every command with `uv run`:
+    ```bash
+    uv run pinviz render my-diagram.yaml -o output.svg
+    ```
+    For a global `pinviz` command without the prefix, reinstall with `uv tool install pinviz`.
+
 **Arguments:**
 
 - `CONFIG_FILE` - Path to YAML or JSON configuration file
@@ -142,6 +149,18 @@ pinviz validate my-diagram.yaml --json
 - GPIO current limits (WARNING)
 - Invalid pins or devices (ERROR)
 
+??? warning "Common: duplicate GPIO pin error"
+    If you see `GPIO pin X is already assigned`, two connections reference the same physical board pin.
+    Check your `connections:` list for repeated `board_pin` values. Each physical pin can only
+    be used once — except I2C/SPI bus pins, which can be shared if all devices on the bus
+    are properly configured.
+
+    ```bash
+    pinviz validate my-diagram.yaml --show-graph
+    ```
+
+    The `--show-graph` flag renders the full connection graph, making duplicate paths easy to spot.
+
 See the [Validation Guide](../validation.md) for detailed information.
 
 ### List Templates
@@ -171,6 +190,23 @@ This displays:
 ### Add Device (Interactive Wizard)
 
 Launch an interactive wizard to create a new device configuration:
+
+??? warning "Device files are lost on upgrade when installed with `uv tool install` or `pipx`"
+    The wizard saves the JSON file inside the tool's isolated environment. When you run
+    `uv tool upgrade pinviz` or `pipx upgrade pinviz`, that environment is replaced and the
+    file is gone.
+
+    **Before upgrading:** copy the saved JSON to a safe location, then restore it afterwards:
+
+    ```bash
+    # Find where it was saved (path printed by the wizard)
+    cp ~/.local/share/uv/tools/pinviz/.../pinviz/device_configs/sensors/dht22.json ~/my-devices/
+
+    # After upgrade: restore it
+    cp ~/my-devices/dht22.json $(python -c "import pinviz, pathlib; print(pathlib.Path(pinviz.__file__).parent / 'device_configs/sensors/')")
+    ```
+
+    The safest long-term option is to [contribute the device](../development/contributing.md) so it ships with PinViz.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/add_device_demo.gif" alt="PinViz Add Device Wizard Demo" width="800">

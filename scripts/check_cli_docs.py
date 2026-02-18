@@ -63,9 +63,7 @@ def main() -> int:
     docs_text = docs_path.read_text()
 
     # Verify pinviz is available
-    probe = subprocess.run(
-        ["pinviz", "--version"], capture_output=True, text=True
-    )
+    probe = subprocess.run(["pinviz", "--version"], capture_output=True, text=True)
     if probe.returncode not in (0, 1):
         print(
             "ERROR: could not run 'pinviz'. Make sure pinviz is installed "
@@ -97,8 +95,7 @@ def main() -> int:
             for opt in missing_opts:
                 print(f"  pinviz {label:<22}  {opt}")
         print(
-            "\nFix: add the missing options to the relevant command section "
-            "in docs/guide/cli.md."
+            "\nFix: add the missing options to the relevant command section in docs/guide/cli.md."
         )
         return 1
 

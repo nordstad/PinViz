@@ -2,6 +2,17 @@
 
 PinViz requires Python 3.12 or later.
 
+## Choose Your Install Method
+
+| Method | Best for | Run pinviz as | Upgrade command |
+| --- | --- | --- | --- |
+| `uv tool install pinviz` | CLI-only use, global access | `pinviz ...` | `uv tool upgrade pinviz` |
+| `pipx install pinviz` | CLI-only use, no uv | `pinviz ...` | `pipx upgrade pinviz` |
+| `uv add pinviz` | Using PinViz as a library in a project | `uv run pinviz ...` | `uv add pinviz@latest` |
+| `pip install pinviz` | Simple library use, existing venv | `pinviz ...` (if venv active) | `pip install --upgrade pinviz` |
+
+**Not sure?** Use `uv tool install pinviz` — it gives you a global `pinviz` command without affecting any project environment.
+
 ## For CLI Usage (Recommended)
 
 Install as a standalone tool with global access to the CLI using [uv](https://docs.astral.sh/uv/):

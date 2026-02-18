@@ -2,6 +2,14 @@
 
 This guide will walk you through using PinViz, from generating built-in examples to creating your own custom diagrams.
 
+!!! example "Copy-paste path to your first diagram"
+    ```bash
+    uv tool install pinviz           # 1. Install
+    pinviz example bh1750 -o out.svg # 2. Generate a built-in example
+    open out.svg                     # 3. View (macOS) — or xdg-open on Linux
+    ```
+    That's it. Replace `open` with your preferred viewer; the SVG opens in any browser.
+
 ## Step 1: Try a Built-in Example
 
 The fastest way to get started is to generate one of the built-in examples:
