@@ -7,12 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
-## [0.16.1] - 2026-02-18
-
-### Added
-- fix: Add 'communication' category and remove duplicate mcp3008 config (https://github.com/nordstad/PinViz/pull/170)
-
 ## [0.16.1] - 2026-02-18
 
 ### Fixed
