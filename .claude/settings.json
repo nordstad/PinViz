@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport sys, json, os\ndata = json.load(sys.stdin)\nfp = data.get('tool_input', {}).get('file_path', '')\nif os.path.basename(fp) == 'uv.lock':\n    print('uv.lock must not be edited directly. Use: uv add <pkg>, uv remove <pkg>, or uv sync', file=sys.stderr)\n    sys.exit(2)\n\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport sys, json, subprocess, os\ndata = json.load(sys.stdin)\nfp = data.get('tool_input', {}).get('file_path', '')\ncwd = data.get('cwd', os.getcwd())\nif fp and fp.endswith('.py') and os.path.exists(fp):\n    subprocess.run(['uv', 'run', 'ruff', 'format', fp], cwd=cwd)\n    subprocess.run(['uv', 'run', 'ruff', 'check', '--fix', '--exit-zero', fp], cwd=cwd)\n\"",
+            "statusMessage": "Formatting with ruff..."
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport sys, json, subprocess, os\ndata = json.load(sys.stdin)\nfp = data.get('tool_input', {}).get('file_path', '')\ncwd = data.get('cwd', os.getcwd())\nif fp and 'device_configs' in fp and fp.endswith('.json'):\n    subprocess.run(['uv', 'run', 'pinviz', 'validate-devices', '--json'], cwd=cwd)\n\"",
+            "statusMessage": "Validating device configs..."
+          }
+        ]
+      }
+    ]
+  }
+}
