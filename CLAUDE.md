@@ -220,6 +220,27 @@ Built with **Typer** (type-hint CLI) and **Rich** (terminal output).
 **Features:** JSON output (`--json`), structured logging
 **Testing:** Use `typer.testing.CliRunner` for command tests
 
+## Claude Code Automations
+
+The `.claude/` directory is committed and shared. `settings.local.json` is gitignored (user-specific permissions only).
+
+### Hooks (`.claude/settings.json`)
+
+| Event | Trigger | Action |
+| ----- | ------- | ------ |
+| PostToolUse | Edit/Write on `*.py` | Auto-runs `ruff format` + `ruff check --fix` |
+| PostToolUse | Edit/Write on `device_configs/**/*.json` | Runs `pinviz validate-devices --json` |
+| PreToolUse | Edit/Write on `uv.lock` | Blocks the edit; directs to `uv add`/`uv sync` |
+
+### Skills
+
+- **`/validate-examples`** — mirrors the CI `verify-examples` job: validates + renders all configs in `examples/`, executes all `*_python.py` scripts, runs example-tagged tests
+- **`/release-prep`** — guided release workflow: pre-publish checks (tests, post-publish compat, ruff, build), bumps version in `pyproject.toml`, updates `CHANGELOG.md`, then prints the git tag commands without running them
+
+### Subagents
+
+- **`diagram-config-reviewer`** — invoked automatically when a diagram config (YAML/JSON) or device template (JSON) is created or modified; runs CLI validation, manual checks, and a dry render; reports `[ERROR]`/`[WARNING]`/`[INFO]` with a `PASS`/`WARN`/`FAIL` verdict
+
 ## Important Implementation Notes
 
 - **Pin numbers**: Physical pin numbers (1-40), not BCM GPIO numbers
@@ -227,7 +248,7 @@ Built with **Typer** (type-hint CLI) and **Rich** (terminal output).
 - **Layout mutability**: Layout engine mutates device positions; connections reference by name
 - **Asset location**: Board SVG assets in `src/pinviz/assets/` (packaged with module)
 - **Measurements**: All in SVG units (typically pixels)
-- **Code quality**: Always run `ruff format .` and `ruff check .` before committing
+- **Code quality**: `ruff format .` and `ruff check .` run automatically via hook on every Python edit
 - **Documentation**: Update mkdocs (in `docs/` dir) after changes
 - **Planning**: Save dev plans to `plans/` dir (not committed to git)
 - **Project cleanliness**: Keep root dir clean, essential files only
