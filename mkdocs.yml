@@ -79,6 +79,7 @@ nav:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
   - User Guide:
+      - Overview: guide/index.md
       - CLI Usage: guide/cli.md
       - YAML Configuration: guide/yaml-config.md
       - Python API: guide/python-api.md
@@ -87,6 +88,7 @@ nav:
       - Multi-Level Connections: multi-level-connections.md
       - Smart Pin Assignment: features/smart-pin-assignment.md
       - Examples: guide/examples.md
+      - Troubleshooting: troubleshooting.md
   - MCP Server:
       - Overview: mcp-server/index.md
       - Installation: mcp-server/installation.md
@@ -105,6 +107,7 @@ nav:
       - Contributing: development/contributing.md
       - Architecture: development/architecture.md
       - Dependency Management: development/dependency-management.md
+      - Changelog: changelog.md
 
 extra:
   analytics:

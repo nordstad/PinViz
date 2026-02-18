@@ -165,8 +165,10 @@ connections:
 
 ## Next Steps
 
-- Learn more about [CLI usage](../guide/cli.md)
-- Read the [YAML configuration guide](../guide/yaml-config.md)
-- Explore the [Python API guide](../guide/python-api.md)
-- Check out [more examples](../guide/examples.md)
-- Browse the [API reference](../api/index.md)
+- [CLI Usage](../guide/cli.md) — all commands and options
+- [YAML Configuration](../guide/yaml-config.md) — full config field reference
+- [Validation](../validation.md) — catch wiring mistakes before you build
+- [Multi-Level Connections](../multi-level-connections.md) — wire devices to other devices
+- [Smart Pin Assignment](../features/smart-pin-assignment.md) — auto-distribute GND and power pins
+- [Examples](../guide/examples.md) — complete examples by board and feature
+- [Troubleshooting](../troubleshooting.md) — fix common errors
