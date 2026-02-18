@@ -59,6 +59,16 @@ buses:
 **Key features:** Raspberry Pi 4 board, I2C and SPI protocols, multi-device
 setup
 
+### ESP32 DevKit V1 - Weather Station
+
+BME280 sensor and SSD1306 OLED display sharing the I2C bus, with smart pin
+assignment distributing ground connections automatically:
+
+![ESP32 Weather Station](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_weather_station.svg)
+
+**Key features:** ESP32 DevKit V1 board, dual I2C devices, smart GND pin
+distribution with `board_pin_role`
+
 ### Raspberry Pi Pico - LEDs with Specifications
 
 Three LEDs on Pico's dual-sided header with component specifications:
