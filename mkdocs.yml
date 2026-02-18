@@ -87,12 +87,19 @@ nav:
       - Validation: validation.md
       - Multi-Level Connections: multi-level-connections.md
       - Smart Pin Assignment: features/smart-pin-assignment.md
-      - Examples: guide/examples.md
+      - Examples:
+          - Index: guide/examples.md
+          - Raspberry Pi: guide/examples-raspberry-pi.md
+          - Inline Components: guide/examples-components.md
+          - Raspberry Pi Pico: guide/examples-pico.md
+          - ESP32 / ESP8266: guide/examples-esp.md
+          - Multi-Tier Connections: guide/examples-multi-tier.md
       - Troubleshooting: troubleshooting.md
   - MCP Server:
       - Overview: mcp-server/index.md
       - Installation: mcp-server/installation.md
       - Usage Guide: mcp-server/usage.md
+      - Tool Reference: mcp-server/mcp-tools.md
       - Contributing Devices: mcp-server/contributing.md
   - API Reference:
       - Overview: api/index.md
