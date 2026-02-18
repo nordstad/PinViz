@@ -998,7 +998,15 @@ def validate_board_config(config_dict: dict[str, Any]) -> BoardConfigSchema:
 
 
 # Valid device categories
-VALID_DEVICE_CATEGORIES = {"sensors", "leds", "displays", "actuators", "io", "generic"}
+VALID_DEVICE_CATEGORIES = {
+    "sensors",
+    "leds",
+    "displays",
+    "actuators",
+    "io",
+    "generic",
+    "communication",
+}
 
 
 class DeviceParameterSchema(BaseModel):
