@@ -72,6 +72,7 @@ pinviz example EXAMPLE_NAME [-o OUTPUT_FILE]
 - `bh1750` - BH1750 I2C light sensor
 - `ir_led` - IR LED ring module
 - `i2c_spi` - Multiple I2C and SPI devices
+- `esp32_weather` - ESP32 weather station with BME280 and OLED
 
 **Examples:**
 
@@ -147,6 +148,10 @@ This displays:
 ### Add Device (Interactive Wizard)
 
 Launch an interactive wizard to create a new device configuration:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/add_device_demo.gif" alt="PinViz Add Device Wizard Demo" width="800">
+</p>
 
 ```bash
 pinviz add-device
