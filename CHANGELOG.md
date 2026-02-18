@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 2026-02-18
+
+### Fixed
+- Add `communication` to `VALID_DEVICE_CATEGORIES` so devices using that category (esp8266, hc05, mcp2515, nrf24l01, rc522, sim800l, sx1278) pass validation (#170)
+- Remove duplicate `mcp3008.json` from `device_configs/io/` — the more complete `sensors/mcp3008.json` (with analog channels) is kept (#170)
+
 ## [0.16.0] - 2026-02-16
 
 ### Added
