@@ -10,12 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.16.1] - 2026-02-18
 
 ### Fixed
+
 - Add `communication` to `VALID_DEVICE_CATEGORIES` so devices using that category (esp8266, hc05, mcp2515, nrf24l01, rc522, sim800l, sx1278) pass validation (#170)
 - Remove duplicate `mcp3008.json` from `device_configs/io/` — the more complete `sensors/mcp3008.json` (with analog channels) is kept (#170)
 
 ## [0.16.0] - 2026-02-16
 
 ### Added
+
 - **ESP32/ESP8266 board support** (#161)
   - ESP32 DevKit V1 board with 30 GPIO pins (dual-sided layout)
   - ESP8266 NodeMCU board with full GPIO pinout
@@ -34,21 +36,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ✅ All tests pass including new component rendering tests
 
 ### Fixed
+
 - Validation warnings for I2C/SPI bus devices sharing power pins - now correctly recognizes that power sharing on shared buses is normal and expected
 - Inline components feature now matches README advertising (previously only resistors worked)
 - ESP board pin rendering with correct scaling and text alignment
 
 ### Contributors
+
 - Special thanks to [@f2daz](https://github.com/f2daz) for contributing the ESP32/ESP8266 board support (#161) - their first contribution to PinViz! 🎉
 
 ## [0.15.0] - 2026-02-12
 
-### Changed
-- feat: Phase 1 code review improvements (v0.15.0) (https://github.com/nordstad/PinViz/pull/159)
-
-## [0.15.0] - 2026-02-12
-
 ### Added
+
 - **Complexity checking and validation** (#Phase1.3)
   - New `--max-complexity` flag for `pinviz render` command
   - Enforces hard limit on connection count (useful for CI/CD pipelines)
@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Example: `pinviz render diagram.yaml --max-complexity 50`
 
 ### Improved
+
 - **Error messages now include examples and actionable fixes** (#Phase1.2)
   - All connection validation errors show example of correct usage
   - Configuration errors include fix suggestions
@@ -72,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New methods: `get_failed_configs()` and `get_health_status()`
 
 ### Changed
+
 - **Layout engine refactored into modular package** (#Phase1.1)
   - Split 1,666-line `layout.py` into 7 focused modules
   - New package structure: `layout/engine.py`, `layout/positioning.py`, `layout/routing.py`, etc.
@@ -80,15 +82,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All 911 tests passing
 
 ### Internal
+
 - Improved structured logging throughout
 - Better separation of concerns in layout system
 - Enhanced code quality and maintainability
-
-
-## [0.14.0] - 2026-02-12
-
-### Added
-- feat: add explicit pin side placement for device pins (https://github.com/nordstad/PinViz/pull/158)
 
 ## [0.14.0] - 2026-02-12
 
@@ -110,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.13.0] - 2026-02-11
 
 ### Added
+
 - Named color support for devices and connections - can now use color names like "red", "green", "blue" in addition to hex codes (#155, #156)
   - 15 named colors available: red, green, blue, yellow, orange, purple, black, white, gray, brown, pink, cyan, magenta, lime, turquoise
   - Color names are case-insensitive
@@ -120,6 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Code quality score: 10/10 (comprehensive code review passed with improvements)
 
 ### Changed
+
 - chore(deps): bump cryptography from 46.0.3 to 46.0.5 (#154)
 - Schema validation now accepts both named colors and hex codes for device and connection colors
 - Color resolution utility with robust error handling and fallback behavior
@@ -128,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.12.1] - 2026-02-09
 
 ### Changed
+
 - chore(deps): bump rich from 14.2.0 to 14.3.2 (#144, #148)
 - chore(deps): bump python-multipart from 0.0.20 to 0.0.22 (#147)
 - chore(deps): bump mcp from 1.25.0 to 1.26.0 (#145)
@@ -137,19 +137,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(deps-dev): update uv-build requirement (#151)
 
 ### Fixed
+
 - fix: update enums to use StrEnum for ruff 0.15.0 compatibility (#150)
 
 ## [0.12.0] - 2026-01-25
 
 ### Added
-- feat: Add dark mode support for diagrams (https://github.com/nordstad/PinViz/pull/141)
 
-### Fixed
-- fix: Consistent device pin spacing across all devices (https://github.com/nordstad/PinViz/pull/140)
-
-## [0.12.0] - 2026-01-25
-
-### Added
 - feat: Dark mode support for diagrams (https://github.com/nordstad/PinViz/pull/141)
   - New theme system with LIGHT and DARK color schemes
   - Dark canvas background (#1E1E1E) optimized for dark UIs
@@ -166,12 +160,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.2] - 2026-01-25
 
-### Changed
-- feat: Dynamic halo color for light-colored wires (https://github.com/nordstad/PinViz/pull/139)
-
-## [0.11.2] - 2026-01-25
-
 ### Added
+
 - feat: Dynamic halo color for light-colored wires (https://github.com/nordstad/PinViz/pull/139)
   - Automatic visibility detection using WCAG 2.0 luminance calculation
   - Light wires (luminance > 0.7) get dark gray halos for visibility
@@ -183,15 +173,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.11.1] - 2026-01-25
 
 ### Changed
+
 - chore(deps-dev): bump hypothesis from 6.150.0 to 6.150.2 (https://github.com/nordstad/PinViz/pull/136)
 - chore(deps-dev): bump ruff from 0.14.11 to 0.14.13 (https://github.com/nordstad/PinViz/pull/137)
 
 ### Fixed
+
 - fix: correct IR LED Ring pin name from CTRL to EN (https://github.com/nordstad/PinViz/pull/138)
 
 ## [0.11.0] - 2026-01-18
 
 ### Added
+
 - feat: Add ConnectionGraph utility class for topology analysis (#72) (https://github.com/nordstad/PinViz/pull/91)
 - [Phase 1.5] Add Phase 1 Integration Tests (https://github.com/nordstad/PinViz/pull/94)
 - fix: Sync MCP module version with package metadata and add Codecov badge (https://github.com/nordstad/PinViz/pull/95)
@@ -210,6 +203,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: add bounds checking to wire conflict resolution (fixes #119) (https://github.com/nordstad/PinViz/pull/129)
 
 ### Changed
+
 - feat: Extend Connection model for device-to-device connections (https://github.com/nordstad/PinViz/pull/90)
 - chore(deps): bump urllib3 from 2.5.0 to 2.6.3 (https://github.com/nordstad/PinViz/pull/92)
 - [Phase 1.3] Pin Compatibility Matrix and Validation (https://github.com/nordstad/PinViz/pull/93)
@@ -219,6 +213,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Phase 4.1] Comprehensive Integration Tests for Multi-Tier Layout (https://github.com/nordstad/PinViz/pull/106)
 
 ### Fixed
+
 - Potential fix for code scanning alert no. 8: Workflow does not contain permissions (https://github.com/nordstad/PinViz/pull/70)
 - fix: centralize magic numbers into organized constant classes (fixes #121) (https://github.com/nordstad/PinViz/pull/128)
 - perf: optimize device lookups and wire conflict detection (fixes #118, #122) (https://github.com/nordstad/PinViz/pull/130)
@@ -230,12 +225,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0] - 2026-01-14
 
-### Changed
-- refactor: simplify CLI by removing config and completion bloat (https://github.com/nordstad/PinViz/pull/69)
-
-## [0.10.0] - 2026-01-14
-
 ### Removed
+
 - **BREAKING**: Removed config command group (`pinviz config show|path|init|edit`)
 - **BREAKING**: Removed shell completion command group (`pinviz completion install|show|uninstall`)
 - **BREAKING**: Removed global options: `--log-level` and `--log-format`
@@ -243,40 +234,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Logging is now fixed to ERROR-only output (no verbose option)
 
 ### Changed
+
 - Simplified CLI to focus on core functionality (render, validate, example, list, add-device)
 - CLI output is now quiet by default, showing only essential messages
 
 ### Documentation
+
 - Updated README with link to examples gallery
 
 ### Migration Guide
+
 - **Config files**: No longer needed or supported - the tool works without configuration
 - **Shell completions**: Typer provides built-in completion support if needed
 - **Logging**: If you need debug output, you'll need to modify the source code (rare use case)
 - No action needed for most users - the core commands work the same way
 
-
 ## [0.9.2] - 2026-01-13
 
 ### Added
+
 - fix: address critical and high-priority code quality issues (https://github.com/nordstad/PinViz/pull/65)
 - fix: add pin validation and consolidate exception handling (https://github.com/nordstad/PinViz/pull/66)
 - feat: add contribution message to device wizard (https://github.com/nordstad/PinViz/pull/68)
 
 ### Fixed
+
 - fix: correct questionary Choice parameter order in device wizard (https://github.com/nordstad/PinViz/pull/67)
 
 ## [0.9.1] - 2026-01-13
 
 ### Added
+
 - feat: Add smart pin role suggestions to add-device wizard (https://github.com/nordstad/PinViz/pull/64)
 
 ### Fixed
+
 - fix: prevent traceback when exiting device wizard (https://github.com/nordstad/PinViz/pull/63)
 
 ## [0.9.0] - 2026-01-13
 
 ### Added
+
 - **Raspberry Pi Pico Support** - Raspberry Pi Pico board support with horizontal pin layout (https://github.com/nordstad/PinViz/pull/61)
   - Complete support for Raspberry Pi Pico with dual 20-pin headers (40 pins total)
   - New dual-header layout system for boards with GPIO pins on multiple edges
@@ -307,6 +305,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatically displays all boards: Pi 4, Pi 5, and Pico with their aliases
 
 ### Changed
+
 - **Improved Wire Colors** in Pico BME280 example for better visibility (https://github.com/nordstad/PinViz/pull/61)
   - Changed I2C wire colors from yellow to blue (#2196F3) and orange (#FF9800)
   - Yellow wires were hard to see against white background
@@ -321,6 +320,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Bump platformdirs from 4.5.0 to 4.5.1 (https://github.com/nordstad/PinViz/pull/59)
 
 ### Fixed
+
 - **Layout Spacing Issues** - Fixed title overlap and specs table positioning (https://github.com/nordstad/PinViz/pull/61)
   - Dynamic board margin calculation based on whether title is shown
   - Title now has proper spacing (title_height + title_margin) above board and wires
@@ -332,36 +332,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All layout spacing now calculated dynamically for proper visual separation
 
 ### Tests
+
 - **Comprehensive ValidationResult Tests** (https://github.com/nordstad/PinViz/pull/62)
   - Added 9 new test cases for `ValidationResult` class
   - Tests cover success/error/warning scenarios in strict and non-strict modes
   - Tests validate console and JSON output formatting
   - Increased total test count from 33 to 41 tests
 
-
 ## [0.8.1] - 2026-01-11
 
 ### Changed
+
 - Move show_legend to CLI flag and improve specs table layout (https://github.com/nordstad/PinViz/pull/55)
 - Modernize CLI with Typer + Rich (https://github.com/nordstad/PinViz/pull/56)
 
 ## [0.8.0] - 2026-01-10
 
 ### Added
-- Add Raspberry Pi 4 support and configuration enhancements (https://github.com/nordstad/PinViz/pull/52)
-- Fix missing wires in examples and add validation to example command (https://github.com/nordstad/PinViz/pull/53)
 
-### Changed
-- Migrate from svgwrite to drawsvg (https://github.com/nordstad/PinViz/pull/44)
-- Improve wire clarity with smooth Bezier routing and conflict prevention (https://github.com/nordstad/PinViz/pull/48)
-- Standardize board rendering and improve layout controls (https://github.com/nordstad/PinViz/pull/49)
-- Improve wire connections to device pins (https://github.com/nordstad/PinViz/pull/50)
-- Code quality improvements: test coverage, refactoring, and configuration (https://github.com/nordstad/PinViz/pull/51)
-- Streamline README and organize documentation guides (https://github.com/nordstad/PinViz/pull/54)
-
-## [0.8.0] - 2026-01-10
-
-### Added
 - **Raspberry Pi 4 Support** (https://github.com/nordstad/PinViz/pull/52)
   - Complete support for Raspberry Pi 4 Model B with 40-pin GPIO header
   - Board configuration JSON system for easy board addition
@@ -376,6 +364,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Feature Showcase table in examples documentation linking capabilities to examples
 
 ### Changed
+
 - **Streamlined README** (https://github.com/nordstad/PinViz/pull/54)
   - Reduced README from 799 to 171 lines (78.6% smaller)
   - Focus on visual impact: logo, demo GIF, example diagram
@@ -394,11 +383,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated SVG asset credits to Wikimedia Commons (from FreeSVG.org)
 
 ### Fixed
+
 - Wire connections to device pins properly aligned (https://github.com/nordstad/PinViz/pull/50)
 - Missing wires in example diagrams (https://github.com/nordstad/PinViz/pull/53)
 - Board rendering standardization across different board types (https://github.com/nordstad/PinViz/pull/49)
 
 ### Improved
+
 - Code quality improvements with better test coverage (https://github.com/nordstad/PinViz/pull/51)
 - Refactoring for maintainability
 - Configuration file structure
@@ -406,6 +397,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.0] - 2026-01-07
 
 ### Added
+
 - **Hardware Validation System** (https://github.com/nordstad/PinViz/pull/41)
   - Comprehensive wiring diagram validation with 5 check categories
   - Pin conflict detection (multiple devices on same GPIO)
@@ -444,12 +436,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON configuration examples in documentation
 
 ### Changed
+
 - MCP server builds complete `Diagram` objects using `ConnectionBuilder`
 - Documentation index now lists validation, MCP server, and structlog features
 - CLI guide includes `validate` command and logging options
 - MCP server usage docs include automatic validation section
 
 ### Documentation
+
 - Added `docs/validation.md` comprehensive validation guide
 - Updated `docs/guide/cli.md` with validate command and logging flags
 - Updated `docs/index.md` with new features
@@ -459,11 +453,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.1] - 2025-12-29
 
 ### Fixed
+
 - Fix broken demo GIF on PyPI by using absolute GitHub raw URL in README
 
 ## [0.6.0] - 2025-12-29
 
 ### Added
+
 - Professional wire routing system with intelligent spacing and z-order
   (https://github.com/nordstad/PinViz/pull/40)
 - Comprehensive wire routing documentation in `docs/wire-routing.md`
@@ -472,6 +468,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable wire spacing parameters (`wire_spacing`, `bundle_spacing`)
 
 ### Changed
+
 - Wire routing now uses horizontal rail spreading (8px spacing by default)
 - Vertical fan-out at GPIO header for clear visual separation
 - Three-level z-order sorting ensures all wires remain visible
@@ -480,6 +477,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced `LayoutConfig` with new spacing parameters
 
 ### Fixed
+
 - Wire overlap issues eliminated through intelligent spacing
 - Wires from even-numbered pins no longer hidden under odd-numbered pins
 - Improved wire visibility in dense diagrams
@@ -488,6 +486,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.1] - 2025-12-28
 
 ### Dependencies
+
 - Bump ruff from 0.14.6 to 0.14.7 (https://github.com/nordstad/PinViz/pull/28)
 - Bump beautifulsoup4 from 4.14.2 to 4.14.3 (https://github.com/nordstad/PinViz/pull/29)
 - Bump ruff from 0.14.7 to 0.14.8 (https://github.com/nordstad/PinViz/pull/30)
@@ -504,15 +503,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.0] - 2025-11-30
 
 ### Added
+
 - Add documentation links to all built-in device types (https://github.com/nordstad/PinViz/pull/27)
 
 ### Changed
+
 - Improve README.md structure and user experience (https://github.com/nordstad/PinViz/pull/26)
 
 ### Fixed
+
 - Fix docstring formatting: Change 'Example:' to 'Examples:' (https://github.com/nordstad/PinViz/pull/25)
 
 ### Dependencies
+
 - Bump ruff from 0.14.5 to 0.14.6 (https://github.com/nordstad/PinViz/pull/22)
 - Bump mkdocstrings from 0.30.1 to 1.0.0 (https://github.com/nordstad/PinViz/pull/24)
 - Bump mkdocstrings-python from 1.19.0 to 2.0.0 (https://github.com/nordstad/PinViz/pull/23)
@@ -520,6 +523,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - 2025-11-25
 
 ### Added
+
 - Raspberry Pi Zero 2 W board support with full 40-pin GPIO header
 - Custom Pi Zero SVG board asset (scaled 1.6x for optimal visibility)
 - Board-specific pin sizing for better clarity on compact boards
@@ -529,6 +533,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2025-01-23
 
 ### Changed
+
 - **BREAKING**: CLI now requires explicit command for rendering diagrams
   - Old: `pinviz diagram.yaml -o output.svg`
   - New: `pinviz render diagram.yaml -o output.svg`
@@ -545,11 +550,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Custom help formatter preserves examples formatting
 
 ### Fixed
+
 - CLI help examples now display on separate lines (no wrapping)
 - MCP server documentation updated with correct CLI commands
 - All documentation updated to use new CLI format
 
 ### Documentation
+
 - Updated `docs/guide/cli.md` to show only new format
 - Updated MCP server docstrings with correct command syntax
 - All examples in documentation now use `pinviz render` format
@@ -557,11 +564,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.1] - 2025-01-23
 
 ### Fixed
+
 - Logo display on PyPI by using absolute GitHub URL instead of relative path
 
 ## [0.2.0] - 2025-01-23
 
 ### Added
+
 - **MCP Server Integration**: AI-powered GPIO diagram generation via Model Context Protocol
   - Natural language parsing: Generate diagrams from prompts like "connect BME280 sensor"
   - Intelligent pin assignment: Automatic I2C bus sharing, SPI chip selects, power distribution
@@ -574,29 +583,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive test suite with 325+ tests (71% code coverage)
 
 ### Changed
+
 - Restructured package as namespace package for better MCP server integration
 - Moved assets into `src/pinviz/` for proper packaging with `uv build`
 - Enhanced YAML generation with explicit `yaml_content` field for Claude Desktop
 - Improved MCP tool documentation with clear usage instructions
 
 ### Fixed
+
 - YAML reconstruction errors when using MCP server through Claude Desktop
 - Asset packaging issues with `uv_build` backend
 
 ## [0.1.5] - 2025-01-21
 
 ### Added
+
 - Modern CLI with rich-argparse for beautiful, colorful help formatting
 - `--version` / `-v` flag to display package version
 - Automatic version detection from package metadata using importlib.metadata
 
 ### Changed
+
 - CLI help output now uses RichHelpFormatter for improved readability and visual appeal
 - Enhanced user experience with color-coded help text and better formatting
 
 ## [0.1.3] - 2025-01-21
 
 ### Changed
+
 - Improved installation instructions in README and documentation
   - Recommend `uv tool install pinviz` as primary method for CLI usage
   - Clearly explain difference between `uv tool install` and `uv add`
@@ -608,31 +622,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated GitHub Pages documentation (docs/getting-started/) to match README improvements
 
 ### Fixed
+
 - Installation confusion where users couldn't find `pinviz` command after `uv add`
 
 ## [0.1.2] - 2025-01-21
 
 ### Fixed
+
 - Fixed image URLs in README to use raw.githubusercontent.com for proper display on PyPI
 
 ## [0.1.1] - 2025-01-21
 
 ### Added
+
 - PyPI publishing workflow with GitHub Actions following uv best practices
 - Comprehensive CONTRIBUTING.md guide for contributors
 - JUnit XML test result reporting to CI pipeline
 
 ### Changed
+
 - Moved example diagrams from `out/` to `images/` directory
 - Removed Codecov badge (will be re-added later with proper token)
 - Consolidated dev dependencies to fix CI failures
 
 ### Fixed
+
 - Fixed test result publishing permissions in GitHub Actions
 
 ## [0.1.0] - 2025-01-20
 
 ### Added
+
 - Initial release of PinViz (formerly pi-diagrammer)
 - Declarative YAML/JSON configuration for diagram creation
 - Programmatic Python API for creating diagrams
@@ -659,36 +679,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ruff linting and formatting configuration
 
 ### Documentation
+
 - Complete README with installation, quick start, and examples
 - CONTRIBUTING.md with development guidelines
 - CLAUDE.md for AI assistant context
 - Example configurations and diagrams
 
-[Unreleased]: https://github.com/nordstad/PinViz/compare/v0.16.1...HEAD
-[0.16.1]: https://github.com/nordstad/PinViz/compare/v0.16.1...v0.16.1
-[0.16.0]: https://github.com/nordstad/PinViz/compare/v0.16.0...v0.16.0
-[0.15.0]: https://github.com/nordstad/PinViz/compare/v0.15.0...v0.15.0
-[0.14.0]: https://github.com/nordstad/PinViz/compare/v0.14.0...v0.14.0
-[0.13.0]: https://github.com/nordstad/PinViz/compare/v0.13.0...v0.13.0
-[0.12.1]: https://github.com/nordstad/PinViz/compare/v0.12.1...v0.12.1
-[0.12.0]: https://github.com/nordstad/PinViz/compare/v0.12.0...v0.12.0
-[0.11.2]: https://github.com/nordstad/PinViz/compare/v0.11.2...v0.11.2
-[0.11.1]: https://github.com/nordstad/PinViz/compare/v0.11.0...v0.11.1
-[0.11.0]: https://github.com/nordstad/PinViz/compare/v0.10.0...v0.11.0
-[0.10.0]: https://github.com/nordstad/PinViz/compare/v0.10.0...v0.10.0
-[0.9.2]: https://github.com/nordstad/PinViz/compare/v0.9.1...v0.9.2
-[0.9.1]: https://github.com/nordstad/PinViz/compare/v0.9.0...v0.9.1
-[0.8.1]: https://github.com/nordstad/PinViz/compare/v0.8.0...v0.8.1
-[0.8.0]: https://github.com/nordstad/PinViz/compare/v0.8.0...v0.8.0
-[0.7.0]: https://github.com/nordstad/PinViz/compare/v0.6.1...v0.7.0
-[0.6.1]: https://github.com/nordstad/PinViz/compare/v0.6.0...v0.6.1
-[0.6.0]: https://github.com/nordstad/PinViz/compare/v0.5.1...v0.6.0
-[0.5.1]: https://github.com/nordstad/PinViz/compare/v0.5.0...v0.5.1
-[0.5.0]: https://github.com/nordstad/PinViz/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/nordstad/PinViz/compare/v0.3.0...v0.4.0
-[0.1.5]: https://github.com/nordstad/PinViz/compare/v0.1.4...v0.1.5
-[0.1.4]: https://github.com/nordstad/PinViz/compare/v0.1.3...v0.1.4
-[0.1.3]: https://github.com/nordstad/PinViz/compare/v0.1.2...v0.1.3
-[0.1.2]: https://github.com/nordstad/PinViz/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/nordstad/PinViz/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/nordstad/PinViz/releases/tag/v0.1.0
+[Unreleased]: <https://github.com/nordstad/PinViz/compare/v0.16.1...HEAD>
+[0.16.1]: <https://github.com/nordstad/PinViz/compare/v0.16.1...v0.16.1>
+[0.16.0]: <https://github.com/nordstad/PinViz/compare/v0.16.0...v0.16.0>
+[0.15.0]: <https://github.com/nordstad/PinViz/compare/v0.15.0...v0.15.0>
+[0.14.0]: <https://github.com/nordstad/PinViz/compare/v0.14.0...v0.14.0>
+[0.13.0]: <https://github.com/nordstad/PinViz/compare/v0.13.0...v0.13.0>
+[0.12.1]: <https://github.com/nordstad/PinViz/compare/v0.12.1...v0.12.1>
+[0.12.0]: <https://github.com/nordstad/PinViz/compare/v0.12.0...v0.12.0>
+[0.11.2]: <https://github.com/nordstad/PinViz/compare/v0.11.2...v0.11.2>
+[0.11.1]: <https://github.com/nordstad/PinViz/compare/v0.11.0...v0.11.1>
+[0.11.0]: <https://github.com/nordstad/PinViz/compare/v0.10.0...v0.11.0>
+[0.10.0]: <https://github.com/nordstad/PinViz/compare/v0.10.0...v0.10.0>
+[0.9.2]: <https://github.com/nordstad/PinViz/compare/v0.9.1...v0.9.2>
+[0.9.1]: <https://github.com/nordstad/PinViz/compare/v0.9.0...v0.9.1>
+[0.8.1]: <https://github.com/nordstad/PinViz/compare/v0.8.0...v0.8.1>
+[0.8.0]: <https://github.com/nordstad/PinViz/compare/v0.8.0...v0.8.0>
+[0.7.0]: <https://github.com/nordstad/PinViz/compare/v0.6.1...v0.7.0>
+[0.6.1]: <https://github.com/nordstad/PinViz/compare/v0.6.0...v0.6.1>
+[0.6.0]: <https://github.com/nordstad/PinViz/compare/v0.5.1...v0.6.0>
+[0.5.1]: <https://github.com/nordstad/PinViz/compare/v0.5.0...v0.5.1>
+[0.5.0]: <https://github.com/nordstad/PinViz/compare/v0.4.0...v0.5.0>
+[0.4.0]: <https://github.com/nordstad/PinViz/compare/v0.3.0...v0.4.0>
+[0.1.5]: <https://github.com/nordstad/PinViz/compare/v0.1.4...v0.1.5>
+[0.1.4]: <https://github.com/nordstad/PinViz/compare/v0.1.3...v0.1.4>
+[0.1.3]: <https://github.com/nordstad/PinViz/compare/v0.1.2...v0.1.3>
+[0.1.2]: <https://github.com/nordstad/PinViz/compare/v0.1.1...v0.1.2>
+[0.1.1]: <https://github.com/nordstad/PinViz/compare/v0.1.0...v0.1.1>
+[0.1.0]: <https://github.com/nordstad/PinViz/releases/tag/v0.1.0>
