@@ -27,8 +27,8 @@ htmlcov/
 *~
 .DS_Store
 
-# Claude Code local settings
-.claude/
+# Claude Code local settings (user-specific, not shared)
+.claude/settings.local.json
 
 # Generated outputs (temporary/local builds only)
 # Note: images/ is NOT ignored - example diagrams should be committed
