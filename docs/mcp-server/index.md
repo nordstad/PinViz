@@ -86,7 +86,7 @@ For manual configuration or other MCP clients, see the [Installation Guide](inst
 
 - [GitHub Issues](https://github.com/nordstad/PinViz/issues) - Report bugs or request features
 - [Repository](https://github.com/nordstad/PinViz) - View source code
-- [Main Documentation](/) - Learn about PinViz CLI and Python API
+- [Main Documentation](../index.md) - Learn about PinViz CLI and Python API
 
 ## Next Steps
 

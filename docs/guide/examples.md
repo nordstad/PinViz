@@ -20,7 +20,7 @@ Learn PinViz capabilities through these focused examples:
 
 | Feature | Example | What it demonstrates |
 |---------|---------|---------------------|
-| **Wire Visibility** | [Light & Dark Wires](#wire-visibility---light--dark-colors) | Automatic halo color selection for wire visibility |
+| **Wire Visibility** | [Light & Dark Wires](#wire-visibility-light-dark-colors) | Automatic halo color selection for wire visibility |
 | **Dark Mode 🌙** | [BH1750 Dark](#bh1750-sensor-dark-mode) • [Pico Dark](#pico-led-dark-mode) | Dark theme for dark backgrounds, inverted colors |
 | **I2C Sensors** | [BH1750](#bh1750-light-sensor) | Automatic I2C color coding, bus sharing |
 | **Inline Components** | [LED with Resistor](#led-with-resistor) | Resistors, capacitors, diodes on wires |
@@ -28,7 +28,7 @@ Learn PinViz capabilities through these focused examples:
 | **Multi-Tier Connections** | [Motor Control](#motor-control-with-l293d) | Device-to-device chains, motor drivers, relay control |
 | **Wire Routing** | [Multi-Device Setup](#multi-device-setup) | Custom wire colors, complex routing |
 | **Pico Board** | [Pico LED](#pico-led-circuit) | Dual-sided board, horizontal pin layout |
-| **ESP32/ESP8266 Boards** | [ESP32 Weather](#esp32-weather-station) • [NodeMCU](#esp8266-nodemcu---led-example) • [D1 Mini](#wemos-d1-mini---oled-display) | IoT boards with WiFi, dual-sided headers |
+| **ESP32/ESP8266 Boards** | [ESP32 Weather](#esp32-weather-station) • [NodeMCU](#esp8266-nodemcu-led-example) • [D1 Mini](#wemos-d1-mini-oled-display) | IoT boards with WiFi, dual-sided headers |
 | **Specifications Table** | [Pico LEDs with Specs](#pico-multi-led-circuit-with-specifications) | Device specs, part numbers, --show-legend |
 
 ## Quick Start with Built-in Examples

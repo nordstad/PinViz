@@ -27,7 +27,7 @@ pinviz render CONFIG_FILE [OPTIONS]
 - `-o, --output OUTPUT_FILE` - Output SVG file path (default: `<config>.svg`)
 - `--no-title` - Hide diagram title
 - `--no-board-name` - Hide board name label
-- `--show-legend` - Show wire color legend
+- `--show-legend` - Show device specifications table below the diagram
 - `--theme {light|dark}` - Override theme (light or dark)
 - `--max-complexity INTEGER` - Maximum connections allowed (for CI/CD validation)
 - `--json` - Output machine-readable JSON status
@@ -74,14 +74,26 @@ pinviz example EXAMPLE_NAME [-o OUTPUT_FILE]
 - `i2c_spi` - Multiple I2C and SPI devices
 - `esp32_weather` - ESP32 weather station with BME280 and OLED
 
+**Options:**
+
+- `-o, --output OUTPUT_FILE` - Output SVG file path (default: `<name>.svg`)
+- `--no-title` - Hide diagram title
+- `--no-board-name` - Hide board name label
+- `--show-legend` - Show device specifications table below the diagram
+- `--theme {light|dark}` - Override theme
+- `--json` - Output machine-readable JSON status
+
 **Examples:**
 
 ```bash
 # Generate BH1750 example
 pinviz example bh1750 -o bh1750.svg
 
-# Generate IR LED example
-pinviz example ir_led -o ir_led.svg
+# Generate IR LED example in dark theme with legend
+pinviz example ir_led -o ir_led.svg --theme dark --show-legend
+
+# Machine-readable output
+pinviz example i2c_spi --json
 ```
 
 ### Validate a Configuration
@@ -99,7 +111,12 @@ pinviz validate CONFIG_FILE [--strict]
 **Arguments:**
 
 - `CONFIG_FILE` - Path to YAML or JSON configuration file
+
+**Options:**
+
+- `--show-graph` - Show connection graph visualization
 - `--strict` - Treat warnings as errors (exits with code 1)
+- `--json` - Output machine-readable JSON status
 
 **Examples:**
 
@@ -107,8 +124,14 @@ pinviz validate CONFIG_FILE [--strict]
 # Validate diagram configuration
 pinviz validate my-diagram.yaml
 
+# Show the connection graph alongside validation results
+pinviz validate my-diagram.yaml --show-graph
+
 # Strict mode - warnings cause failure
 pinviz validate my-diagram.yaml --strict
+
+# Machine-readable output for CI/CD
+pinviz validate my-diagram.yaml --json
 ```
 
 **Validation checks for:**
@@ -264,6 +287,22 @@ Suggestions work with:
 - `displays` - OLED, LCD, etc. (color: blue)
 - `io` - Buttons, switches, relays (color: gray)
 - `other` - Custom devices
+
+**Where the file is saved:**
+
+The wizard saves the device JSON to PinViz's installed package directory, making
+it immediately available via `type: "<id>"` in your YAML configs. The exact path
+depends on how PinViz was installed:
+
+- **`uv tool install` / `pipx`**: saved inside the tool's isolated environment
+  (e.g., `~/.local/share/uv/tools/pinviz/.../pinviz/device_configs/`). The device
+  works immediately but will be lost if you upgrade or reinstall PinViz. Keep a
+  backup copy of the JSON file.
+- **Development install (`uv sync`)**: saved directly into
+  `src/pinviz/device_configs/` in the repo, where it can be committed.
+
+To share your device with all PinViz users, the wizard prints contribution steps
+at the end — or see the [Contributing Guide](../development/contributing.md).
 
 ### Validate Device Configurations
 

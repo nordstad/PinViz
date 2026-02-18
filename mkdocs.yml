@@ -84,6 +84,8 @@ nav:
       - Python API: guide/python-api.md
       - Themes: guide/themes.md
       - Validation: validation.md
+      - Multi-Level Connections: multi-level-connections.md
+      - Smart Pin Assignment: features/smart-pin-assignment.md
       - Examples: guide/examples.md
   - MCP Server:
       - Overview: mcp-server/index.md

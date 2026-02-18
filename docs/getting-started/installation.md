@@ -66,8 +66,11 @@ uv run pinviz --help
 
 - Python 3.12 or later
 - Dependencies:
-    - `svgwrite>=1.4.3` - SVG generation
+    - `drawsvg~=2.4` - SVG generation
     - `pyyaml>=6.0.1` - YAML configuration parsing
+    - `typer>=0.12.0` - CLI framework
+    - `rich>=13.7.0` - Terminal output formatting
+    - `structlog>=24.1.0` - Structured logging
 
 All dependencies are installed automatically when you install PinViz.
 
