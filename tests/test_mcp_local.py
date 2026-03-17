@@ -1,62 +1,48 @@
 #!/usr/bin/env python3
-"""Local test script for PinViz MCP Server functionality.
+"""Local MCP pipeline tests.
 
-This script tests the MCP server tools without needing Claude Desktop.
+These tests also support direct script execution for quick local diagnostics.
 """
 
 import sys
+import tempfile
 from pathlib import Path
 
-# Add src to path so we can import pinviz.mcp
-sys.path.insert(0, str(Path(__file__).parent / "src"))
-
-from pinviz.mcp.connection_builder import ConnectionBuilder
-from pinviz.mcp.device_manager import DeviceManager
-from pinviz.mcp.parser import PromptParser
-from pinviz.mcp.pin_assignment import PinAssigner
-from pinviz.render_svg import SVGRenderer
+try:
+    from pinviz.mcp.connection_builder import ConnectionBuilder
+    from pinviz.mcp.device_manager import DeviceManager
+    from pinviz.mcp.parser import PromptParser
+    from pinviz.mcp.pin_assignment import PinAssigner
+    from pinviz.render_svg import SVGRenderer
+except ModuleNotFoundError:
+    # Allow running this file directly without editable install.
+    PROJECT_ROOT = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(PROJECT_ROOT / "src"))
+    from pinviz.mcp.connection_builder import ConnectionBuilder
+    from pinviz.mcp.device_manager import DeviceManager
+    from pinviz.mcp.parser import PromptParser
+    from pinviz.mcp.pin_assignment import PinAssigner
+    from pinviz.render_svg import SVGRenderer
 
 
 def test_device_manager():
-    """Test 1: Device Manager functionality."""
-    print("\n" + "=" * 70)
-    print("TEST 1: Device Manager - List Devices")
-    print("=" * 70)
-
+    """Device manager basic behavior."""
     dm = DeviceManager()
 
-    # Test listing all devices
     all_devices = dm.search_devices()
-    print(f"✓ Total devices in database: {len(all_devices)}")
-
-    # Test filtering by category
     sensors = dm.search_devices(category="sensor")
-    print(f"✓ Sensors found: {len(sensors)}")
-
-    # Test filtering by protocol
     i2c_devices = dm.search_devices(protocol="I2C")
-    print(f"✓ I2C devices found: {len(i2c_devices)}")
-
-    # Test getting specific device
     bme280 = dm.get_device_by_name("BME280")
-    if bme280:
-        print(f"✓ Found BME280: {bme280.name}")
-        print(f"  - Category: {bme280.category}")
-        print(f"  - Protocols: {', '.join(bme280.protocols)}")
-        print(f"  - Pins: {len(bme280.pins)}")
-    else:
-        print("✗ BME280 not found")
-        return False
 
-    return True
+    assert len(all_devices) > 0
+    assert len(sensors) > 0
+    assert len(i2c_devices) > 0
+    assert bme280 is not None
+    assert bme280.name.startswith("BME280")
 
 
 def test_prompt_parser():
-    """Test 2: Natural Language Parser."""
-    print("\n" + "=" * 70)
-    print("TEST 2: Natural Language Parser")
-    print("=" * 70)
-
+    """Natural-language parser should extract board/devices."""
     parser = PromptParser()
 
     test_prompts = [
@@ -67,37 +53,23 @@ def test_prompt_parser():
 
     for prompt in test_prompts:
         result = parser.parse(prompt)
-        print(f"\n✓ Prompt: '{prompt}'")
-        print(f"  Devices found: {result.devices}")
-        print(f"  Board: {result.board}")
-
-    return True
+        assert result.board
+        assert isinstance(result.devices, list)
 
 
 def test_pin_assignment():
-    """Test 3: Pin Assignment Logic."""
-    print("\n" + "=" * 70)
-    print("TEST 3: Pin Assignment - I2C Bus Sharing")
-    print("=" * 70)
-
+    """I2C devices should share SDA/SCL bus pins."""
     dm = DeviceManager()
     assigner = PinAssigner()
 
-    # Test I2C bus sharing with two sensors
     bme280 = dm.get_device_by_name("BME280")
     bh1750 = dm.get_device_by_name("BH1750")
-
-    if not bme280 or not bh1750:
-        print("✗ Required devices not found")
-        return False
+    assert bme280 is not None
+    assert bh1750 is not None
 
     devices = [bme280.to_dict(), bh1750.to_dict()]
-    assignments, warnings = assigner.assign_pins(devices)
+    assignments, _warnings = assigner.assign_pins(devices)
 
-    print(f"✓ Assigned pins: {len(assignments)} assignments")
-    print(f"  Warnings: {len(warnings)}")
-
-    # Check I2C bus sharing
     i2c_sda_pins = set()
     i2c_scl_pins = set()
     for assignment in assignments:
@@ -106,98 +78,47 @@ def test_pin_assignment():
         elif assignment.pin_role.name == "I2C_SCL":
             i2c_scl_pins.add(assignment.board_pin_number)
 
-    if len(i2c_sda_pins) == 1 and len(i2c_scl_pins) == 1:
-        print("✓ I2C bus shared correctly:")
-        print(f"  - SDA on pin {list(i2c_sda_pins)[0]}")
-        print(f"  - SCL on pin {list(i2c_scl_pins)[0]}")
-    else:
-        print("✗ I2C bus sharing failed")
-        return False
-
-    return True
+    assert len(i2c_sda_pins) == 1
+    assert len(i2c_scl_pins) == 1
 
 
-def test_diagram_generation():
-    """Test 4: Full Pipeline - Prompt to Diagram."""
-    print("\n" + "=" * 70)
-    print("TEST 4: Full Pipeline - Generate Diagram from Prompt")
-    print("=" * 70)
-
+def test_diagram_generation(tmp_path):
+    """Prompt-to-diagram pipeline should produce an SVG."""
     prompt = "Connect BME280 sensor and LED"
-    output_file = "test_mcp_output.svg"
+    output_file = tmp_path / "test_mcp_output.svg"
 
-    print(f"✓ Input prompt: '{prompt}'")
-    print(f"✓ Output file: {output_file}")
-
-    # Initialize components
     dm = DeviceManager()
     parser = PromptParser()
     assigner = PinAssigner()
     builder = ConnectionBuilder()
     renderer = SVGRenderer()
 
-    # Step 1: Parse prompt
     parsed = parser.parse(prompt)
-    print("\n1. Parse prompt:")
-    print(f"   Devices: {parsed.devices}")
-
-    # Step 2: Get device specs
     device_specs = []
     for device_name in parsed.devices:
         device = dm.get_device_by_name(device_name)
         if device:
             device_specs.append(device.to_dict())
-            print(f"   ✓ Found: {device.name}")
-        else:
-            print(f"   ✗ Not found: {device_name}")
 
-    if not device_specs:
-        print("✗ No devices found")
-        return False
+    assert device_specs
 
-    # Step 3: Assign pins
-    assignments, warnings = assigner.assign_pins(device_specs)
-    print("\n2. Assign pins:")
-    print(f"   Assignments: {len(assignments)} devices")
-    if warnings:
-        print(f"   Warnings: {warnings}")
-
-    # Step 4: Build diagram
+    assignments, _warnings = assigner.assign_pins(device_specs)
     diagram = builder.build_diagram(
         assignments=assignments,
         devices_data=device_specs,
         title=prompt,
         board_name=parsed.board,
     )
-    print("\n3. Build diagram:")
-    print(f"   Title: {diagram.title}")
-    print(f"   Board: {diagram.board.name}")
-    print(f"   Devices: {len(diagram.devices)}")
-    print(f"   Connections: {len(diagram.connections)}")
-
-    # Step 5: Render SVG
     renderer.render(diagram, output_file)
 
-    if Path(output_file).exists():
-        size = Path(output_file).stat().st_size
-        print("\n4. Render SVG:")
-        print(f"   ✓ File created: {output_file}")
-        print(f"   ✓ Size: {size:,} bytes")
-        return True
-    else:
-        print(f"\n✗ Failed to create {output_file}")
-        return False
+    assert output_file.exists()
+    assert output_file.stat().st_size > 0
 
 
 def test_database_summary():
-    """Test 5: Database Statistics."""
-    print("\n" + "=" * 70)
-    print("TEST 5: Database Summary")
-    print("=" * 70)
-
+    """Database should expose non-empty category/protocol groupings."""
     dm = DeviceManager()
 
-    # Count devices by category
     categories = {}
     protocols = {}
 
@@ -206,38 +127,34 @@ def test_database_summary():
         for protocol in device.protocols:
             protocols[protocol] = protocols.get(protocol, 0) + 1
 
-    print("\nDevices by Category:")
-    for category, count in sorted(categories.items()):
-        print(f"  {category:12s}: {count:2d} devices")
-
-    print("\nDevices by Protocol:")
-    for protocol, count in sorted(protocols.items()):
-        print(f"  {protocol:12s}: {count:2d} devices")
-
-    print(f"\n✓ Total: {len(dm.search_devices())} devices")
-
-    return True
+    assert categories
+    assert protocols
+    assert len(dm.search_devices()) > 0
 
 
 def main():
-    """Run all MCP server tests."""
+    """Run all MCP local tests manually."""
     print("=" * 70)
     print("PinViz MCP Server - Local Testing")
     print("=" * 70)
+
+    def _run_diagram_generation():
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_diagram_generation(Path(tmpdir))
 
     tests = [
         ("Device Manager", test_device_manager),
         ("Prompt Parser", test_prompt_parser),
         ("Pin Assignment", test_pin_assignment),
-        ("Diagram Generation", test_diagram_generation),
+        ("Diagram Generation", _run_diagram_generation),
         ("Database Summary", test_database_summary),
     ]
 
     results = []
     for test_name, test_func in tests:
         try:
-            success = test_func()
-            results.append((test_name, success))
+            test_func()
+            results.append((test_name, True))
         except Exception as e:
             print(f"\n✗ ERROR in {test_name}: {e}")
             import traceback
@@ -245,7 +162,6 @@ def main():
             traceback.print_exc()
             results.append((test_name, False))
 
-    # Summary
     print("\n" + "=" * 70)
     print("TEST SUMMARY")
     print("=" * 70)
@@ -256,16 +172,10 @@ def main():
 
     total = len(results)
     passed = sum(1 for _, success in results if success)
-
     print(f"\n{passed}/{total} tests passed")
 
-    if passed == total:
-        print("\n✅ All MCP server functionality working!")
-        return 0
-    else:
-        print(f"\n❌ {total - passed} test(s) failed")
-        return 1
+    return passed == total
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(0 if main() else 1)
