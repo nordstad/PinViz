@@ -24,6 +24,22 @@ class TestConnectionBuilder:
         assert board.name == "Raspberry Pi 5"
         assert len(board.pins) == 40
 
+    def test_get_board_raspberry_pi_4(self):
+        """Test getting Raspberry Pi 4 board."""
+        builder = ConnectionBuilder()
+        board = builder._get_board("raspberry_pi_4")
+
+        assert board.name == "Raspberry Pi 4 Model B"
+        assert len(board.pins) == 40
+
+    def test_get_board_raspberry_pi_pico(self):
+        """Test getting Raspberry Pi Pico board."""
+        builder = ConnectionBuilder()
+        board = builder._get_board("raspberry_pi_pico")
+
+        assert board.name == "Raspberry Pi Pico"
+        assert len(board.pins) == 40
+
     def test_get_board_default(self):
         """Test that unknown board names default to Raspberry Pi."""
         builder = ConnectionBuilder()
@@ -78,6 +94,30 @@ class TestConnectionBuilder:
         assert len(devices) == 2
         assert devices[0].name == "Device 1"
         assert devices[1].name == "Device 2"
+
+    def test_build_manual_fallback_device_coerces_pin_roles(self):
+        """Manual MCP fallback should still build typed device pins."""
+        builder = ConnectionBuilder()
+        devices = builder._build_devices(
+            [
+                {
+                    "id": "mcp_only_device",
+                    "name": "MCP Only Device",
+                    "category": "sensor",
+                    "description": "Custom MCP-only device",
+                    "pins": [
+                        {"name": "VCC", "role": "3V3"},
+                        {"name": "GND", "role": "GND"},
+                        {"name": "SIG", "role": "GPIO"},
+                    ],
+                }
+            ]
+        )
+
+        assert len(devices) == 1
+        assert devices[0].pins[0].role == PinRole.POWER_3V3
+        assert devices[0].pins[1].role == PinRole.GROUND
+        assert devices[0].pins[2].role == PinRole.GPIO
 
     def test_device_color_by_category(self):
         """Test that device colors are assigned based on category."""
@@ -210,6 +250,35 @@ class TestConnectionBuilder:
         assert len(diagram.devices) == 1
         assert len(diagram.connections) == 2
         assert diagram.show_legend is False
+
+    def test_build_complete_diagram_with_non_default_board(self):
+        """DiagramBuilder integration should preserve non-Pi5 board choices."""
+        builder = ConnectionBuilder()
+
+        assignments = [
+            PinAssignment(
+                board_pin_number=3,
+                device_name="LED",
+                device_pin_name="SIG",
+                pin_role=PinRole.GPIO,
+            ),
+        ]
+        devices_data = [
+            {
+                "name": "LED",
+                "category": "component",
+                "pins": [{"name": "SIG", "role": "GPIO"}],
+            }
+        ]
+
+        diagram = builder.build_diagram(
+            assignments=assignments,
+            devices_data=devices_data,
+            board_name="raspberry_pi_pico",
+            title="LED Diagram",
+        )
+
+        assert diagram.board.name == "Raspberry Pi Pico"
 
     def test_convenience_function(self):
         """Test the convenience function."""

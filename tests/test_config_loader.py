@@ -160,6 +160,25 @@ def test_load_with_show_legend_false():
     assert diagram.show_legend is False
 
 
+def test_load_uses_schema_coercion_for_boolean_options():
+    """ConfigLoader should respect Pydantic-coerced boolean values."""
+    config = {
+        "title": "Test",
+        "board": "rpi5",
+        "devices": [],
+        "connections": [],
+        "show_legend": "true",
+        "show_title": "false",
+        "show_board_name": "false",
+    }
+    loader = ConfigLoader()
+    diagram = loader.load_from_dict(config)
+
+    assert diagram.show_legend is True
+    assert diagram.show_title is False
+    assert diagram.show_board_name is False
+
+
 @pytest.mark.parametrize(
     "board_name",
     ["raspberry_pi_5", "raspberry_pi", "rpi5", "rpi", "RPI5", "RPi"],
@@ -228,6 +247,19 @@ def test_load_unknown_board():
     loader = ConfigLoader()
     with pytest.raises(ValueError, match="Invalid board name"):
         loader.load_from_dict(config)
+
+
+def test_get_board_wraps_strategy_errors():
+    """ConfigLoader should convert strategy lookup failures into config errors."""
+
+    class RejectingBoardSelectionStrategy:
+        def select_board(self, board_name: str):
+            raise ValueError("unsupported in test")
+
+    loader = ConfigLoader(board_selection_strategy=RejectingBoardSelectionStrategy())
+
+    with pytest.raises(ValueError, match="Board 'raspberry_pi_5' not found"):
+        loader._load_board_by_name("raspberry_pi_5")
 
 
 def test_load_led_with_color():

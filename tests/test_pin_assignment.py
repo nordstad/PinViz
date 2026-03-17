@@ -102,6 +102,29 @@ class TestPinAssigner:
         assert len(warnings) > 0
         assert any("I2C address" in w for w in warnings)
 
+    def test_i2c_device_with_gpio_interrupt_pin(self):
+        """I2C strategies should still allocate non-bus pins like INT."""
+        assigner = PinAssigner()
+
+        device = {
+            "name": "MPU6050",
+            "protocols": ["I2C"],
+            "pins": [
+                {"name": "VCC", "role": "3V3"},
+                {"name": "GND", "role": "GND"},
+                {"name": "SCL", "role": "I2C_SCL"},
+                {"name": "SDA", "role": "I2C_SDA"},
+                {"name": "INT", "role": "GPIO"},
+            ],
+        }
+
+        assignments, warnings = assigner.assign_pins([device])
+
+        assert len(assignments) == 5
+        assert len(warnings) == 0
+        int_assignment = next(a for a in assignments if a.device_pin_name == "INT")
+        assert int_assignment.board_pin_number in PinAssigner.GPIO_BCM_TO_PHYSICAL.values()
+
     def test_single_spi_device(self):
         """Test assigning pins for a single SPI device."""
         assigner = PinAssigner()
@@ -287,6 +310,75 @@ class TestPinAssigner:
 
         assert len(warnings) > 0
         assert any("current" in w.lower() for w in warnings)
+
+    def test_four_pwm_devices_use_all_pwm_pins(self):
+        """PWM strategies should allocate all four supported PWM-capable pins."""
+        assigner = PinAssigner()
+
+        devices = [
+            {
+                "name": f"PWM Device {index}",
+                "protocols": [],
+                "pins": [{"name": "SIG", "role": "PWM"}],
+            }
+            for index in range(4)
+        ]
+
+        assignments, warnings = assigner.assign_pins(devices)
+
+        assert len(assignments) == 4
+        assert len(warnings) == 0
+        assert {assignment.board_pin_number for assignment in assignments} == {12, 32, 33, 35}
+
+    def test_general_gpio_warning_when_gpio_pool_is_exhausted(self):
+        """General GPIO assignment should warn when no GPIO pins remain."""
+        assigner = PinAssigner()
+        assigner.state.available_gpio = []
+
+        warnings = assigner._assign_general_pin("Exhausted", "SIG", PinRole.GPIO)
+
+        assert warnings == ["Error: No GPIO pins available for Exhausted/SIG"]
+
+    def test_general_pwm_warning_when_pwm_candidates_are_exhausted(self):
+        """PWM helper should warn when all PWM-capable pins are already used."""
+        assigner = PinAssigner()
+        assigner.state.used_pins.update(PinAssigner.PWM_PINS)
+
+        warnings = assigner._assign_general_pin("PWM Device", "SIG", PinRole.PWM)
+
+        assert warnings == ["Warning: No PWM pins available for PWM Device/SIG"]
+
+    def test_general_fixed_role_assignment_uses_fixed_pin(self):
+        """Fixed-role pins should be assigned from the fixed mapping."""
+        assigner = PinAssigner()
+
+        warnings = assigner._assign_general_pin("UART Device", "TX", PinRole.UART_TX)
+
+        assert warnings == []
+        assert (
+            assigner.assignments[0].board_pin_number == PinAssigner.FIXED_ROLE_PINS[PinRole.UART_TX]
+        )
+
+    def test_general_fixed_role_assignment_warns_when_pin_is_unavailable(self):
+        """Fixed-role assignment should warn when the mapped board pin is already used."""
+        assigner = PinAssigner()
+        assigner.state.used_pins.add(PinAssigner.FIXED_ROLE_PINS[PinRole.UART_TX])
+
+        warnings = assigner._assign_general_pin("UART Device", "TX", PinRole.UART_TX)
+
+        assert warnings == ["Warning: Fixed UART_TX pin unavailable for UART Device/TX"]
+        assert assigner.assignments == []
+
+    def test_general_pin_warns_for_unsupported_role_objects(self):
+        """Unsupported role-like objects should produce a warning instead of crashing."""
+        assigner = PinAssigner()
+
+        class UnsupportedRole:
+            value = "UNSUPPORTED"
+
+        warnings = assigner._assign_general_pin("Mystery Device", "X", UnsupportedRole())
+
+        assert warnings == ["Warning: Unsupported pin role UNSUPPORTED for Mystery Device/X"]
 
     def test_mixed_devices(self):
         """Test complex scenario with mixed I2C, SPI, and GPIO devices."""
