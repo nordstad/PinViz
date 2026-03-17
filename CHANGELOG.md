@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Homebrew formula** (`Formula/pinviz.rb`) — install on macOS via:
+  ```zsh
+  brew tap nordstad/PinViz https://github.com/nordstad/PinViz
+  brew install pinviz
+  ```
+  Shell completions for bash, zsh, and fish are installed automatically.
+- Auto-update workflow: `publish.yml` now includes an `update-homebrew` job that bumps the formula URL and SHA256 on every version tag release using `mislav/bump-homebrew-formula-action`.
+
 ## [0.16.1] - 2026-02-18
 
 ### Fixed
