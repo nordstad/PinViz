@@ -34,20 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - fix: clean JSON output, Bezier loop bug fix, modernize MCP tests (https://github.com/nordstad/PinViz/pull/189)
 
-## [0.16.2] - 2026-03-17
-
-### Fixed
-
-- Bezier loop bug in wire routing causing malformed SVG paths
-- Clean JSON output in CLI commands (removed stray non-JSON lines)
-- Correct `referencing` resource stanza URL in Homebrew formula
-
-### Changed
-
-- CI: upgrade all workflows to Node.js 24, update action versions
-- CI: switch MCP test job to pytest, drop stale SVG file check
-- Docs: migrate from Material for MkDocs to Zensical
-
 ## [0.16.1] - 2026-02-18
 
 ### Added
