@@ -179,7 +179,7 @@ class Pinviz < Formula
   end
 
   resource "referencing" do
-    url "https://files.pythonhosted.org/packages/22/f5/ed29cd50067784976f25ed0ed6fcd3c2ce9eb90650aa3b2796ddf7b6870b/referencing-0.37.0.tar.gz"
+    url "https://files.pythonhosted.org/packages/22/f5/df4e9027acead3ecc63e50fe1e36aca1523e1719559c499951bb4b53188f/referencing-0.37.0.tar.gz"
     sha256 "44aefc3142c5b842538163acb373e24cce6632bd54bdb01b21ad5863489f50d8"
   end
 
