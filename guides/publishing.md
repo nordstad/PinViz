@@ -23,6 +23,7 @@ git push origin v0.13.0
 # ✅ Publishes to PyPI
 # ✅ Creates GitHub release (DO NOT create manually!)
 # ✅ Updates CHANGELOG
+# ✅ Updates Homebrew formula (Formula/pinviz.rb)
 
 # ❌ DO NOT: gh release create v0.13.0
 # ❌ DO NOT: Create release via GitHub UI
@@ -148,7 +149,8 @@ git push origin v0.9.1
 2. Workflow builds, tests, and publishes to PyPI
 3. Workflow automatically creates GitHub release with standard format
 4. Workflow updates CHANGELOG.md
-5. Done! ✅
+5. Workflow updates `Formula/pinviz.rb` with the new PyPI tarball URL and SHA256
+6. Done! ✅
 
 ### Step 4: Let the Workflow Handle Everything
 
@@ -159,7 +161,8 @@ The GitHub Actions workflow (`.github/workflows/publish.yml`) will automatically
 3. ✅ Publish to PyPI with trusted publishing
 4. ✅ Create a GitHub Release with auto-generated release notes
 5. ✅ Update `CHANGELOG.md` with release information
-6. ✅ Run post-publish integration tests on Python 3.12 and 3.13
+6. ✅ Update `Formula/pinviz.rb` with the new PyPI tarball URL and SHA256
+7. ✅ Run post-publish integration tests on Python 3.12 and 3.13
 
 ## Common Mistakes to Avoid
 
@@ -245,7 +248,23 @@ gh run rerun <run-id> --failed
 - Commit and push CHANGELOG changes to main branch
 ```
 
-### Stage 3: Test Published Package (after publish succeeds)
+### Stage 3: Update Homebrew Formula (after publish succeeds)
+
+```bash
+# Homebrew formula update:
+- Fetches the new tarball URL from the PyPI JSON API
+- Runs mislav/bump-homebrew-formula-action to update Formula/pinviz.rb
+- Commits the updated formula URL and SHA256 back to main
+```
+
+> **Note:** The formula update only bumps the main package URL and SHA256.
+> If you've added or upgraded runtime dependencies, also run:
+> ```bash
+> brew update-python-resources Formula/pinviz.rb
+> ```
+> then commit and push the updated resource stanzas **before** tagging.
+
+### Stage 4: Test Published Package (after publish succeeds)
 
 ```bash
 # Post-publish verification:
