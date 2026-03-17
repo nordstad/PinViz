@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.17.0] - 2026-03-17
+
+### Changed
+- Refactor diagram assembly around builder, strategy, and adapters (https://github.com/nordstad/PinViz/pull/190)
+
 ## [0.17.0] - 2026-03-17
 
 ### Added
