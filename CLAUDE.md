@@ -235,7 +235,7 @@ The `.claude/` directory is committed and shared. `settings.local.json` is gitig
 ### Skills
 
 - **`/validate-examples`** — mirrors the CI `verify-examples` job: validates + renders all configs in `examples/`, executes all `*_python.py` scripts, runs example-tagged tests
-- **`/release-prep`** — guided release workflow: pre-publish checks (tests, post-publish compat, ruff, build), bumps version in `pyproject.toml`, updates `CHANGELOG.md`, then prints the git tag commands without running them
+- **`/release-prep`** — guided release workflow: pre-publish checks (tests, post-publish compat, ruff, build), checks if Homebrew resource stanzas need updating, bumps version in `pyproject.toml`, updates `CHANGELOG.md`, then prints the git tag commands without running them
 
 ### Subagents
 
@@ -253,6 +253,7 @@ The `.claude/` directory is committed and shared. `settings.local.json` is gitig
 - **Planning**: Save dev plans to `plans/` dir (not committed to git)
 - **Project cleanliness**: Keep root dir clean, essential files only
 - **MCP support**: Check MCP compatibility for new features/updates
+- **Homebrew formula**: `Formula/pinviz.rb` — the publish workflow auto-updates the tarball URL/SHA256 on release; if runtime deps change, run `brew update-python-resources Formula/pinviz.rb` and commit before tagging
 
 ## Detailed Guides
 
@@ -261,7 +262,7 @@ For step-by-step instructions, see the `guides/` directory:
 - **[guides/cli-development.md](guides/cli-development.md)** - Adding CLI commands, JSON schemas, testing
 - **[guides/adding-boards.md](guides/adding-boards.md)** - Adding new board types (standard and dual-sided)
 - **[guides/adding-devices.md](guides/adding-devices.md)** - Adding device templates with smart defaults
-- **[guides/publishing.md](guides/publishing.md)** - Publishing to PyPI (tag-only workflow)
+- **[guides/publishing.md](guides/publishing.md)** - Publishing to PyPI and Homebrew (tag-only workflow)
 
 ## Quick Reference
 
