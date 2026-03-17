@@ -6,6 +6,7 @@ PinViz requires Python 3.12 or later.
 
 | Method | Best for | Run pinviz as | Upgrade command |
 | --- | --- | --- | --- |
+| `brew install pinviz` | macOS, managed by Homebrew | `pinviz ...` | `brew upgrade pinviz` |
 | `uv tool install pinviz` | CLI-only use, global access | `pinviz ...` | `uv tool upgrade pinviz` |
 | `pipx install pinviz` | CLI-only use, no uv | `pinviz ...` | `pipx upgrade pinviz` |
 | `uv add pinviz` | Using PinViz as a library in a project | `uv run pinviz ...` | `uv add pinviz@latest` |
@@ -13,7 +14,24 @@ PinViz requires Python 3.12 or later.
 
 **Not sure?** Use `uv tool install pinviz` — it gives you a global `pinviz` command without affecting any project environment.
 
-## For CLI Usage (Recommended)
+## Homebrew (macOS)
+
+The easiest way to install on macOS:
+
+```zsh
+brew tap nordstad/PinViz https://github.com/nordstad/PinViz
+brew install pinviz
+```
+
+Shell completions for bash, zsh, and fish are installed automatically.
+
+To upgrade:
+
+```zsh
+brew upgrade pinviz
+```
+
+## For CLI Usage
 
 Install as a standalone tool with global access to the CLI using [uv](https://docs.astral.sh/uv/):
 

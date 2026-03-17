@@ -101,20 +101,25 @@ All boards include full pin definitions with GPIO numbers, I2C, SPI, UART, and P
 
 ## Installation
 
-Install as a standalone tool with global CLI access:
+### Homebrew (macOS)
+
+```zsh
+brew tap nordstad/PinViz https://github.com/nordstad/PinViz
+brew install pinviz
+```
+
+### pip / uv (cross-platform)
 
 ```bash
 uv tool install pinviz
+# or
+pip install pinviz
 ```
 
 Or as a project dependency:
 
 ```bash
-# Using uv
 uv add pinviz
-
-# Using pip
-pip install pinviz
 ```
 
 ## Quick Start
