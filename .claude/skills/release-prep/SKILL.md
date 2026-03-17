@@ -67,7 +67,22 @@ Move the `[Unreleased]` content to a new versioned section. The format must be:
 
 Today's date in `YYYY-MM-DD` format. If `[Unreleased]` is empty, note that to the user — they may want to add entries before releasing.
 
-## Step 6: Show the git commands — do NOT run them
+## Step 6: Check if dependencies changed
+
+Compare the runtime dependencies in `pyproject.toml` against the resource stanzas in `Formula/pinviz.rb`. If any runtime dependency was **added, removed, or version-bumped**, warn the user:
+
+> ⚠️  Runtime dependencies have changed. Before tagging, regenerate the Homebrew resource stanzas:
+> ```bash
+> brew update-python-resources Formula/pinviz.rb
+> git add Formula/pinviz.rb
+> git commit -m "chore: update Homebrew resource stanzas for vX.Y.Z"
+> git push origin main
+> ```
+> The publish workflow only auto-updates the main package URL/SHA256 — it does not refresh resource stanzas.
+
+If no runtime dependencies changed, note that no formula update is needed before tagging.
+
+## Step 7: Show the git commands — do NOT run them
 
 Print these exact commands for the user to review and run manually:
 
@@ -81,6 +96,12 @@ git push origin main
 git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
+
+The publish workflow will automatically:
+- Build and publish to PyPI
+- Create the GitHub Release
+- Update `CHANGELOG.md`
+- Update `Formula/pinviz.rb` with the new tarball URL and SHA256
 
 Then show this reminder:
 
