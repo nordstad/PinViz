@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-03-17
+
+### Added
+- Shared `BoardSelectionStrategy` protocol and `AliasBoardSelectionStrategy` — centralises board alias resolution across config and MCP flows (https://github.com/nordstad/PinViz/pull/190)
+- `DiagramBuilder` — step-by-step builder shared by config and MCP assembly paths (https://github.com/nordstad/PinViz/pull/190)
+- `McpDeviceAdapter` — typed adapter from MCP device records to core `Device` model objects (https://github.com/nordstad/PinViz/pull/190)
+- Protocol-specific `PinAssignmentStrategy` classes (`I2CPinAssignmentStrategy`, `SPIPinAssignmentStrategy`, `DefaultPinAssignmentStrategy`) (https://github.com/nordstad/PinViz/pull/190)
+- Golden SVG snapshot tests for representative rendered diagrams (https://github.com/nordstad/PinViz/pull/190)
+- `FIXED_ROLE_PINS` and `PWM_PINS` class constants on `PinAssigner` (https://github.com/nordstad/PinViz/pull/190)
+
+### Changed
+- `ConfigLoader` now reads validated Pydantic schema fields instead of raw dict keys (https://github.com/nordstad/PinViz/pull/190)
+- `ConnectionBuilder` delegates device adaptation to `McpDeviceAdapter` and board resolution to `AliasBoardSelectionStrategy` (https://github.com/nordstad/PinViz/pull/190)
+- `show_legend` schema default changed from `true` to `false` (https://github.com/nordstad/PinViz/pull/190)
+- ci: update GitHub Actions to Node.js 24-compatible versions (checkout v6, setup-uv v7, upload-artifact v7, download-artifact v8, github-script v8, upload-pages-artifact v4)
+
+### Fixed
+- PWM pin list corrected — physical pin 32 was missing, pin 12 was duplicated (https://github.com/nordstad/PinViz/pull/190)
+- `McpDeviceAdapter._apply_metadata_overrides` no longer mutates `Device` directly; uses `dataclasses.replace` consistently (https://github.com/nordstad/PinViz/pull/190)
 
 ## [0.16.2] - 2026-03-17
 
