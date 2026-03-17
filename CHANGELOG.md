@@ -10,11 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.17.0] - 2026-03-17
 
-### Changed
-- Refactor diagram assembly around builder, strategy, and adapters (https://github.com/nordstad/PinViz/pull/190)
-
-## [0.17.0] - 2026-03-17
-
 ### Added
 - Shared `BoardSelectionStrategy` protocol and `AliasBoardSelectionStrategy` — centralises board alias resolution across config and MCP flows (https://github.com/nordstad/PinViz/pull/190)
 - `DiagramBuilder` — step-by-step builder shared by config and MCP assembly paths (https://github.com/nordstad/PinViz/pull/190)
