@@ -66,7 +66,7 @@ def render_command(
         with progress_indicator(ctx.console, "") as progress:
             # Load config
             task = progress.add_task("Loading configuration...", total=None)
-            diagram = load_diagram(config_file)
+            diagram = load_diagram(config_file, emit_validation_output=not json_output)
             progress.update(task, completed=True)
 
             log.debug(

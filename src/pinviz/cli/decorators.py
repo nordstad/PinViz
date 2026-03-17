@@ -54,11 +54,16 @@ def handle_command_exception(
         ...         lambda msg: RenderOutputJson(status="error", errors=[msg])
         ...     )
     """
-    logger.exception(
-        f"{command_name}_error",
-        error_type=type(e).__name__,
-        error_message=str(e),
-    )
+    log_kwargs = {
+        "error_type": type(e).__name__,
+        "error_message": str(e),
+    }
+
+    # Keep JSON mode stderr clean for automation users.
+    if json_output:
+        logger.error(f"{command_name}_error", **log_kwargs)
+    else:
+        logger.exception(f"{command_name}_error", **log_kwargs)
 
     if json_output and json_error_factory:
         error_obj = json_error_factory(str(e))

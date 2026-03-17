@@ -55,7 +55,8 @@ def create_bezier_path(points: list[Point], corner_radius: float = 5.0) -> str:
         path_parts.append(f"L {points[4].x:.2f},{points[4].y:.2f}")
     else:
         # Many points - create smooth curve through all
-        for i in range(1, len(points)):
+        i = 1
+        while i < len(points):
             if i == len(points) - 1:
                 # Last segment - simple curve
                 prev = points[i - 1]
@@ -63,11 +64,12 @@ def create_bezier_path(points: list[Point], corner_radius: float = 5.0) -> str:
                 # Create smooth approach to final point
                 cx = prev.x + (curr.x - prev.x) * 0.5
                 path_parts.append(f"Q {cx:.2f},{curr.y:.2f} {curr.x:.2f},{curr.y:.2f}")
+                i += 1
             else:
                 # Use current point as control, next as target
                 curr = points[i]
                 next_pt = points[i + 1]
                 path_parts.append(f"Q {curr.x:.2f},{curr.y:.2f} {next_pt.x:.2f},{next_pt.y:.2f}")
-                i += 1  # Skip next point since we used it
+                i += 2  # Skip next point since we used it as target
 
     return " ".join(path_parts)

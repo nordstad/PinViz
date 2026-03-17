@@ -150,6 +150,15 @@ class ConfigLoader:
         My GPIO Diagram
     """
 
+    def __init__(self, *, emit_validation_output: bool = True) -> None:
+        """Initialize config loader behavior.
+
+        Args:
+            emit_validation_output: Whether to print graph validation messages
+                to stdout while loading configurations.
+        """
+        self.emit_validation_output = emit_validation_output
+
     def load_from_file(self, config_path: str | Path) -> Diagram:
         """
         Load a diagram from a YAML or JSON configuration file.
@@ -316,11 +325,12 @@ class ConfigLoader:
         warnings = [issue for issue in validation_issues if issue.level == ValidationLevel.WARNING]
 
         if errors:
-            self._report_validation_errors(errors)
+            if self.emit_validation_output:
+                self._report_validation_errors(errors)
             log.error("config_validation_failed", error_count=len(errors))
             raise ValueError("Configuration has critical errors")
 
-        if warnings:
+        if warnings and self.emit_validation_output:
             self._report_validation_warnings(warnings)
 
         # Parse theme
@@ -911,15 +921,16 @@ class ConfigLoader:
         return resolved_schema.to_connection()
 
 
-def load_diagram(config_path: str | Path) -> Diagram:
+def load_diagram(config_path: str | Path, *, emit_validation_output: bool = True) -> Diagram:
     """
     Convenience function to load a diagram from a file.
 
     Args:
         config_path: Path to YAML or JSON configuration file
+        emit_validation_output: Whether to print graph validation details
 
     Returns:
         Diagram object
     """
-    loader = ConfigLoader()
+    loader = ConfigLoader(emit_validation_output=emit_validation_output)
     return loader.load_from_file(config_path)

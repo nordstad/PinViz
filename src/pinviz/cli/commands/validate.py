@@ -75,7 +75,7 @@ def validate_command(
         if not json_output:
             ctx.console.print(f"Validating configuration: [cyan]{config_file}[/cyan]")
 
-        diagram = load_diagram(config_file)
+        diagram = load_diagram(config_file, emit_validation_output=not json_output)
 
         log.debug(
             "config_loaded",
