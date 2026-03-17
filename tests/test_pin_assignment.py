@@ -330,6 +330,57 @@ class TestPinAssigner:
         assert len(warnings) == 0
         assert {assignment.board_pin_number for assignment in assignments} == {12, 32, 33, 35}
 
+    def test_general_gpio_warning_when_gpio_pool_is_exhausted(self):
+        """General GPIO assignment should warn when no GPIO pins remain."""
+        assigner = PinAssigner()
+        assigner.state.available_gpio = []
+
+        warnings = assigner._assign_general_pin("Exhausted", "SIG", PinRole.GPIO)
+
+        assert warnings == ["Error: No GPIO pins available for Exhausted/SIG"]
+
+    def test_general_pwm_warning_when_pwm_candidates_are_exhausted(self):
+        """PWM helper should warn when all PWM-capable pins are already used."""
+        assigner = PinAssigner()
+        assigner.state.used_pins.update(PinAssigner.PWM_PINS)
+
+        warnings = assigner._assign_general_pin("PWM Device", "SIG", PinRole.PWM)
+
+        assert warnings == ["Warning: No PWM pins available for PWM Device/SIG"]
+
+    def test_general_fixed_role_assignment_uses_fixed_pin(self):
+        """Fixed-role pins should be assigned from the fixed mapping."""
+        assigner = PinAssigner()
+
+        warnings = assigner._assign_general_pin("UART Device", "TX", PinRole.UART_TX)
+
+        assert warnings == []
+        assert (
+            assigner.assignments[0].board_pin_number
+            == PinAssigner.FIXED_ROLE_PINS[PinRole.UART_TX]
+        )
+
+    def test_general_fixed_role_assignment_warns_when_pin_is_unavailable(self):
+        """Fixed-role assignment should warn when the mapped board pin is already used."""
+        assigner = PinAssigner()
+        assigner.state.used_pins.add(PinAssigner.FIXED_ROLE_PINS[PinRole.UART_TX])
+
+        warnings = assigner._assign_general_pin("UART Device", "TX", PinRole.UART_TX)
+
+        assert warnings == ["Warning: Fixed UART_TX pin unavailable for UART Device/TX"]
+        assert assigner.assignments == []
+
+    def test_general_pin_warns_for_unsupported_role_objects(self):
+        """Unsupported role-like objects should produce a warning instead of crashing."""
+        assigner = PinAssigner()
+
+        class UnsupportedRole:
+            value = "UNSUPPORTED"
+
+        warnings = assigner._assign_general_pin("Mystery Device", "X", UnsupportedRole())
+
+        assert warnings == ["Warning: Unsupported pin role UNSUPPORTED for Mystery Device/X"]
+
     def test_mixed_devices(self):
         """Test complex scenario with mixed I2C, SPI, and GPIO devices."""
         assigner = PinAssigner()

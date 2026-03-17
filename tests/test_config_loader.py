@@ -249,6 +249,19 @@ def test_load_unknown_board():
         loader.load_from_dict(config)
 
 
+def test_get_board_wraps_strategy_errors():
+    """ConfigLoader should convert strategy lookup failures into config errors."""
+
+    class RejectingBoardSelectionStrategy:
+        def select_board(self, board_name: str):
+            raise ValueError("unsupported in test")
+
+    loader = ConfigLoader(board_selection_strategy=RejectingBoardSelectionStrategy())
+
+    with pytest.raises(ValueError, match="Board 'raspberry_pi_5' not found"):
+        loader._load_board_by_name("raspberry_pi_5")
+
+
 def test_load_led_with_color():
     """Test loading LED with color parameter."""
     config = {
