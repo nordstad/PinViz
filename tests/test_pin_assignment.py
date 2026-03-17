@@ -356,8 +356,7 @@ class TestPinAssigner:
 
         assert warnings == []
         assert (
-            assigner.assignments[0].board_pin_number
-            == PinAssigner.FIXED_ROLE_PINS[PinRole.UART_TX]
+            assigner.assignments[0].board_pin_number == PinAssigner.FIXED_ROLE_PINS[PinRole.UART_TX]
         )
 
     def test_general_fixed_role_assignment_warns_when_pin_is_unavailable(self):
