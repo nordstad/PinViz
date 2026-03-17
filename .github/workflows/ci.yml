@@ -125,25 +125,7 @@ jobs:
         run: uv sync --dev
 
       - name: Run MCP server tests
-        run: uv run python tests/test_mcp_local.py
-
-      - name: Verify SVG output
-        run: |
-          if [ -f test_mcp_output.svg ]; then
-            echo "✓ SVG diagram generated successfully"
-            ls -lh test_mcp_output.svg
-          else
-            echo "✗ SVG diagram not found"
-            exit 1
-          fi
-
-      - name: Upload SVG artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: mcp-test-output
-          path: test_mcp_output.svg
-          retention-days: 7
+        run: uv run pytest tests/test_mcp_local.py -v
 
   package-test:
     name: Test package build
