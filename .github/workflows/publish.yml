@@ -315,12 +315,7 @@ jobs:
         env:
           VERSION: ${{ github.ref_name }}
         run: |
-          VERSION="${VERSION#v}"
-          JSON=$(curl -s "https://pypi.org/pypi/pinviz/${VERSION}/json")
-          URL=$(echo "$JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); print([f['url'] for f in d['urls'] if f['url'].endswith('.tar.gz')][0])")
-          SHA=$(echo "$JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); print([f['digests']['sha256'] for f in d['urls'] if f['url'].endswith('.tar.gz')][0])")
-          sed -i "s|url \".*pinviz-.*\.tar\.gz\"|url \"${URL}\"|" Formula/pinviz.rb
-          sed -i "/url \".*pinviz-.*\.tar\.gz\"/{n; s|sha256 \"[a-f0-9]*\"|sha256 \"${SHA}\"|;}" Formula/pinviz.rb
+          python3 scripts/update_homebrew_formula.py "${VERSION#v}" Formula/pinviz.rb
 
       - name: Commit and push
         run: |
