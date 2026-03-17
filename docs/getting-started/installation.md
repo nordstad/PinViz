@@ -52,10 +52,10 @@ pipx install pinviz
 If you want to use PinViz as a library in your Python project:
 
 ```bash
-# Using uv
 uv add pinviz
+```
 
-# Using pip
+```bash
 pip install pinviz
 ```
 
