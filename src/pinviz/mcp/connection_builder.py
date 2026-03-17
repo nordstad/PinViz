@@ -1,14 +1,11 @@
-"""
-Connection Builder for PinViz MCP Server.
+"""Connection Builder for PinViz MCP Server."""
 
-This module converts pin assignments into PinViz Connection objects and generates
-complete Diagram objects ready for rendering.
-"""
-
-from pinviz import boards
-from pinviz.devices import get_registry
+from pinviz.board_selection import AliasBoardSelectionStrategy, BoardSelectionStrategy
+from pinviz.diagram_builder import DiagramBuilder
 from pinviz.mcp.pin_assignment import PinAssignment
-from pinviz.model import DEFAULT_COLORS, Connection, Device, DevicePin, Diagram, Point
+from pinviz.model import DEFAULT_COLORS, Connection, Device, Diagram
+
+from .adapters import McpDeviceAdapter
 
 
 class ConnectionBuilder:
@@ -21,9 +18,16 @@ class ConnectionBuilder:
     - Complete Diagram object ready for rendering
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        board_selection_strategy: BoardSelectionStrategy | None = None,
+        device_adapter: McpDeviceAdapter | None = None,
+    ):
         """Initialize the connection builder."""
-        pass
+        self._board_selection_strategy = board_selection_strategy or AliasBoardSelectionStrategy(
+            fallback_board_name="raspberry_pi_5"
+        )
+        self._device_adapter = device_adapter or McpDeviceAdapter()
 
     def build_diagram(
         self,
@@ -44,32 +48,26 @@ class ConnectionBuilder:
         Returns:
             Complete Diagram object ready for rendering
         """
-        # Get board
-        board = self._get_board(board_name)
-
         # Build Device objects
         devices = self._build_devices(devices_data)
 
         # Build Connection objects
         connections = self._build_connections(assignments)
 
-        # Create diagram
-        diagram = Diagram(
-            title=title,
-            board=board,
-            devices=devices,
-            connections=connections,
+        # Create diagram through the shared builder so MCP assembly matches
+        # config-based assembly semantics.
+        return (
+            DiagramBuilder(self._board_selection_strategy)
+            .with_title(title)
+            .with_board_name(board_name)
+            .with_devices(devices)
+            .with_connections(connections)
+            .build()
         )
-
-        return diagram
 
     def _get_board(self, board_name: str):
         """Get board object by name."""
-        if board_name == "raspberry_pi_5":
-            return boards.raspberry_pi_5()
-        else:
-            # Default to Raspberry Pi 5
-            return boards.raspberry_pi_5()
+        return self._board_selection_strategy.select_board(board_name)
 
     def _build_devices(self, devices_data: list[dict]) -> list[Device]:
         """Build Device objects from device data.
@@ -77,69 +75,7 @@ class ConnectionBuilder:
         First tries to load from device registry (device_configs/ or Python factories),
         then falls back to manual construction from MCP database data.
         """
-        devices = []
-        registry = get_registry()
-
-        for device_data in devices_data:
-            device_id = device_data.get("id")
-            device_name = device_data["name"]
-
-            # Try to load from registry first (device_configs/ or Python factories)
-            device = None
-            if device_id:
-                try:
-                    device = registry.create(device_id)
-                    # Override name if different in MCP data
-                    if device.name != device_name:
-                        # Create a copy with the MCP name
-                        device = Device(
-                            name=device_name,
-                            pins=device.pins,
-                            width=device.width,
-                            height=device.height,
-                            color=device.color,
-                            position=device.position,
-                            type_id=device.type_id,
-                            description=device.description,
-                            url=device.url,
-                            category=device.category,
-                            i2c_address=device.i2c_address,
-                        )
-                except (ValueError, FileNotFoundError):
-                    # Device not in registry, fall back to manual construction
-                    pass
-
-            # Fall back to manual construction from MCP database
-            if device is None:
-                device_pins_data = device_data["pins"]
-
-                # Build DevicePin objects
-                device_pins = []
-                for i, pin_data in enumerate(device_pins_data):
-                    pin = DevicePin(
-                        name=pin_data["name"],
-                        role=pin_data["role"],
-                        position=Point(0, i * 10),  # Simple vertical spacing
-                    )
-                    device_pins.append(pin)
-
-                # Create Device
-                device = Device(
-                    name=device_name,
-                    pins=device_pins,
-                    width=120.0,
-                    height=max(60.0, len(device_pins) * 10 + 20),
-                    position=Point(0, 0),  # Will be set by layout engine
-                    color=self._get_device_color(device_data),
-                    type_id=device_id,
-                    description=device_data.get("description"),
-                    url=device_data.get("datasheet_url"),
-                    category=device_data.get("category"),
-                )
-
-            devices.append(device)
-
-        return devices
+        return self._device_adapter.adapt_many(devices_data)
 
     def _build_connections(self, assignments: list[PinAssignment]) -> list[Connection]:
         """Build Connection objects from pin assignments."""
@@ -163,18 +99,7 @@ class ConnectionBuilder:
 
     def _get_device_color(self, device_data: dict) -> str:
         """Get device color based on category."""
-        category = device_data.get("category", "")
-
-        color_map = {
-            "display": "#4A90E2",  # Blue
-            "sensor": "#50E3C2",  # Turquoise
-            "actuator": "#F5A623",  # Orange
-            "hat": "#BD10E0",  # Purple
-            "breakout": "#7ED321",  # Green
-            "component": "#F8E71C",  # Yellow
-        }
-
-        return color_map.get(category, "#4A90E2")  # Default blue
+        return self._device_adapter.get_device_color(device_data.get("category"))
 
 
 def build_diagram_from_assignments(

@@ -160,6 +160,25 @@ def test_load_with_show_legend_false():
     assert diagram.show_legend is False
 
 
+def test_load_uses_schema_coercion_for_boolean_options():
+    """ConfigLoader should respect Pydantic-coerced boolean values."""
+    config = {
+        "title": "Test",
+        "board": "rpi5",
+        "devices": [],
+        "connections": [],
+        "show_legend": "true",
+        "show_title": "false",
+        "show_board_name": "false",
+    }
+    loader = ConfigLoader()
+    diagram = loader.load_from_dict(config)
+
+    assert diagram.show_legend is True
+    assert diagram.show_title is False
+    assert diagram.show_board_name is False
+
+
 @pytest.mark.parametrize(
     "board_name",
     ["raspberry_pi_5", "raspberry_pi", "rpi5", "rpi", "RPI5", "RPi"],

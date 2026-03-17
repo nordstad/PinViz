@@ -102,6 +102,29 @@ class TestPinAssigner:
         assert len(warnings) > 0
         assert any("I2C address" in w for w in warnings)
 
+    def test_i2c_device_with_gpio_interrupt_pin(self):
+        """I2C strategies should still allocate non-bus pins like INT."""
+        assigner = PinAssigner()
+
+        device = {
+            "name": "MPU6050",
+            "protocols": ["I2C"],
+            "pins": [
+                {"name": "VCC", "role": "3V3"},
+                {"name": "GND", "role": "GND"},
+                {"name": "SCL", "role": "I2C_SCL"},
+                {"name": "SDA", "role": "I2C_SDA"},
+                {"name": "INT", "role": "GPIO"},
+            ],
+        }
+
+        assignments, warnings = assigner.assign_pins([device])
+
+        assert len(assignments) == 5
+        assert len(warnings) == 0
+        int_assignment = next(a for a in assignments if a.device_pin_name == "INT")
+        assert int_assignment.board_pin_number in PinAssigner.GPIO_BCM_TO_PHYSICAL.values()
+
     def test_single_spi_device(self):
         """Test assigning pins for a single SPI device."""
         assigner = PinAssigner()
@@ -287,6 +310,25 @@ class TestPinAssigner:
 
         assert len(warnings) > 0
         assert any("current" in w.lower() for w in warnings)
+
+    def test_four_pwm_devices_use_all_pwm_pins(self):
+        """PWM strategies should allocate all four supported PWM-capable pins."""
+        assigner = PinAssigner()
+
+        devices = [
+            {
+                "name": f"PWM Device {index}",
+                "protocols": [],
+                "pins": [{"name": "SIG", "role": "PWM"}],
+            }
+            for index in range(4)
+        ]
+
+        assignments, warnings = assigner.assign_pins(devices)
+
+        assert len(assignments) == 4
+        assert len(warnings) == 0
+        assert {assignment.board_pin_number for assignment in assignments} == {12, 32, 33, 35}
 
     def test_mixed_devices(self):
         """Test complex scenario with mixed I2C, SPI, and GPIO devices."""

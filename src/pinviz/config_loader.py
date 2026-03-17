@@ -7,11 +7,12 @@ from typing import Any
 import yaml
 from pydantic import ValidationError
 
-from . import boards
+from .board_selection import AliasBoardSelectionStrategy, BoardSelectionStrategy
 from .color_utils import resolve_color
 from .connection_graph import ConnectionGraph
 from .constants import DEVICE_LAYOUT
 from .devices import get_registry
+from .diagram_builder import DiagramBuilder, DiagramOptions
 from .errors import format_config_error
 from .logging_config import get_logger
 from .model import (
@@ -150,14 +151,21 @@ class ConfigLoader:
         My GPIO Diagram
     """
 
-    def __init__(self, *, emit_validation_output: bool = True) -> None:
+    def __init__(
+        self,
+        *,
+        emit_validation_output: bool = True,
+        board_selection_strategy: BoardSelectionStrategy | None = None,
+    ) -> None:
         """Initialize config loader behavior.
 
         Args:
             emit_validation_output: Whether to print graph validation messages
                 to stdout while loading configurations.
+            board_selection_strategy: Strategy used to resolve board aliases.
         """
         self.emit_validation_output = emit_validation_output
+        self._board_selection_strategy = board_selection_strategy or AliasBoardSelectionStrategy()
 
     def load_from_file(self, config_path: str | Path) -> Diagram:
         """
@@ -280,7 +288,7 @@ class ConfigLoader:
             ) from e
 
         # Load board
-        board_config = config.get("board", "raspberry_pi_5")
+        board_config = validated_config.board
         if isinstance(board_config, str):
             board = self._load_board_by_name(board_config)
             log.debug("board_loaded", board_name=board.name)
@@ -289,7 +297,7 @@ class ConfigLoader:
             raise ValueError("Custom board definitions not yet supported")
 
         # Load devices
-        device_configs = config.get("devices", [])
+        device_configs = validated_config.devices
         diagram_devices = []
 
         log.debug("loading_devices", device_count=len(device_configs))
@@ -304,7 +312,10 @@ class ConfigLoader:
             )
 
         # Load connections with smart pin assignment
-        connection_configs = config.get("connections", [])
+        connection_configs = [
+            connection.model_dump(by_alias=True, exclude_none=True)
+            for connection in validated_config.connections
+        ]
         connections = []
 
         # Create pin assigner for automatic role-based pin distribution
@@ -334,24 +345,30 @@ class ConfigLoader:
             self._report_validation_warnings(warnings)
 
         # Parse theme
-        theme_str = config.get("theme", "light")
+        theme_str = validated_config.theme
         try:
             theme = Theme(theme_str.lower())
         except ValueError:
             log.warning("invalid_theme", theme=theme_str, using_default="light")
             theme = Theme.LIGHT
 
-        # Create diagram
-        diagram = Diagram(
-            title=config.get("title", "GPIO Diagram"),
-            board=board,
-            devices=diagram_devices,
-            connections=connections,
-            show_legend=config.get("show_legend", False),
-            show_gpio_diagram=config.get("show_gpio_diagram", False),
-            show_title=config.get("show_title", True),
-            show_board_name=config.get("show_board_name", True),
+        # Create diagram via the shared builder so all entry points assemble the
+        # same core model and presentation options.
+        options = DiagramOptions(
+            show_legend=validated_config.show_legend,
+            show_gpio_diagram=validated_config.show_gpio_diagram,
+            show_title=validated_config.show_title,
+            show_board_name=validated_config.show_board_name,
             theme=theme,
+        )
+        diagram = (
+            DiagramBuilder(self._board_selection_strategy)
+            .with_title(validated_config.title)
+            .with_board(board)
+            .with_devices(diagram_devices)
+            .with_connections(connections)
+            .with_options(options)
+            .build()
         )
 
         log.info(
@@ -385,46 +402,15 @@ class ConfigLoader:
             - "raspberry_pi_pico", "pico": Raspberry Pi Pico
             - "raspberry_pi", "rpi": Latest Raspberry Pi (currently Pi 5)
         """
-        board_loaders = {
-            # Raspberry Pi 5
-            "raspberry_pi_5": boards.raspberry_pi_5,
-            "rpi5": boards.raspberry_pi_5,
-            # Raspberry Pi 4
-            "raspberry_pi_4": boards.raspberry_pi_4,
-            "rpi4": boards.raspberry_pi_4,
-            "pi4": boards.raspberry_pi_4,
-            # Raspberry Pi Pico
-            "raspberry_pi_pico": boards.raspberry_pi_pico,
-            "pico": boards.raspberry_pi_pico,
-            # ESP32 DevKit V1
-            "esp32_devkit_v1": boards.esp32_devkit_v1,
-            "esp32": boards.esp32_devkit_v1,
-            "esp32dev": boards.esp32_devkit_v1,
-            "esp32_devkit": boards.esp32_devkit_v1,
-            # Wemos D1 Mini
-            "wemos_d1_mini": boards.wemos_d1_mini,
-            "d1mini": boards.wemos_d1_mini,
-            "d1_mini": boards.wemos_d1_mini,
-            "wemos": boards.wemos_d1_mini,
-            # ESP8266 NodeMCU
-            "esp8266_nodemcu": boards.esp8266_nodemcu,
-            "esp8266": boards.esp8266_nodemcu,
-            "nodemcu": boards.esp8266_nodemcu,
-            # Aliases
-            "raspberry_pi": boards.raspberry_pi,
-            "rpi": boards.raspberry_pi,
-        }
-
-        loader = board_loaders.get(name.lower())
-        if not loader:
+        try:
+            return self._board_selection_strategy.select_board(name)
+        except ValueError:
             raise ValueError(
                 format_config_error(
                     "board_not_found",
                     context={"board_name": name},
                 )
-            )
-
-        return loader()
+            ) from None
 
     def _load_device(self, config: dict[str, Any]) -> Device:
         """

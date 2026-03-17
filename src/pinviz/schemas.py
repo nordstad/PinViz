@@ -642,7 +642,7 @@ class DiagramConfigSchema(BaseModel):
     connections: Annotated[list[ConnectionSchema], Field(description="List of connections")] = (
         Field(default_factory=list)
     )
-    show_legend: bool = True
+    show_legend: bool = False
     show_gpio_diagram: bool = False
     show_title: bool = True
     show_board_name: bool = True
