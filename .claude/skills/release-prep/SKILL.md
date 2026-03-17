@@ -71,16 +71,10 @@ Today's date in `YYYY-MM-DD` format. If `[Unreleased]` is empty, note that to th
 
 Compare the runtime dependencies in `pyproject.toml` against the resource stanzas in `Formula/pinviz.rb`. If any runtime dependency was **added, removed, or version-bumped**, warn the user:
 
-> ⚠️  Runtime dependencies have changed. Before tagging, regenerate the Homebrew resource stanzas:
-> ```bash
-> brew update-python-resources Formula/pinviz.rb
-> git add Formula/pinviz.rb
-> git commit -m "chore: update Homebrew resource stanzas for vX.Y.Z"
-> git push origin main
-> ```
+> ⚠️  Runtime dependencies have changed. After the publish CI completes and PyPI is live, regenerate the Homebrew resource stanzas (see post-release steps below).
 > The publish workflow only auto-updates the main package URL/SHA256 — it does not refresh resource stanzas.
 
-If no runtime dependencies changed, note that no formula update is needed before tagging.
+If no runtime dependencies changed, note that no formula update is needed.
 
 ## Step 7: Show the git commands — do NOT run them
 
@@ -108,3 +102,27 @@ Then show this reminder:
 > ⚠️  Do NOT create a GitHub Release manually (no `gh release create`, no GitHub UI).
 > The publish workflow creates the release automatically when the tag is pushed.
 > Monitor with: `gh run watch --workflow=publish.yml`
+
+## Post-release: Update Homebrew resource stanzas (if deps changed)
+
+Only needed when runtime dependencies were added, removed, or version-bumped (flagged in Step 6).
+
+Must run **after** the publish CI completes and the package is live on PyPI:
+
+```bash
+# 1. Pull — CI commits Formula/pinviz.rb (URL+sha256) and CHANGELOG.md to main
+git pull origin main
+
+# 2. Regenerate all resource stanzas from the live PyPI package
+brew update-python-resources nordstad/pinviz/pinviz
+
+# 3. Sync the updated formula back to the repo
+cp "$(brew --repository nordstad/pinviz)/Formula/pinviz.rb" Formula/pinviz.rb
+
+# 4. Commit and push
+git add Formula/pinviz.rb
+git commit -m "chore: update Homebrew resource stanzas for vX.Y.Z"
+git push origin main
+```
+
+> Note: `brew update-python-resources` only accepts a tap reference (`nordstad/pinviz/pinviz`), not a local file path.
