@@ -19,10 +19,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
 
       - name: Install Python 3.13
         run: uv python install 3.13
@@ -211,7 +211,7 @@ jobs:
           echo "=========================================="
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
@@ -229,13 +229,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
@@ -245,7 +245,7 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const tag = context.ref.replace('refs/tags/', '');
@@ -307,7 +307,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
 
@@ -340,7 +340,7 @@ jobs:
 
     steps:
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: false
 
@@ -396,7 +396,7 @@ jobs:
           echo "✓ CLI installation verified"
 
       - name: Checkout code for shared tests
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run post-publish integration tests
         run: |
