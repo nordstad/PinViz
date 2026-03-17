@@ -85,19 +85,20 @@ class McpDeviceAdapter:
         device_data: Mapping[str, Any],
         type_id: str,
     ) -> Device:
-        device.type_id = type_id
+        overrides: dict[str, Any] = {"type_id": type_id}
+
         if device_data.get("description"):
-            device.description = device_data["description"]
+            overrides["description"] = device_data["description"]
         if device_data.get("datasheet_url"):
-            device.url = device_data["datasheet_url"]
+            overrides["url"] = device_data["datasheet_url"]
         if device_data.get("category"):
-            device.category = device_data["category"]
+            overrides["category"] = device_data["category"]
 
         adapted_i2c_address = self._parse_i2c_address(device_data.get("i2c_address"))
         if adapted_i2c_address is not None:
-            device.i2c_address = adapted_i2c_address
+            overrides["i2c_address"] = adapted_i2c_address
 
-        return device
+        return replace(device, **overrides)
 
     def _coerce_role(self, role: str) -> PinRole:
         try:
