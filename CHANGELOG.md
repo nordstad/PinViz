@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.16.2] - 2026-03-17
+
+### Added
+- feat: add ESP32/add-device demos, refresh GIFs, fix wizard and logging bugs (https://github.com/nordstad/PinViz/pull/171)
+- chore: add Claude Code automations (hooks, skills, subagent) (https://github.com/nordstad/PinViz/pull/172)
+
+### Changed
+- chore(deps-dev): bump mkdocs-material from 9.7.1 to 9.7.2 (https://github.com/nordstad/PinViz/pull/177)
+- chore(deps-dev): bump ruff from 0.15.1 to 0.15.2 (https://github.com/nordstad/PinViz/pull/176)
+- chore(deps-dev): bump mkdocstrings-python from 2.0.1 to 2.0.3 (https://github.com/nordstad/PinViz/pull/175)
+- chore(deps): bump rich from 14.3.2 to 14.3.3 (https://github.com/nordstad/PinViz/pull/174)
+- chore(deps-dev): bump hypothesis from 6.151.6 to 6.151.9 (https://github.com/nordstad/PinViz/pull/173)
+- docs: migrate from Material for MkDocs to Zensical (https://github.com/nordstad/PinViz/pull/179)
+- chore(deps): bump typer from 0.23.1 to 0.24.1 (https://github.com/nordstad/PinViz/pull/183)
+- chore(deps): bump pydantic-settings from 2.13.0 to 2.13.1 (https://github.com/nordstad/PinViz/pull/182)
+- chore(deps-dev): bump zensical from 0.0.23 to 0.0.24 (https://github.com/nordstad/PinViz/pull/181)
+- chore(deps-dev): bump ruff from 0.15.2 to 0.15.4 (https://github.com/nordstad/PinViz/pull/180)
+- chore(deps-dev): bump platformdirs from 4.9.2 to 4.9.4 (https://github.com/nordstad/PinViz/pull/185)
+- chore(deps-dev): bump ruff from 0.15.4 to 0.15.5 (https://github.com/nordstad/PinViz/pull/184)
+- chore(deps-dev): bump ruff from 0.15.5 to 0.15.6 (https://github.com/nordstad/PinViz/pull/188)
+- chore(deps-dev): bump zensical from 0.0.24 to 0.0.27 (https://github.com/nordstad/PinViz/pull/187)
+- chore(deps): bump pyjwt from 2.10.1 to 2.12.0 (https://github.com/nordstad/PinViz/pull/186)
+
+### Fixed
+- fix: clean JSON output, Bezier loop bug fix, modernize MCP tests (https://github.com/nordstad/PinViz/pull/189)
+
 ## [0.16.2] - 2026-03-17
 
 ### Fixed
