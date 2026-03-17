@@ -112,7 +112,9 @@ brew install pinviz
 
 ```bash
 uv tool install pinviz
-# or
+```
+
+```bash
 pip install pinviz
 ```
 
