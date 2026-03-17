@@ -65,6 +65,9 @@ pinviz add-device
 6. **SVG Renderer** (`render_svg.py`): Converts diagrams to SVG using `drawsvg`
 7. **CLI** (`cli/`): Modular Typer-based CLI with Rich output and JSON support
 8. **Connection Graph** (`connection_graph.py`): Multi-level device connection validation and analysis
+9. **Board Selection** (`board_selection.py`): `BoardSelectionStrategy` protocol + `AliasBoardSelectionStrategy` — shared board alias resolution for config and MCP flows
+10. **Diagram Builder** (`diagram_builder.py`): `DiagramBuilder` + `DiagramOptions` — step-by-step builder shared by all assembly paths
+11. **MCP Adapters** (`mcp/adapters.py`): `McpDeviceAdapter` — adapts MCP device records to typed `Device` model objects
 
 ### Multi-Level Device Support (v0.11.0+)
 
@@ -111,6 +114,8 @@ Device-to-device routing:
 4. **Two-phase wire routing**: Group by source pin, calculate offsets, then route
 5. **Color assignment**: Automatic based on pin role, overridable per connection
 6. **Configuration-based**: Board/device definitions in JSON with smart defaults
+7. **Strategy pattern**: `BoardSelectionStrategy` and `PinAssignmentStrategy` allow swappable behaviour without subclassing
+8. **Adapter pattern**: `McpDeviceAdapter` translates external MCP records into core model objects; use `dataclasses.replace()` — never mutate model instances directly
 
 ### Configuration File Structure
 
@@ -130,7 +135,7 @@ connections:
     device_pin: "Pin Name"
     color: "#FF0000"  # Optional
     style: "mixed"  # Optional: orthogonal, curved, mixed
-show_legend: true
+show_legend: false  # default is false
 ```
 
 ### Python API
@@ -235,7 +240,7 @@ The `.claude/` directory is committed and shared. `settings.local.json` is gitig
 ### Skills
 
 - **`/validate-examples`** — mirrors the CI `verify-examples` job: validates + renders all configs in `examples/`, executes all `*_python.py` scripts, runs example-tagged tests
-- **`/release-prep`** — guided release workflow: pre-publish checks (tests, post-publish compat, ruff, build), checks if Homebrew resource stanzas need updating, bumps version in `pyproject.toml`, updates `CHANGELOG.md`, then prints the git tag commands without running them
+- **`/release-prep`** — guided release workflow: pre-publish checks (tests, post-publish compat, ruff, build), checks if Homebrew resource stanzas need updating, bumps version in `pyproject.toml`, updates `CHANGELOG.md`, then prints the git tag commands without running them. **After release:** the CI prepends a thin auto-generated `[X.Y.Z]` entry on top of the detailed one we wrote — pull main and delete the duplicate header manually.
 
 ### Subagents
 
