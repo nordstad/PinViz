@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.4] - 2026-03-18
+
+### Fixed
+
+- Homebrew formula update now uses inline shell instead of a separate Python script, removing it from ruff's scope
+- CHANGELOG push no longer fails when commits land on main between tag push and publish completion
+
 ## [0.17.3] - 2026-03-18
 
 ### Changed
