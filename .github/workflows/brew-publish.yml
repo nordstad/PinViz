@@ -72,22 +72,14 @@ jobs:
           print(f"Updated {path}")
           PYEOF
 
-      - name: Open PR on tap repo
+      - name: Commit and push to tap repo
         env:
-          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           VERSION: ${{ steps.version.outputs.tag }}
         run: |
           cd tap
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "bump-pinviz-${VERSION}"
           git add Formula/pinviz.rb
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "chore: bump pinviz to ${VERSION}"
-          git push origin "bump-pinviz-${VERSION}"
-          gh pr create \
-            --repo nordstad/homebrew-pinviz \
-            --title "chore: bump pinviz to ${VERSION}" \
-            --body "Automated bump triggered by release ${VERSION}." \
-            --base main \
-            --head "bump-pinviz-${VERSION}"
+          git push origin main
