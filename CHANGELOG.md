@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.2] - 2026-03-18
+
+### Changed
+- Homebrew formula update moved to dedicated `brew-publish.yml` workflow; can be re-run independently from the PyPI publish step
 
 ## [0.17.1] - 2026-03-18
 
