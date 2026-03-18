@@ -20,11 +20,6 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Checkout source repo
-        uses: actions/checkout@v6
-        with:
-          sparse-checkout: scripts/update_tap_formula.py
-
       - name: Checkout tap repo
         uses: actions/checkout@v6
         with:
@@ -35,7 +30,31 @@ jobs:
       - name: Update formula url and sha256
         env:
           VERSION: ${{ github.event.workflow_run.head_branch }}
-        run: python3 scripts/update_tap_formula.py "${VERSION#v}" tap/Formula/pinviz.rb
+        run: |
+          VER="${VERSION#v}"
+          INFO=$(curl -sf "https://pypi.org/pypi/pinviz/${VER}/json")
+          URL=$(echo "$INFO" | python3 -c "import sys,json; d=json.load(sys.stdin); print(next(f['url'] for f in d['urls'] if f['url'].endswith('.tar.gz')))")
+          SHA=$(echo "$INFO" | python3 -c "import sys,json; d=json.load(sys.stdin); print(next(f['digests']['sha256'] for f in d['urls'] if f['url'].endswith('.tar.gz')))")
+          FORMULA=tap/Formula/pinviz.rb
+          python3 - "$FORMULA" "$URL" "$SHA" <<'PYEOF'
+          import sys, re
+          path, new_url, new_sha = sys.argv[1], sys.argv[2], sys.argv[3]
+          with open(path) as f:
+              content = f.read()
+          content = re.sub(
+              r'(  url ")[^"]+pinviz-[0-9][^"]+\.tar\.gz(")',
+              rf'\g<1>{new_url}\g<2>',
+              content,
+          )
+          content = re.sub(
+              r'(  url "[^"]+\.tar\.gz"\n  sha256 ")[^"]+(")',
+              rf'\g<1>{new_sha}\g<2>',
+              content,
+          )
+          with open(path, "w") as f:
+              f.write(content)
+          print(f"Updated {path}")
+          PYEOF
 
       - name: Open PR on tap repo
         env:
