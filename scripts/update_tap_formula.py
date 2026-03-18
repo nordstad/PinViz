@@ -24,7 +24,8 @@ def fetch_pypi_info(version: str) -> tuple[str, str]:
 
 
 def update_formula(formula_path: str, new_url: str, new_sha: str) -> None:
-    lines = open(formula_path).readlines()
+    with open(formula_path) as f:
+        lines = f.readlines()
     out = []
     pending_sha = False
     for line in lines:
@@ -39,7 +40,8 @@ def update_formula(formula_path: str, new_url: str, new_sha: str) -> None:
             pending_sha = False
         else:
             out.append(line)
-    open(formula_path, "w").writelines(out)
+    with open(formula_path, "w") as f:
+        f.writelines(out)
     print(f"Updated {formula_path}: url + sha256 for pinviz {version}")
 
 
