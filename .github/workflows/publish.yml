@@ -307,14 +307,61 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Bump Homebrew formula via PR
-        uses: dawidd6/action-homebrew-bump-formula@v7
+      - name: Checkout tap repo
+        uses: actions/checkout@v6
         with:
+          repository: nordstad/homebrew-pinviz
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          tap: nordstad/pinviz
-          formula: pinviz
-          tag: ${{ github.ref_name }}
-          no_fork: true
+
+      - name: Update formula url and sha256
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          python3 << 'PYEOF'
+          import json, os, re
+          from urllib.request import urlopen
+
+          version = os.environ["VERSION"].lstrip("v")
+          path = "Formula/pinviz.rb"
+
+          with urlopen(f"https://pypi.org/pypi/pinviz/{version}/json") as r:
+              data = json.load(r)
+          tarball = next(f for f in data["urls"] if f["url"].endswith(".tar.gz"))
+          new_url = tarball["url"]
+          new_sha = tarball["digests"]["sha256"]
+
+          content = open(path).read()
+          content, n = re.subn(
+              r'url "https://files\.pythonhosted\.org/packages/[^"]+/pinviz-[^"]+\.tar\.gz"',
+              f'url "{new_url}"', content, count=1)
+          assert n == 1, "Could not find main package url line"
+          content, n = re.subn(
+              r'(url "' + re.escape(new_url) + r'"\n  sha256 ")[a-f0-9]+"',
+              f'url "{new_url}"\n  sha256 "{new_sha}"', content)
+          assert n == 1, "Could not find sha256 line after url"
+          open(path, "w").write(content)
+          print(f"Updated {path} to pinviz {version}")
+          PYEOF
+
+      - name: Open PR on tap repo
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="bump-pinviz-${VERSION}"
+          git checkout -b "$BRANCH"
+          git add Formula/pinviz.rb
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "chore: bump pinviz to ${VERSION}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --repo nordstad/homebrew-pinviz \
+            --title "chore: bump pinviz to ${VERSION}" \
+            --body "Automated formula bump triggered by [publish workflow](https://github.com/nordstad/PinViz/actions/workflows/publish.yml)." \
+            --base main \
+            --head "$BRANCH"
 
   test-published:
     name: Test Published Package
