@@ -10,11 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.17.1] - 2026-03-18
 
-## [0.17.1] - 2026-03-18
-
 ### Changed
 - Homebrew tap migrated to dedicated `nordstad/homebrew-pinviz` repository; users can now tap with `brew tap nordstad/pinviz` (no custom URL required)
-- Formula auto-update on release now opens a PR on the tap repo via `dawidd6/action-homebrew-bump-formula` instead of committing directly to main
+- Formula auto-update on release now opens a PR on the tap repo instead of committing directly to main
 
 ## [0.17.0] - 2026-03-17
 

@@ -1,0 +1,44 @@
+name: Update Homebrew Formula
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  update-homebrew:
+    name: Update Homebrew Formula
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Wait for tarball on PyPI
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          for i in $(seq 1 10); do
+            if curl -fsSL "https://pypi.org/pypi/pinviz/${VERSION#v}/json" \
+               | jq -e '.urls[] | select(.url|endswith(".tar.gz"))' > /dev/null 2>&1; then
+              echo "pinviz ${VERSION} available on PyPI"
+              exit 0
+            fi
+            echo "Attempt $i/10 — retrying in 30s..."
+            sleep 30
+          done
+          echo "pinviz ${VERSION} not available on PyPI after 5 minutes" && exit 1
+
+      - name: Bump Homebrew formula via PR
+        uses: dawidd6/action-homebrew-bump-formula@v7
+        with:
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          tap: nordstad/pinviz
+          formula: pinviz
+          tag: ${{ github.ref_name }}
+          no_fork: true
