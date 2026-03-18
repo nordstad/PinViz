@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.5] - 2026-03-18
+
+### Fixed
+
+- Homebrew formula now pushed directly to tap main instead of opening a PR
+- Brew publish workflow now triggers on `release: published` event instead of `workflow_run`, eliminating ambiguous `head_branch` resolution
+- Brew publish workflow no longer fires on non-tag publish runs
+
 ## [0.17.4] - 2026-03-18
 
 ### Fixed
