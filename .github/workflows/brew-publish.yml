@@ -1,9 +1,8 @@
 name: Update Homebrew Formula
 
 on:
-  workflow_run:
-    workflows: ["Publish to PyPI"]
-    types: [completed]
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       version:
@@ -19,10 +18,6 @@ env:
 jobs:
   update-homebrew:
     name: Update Homebrew Formula
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       startsWith(github.event.workflow_run.head_branch, 'v'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,13 +27,13 @@ jobs:
         id: version
         env:
           DISPATCH_VERSION: ${{ github.event.inputs.version }}
-          RUN_VERSION: ${{ github.event.workflow_run.head_branch }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             echo "tag=${DISPATCH_VERSION}" >> "$GITHUB_OUTPUT"
           else
-            echo "tag=${RUN_VERSION}" >> "$GITHUB_OUTPUT"
+            # release event: GITHUB_REF is refs/tags/vX.Y.Z
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Checkout tap repo
@@ -93,6 +88,6 @@ jobs:
           gh pr create \
             --repo nordstad/homebrew-pinviz \
             --title "chore: bump pinviz to ${VERSION}" \
-            --body "Automated bump triggered by [publish workflow](https://github.com/nordstad/PinViz/actions/workflows/publish.yml)." \
+            --body "Automated bump triggered by release ${VERSION}." \
             --base main \
             --head "bump-pinviz-${VERSION}"
