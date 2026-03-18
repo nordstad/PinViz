@@ -296,6 +296,8 @@ jobs:
           else
             git add CHANGELOG.md
             git commit -m "Update CHANGELOG.md for release ${GITHUB_REF#refs/tags/}"
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           fi
 
