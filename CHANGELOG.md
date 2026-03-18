@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.3] - 2026-03-18
 
-## [0.17.2] - 2026-03-18
+### Changed
+- Homebrew workflow now triggers via `workflow_run` after PyPI publish completes, ensuring correct ordering and independent re-runnability
 
 ## [0.17.2] - 2026-03-18
 
