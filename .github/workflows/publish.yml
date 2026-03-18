@@ -294,11 +294,13 @@ jobs:
           if git diff --quiet CHANGELOG.md; then
             echo "No changes to commit"
           else
+            cp CHANGELOG.md /tmp/CHANGELOG.md
+            git fetch origin main
+            git checkout main
+            cp /tmp/CHANGELOG.md CHANGELOG.md
             git add CHANGELOG.md
             git commit -m "Update CHANGELOG.md for release ${GITHUB_REF#refs/tags/}"
-            git fetch origin main
-            git rebase origin/main
-            git push origin HEAD:main
+            git push origin main
           fi
 
   test-published:
