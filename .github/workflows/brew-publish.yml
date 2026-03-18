@@ -4,6 +4,11 @@ on:
   workflow_run:
     workflows: ["Publish to PyPI"]
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to publish (e.g. v0.17.4)'
+        required: true
 
 permissions:
   contents: read
@@ -14,12 +19,28 @@ env:
 jobs:
   update-homebrew:
     name: Update Homebrew Formula
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       startsWith(github.event.workflow_run.head_branch, 'v'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     steps:
+      - name: Resolve version
+        id: version
+        env:
+          DISPATCH_VERSION: ${{ github.event.inputs.version }}
+          RUN_VERSION: ${{ github.event.workflow_run.head_branch }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "tag=${DISPATCH_VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${RUN_VERSION}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout tap repo
         uses: actions/checkout@v6
         with:
@@ -29,7 +50,7 @@ jobs:
 
       - name: Update formula url and sha256
         env:
-          VERSION: ${{ github.event.workflow_run.head_branch }}
+          VERSION: ${{ steps.version.outputs.tag }}
         run: |
           VER="${VERSION#v}"
           INFO=$(curl -sf "https://pypi.org/pypi/pinviz/${VER}/json")
@@ -59,7 +80,7 @@ jobs:
       - name: Open PR on tap repo
         env:
           GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          VERSION: ${{ github.event.workflow_run.head_branch }}
+          VERSION: ${{ steps.version.outputs.tag }}
         run: |
           cd tap
           git config user.name "github-actions[bot]"
