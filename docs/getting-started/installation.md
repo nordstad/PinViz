@@ -19,7 +19,7 @@ PinViz requires Python 3.12 or later.
 The easiest way to install on macOS:
 
 ```zsh
-brew tap nordstad/PinViz https://github.com/nordstad/PinViz
+brew tap nordstad/pinviz
 brew install pinviz
 ```
 
