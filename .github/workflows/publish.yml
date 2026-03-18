@@ -309,7 +309,7 @@ jobs:
     needs: publish
     strategy:
       matrix:
-        python-version: ["3.12", "3.13"]
+        python-version: ["3.13"]
 
     steps:
       - name: Install uv
