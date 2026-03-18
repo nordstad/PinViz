@@ -59,7 +59,7 @@ All boards include full pin definitions with GPIO numbers, I2C, SPI, UART, and P
 ### Homebrew (macOS)
 
 ```zsh
-brew tap nordstad/pinviz
+brew tap nordstad/pinviz https://github.com/nordstad/homebrew-pinviz
 brew install pinviz
 ```
 
