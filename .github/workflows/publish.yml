@@ -305,25 +305,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Bump Homebrew formula via PR
+        uses: dawidd6/action-homebrew-bump-formula@v7
         with:
-          ref: main
-
-      - name: Update formula url and sha256
-        env:
-          VERSION: ${{ github.ref_name }}
-        run: |
-          python3 scripts/update_homebrew_formula.py "${VERSION#v}" Formula/pinviz.rb
-
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Formula/pinviz.rb
-          git diff --cached --quiet || git commit -m "chore: update Homebrew formula to ${GITHUB_REF_NAME}"
-          git push origin main
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          tap: nordstad/pinviz
+          formula: pinviz
+          tag: ${{ github.ref_name }}
+          no_fork: true
 
   test-published:
     name: Test Published Package
