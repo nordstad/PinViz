@@ -240,7 +240,7 @@ The `.claude/` directory is committed and shared. `settings.local.json` is gitig
 ### Skills
 
 - **`/validate-examples`** — mirrors the CI `verify-examples` job: validates + renders all configs in `examples/`, executes all `*_python.py` scripts, runs example-tagged tests
-- **`/release-prep`** — guided release workflow: pre-publish checks (tests, post-publish compat, ruff, build), checks if Homebrew resource stanzas need updating, bumps version in `pyproject.toml`, updates `CHANGELOG.md`, then prints the git tag commands without running them. **After release:** the CI prepends a thin auto-generated `[X.Y.Z]` entry on top of the detailed one we wrote — pull main and delete the duplicate header manually.
+- **`/release-prep`** — guided release workflow: pre-publish checks (tests, post-publish compat, ruff, build), checks if Homebrew resource stanzas need updating, bumps version in `pyproject.toml`, updates `CHANGELOG.md`, then prints the git tag commands without running them. **After release:** pull main to get CI's CHANGELOG commit.
 
 ### Subagents
 
@@ -258,7 +258,8 @@ The `.claude/` directory is committed and shared. `settings.local.json` is gitig
 - **Planning**: Save dev plans to `plans/` dir (not committed to git)
 - **Project cleanliness**: Keep root dir clean, essential files only
 - **MCP support**: Check MCP compatibility for new features/updates
-- **Homebrew formula**: `Formula/pinviz.rb` — the publish workflow auto-updates the tarball URL/SHA256 on release; if runtime deps change, run `brew update-python-resources Formula/pinviz.rb` and commit before tagging
+- **Homebrew formula**: Lives in `nordstad/homebrew-pinviz` tap repo (not this repo). `brew-publish.yml` auto-updates it on release via `workflow_run` trigger. If runtime deps change, run `brew update-python-resources nordstad/pinviz/pinviz` and push to the tap repo before tagging.
+- **brew-publish trigger**: Uses `workflow_run`, NOT `release: published` — GitHub blocks `release: published` when a release is created via `GITHUB_TOKEN`. Guard with `startsWith(head_branch, 'v')` to skip non-tag runs.
 
 ## Detailed Guides
 
