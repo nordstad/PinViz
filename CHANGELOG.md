@@ -8,6 +8,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+
+## [0.17.6] - 2026-04-22
+
+### Changed
+- chore(deps-dev): bump pytest-cov from 7.0.0 to 7.1.0 (https://github.com/nordstad/PinViz/pull/194)
+- chore(deps-dev): bump zensical from 0.0.27 to 0.0.28 (https://github.com/nordstad/PinViz/pull/193)
+- chore(deps-dev): bump ruff from 0.15.6 to 0.15.7 (https://github.com/nordstad/PinViz/pull/192)
+- chore(deps): bump requests from 2.32.5 to 2.33.0 (https://github.com/nordstad/PinViz/pull/195)
+- chore(deps): bump cryptography from 46.0.5 to 46.0.6 (https://github.com/nordstad/PinViz/pull/196)
+- chore(deps-dev): bump ruff from 0.15.7 to 0.15.8 (https://github.com/nordstad/PinViz/pull/200)
+- chore(deps-dev): bump zensical from 0.0.28 to 0.0.30 (https://github.com/nordstad/PinViz/pull/199)
+- chore(deps-dev): update uv-build requirement from <0.11.0,>=0.8.20 to >=0.8.20,<0.12.0 (https://github.com/nordstad/PinViz/pull/198)
+- chore(deps-dev): bump hypothesis from 6.151.9 to 6.151.10 (https://github.com/nordstad/PinViz/pull/197)
+- chore(deps): bump pygments from 2.19.2 to 2.20.0 (https://github.com/nordstad/PinViz/pull/201)
+- chore(deps): bump mcp from 1.26.0 to 1.27.0 (https://github.com/nordstad/PinViz/pull/206)
+- chore(deps-dev): bump ruff from 0.15.8 to 0.15.9 (https://github.com/nordstad/PinViz/pull/205)
+- chore(deps-dev): bump hypothesis from 6.151.10 to 6.151.11 (https://github.com/nordstad/PinViz/pull/204)
+- chore(deps-dev): bump zensical from 0.0.30 to 0.0.31 (https://github.com/nordstad/PinViz/pull/202)
+- chore(deps): bump cryptography from 46.0.6 to 46.0.7 (https://github.com/nordstad/PinViz/pull/207)
+- chore(deps-dev): bump mypy from 1.19.1 to 1.20.0 (https://github.com/nordstad/PinViz/pull/203)
+- chore(deps): bump python-multipart from 0.0.22 to 0.0.26 (https://github.com/nordstad/PinViz/pull/213)
+- chore(deps): bump rich from 14.3.3 to 15.0.0 (https://github.com/nordstad/PinViz/pull/212)
+- chore(deps-dev): bump ruff from 0.15.9 to 0.15.10 (https://github.com/nordstad/PinViz/pull/211)
+- chore(deps-dev): bump pytest from 9.0.2 to 9.0.3 (https://github.com/nordstad/PinViz/pull/208)
+- chore(deps-dev): bump platformdirs from 4.9.4 to 4.9.6 (https://github.com/nordstad/PinViz/pull/209)
+- chore(deps-dev): bump ruff from 0.15.10 to 0.15.11 (https://github.com/nordstad/PinViz/pull/214)
+- chore(deps): bump pydantic from 2.12.5 to 2.13.2 (https://github.com/nordstad/PinViz/pull/216)
+- chore(deps-dev): bump mkdocstrings from 1.0.3 to 1.0.4 (https://github.com/nordstad/PinViz/pull/217)
+- chore(deps-dev): bump hypothesis from 6.151.11 to 6.152.1 (https://github.com/nordstad/PinViz/pull/215)
+- chore(deps-dev): bump pygments from 2.19.2 to 2.20.0 (https://github.com/nordstad/PinViz/pull/218)
+- chore(deps): bump python-dotenv from 1.2.1 to 1.2.2 (https://github.com/nordstad/PinViz/pull/219)
+
 ## [0.17.6] - 2026-04-22
 
 ### Fixed
