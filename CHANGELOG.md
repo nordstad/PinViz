@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.17.6] - 2026-04-22
+
+### Fixed
+
+- Docs site 404 caused by pygments 2.20 incompatibility with zensical; upgraded zensical to 0.0.34
+
+### Dependencies
+
+- Bump pydantic from 2.12.5 to 2.13.2
+- Bump python-dotenv from 1.2.1 to 1.2.2
+- Bump rich from 14.3.3 to 15.0.0
+- Bump mcp from 1.26.0 to 1.27.0
+- Bump python-multipart from 0.0.22 to 0.0.26
+- Bump cryptography from 46.0.6 to 46.0.7
+
 ## [0.17.5] - 2026-03-18
 
 ## [0.17.5] - 2026-03-18
