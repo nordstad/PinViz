@@ -236,6 +236,17 @@ class Board:
         """
         return next((p for p in self.pins if p.number == pin_number), None)
 
+    def pins_by_role(self) -> dict[PinRole, list[int]]:
+        """Group physical pin numbers by their role.
+
+        Returns:
+            Mapping from PinRole to list of physical pin numbers with that role.
+        """
+        result: dict[PinRole, list[int]] = {}
+        for pin in self.pins:
+            result.setdefault(pin.role, []).append(pin.number)
+        return result
+
     def get_pin_by_bcm(self, bcm_number: int) -> HeaderPin | None:
         """
         Get a pin by its BCM GPIO number.

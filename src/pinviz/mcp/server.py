@@ -157,6 +157,8 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
         - DO NOT modify or reconstruct the YAML - use the 'yaml_content' field exactly as provided
         - The YAML includes full device pin definitions required by the pinviz CLI
     """
+    from pinviz.board_selection import AliasBoardSelectionStrategy
+
     from .parser import PromptParser
     from .pin_assignment import PinAssigner
 
@@ -175,6 +177,10 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
                 },
                 indent=2,
             )
+
+        # Step 1.5: Resolve board early so PinAssigner can use it
+        board_strategy = AliasBoardSelectionStrategy(fallback_board_name="raspberry_pi_5")
+        board = board_strategy.select_board(parsed.board)
 
         # Step 2: Look up devices in database
         devices_data = []
@@ -200,15 +206,15 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
             )
 
         # Step 3: Assign pins intelligently
-        pin_assigner = PinAssigner()
+        pin_assigner = PinAssigner(board)
         assignments, warnings = pin_assigner.assign_pins(devices_data)
 
         # Step 3.5: Build complete diagram and validate
-        builder = ConnectionBuilder()
+        builder = ConnectionBuilder(board_selection_strategy=board_strategy)
         diagram = builder.build_diagram(
             assignments=assignments,
             devices_data=devices_data,
-            board_name=parsed.board,
+            board=board,
             title=title
             or (
                 f"{', '.join([d['name'] for d in devices_data])} Wiring"

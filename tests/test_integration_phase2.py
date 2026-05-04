@@ -1,5 +1,6 @@
 """Integration tests for Phase 2: Full pipeline from prompt to diagram."""
 
+from pinviz import boards
 from pinviz.mcp.connection_builder import ConnectionBuilder
 from pinviz.mcp.device_manager import DeviceManager
 from pinviz.mcp.parser import PromptParser
@@ -15,7 +16,7 @@ class TestPhase2Integration:
         """Set up test fixtures."""
         self.device_manager = DeviceManager()
         self.parser = PromptParser()
-        self.pin_assigner = PinAssigner()
+        self.pin_assigner = PinAssigner(boards.raspberry_pi_5())
         self.connection_builder = ConnectionBuilder()
 
     def test_single_i2c_device_flow(self):
@@ -197,7 +198,7 @@ class TestPhase2Integration:
                     devices_data.append(device.to_dict())
 
             # Assign pins
-            pin_assigner = PinAssigner()
+            pin_assigner = PinAssigner(boards.raspberry_pi_5())
             assignments, warnings = pin_assigner.assign_pins(devices_data)
 
             # Build diagram
@@ -266,7 +267,7 @@ class TestPhase2PerformanceBaseline:
             if device:
                 devices_data.append(device.to_dict())
 
-        pin_assigner = PinAssigner()
+        pin_assigner = PinAssigner(boards.raspberry_pi_5())
         assignments, warnings = pin_assigner.assign_pins(devices_data)
 
         connection_builder = ConnectionBuilder()

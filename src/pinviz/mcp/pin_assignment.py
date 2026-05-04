@@ -12,7 +12,7 @@ This module implements algorithms for automatic pin assignment, handling:
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from pinviz.model import Component, PinRole
+from pinviz.model import Board, Component, PinRole
 
 
 @dataclass
@@ -50,37 +50,8 @@ class PinAllocationState:
     power_5v_count: int = 0
     ground_count: int = 0
 
-    # Available GPIO pins (BCM numbers)
-    available_gpio: list[int] = field(
-        default_factory=lambda: [
-            2,
-            3,
-            4,
-            17,
-            27,
-            22,
-            10,
-            9,
-            11,
-            5,
-            6,
-            13,
-            19,
-            26,
-            14,
-            15,
-            18,
-            23,
-            24,
-            25,
-            8,
-            7,
-            12,
-            16,
-            20,
-            21,
-        ]
-    )
+    # Available GPIO pins (physical pin numbers)
+    available_gpio: list[int] = field(default_factory=list)
 
 
 class PinAssignmentStrategy(Protocol):
@@ -138,63 +109,29 @@ class PinAssigner:
     handling shared buses (I2C, SPI) and preventing conflicts.
     """
 
-    # Pin mappings for Raspberry Pi 5 (physical pin number -> BCM GPIO)
-    GPIO_BCM_TO_PHYSICAL = {
-        2: 3,
-        3: 5,
-        4: 7,
-        17: 11,
-        27: 13,
-        22: 15,
-        10: 19,
-        9: 21,
-        11: 23,
-        5: 29,
-        6: 31,
-        13: 33,
-        19: 35,
-        26: 37,
-        14: 8,
-        15: 10,
-        18: 12,
-        23: 16,
-        24: 18,
-        25: 22,
-        8: 24,
-        7: 26,
-        12: 32,
-        16: 36,
-        20: 38,
-        21: 40,
-    }
+    # Roles that have a single fixed pin on most boards
+    FIXED_ROLES = frozenset(
+        {
+            PinRole.UART_TX,
+            PinRole.UART_RX,
+            PinRole.PCM_CLK,
+            PinRole.PCM_FS,
+            PinRole.PCM_DIN,
+            PinRole.PCM_DOUT,
+            PinRole.I2C_EEPROM,
+        }
+    )
 
-    # Fixed special pins
-    I2C_SDA_PIN = 3  # Physical pin 3 (GPIO2/SDA1)
-    I2C_SCL_PIN = 5  # Physical pin 5 (GPIO3/SCL1)
-    SPI_MOSI_PIN = 19  # Physical pin 19 (GPIO10)
-    SPI_MISO_PIN = 21  # Physical pin 21 (GPIO9)
-    SPI_SCLK_PIN = 23  # Physical pin 23 (GPIO11)
-    SPI_CE0_PIN = 24  # Physical pin 24 (GPIO8)
-    SPI_CE1_PIN = 26  # Physical pin 26 (GPIO7)
+    def __init__(self, board: Board):
+        """Initialize the pin assigner with a board.
 
-    # Power pins (multiple available)
-    POWER_3V3_PINS = [1, 17]  # Physical pins 1, 17
-    POWER_5V_PINS = [2, 4]  # Physical pins 2, 4
-    GROUND_PINS = [6, 9, 14, 20, 25, 30, 34, 39]  # Physical GND pins
-    PWM_PINS = [32, 33, 12, 35]  # Physical PWM-capable pins
-    FIXED_ROLE_PINS = {
-        PinRole.UART_TX: 8,
-        PinRole.UART_RX: 10,
-        PinRole.PCM_CLK: 12,
-        PinRole.PCM_FS: 35,
-        PinRole.PCM_DIN: 38,
-        PinRole.PCM_DOUT: 40,
-        PinRole.I2C_EEPROM: 27,
-    }
-
-    def __init__(self):
-        """Initialize the pin assigner."""
-        self.state = PinAllocationState()
+        Args:
+            board: Board object whose pins define available assignments.
+        """
+        self._pin_map = board.pins_by_role()
+        self.state = PinAllocationState(
+            available_gpio=list(self._pin_map.get(PinRole.GPIO, [])),
+        )
         self.assignments: list[PinAssignment] = []
         self._strategies: dict[str, PinAssignmentStrategy] = {
             "I2C": I2CPinAssignmentStrategy(),
@@ -214,7 +151,9 @@ class PinAssigner:
             - assignments: List of PinAssignment objects
             - warnings: List of warning messages
         """
-        self.state = PinAllocationState()
+        self.state = PinAllocationState(
+            available_gpio=list(self._pin_map.get(PinRole.GPIO, [])),
+        )
         self.assignments = []
         warnings = []
 
@@ -286,7 +225,7 @@ class PinAssigner:
             else:
                 self._append_assignment(board_pin, device_name, pin_name, pin_role)
         elif pin_role == PinRole.PWM:
-            board_pin = self._assign_from_candidates(self.PWM_PINS)
+            board_pin = self._assign_from_candidates(self._pin_map.get(PinRole.PWM, []))
             if board_pin is None:
                 warnings.append(f"Warning: No PWM pins available for {device_name}/{pin_name}")
             else:
@@ -307,7 +246,7 @@ class PinAssigner:
             )
         elif pin_role == PinRole.GROUND:
             self._append_assignment(self._assign_ground_pin(), device_name, pin_name, pin_role)
-        elif pin_role in self.FIXED_ROLE_PINS:
+        elif pin_role in self.FIXED_ROLES:
             board_pin = self._assign_fixed_role_pin(pin_role)
             if board_pin is None:
                 warnings.append(
@@ -324,8 +263,7 @@ class PinAssigner:
 
     def _assign_gpio_pin(self) -> int | None:
         while self.state.available_gpio:
-            gpio_bcm = self.state.available_gpio.pop(0)
-            board_pin = self.GPIO_BCM_TO_PHYSICAL[gpio_bcm]
+            board_pin = self.state.available_gpio.pop(0)
             if board_pin in self.state.used_pins:
                 continue
 
@@ -342,7 +280,10 @@ class PinAssigner:
         return None
 
     def _assign_fixed_role_pin(self, pin_role: PinRole) -> int | None:
-        board_pin = self.FIXED_ROLE_PINS[pin_role]
+        pins = self._pin_map.get(pin_role, [])
+        if not pins:
+            return None
+        board_pin = pins[0]
         if board_pin in self.state.used_pins:
             return None
 
@@ -356,10 +297,15 @@ class PinAssigner:
 
         # Assign I2C bus pins (shared across all I2C devices)
         if self.state.i2c_sda_pin is None:
-            self.state.i2c_sda_pin = self.I2C_SDA_PIN
-            self.state.i2c_scl_pin = self.I2C_SCL_PIN
-            self.state.used_pins.add(self.I2C_SDA_PIN)
-            self.state.used_pins.add(self.I2C_SCL_PIN)
+            sda_pins = self._pin_map.get(PinRole.I2C_SDA, [])
+            scl_pins = self._pin_map.get(PinRole.I2C_SCL, [])
+            if not sda_pins or not scl_pins:
+                warnings.append(f"Error: Board has no I2C pins for {device_name}")
+                return warnings
+            self.state.i2c_sda_pin = sda_pins[0]
+            self.state.i2c_scl_pin = scl_pins[0]
+            self.state.used_pins.add(self.state.i2c_sda_pin)
+            self.state.used_pins.add(self.state.i2c_scl_pin)
 
         self.state.i2c_devices.append(device_name)
 
@@ -369,9 +315,9 @@ class PinAssigner:
             pin_role = PinRole(pin["role"])
 
             if pin_role == PinRole.I2C_SDA:
-                self._append_assignment(self.I2C_SDA_PIN, device_name, pin_name, pin_role)
+                self._append_assignment(self.state.i2c_sda_pin, device_name, pin_name, pin_role)
             elif pin_role == PinRole.I2C_SCL:
-                self._append_assignment(self.I2C_SCL_PIN, device_name, pin_name, pin_role)
+                self._append_assignment(self.state.i2c_scl_pin, device_name, pin_name, pin_role)
             else:
                 warnings.extend(self._assign_general_pin(device_name, pin_name, pin_role))
 
@@ -393,21 +339,30 @@ class PinAssigner:
 
         # Assign SPI bus pins (shared)
         if self.state.spi_mosi_pin is None:
-            self.state.spi_mosi_pin = self.SPI_MOSI_PIN
-            self.state.spi_miso_pin = self.SPI_MISO_PIN
-            self.state.spi_sclk_pin = self.SPI_SCLK_PIN
-            self.state.used_pins.add(self.SPI_MOSI_PIN)
-            self.state.used_pins.add(self.SPI_MISO_PIN)
-            self.state.used_pins.add(self.SPI_SCLK_PIN)
+            mosi_pins = self._pin_map.get(PinRole.SPI_MOSI, [])
+            miso_pins = self._pin_map.get(PinRole.SPI_MISO, [])
+            sclk_pins = self._pin_map.get(PinRole.SPI_SCLK, [])
+            if not mosi_pins or not sclk_pins:
+                warnings.append(f"Error: Board has no SPI pins for {device_name}")
+                return warnings
+            self.state.spi_mosi_pin = mosi_pins[0]
+            self.state.spi_miso_pin = miso_pins[0] if miso_pins else None
+            self.state.spi_sclk_pin = sclk_pins[0]
+            self.state.used_pins.add(self.state.spi_mosi_pin)
+            if self.state.spi_miso_pin is not None:
+                self.state.used_pins.add(self.state.spi_miso_pin)
+            self.state.used_pins.add(self.state.spi_sclk_pin)
 
         # Assign chip select (CE0 or CE1)
+        ce0_pins = self._pin_map.get(PinRole.SPI_CE0, [])
+        ce1_pins = self._pin_map.get(PinRole.SPI_CE1, [])
         ce_pin = None
-        if not self.state.spi_ce0_assigned:
-            ce_pin = self.SPI_CE0_PIN
+        if not self.state.spi_ce0_assigned and ce0_pins:
+            ce_pin = ce0_pins[0]
             self.state.spi_ce0_assigned = True
             self.state.used_pins.add(ce_pin)
-        elif not self.state.spi_ce1_assigned:
-            ce_pin = self.SPI_CE1_PIN
+        elif not self.state.spi_ce1_assigned and ce1_pins:
+            ce_pin = ce1_pins[0]
             self.state.spi_ce1_assigned = True
             self.state.used_pins.add(ce_pin)
         else:
@@ -420,11 +375,11 @@ class PinAssigner:
             pin_role = PinRole(pin["role"])
 
             if pin_role == PinRole.SPI_MOSI:
-                self._append_assignment(self.SPI_MOSI_PIN, device_name, pin_name, pin_role)
+                self._append_assignment(self.state.spi_mosi_pin, device_name, pin_name, pin_role)
             elif pin_role == PinRole.SPI_MISO:
-                self._append_assignment(self.SPI_MISO_PIN, device_name, pin_name, pin_role)
+                self._append_assignment(self.state.spi_miso_pin, device_name, pin_name, pin_role)
             elif pin_role == PinRole.SPI_SCLK:
-                self._append_assignment(self.SPI_SCLK_PIN, device_name, pin_name, pin_role)
+                self._append_assignment(self.state.spi_sclk_pin, device_name, pin_name, pin_role)
             elif pin_role in (PinRole.SPI_CE0, PinRole.SPI_CE1):
                 # Use the assigned CE pin
                 self._append_assignment(ce_pin, device_name, pin_name, pin_role)
@@ -447,19 +402,22 @@ class PinAssigner:
 
     def _assign_power_pin(self, role: PinRole) -> int:
         """Assign a power pin (3.3V or 5V)."""
+        pins = self._pin_map.get(role, [])
+        if not pins:
+            raise ValueError(f"Board has no pins for role: {role}")
         if role == PinRole.POWER_3V3:
             self.state.power_3v3_count += 1
-            # Alternate between available 3.3V pins
-            return self.POWER_3V3_PINS[(self.state.power_3v3_count - 1) % len(self.POWER_3V3_PINS)]
+            return pins[(self.state.power_3v3_count - 1) % len(pins)]
         elif role == PinRole.POWER_5V:
             self.state.power_5v_count += 1
-            # Alternate between available 5V pins
-            return self.POWER_5V_PINS[(self.state.power_5v_count - 1) % len(self.POWER_5V_PINS)]
+            return pins[(self.state.power_5v_count - 1) % len(pins)]
         else:
             raise ValueError(f"Invalid power role: {role}")
 
     def _assign_ground_pin(self) -> int:
         """Assign a ground pin."""
+        pins = self._pin_map.get(PinRole.GROUND, [])
+        if not pins:
+            raise ValueError("Board has no ground pins")
         self.state.ground_count += 1
-        # Alternate between available ground pins
-        return self.GROUND_PINS[(self.state.ground_count - 1) % len(self.GROUND_PINS)]
+        return pins[(self.state.ground_count - 1) % len(pins)]

@@ -3,7 +3,7 @@
 from pinviz.board_selection import AliasBoardSelectionStrategy, BoardSelectionStrategy
 from pinviz.diagram_builder import DiagramBuilder
 from pinviz.mcp.pin_assignment import PinAssignment
-from pinviz.model import DEFAULT_COLORS, Connection, Device, Diagram
+from pinviz.model import DEFAULT_COLORS, Board, Connection, Device, Diagram
 
 from .adapters import McpDeviceAdapter
 
@@ -35,6 +35,7 @@ class ConnectionBuilder:
         devices_data: list[dict],
         board_name: str = "raspberry_pi_5",
         title: str = "GPIO Wiring Diagram",
+        board: Board | None = None,
     ) -> Diagram:
         """
         Build a complete Diagram from pin assignments.
@@ -44,6 +45,7 @@ class ConnectionBuilder:
             devices_data: List of device dictionaries from database
             board_name: Board type (default: "raspberry_pi_5")
             title: Diagram title
+            board: Pre-loaded Board object (avoids redundant lookup)
 
         Returns:
             Complete Diagram object ready for rendering
@@ -56,14 +58,17 @@ class ConnectionBuilder:
 
         # Create diagram through the shared builder so MCP assembly matches
         # config-based assembly semantics.
-        return (
+        builder = (
             DiagramBuilder(self._board_selection_strategy)
             .with_title(title)
-            .with_board_name(board_name)
             .with_devices(devices)
             .with_connections(connections)
-            .build()
         )
+        if board is not None:
+            builder.with_board(board)
+        else:
+            builder.with_board_name(board_name)
+        return builder.build()
 
     def _get_board(self, board_name: str):
         """Get board object by name."""

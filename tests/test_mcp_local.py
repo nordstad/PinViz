@@ -9,6 +9,7 @@ import tempfile
 from pathlib import Path
 
 try:
+    from pinviz import boards
     from pinviz.mcp.connection_builder import ConnectionBuilder
     from pinviz.mcp.device_manager import DeviceManager
     from pinviz.mcp.parser import PromptParser
@@ -18,6 +19,7 @@ except ModuleNotFoundError:
     # Allow running this file directly without editable install.
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(PROJECT_ROOT / "src"))
+    from pinviz import boards
     from pinviz.mcp.connection_builder import ConnectionBuilder
     from pinviz.mcp.device_manager import DeviceManager
     from pinviz.mcp.parser import PromptParser
@@ -60,7 +62,7 @@ def test_prompt_parser():
 def test_pin_assignment():
     """I2C devices should share SDA/SCL bus pins."""
     dm = DeviceManager()
-    assigner = PinAssigner()
+    assigner = PinAssigner(boards.raspberry_pi_5())
 
     bme280 = dm.get_device_by_name("BME280")
     bh1750 = dm.get_device_by_name("BH1750")
@@ -89,7 +91,7 @@ def test_diagram_generation(tmp_path):
 
     dm = DeviceManager()
     parser = PromptParser()
-    assigner = PinAssigner()
+    assigner = PinAssigner(boards.raspberry_pi_5())
     builder = ConnectionBuilder()
     renderer = SVGRenderer()
 

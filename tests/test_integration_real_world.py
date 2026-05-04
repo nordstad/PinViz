@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from pinviz import boards
 from pinviz.mcp.connection_builder import ConnectionBuilder
 from pinviz.mcp.device_manager import DeviceManager
 from pinviz.mcp.parser import PromptParser
@@ -38,7 +39,7 @@ def parser():
 @pytest.fixture
 def pin_assigner():
     """Shared pin assigner."""
-    return PinAssigner()
+    return PinAssigner(boards.raspberry_pi_5())
 
 
 @pytest.fixture
