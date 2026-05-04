@@ -16,6 +16,7 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+from pinviz.connection_graph import ConnectionGraph
 from pinviz.validation import DiagramValidator, ValidationLevel
 
 from .connection_builder import ConnectionBuilder
@@ -223,7 +224,17 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
             ),
         )
 
-        # Validate the diagram
+        # Validate the diagram — structural + electrical
+        # Structural: cycles, orphans
+        graph = ConnectionGraph(diagram.devices, diagram.connections)
+        cycles = graph.detect_cycles()
+        structural_issues = []
+        if cycles:
+            for cycle in cycles:
+                cycle_path = " → ".join(cycle)
+                structural_issues.append(f"Cycle detected: {cycle_path}")
+
+        # Electrical: voltage, pin compatibility, current limits
         validator = DiagramValidator()
         validation_issues = validator.validate(diagram)
 
@@ -231,6 +242,9 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
         validation_errors = [i for i in validation_issues if i.level == ValidationLevel.ERROR]
         validation_warnings = [i for i in validation_issues if i.level == ValidationLevel.WARNING]
         validation_infos = [i for i in validation_issues if i.level == ValidationLevel.INFO]
+
+        # Include structural issues as errors
+        all_error_strings = structural_issues + [str(e) for e in validation_errors]
 
         # Step 4: Generate diagram output
         diagram_title = diagram.title
@@ -264,20 +278,20 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
             result["not_found"] = not_found
 
         # Add validation results
-        if validation_issues:
+        if validation_issues or structural_issues:
             result["validation"] = {
-                "total_issues": len(validation_issues),
-                "errors": [str(e) for e in validation_errors],
+                "total_issues": len(validation_issues) + len(structural_issues),
+                "errors": all_error_strings,
                 "warnings": [str(w) for w in validation_warnings],
                 "info": [str(i) for i in validation_infos],
             }
 
             # Update status if there are errors
-            if validation_errors:
+            if all_error_strings:
                 result["status"] = "error"
                 result["validation_status"] = "failed"
                 result["validation_message"] = (
-                    f"Diagram has {len(validation_errors)} validation error(s). "
+                    f"Diagram has {len(all_error_strings)} validation error(s). "
                     "These issues could cause hardware damage or circuit malfunction. "
                     "Review the 'validation.errors' field for details."
                 )

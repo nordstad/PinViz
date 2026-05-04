@@ -134,6 +134,22 @@ def test_database_summary():
     assert len(dm.search_devices()) > 0
 
 
+def test_generate_diagram_includes_validation():
+    """generate_diagram() should include structural + electrical validation."""
+    import json
+
+    from pinviz.mcp.server import generate_diagram
+
+    result_json = generate_diagram("Connect BME280 sensor", output_format="summary")
+    result = json.loads(result_json)
+
+    assert result["status"] == "success"
+    assert "validation" in result
+    assert "errors" in result["validation"]
+    assert "warnings" in result["validation"]
+    assert "validation_status" in result
+
+
 def main():
     """Run all MCP local tests manually."""
     print("=" * 70)
