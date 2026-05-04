@@ -4,8 +4,8 @@ from pinviz.mcp.connection_builder import (
     ConnectionBuilder,
     build_diagram_from_assignments,
 )
-from pinviz.mcp.pin_assignment import PinAssignment
 from pinviz.model import Diagram, PinRole
+from pinviz.pin_assignment import PinAssignment
 
 
 class TestConnectionBuilder:
