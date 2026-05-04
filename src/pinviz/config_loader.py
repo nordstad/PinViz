@@ -27,7 +27,7 @@ from .pin_assignment import PinAssigner
 from .schemas import ConnectionSchema, validate_config
 from .theme import Theme
 from .utils import is_output_pin
-from .validation import ValidationIssue, ValidationLevel
+from .validation import DiagramValidator, ValidationIssue, ValidationLevel
 
 log = get_logger(__name__)
 
@@ -269,6 +269,17 @@ class ConfigLoader:
             .with_options(options)
             .build()
         )
+
+        # Run electrical safety validation (voltage, pin compatibility, etc.)
+        electrical_issues = DiagramValidator().validate(diagram)
+        electrical_warnings = [
+            issue
+            for issue in electrical_issues
+            if issue.level in (ValidationLevel.WARNING, ValidationLevel.ERROR)
+        ]
+
+        if electrical_warnings and self.emit_validation_output:
+            self._report_validation_warnings(electrical_warnings)
 
         log.info(
             "diagram_config_loaded",
