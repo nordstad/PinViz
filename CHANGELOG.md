@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.7] - 2026-05-04
 
+### Fixed
+
+- **Legend**: Device name column width is now dynamic, preventing long names from overlapping the description column
 
 ## [0.17.6] - 2026-04-22
 
