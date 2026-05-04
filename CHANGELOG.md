@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.18.0] - 2026-05-04
+
+### Added
+- fix: add cross-validation to both assembly paths (https://github.com/nordstad/PinViz/pull/234)
+
+### Changed
+- refactor: extract board pin knowledge to Board.pins_by_role() (https://github.com/nordstad/PinViz/pull/232)
+- refactor: extract PinAssigner to shared top-level module (https://github.com/nordstad/PinViz/pull/233)
+- refactor: decompose WireRouter into focused internal classes (https://github.com/nordstad/PinViz/pull/235)
+
 ## [0.18.0] - 2026-05-04
 
 ### Changed
