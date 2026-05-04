@@ -697,7 +697,12 @@ class SVGRenderer:
         header_height = TABLE_LAYOUT.HEADER_HEIGHT
         padding_left = TABLE_LAYOUT.PADDING_LEFT
         padding_right = TABLE_LAYOUT.PADDING_RIGHT
-        name_column_width = TABLE_LAYOUT.NAME_COLUMN_WIDTH
+
+        # Dynamic name column width: fit longest name, capped at 40% of table width
+        char_width = 9 * 0.55
+        max_name_px = max(len(d.name) * char_width for d in devices_with_specs) + padding_left
+        name_column_width = min(max_name_px, table_width * 0.4)
+
         desc_column_start = table_x + padding_left + name_column_width
 
         # Pre-calculate row heights for multi-line descriptions
