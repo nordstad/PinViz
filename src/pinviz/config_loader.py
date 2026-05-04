@@ -61,12 +61,7 @@ class PinAssigner:
         # Track which pins have been assigned: role -> list of assigned pin numbers
         self._role_assignment_index: dict[PinRole, int] = {}
         # Build lookup: role -> list of available pin numbers
-        self._pins_by_role: dict[PinRole, list[int]] = {}
-
-        for pin in board.pins:
-            if pin.role not in self._pins_by_role:
-                self._pins_by_role[pin.role] = []
-            self._pins_by_role[pin.role].append(pin.number)
+        self._pins_by_role = board.pins_by_role()
 
         log.debug(
             "pin_assigner_initialized",
