@@ -2,8 +2,8 @@
 
 from pinviz.board_selection import AliasBoardSelectionStrategy, BoardSelectionStrategy
 from pinviz.diagram_builder import DiagramBuilder
-from pinviz.mcp.pin_assignment import PinAssignment
 from pinviz.model import DEFAULT_COLORS, Board, Connection, Device, Diagram
+from pinviz.pin_assignment import PinAssignment
 
 from .adapters import McpDeviceAdapter
 

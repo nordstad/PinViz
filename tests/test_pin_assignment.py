@@ -3,8 +3,8 @@
 import pytest
 
 from pinviz import boards
-from pinviz.mcp.pin_assignment import PinAllocationState, PinAssigner, PinAssignment
 from pinviz.model import PinRole
+from pinviz.pin_assignment import PinAllocationState, PinAssigner, PinAssignment
 
 
 @pytest.fixture()

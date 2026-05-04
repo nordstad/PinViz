@@ -158,9 +158,9 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
         - The YAML includes full device pin definitions required by the pinviz CLI
     """
     from pinviz.board_selection import AliasBoardSelectionStrategy
+    from pinviz.pin_assignment import PinAssigner
 
     from .parser import PromptParser
-    from .pin_assignment import PinAssigner
 
     try:
         # Step 1: Parse natural language prompt

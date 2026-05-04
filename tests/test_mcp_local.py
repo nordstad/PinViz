@@ -13,7 +13,7 @@ try:
     from pinviz.mcp.connection_builder import ConnectionBuilder
     from pinviz.mcp.device_manager import DeviceManager
     from pinviz.mcp.parser import PromptParser
-    from pinviz.mcp.pin_assignment import PinAssigner
+    from pinviz.pin_assignment import PinAssigner
     from pinviz.render_svg import SVGRenderer
 except ModuleNotFoundError:
     # Allow running this file directly without editable install.
@@ -23,7 +23,7 @@ except ModuleNotFoundError:
     from pinviz.mcp.connection_builder import ConnectionBuilder
     from pinviz.mcp.device_manager import DeviceManager
     from pinviz.mcp.parser import PromptParser
-    from pinviz.mcp.pin_assignment import PinAssigner
+    from pinviz.pin_assignment import PinAssigner
     from pinviz.render_svg import SVGRenderer
 
 

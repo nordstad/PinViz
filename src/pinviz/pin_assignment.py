@@ -1,7 +1,8 @@
 """
-Intelligent Pin Assignment for PinViz MCP Server.
+Intelligent Pin Assignment for PinViz.
 
-This module implements algorithms for automatic pin assignment, handling:
+Shared module used by both ConfigLoader (YAML/JSON configs) and MCP server.
+Implements algorithms for automatic pin assignment, handling:
 - GPIO availability tracking
 - I2C bus sharing
 - SPI chip select allocation
@@ -138,6 +139,120 @@ class PinAssigner:
             "SPI": SPIPinAssignmentStrategy(),
         }
         self._default_strategy = DefaultPinAssignmentStrategy()
+
+    def assign_pin(self, role: str | PinRole) -> int:
+        """Assign next available pin for the given role.
+
+        Incremental interface for ConfigLoader's connection-by-connection
+        parsing. Handles bus sharing (I2C/SPI pins are cached and reused)
+        and round-robin distribution for power/ground pins.
+
+        Args:
+            role: Pin role as string or PinRole enum.
+
+        Returns:
+            Physical pin number.
+
+        Raises:
+            ValueError: If no pins available for the role.
+        """
+        if isinstance(role, str):
+            try:
+                pin_role = PinRole(role.upper())
+            except ValueError:
+                try:
+                    pin_role = PinRole(role)
+                except ValueError as e:
+                    raise ValueError(
+                        f"Invalid pin role '{role}'. Must be one of: "
+                        f"{', '.join(r.value for r in PinRole)}"
+                    ) from e
+        else:
+            pin_role = role
+
+        # I2C bus sharing — return cached pin if already assigned
+        if pin_role == PinRole.I2C_SDA:
+            if self.state.i2c_sda_pin is None:
+                sda_pins = self._pin_map.get(PinRole.I2C_SDA, [])
+                if not sda_pins:
+                    raise ValueError("Board has no I2C SDA pins")
+                self.state.i2c_sda_pin = sda_pins[0]
+                self.state.used_pins.add(self.state.i2c_sda_pin)
+            return self.state.i2c_sda_pin
+        if pin_role == PinRole.I2C_SCL:
+            if self.state.i2c_scl_pin is None:
+                scl_pins = self._pin_map.get(PinRole.I2C_SCL, [])
+                if not scl_pins:
+                    raise ValueError("Board has no I2C SCL pins")
+                self.state.i2c_scl_pin = scl_pins[0]
+                self.state.used_pins.add(self.state.i2c_scl_pin)
+            return self.state.i2c_scl_pin
+
+        # SPI bus sharing — shared bus lines, chip selects consumed
+        if pin_role == PinRole.SPI_MOSI:
+            if self.state.spi_mosi_pin is None:
+                pins = self._pin_map.get(PinRole.SPI_MOSI, [])
+                if not pins:
+                    raise ValueError("Board has no SPI MOSI pins")
+                self.state.spi_mosi_pin = pins[0]
+                self.state.used_pins.add(self.state.spi_mosi_pin)
+            return self.state.spi_mosi_pin
+        if pin_role == PinRole.SPI_MISO:
+            if self.state.spi_miso_pin is None:
+                pins = self._pin_map.get(PinRole.SPI_MISO, [])
+                if not pins:
+                    raise ValueError("Board has no SPI MISO pins")
+                self.state.spi_miso_pin = pins[0]
+                self.state.used_pins.add(self.state.spi_miso_pin)
+            return self.state.spi_miso_pin
+        if pin_role == PinRole.SPI_SCLK:
+            if self.state.spi_sclk_pin is None:
+                pins = self._pin_map.get(PinRole.SPI_SCLK, [])
+                if not pins:
+                    raise ValueError("Board has no SPI SCLK pins")
+                self.state.spi_sclk_pin = pins[0]
+                self.state.used_pins.add(self.state.spi_sclk_pin)
+            return self.state.spi_sclk_pin
+        if pin_role in (PinRole.SPI_CE0, PinRole.SPI_CE1):
+            pin = self._assign_from_candidates(self._pin_map.get(pin_role, []))
+            if pin is None:
+                raise ValueError(f"No {pin_role.value} pins available")
+            return pin
+
+        # GPIO — consumed, never reused
+        if pin_role == PinRole.GPIO:
+            pin = self._assign_gpio_pin()
+            if pin is None:
+                raise ValueError("No GPIO pins available")
+            return pin
+
+        # PWM
+        if pin_role == PinRole.PWM:
+            pin = self._assign_from_candidates(self._pin_map.get(PinRole.PWM, []))
+            if pin is None:
+                raise ValueError("No PWM pins available")
+            return pin
+
+        # Power rails — round-robin
+        if pin_role in (PinRole.POWER_3V3, PinRole.POWER_5V):
+            return self._assign_power_pin(pin_role)
+
+        # Ground — round-robin
+        if pin_role == PinRole.GROUND:
+            return self._assign_ground_pin()
+
+        # Fixed roles (UART, PCM, etc.)
+        if pin_role in self.FIXED_ROLES:
+            pin = self._assign_fixed_role_pin(pin_role)
+            if pin is None:
+                raise ValueError(f"No {pin_role.value} pins available")
+            return pin
+
+        # Fallback — try to find any pin with this role
+        pin = self._assign_from_candidates(self._pin_map.get(pin_role, []))
+        if pin is None:
+            raise ValueError(f"No pins available for role '{pin_role.value}'")
+        return pin
 
     def assign_pins(self, devices_data: list[dict]) -> tuple[list[PinAssignment], list[str]]:
         """

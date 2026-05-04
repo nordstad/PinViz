@@ -16,7 +16,6 @@ from .diagram_builder import DiagramBuilder, DiagramOptions
 from .errors import format_config_error
 from .logging_config import get_logger
 from .model import (
-    Board,
     Connection,
     Device,
     DevicePin,
@@ -24,6 +23,7 @@ from .model import (
     PinRole,
     Point,
 )
+from .pin_assignment import PinAssigner
 from .schemas import ConnectionSchema, validate_config
 from .theme import Theme
 from .utils import is_output_pin
@@ -33,102 +33,6 @@ log = get_logger(__name__)
 
 # Maximum config file size in bytes (10MB)
 MAX_CONFIG_FILE_SIZE = 10 * 1024 * 1024
-
-
-class PinAssigner:
-    """
-    Manages automatic pin assignment for role-based connections.
-
-    Distributes connections across multiple available pins of the same role
-    to avoid multiple wires on a single pin (better for soldering/connections).
-
-    Example:
-        >>> assigner = PinAssigner(board)
-        >>> # First GND connection gets pin 14
-        >>> pin1 = assigner.assign_pin("GND")
-        >>> # Second GND connection gets pin 19 (next available GND)
-        >>> pin2 = assigner.assign_pin("GND")
-    """
-
-    def __init__(self, board: Board) -> None:
-        """
-        Initialize pin assigner with a board.
-
-        Args:
-            board: Board object with pins to assign
-        """
-        self.board = board
-        # Track which pins have been assigned: role -> list of assigned pin numbers
-        self._role_assignment_index: dict[PinRole, int] = {}
-        # Build lookup: role -> list of available pin numbers
-        self._pins_by_role = board.pins_by_role()
-
-        log.debug(
-            "pin_assigner_initialized",
-            board=board.name,
-            role_counts={role.value: len(pins) for role, pins in self._pins_by_role.items()},
-        )
-
-    def assign_pin(self, role: str | PinRole) -> int:
-        """
-        Assign next available pin of the specified role.
-
-        Uses round-robin distribution to spread connections across multiple
-        pins of the same role.
-
-        Args:
-            role: Pin role (e.g., "GND", "3V3") as string or PinRole enum
-
-        Returns:
-            Physical pin number
-
-        Raises:
-            ValueError: If no pins of the specified role are available
-        """
-        # Convert string to PinRole
-        if isinstance(role, str):
-            try:
-                pin_role = PinRole(role.upper())
-            except ValueError:
-                # Try without upper() in case it's already correct case
-                try:
-                    pin_role = PinRole(role)
-                except ValueError as e:
-                    raise ValueError(
-                        f"Invalid pin role '{role}'. Must be one of: "
-                        f"{', '.join(r.value for r in PinRole)}"
-                    ) from e
-        else:
-            pin_role = role
-
-        # Check if this role exists on the board
-        if pin_role not in self._pins_by_role:
-            available_roles = sorted(r.value for r in self._pins_by_role)
-            raise ValueError(
-                f"Board '{self.board.name}' has no pins with role '{pin_role.value}'. "
-                f"Available roles: {', '.join(available_roles)}"
-            )
-
-        available_pins = self._pins_by_role[pin_role]
-
-        # Get current index for this role (default to 0)
-        current_index = self._role_assignment_index.get(pin_role, 0)
-
-        # Round-robin: cycle through available pins
-        assigned_pin = available_pins[current_index % len(available_pins)]
-
-        # Update index for next assignment
-        self._role_assignment_index[pin_role] = current_index + 1
-
-        log.debug(
-            "pin_assigned",
-            role=pin_role.value,
-            assigned_pin=assigned_pin,
-            available_count=len(available_pins),
-            assignment_index=current_index + 1,
-        )
-
-        return assigned_pin
 
 
 class ConfigLoader:
