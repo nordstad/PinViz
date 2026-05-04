@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-05-04
+
+### Changed
+- **WireRouter**: Decomposed into focused internal classes for improved maintainability (#235)
+- **PinAssigner**: Extracted to shared top-level module, used by all assembly paths (#233)
+- **Board**: Extracted pin knowledge to `Board.pins_by_role()` (#232)
+
+### Fixed
+- **Assembly**: Added cross-validation to both assembly paths to catch pin mismatches (#234)
 
 ## [0.17.7] - 2026-05-04
 
