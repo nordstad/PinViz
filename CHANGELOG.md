@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.17.7] - 2026-05-04
+
+### Changed
+- chore(deps-dev): bump mypy from 1.20.0 to 1.20.2 (https://github.com/nordstad/PinViz/pull/224)
+- chore(deps-dev): bump zensical from 0.0.34 to 0.0.36 (https://github.com/nordstad/PinViz/pull/223)
+- chore(deps): bump typer from 0.24.1 to 0.25.0 (https://github.com/nordstad/PinViz/pull/222)
+- chore(deps-dev): bump hypothesis from 6.152.1 to 6.152.3 (https://github.com/nordstad/PinViz/pull/221)
+- chore(deps): bump pydantic-settings from 2.13.1 to 2.14.0 (https://github.com/nordstad/PinViz/pull/220)
+- chore(deps-dev): bump ruff from 0.15.11 to 0.15.12 (https://github.com/nordstad/PinViz/pull/230)
+- chore(deps-dev): bump zensical from 0.0.36 to 0.0.39 (https://github.com/nordstad/PinViz/pull/229)
+- chore(deps-dev): bump hypothesis from 6.152.3 to 6.152.4 (https://github.com/nordstad/PinViz/pull/228)
+- chore(deps): bump pydantic from 2.13.2 to 2.13.3 (https://github.com/nordstad/PinViz/pull/227)
+- chore(deps): bump typer from 0.25.0 to 0.25.1 (https://github.com/nordstad/PinViz/pull/226)
+
+### Fixed
+- fix(legend): dynamic name column width to prevent overlap with description (https://github.com/nordstad/PinViz/pull/231)
+
 ## [0.17.7] - 2026-05-04
 
 ### Fixed
