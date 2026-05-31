@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+
+## [0.18.1] - 2026-05-31
+
+### Changed
+- chore(deps-dev): bump hypothesis from 6.152.4 to 6.152.5 (https://github.com/nordstad/PinViz/pull/240)
+- chore(deps): bump mcp from 1.27.0 to 1.27.1 (https://github.com/nordstad/PinViz/pull/239)
+- chore(deps-dev): bump mypy from 1.20.2 to 2.0.0 (https://github.com/nordstad/PinViz/pull/238)
+- chore(deps): bump pydantic from 2.13.3 to 2.13.4 (https://github.com/nordstad/PinViz/pull/237)
+- chore(deps): bump python-multipart from 0.0.26 to 0.0.27 (https://github.com/nordstad/PinViz/pull/236)
+- chore(deps): bump urllib3 from 2.6.3 to 2.7.0 (https://github.com/nordstad/PinViz/pull/241)
+- chore(deps): bump pydantic-settings from 2.14.0 to 2.14.1 (https://github.com/nordstad/PinViz/pull/246)
+- chore(deps-dev): bump mypy from 2.0.0 to 2.1.0 (https://github.com/nordstad/PinViz/pull/245)
+- chore(deps-dev): bump ruff from 0.15.12 to 0.15.13 (https://github.com/nordstad/PinViz/pull/244)
+- chore(deps-dev): bump hypothesis from 6.152.5 to 6.152.7 (https://github.com/nordstad/PinViz/pull/243)
+- chore(deps-dev): bump zensical from 0.0.39 to 0.0.42 (https://github.com/nordstad/PinViz/pull/242)
+- chore(deps): bump idna from 3.11 to 3.15 (https://github.com/nordstad/PinViz/pull/248)
+- chore(deps): bump pymdown-extensions from 10.21.2 to 10.21.3 (https://github.com/nordstad/PinViz/pull/247)
+- chore(deps-dev): bump hypothesis from 6.152.7 to 6.152.9 (https://github.com/nordstad/PinViz/pull/251)
+- chore(deps-dev): bump ruff from 0.15.13 to 0.15.14 (https://github.com/nordstad/PinViz/pull/250)
+- chore(deps-dev): bump zensical from 0.0.42 to 0.0.43 (https://github.com/nordstad/PinViz/pull/249)
+
 ## [0.18.1] - 2026-05-31
 
 ### Changed
