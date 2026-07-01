@@ -295,14 +295,40 @@ class PathGenerator:
         if is_source_right_side:
             from_pos = Point(from_pos.x + self.constants.WIRE_PIN_EXTENSION, from_pos.y)
             if to_pos.x > from_pos.x:
-                return self._right_to_right_path(from_pos, connection_point, extended_end, y_offset)
+                return self._align_exit_tangent(
+                    self._right_to_right_path(from_pos, connection_point, extended_end, y_offset)
+                )
 
         dy = to_pos.y - from_pos.y
 
         if abs(dy) < self.constants.SIMILAR_Y_THRESHOLD:
-            return self._gentle_arc_path(from_pos, rail_x, y_offset, connection_point, extended_end)
+            return self._align_exit_tangent(
+                self._gentle_arc_path(from_pos, rail_x, y_offset, connection_point, extended_end)
+            )
         else:
-            return self._s_curve_path(from_pos, rail_x, y_offset, connection_point, extended_end)
+            return self._align_exit_tangent(
+                self._s_curve_path(from_pos, rail_x, y_offset, connection_point, extended_end)
+            )
+
+    def _align_exit_tangent(self, path_points: list[Point]) -> list[Point]:
+        """
+        Make the curve's second control point collinear with the straight lead-in
+        into the pin (connection_point -> pin), so the Bezier meets that segment
+        tangent-continuously instead of at an angle (which shows up as a kink at
+        the device pin). Only applies to the 5-point curve+lead-in form.
+        """
+        if len(path_points) != 5:
+            return path_points
+        p0, _ctrl1, _ctrl2, cp, pin = path_points
+        ldx, ldy = pin.x - cp.x, pin.y - cp.y
+        lead_len = (ldx * ldx + ldy * ldy) ** 0.5
+        if lead_len <= 1e-6:
+            return path_points
+        ux, uy = ldx / lead_len, ldy / lead_len
+        span = ((cp.x - p0.x) ** 2 + (cp.y - p0.y) ** 2) ** 0.5
+        back = max(lead_len * 4.0, span * 0.30)
+        path_points[2] = Point(cp.x - ux * back, cp.y - uy * back)
+        return path_points
 
     def _connection_points(self, to_pos: Point, is_right_side: bool = False) -> tuple[Point, Point]:
         """Calculate connection and extended end points for wire routing."""
