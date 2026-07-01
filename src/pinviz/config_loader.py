@@ -286,6 +286,12 @@ class ConfigLoader:
             "esp32": boards.esp32_devkit_v1,
             "esp32dev": boards.esp32_devkit_v1,
             "esp32_devkit": boards.esp32_devkit_v1,
+            # ESP32-S3-DevKitC-1
+            "esp32_s3_devkitc1": boards.esp32_s3_devkitc1,
+            "esp32_s3_devkitc": boards.esp32_s3_devkitc1,
+            "esp32_s3_devkit": boards.esp32_s3_devkitc1,
+            "esp32s3": boards.esp32_s3_devkitc1,
+            "esp32_s3": boards.esp32_s3_devkitc1,
             # Wemos D1 Mini
             "wemos_d1_mini": boards.wemos_d1_mini,
             "d1mini": boards.wemos_d1_mini,

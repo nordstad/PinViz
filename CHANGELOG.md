@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **ESP32-S3-DevKitC-1 board** - programmatic (labelled-pin) template with the full 2×22 (44-pin) J1/J3 header, rendered in the clean Raspberry-Pi style instead of Fritzing artwork
+  - New `show_pin_names` board option: draws each pin's short name (GPIO number / power rail) on the pin instead of the meaningless physical index — makes ESP-class boards actually readable. Backwards compatible (default `false`, existing boards unchanged)
+  - Aliases: `esp32_s3_devkitc1`, `esp32s3`, `esp32_s3`, `esp32_s3_devkit`
+- **SN65HVD230 CAN transceiver** device (`io` category) with logic-side (3V3/GND/CTX/CRX) and bus-side (CANH/CANL) pins
+  - 📝 New example: `examples/esp32_s3_can_transceiver.yaml` (ESP32-S3 TWAI → SN65HVD230)
 - **Complete inline components support** - All three component types now fully functional
   - ✅ Capacitor symbol rendering with parallel plates and value labels
   - ✅ Diode symbol rendering with anode/cathode orientation and triangle symbol

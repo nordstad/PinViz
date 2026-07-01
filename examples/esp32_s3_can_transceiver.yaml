@@ -1,0 +1,29 @@
+title: ESP32-S3 CAN (TWAI) via SN65HVD230
+board: esp32_s3_devkitc1
+theme: light
+
+devices:
+  - type: sn65hvd230
+    name: SN65HVD230 CAN Transceiver
+
+connections:
+  # 3V3 rail  (physical pin 1  -> GPIO/rail 3V3)
+  - board_pin: 1
+    device: SN65HVD230 CAN Transceiver
+    device_pin: "3V3"
+    color: red
+  # GND       (physical pin 2)
+  - board_pin: 2
+    device: SN65HVD230 CAN Transceiver
+    device_pin: "GND"
+    color: black
+  # CAN_TX = GPIO43 (physical pin 4) -> transceiver CTX (driver input)
+  - board_pin: 4
+    device: SN65HVD230 CAN Transceiver
+    device_pin: "CTX"
+    color: blue
+  # CAN_RX = GPIO44 (physical pin 6) -> transceiver CRX (receiver output)
+  - board_pin: 6
+    device: SN65HVD230 CAN Transceiver
+    device_pin: "CRX"
+    color: green

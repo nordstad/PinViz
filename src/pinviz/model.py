@@ -217,6 +217,7 @@ class Board:
     layout: BoardLayout | None = None  # Standardized layout (preferred)
     style_overrides: dict = field(default_factory=dict)  # Custom styling
     svg_scale: float = 1.0  # Scale factor for SVG asset rendering
+    show_pin_names: bool = False  # Draw pin names (GPIO/rail) instead of physical index
 
     def get_pin_by_number(self, pin_number: int) -> HeaderPin | None:
         """

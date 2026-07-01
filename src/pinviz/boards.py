@@ -256,6 +256,7 @@ def load_board_from_config(config_name: str) -> Board:
             header_offset=Point(config.header_offset.x, config.header_offset.y),
             layout=None,
             svg_scale=svg_scale,
+            show_pin_names=getattr(config, "show_pin_names", False),
         )
 
     # Build BoardLayout from config dimensions for programmatic rendering.
@@ -299,6 +300,7 @@ def load_board_from_config(config_name: str) -> Board:
         height=config.height,
         header_offset=Point(config.header_offset.x, config.header_offset.y),
         layout=board_layout,
+        show_pin_names=getattr(config, "show_pin_names", False),
     )
 
 
@@ -486,6 +488,32 @@ def esp32_devkit_v1() -> Board:
         30
     """
     return load_board_from_config("esp32_devkit_v1")
+
+
+def esp32_s3_devkitc1() -> Board:
+    """
+    Create an ESP32-S3-DevKitC-1 board with the full 2x22 (44-pin) header.
+
+    The ESP32-S3-DevKitC-1 exposes two 22-pin headers (J1 and J3) along the two
+    long edges. It is rendered programmatically (clean labelled-pin style, no
+    Fritzing artwork) with ``show_pin_names`` enabled, so each pin shows its GPIO
+    number / power rail rather than the meaningless physical index.
+
+    Pin layout (physical pin numbers):
+    - Left column (odd pins 1..43): header J1, top to bottom
+    - Right column (even pins 2..44): header J3, top to bottom
+
+    Returns:
+        Board: Configured ESP32-S3-DevKitC-1 board with all 44 pins positioned
+
+    Examples:
+        >>> board = esp32_s3_devkitc1()
+        >>> print(board.name)
+        ESP32-S3-DevKitC-1
+        >>> print(len(board.pins))
+        44
+    """
+    return load_board_from_config("esp32_s3_devkitc1")
 
 
 def get_available_boards() -> list[dict[str, str | list[str]]]:
