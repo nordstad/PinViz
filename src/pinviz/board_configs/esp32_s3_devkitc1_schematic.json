@@ -1,19 +1,19 @@
 {
-  "name": "ESP32-S3-DevKitC-1",
-  "svg_asset": "esp32_s3_devkitc1_mod.svg",
-  "width": 120.0,
-  "height": 262.0,
+  "name": "ESP32-S3-DevKitC-1 (schematic)",
+  "svg_asset": "esp32_s3_devkitc1.svg",
+  "width": 210.0,
+  "height": 300.0,
   "header_offset": {
     "x": 0,
     "y": 0
   },
-  "render_mode": "svg_asset",
-  "show_pin_names": false,
+  "render_mode": "programmatic",
+  "show_pin_names": true,
   "layout": {
-    "left_col_x": 12.0,
-    "right_col_x": 108.0,
-    "start_y": 42.0,
-    "row_spacing": 9.2
+    "left_col_x": 178.0,
+    "right_col_x": 196.0,
+    "start_y": 20.0,
+    "row_spacing": 12.0
   },
   "pins": [
     {
@@ -280,6 +280,5 @@
       "role": "GND",
       "gpio_bcm": null
     }
-  ],
-  "svg_scale": 1.7
+  ]
 }

@@ -494,10 +494,14 @@ def esp32_s3_devkitc1() -> Board:
     """
     Create an ESP32-S3-DevKitC-1 board with the full 2x22 (44-pin) header.
 
-    The ESP32-S3-DevKitC-1 exposes two 22-pin headers (J1 and J3) along the two
-    long edges. It is rendered programmatically (clean labelled-pin style, no
-    Fritzing artwork) with ``show_pin_names`` enabled, so each pin shows its GPIO
-    number / power rail rather than the meaningless physical index.
+    This is the realistic variant: the board is drawn from a recognisable SVG
+    (black PCB, USB-C, ESP32-S3-WROOM module, BOOT/RST buttons and per-pin
+    silkscreen GPIO labels) so you can immediately map the diagram to the board
+    in front of you. Pin bubbles show the physical index (used by ``board_pin``
+    in connections); the on-board silkscreen carries the GPIO identity.
+
+    For a lightweight artwork-free version (GPIO names drawn directly on the pin
+    bubbles) use :func:`esp32_s3_devkitc1_schematic`.
 
     Pin layout (physical pin numbers):
     - Left column (odd pins 1..43): header J1, top to bottom
@@ -514,6 +518,20 @@ def esp32_s3_devkitc1() -> Board:
         44
     """
     return load_board_from_config("esp32_s3_devkitc1")
+
+
+def esp32_s3_devkitc1_schematic() -> Board:
+    """
+    Create an ESP32-S3-DevKitC-1 board in the artwork-free schematic style.
+
+    Rendered programmatically (no Fritzing/SVG board art) with ``show_pin_names``
+    enabled, so each pin bubble shows its GPIO number / power rail directly. Same
+    44-pin layout as :func:`esp32_s3_devkitc1`.
+
+    Returns:
+        Board: Configured schematic ESP32-S3-DevKitC-1 board
+    """
+    return load_board_from_config("esp32_s3_devkitc1_schematic")
 
 
 def get_available_boards() -> list[dict[str, str | list[str]]]:

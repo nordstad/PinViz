@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -8.0 120.0 270.0" width="120.0" height="270.0">
+<rect x="1" y="1" width="118.0" height="260.0" rx="7" ry="7" fill="#1b1b20" stroke="#3a3a42" stroke-width="1.2"/>
+<rect x="5" y="5" width="110.0" height="252.0" rx="5" ry="5" fill="none" stroke="#2c2c34" stroke-width="0.5"/>
+<circle cx="9" cy="9.0" r="3.6" fill="#0d0d10" stroke="#9a9aa0" stroke-width="1"/>
+<circle cx="9" cy="9.0" r="2.0" fill="#050506"/>
+<circle cx="111.0" cy="9.0" r="3.6" fill="#0d0d10" stroke="#9a9aa0" stroke-width="1"/>
+<circle cx="111.0" cy="9.0" r="2.0" fill="#050506"/>
+<circle cx="9" cy="251.0" r="3.6" fill="#0d0d10" stroke="#9a9aa0" stroke-width="1"/>
+<circle cx="9" cy="251.0" r="2.0" fill="#050506"/>
+<circle cx="111.0" cy="251.0" r="3.6" fill="#0d0d10" stroke="#9a9aa0" stroke-width="1"/>
+<circle cx="111.0" cy="251.0" r="2.0" fill="#050506"/>
+<rect x="47.0" y="-6.5" width="26" height="17.5" rx="2.6" fill="#d3d6dc" stroke="#7d818a" stroke-width="0.9"/>
+<rect x="48.5" y="-4.9" width="23" height="14.3" rx="1.6" fill="none" stroke="#b9bdc4" stroke-width="0.5"/>
+<rect x="48.5" y="11" width="3" height="2.4" rx="0.4" fill="#b7bac0"/>
+<rect x="68.5" y="11" width="3" height="2.4" rx="0.4" fill="#b7bac0"/>
+<rect x="18" y="17" width="12" height="9" rx="1.2" fill="#2b2b33" stroke="#565660" stroke-width="0.5"/>
+<rect x="21.5" y="19" width="5" height="5" rx="0.8" fill="#9a9aa4"/>
+<text x="24" y="31.5" font-family="Arial, sans-serif" font-size="3" fill="#8f8f98" text-anchor="middle">BOOT</text>
+<rect x="90" y="17" width="12" height="9" rx="1.2" fill="#2b2b33" stroke="#565660" stroke-width="0.5"/>
+<rect x="93.5" y="19" width="5" height="5" rx="0.8" fill="#9a9aa4"/>
+<text x="96" y="31.5" font-family="Arial, sans-serif" font-size="3" fill="#8f8f98" text-anchor="middle">RST</text>
+<rect x="43" y="18.5" width="5" height="5" rx="0.6" fill="#f2f2f5" stroke="#8a8a90" stroke-width="0.4"/>
+<rect x="44.2" y="19.7" width="2.6" height="2.6" rx="0.4" fill="#9fd0ff"/>
+<text x="45.5" y="28.5" font-family="Arial, sans-serif" font-size="2.6" fill="#7f7f88" text-anchor="middle">RGB</text>
+<rect x="34.0" y="52.0" width="52.0" height="104.0" rx="2.5" fill="#bfc3c9" stroke="#7a7e86" stroke-width="1"/>
+<rect x="35.6" y="53.6" width="48.8" height="100.8" rx="1.8" fill="none" stroke="#9aa0a8" stroke-width="0.5"/>
+<rect x="40.0" y="56.0" width="40.0" height="15" rx="1" fill="#d7dbe0" stroke="#a7adb5" stroke-width="0.5"/>
+<path d="M43.0,68.0 l3,-9 l3,9" fill="none" stroke="#9aa0a8" stroke-width="0.6"/>
+<path d="M49.0,68.0 l3,-9 l3,9" fill="none" stroke="#9aa0a8" stroke-width="0.6"/>
+<path d="M55.0,68.0 l3,-9 l3,9" fill="none" stroke="#9aa0a8" stroke-width="0.6"/>
+<path d="M61.0,68.0 l3,-9 l3,9" fill="none" stroke="#9aa0a8" stroke-width="0.6"/>
+<path d="M67.0,68.0 l3,-9 l3,9" fill="none" stroke="#9aa0a8" stroke-width="0.6"/>
+<path d="M73.0,68.0 l3,-9 l3,9" fill="none" stroke="#9aa0a8" stroke-width="0.6"/>
+<text x="60.0" y="94.0" font-family="Arial, sans-serif" font-size="6.4" font-weight="bold" fill="#3c3f45" text-anchor="middle">ESP32-S3</text>
+<text x="60.0" y="104.0" font-family="Arial, sans-serif" font-size="4.4" fill="#4c4f55" text-anchor="middle">WROOM-1</text>
+<text x="60.0" y="142.0" font-family="Arial, sans-serif" font-size="3.2" fill="#6a6d75" text-anchor="middle">FCC ID  2AC7Z</text>
+<rect x="7.0" y="37.0" width="10" height="203.2" rx="1.5" fill="#0b0b0d" stroke="#33333a" stroke-width="0.5"/>
+<rect x="103.0" y="37.0" width="10" height="203.2" rx="1.5" fill="#0b0b0d" stroke="#33333a" stroke-width="0.5"/>
+<circle cx="12.0" cy="42.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="42.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="43.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">3V3</text>
+<text x="101.5" y="43.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">GND</text>
+<circle cx="12.0" cy="51.2" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="51.2" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="52.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">3V3</text>
+<text x="101.5" y="52.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">TX</text>
+<circle cx="12.0" cy="60.4" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="60.4" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="61.8" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">RST</text>
+<text x="101.5" y="61.8" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">RX</text>
+<circle cx="12.0" cy="69.6" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="69.6" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="71.0" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO4</text>
+<text x="101.5" y="71.0" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO1</text>
+<circle cx="12.0" cy="78.8" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="78.8" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="80.2" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO5</text>
+<text x="101.5" y="80.2" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO2</text>
+<circle cx="12.0" cy="88.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="88.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="89.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO6</text>
+<text x="101.5" y="89.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO42</text>
+<circle cx="12.0" cy="97.19999999999999" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="97.19999999999999" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="98.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO7</text>
+<text x="101.5" y="98.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO41</text>
+<circle cx="12.0" cy="106.39999999999999" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="106.39999999999999" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="107.8" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO15</text>
+<text x="101.5" y="107.8" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO40</text>
+<circle cx="12.0" cy="115.6" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="115.6" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="117.0" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO16</text>
+<text x="101.5" y="117.0" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO39</text>
+<circle cx="12.0" cy="124.8" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="124.8" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="126.2" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO17</text>
+<text x="101.5" y="126.2" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO38</text>
+<circle cx="12.0" cy="134.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="134.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="135.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO18</text>
+<text x="101.5" y="135.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO37</text>
+<circle cx="12.0" cy="143.2" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="143.2" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="144.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO8</text>
+<text x="101.5" y="144.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO36</text>
+<circle cx="12.0" cy="152.39999999999998" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="152.39999999999998" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="153.79999999999998" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO3</text>
+<text x="101.5" y="153.79999999999998" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO35</text>
+<circle cx="12.0" cy="161.6" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="161.6" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="163.0" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO46</text>
+<text x="101.5" y="163.0" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO0</text>
+<circle cx="12.0" cy="170.79999999999998" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="170.79999999999998" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="172.2" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO9</text>
+<text x="101.5" y="172.2" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO45</text>
+<circle cx="12.0" cy="180.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="180.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="181.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO10</text>
+<text x="101.5" y="181.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO48</text>
+<circle cx="12.0" cy="189.2" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="189.2" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="190.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO11</text>
+<text x="101.5" y="190.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO47</text>
+<circle cx="12.0" cy="198.39999999999998" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="198.39999999999998" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="199.79999999999998" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO12</text>
+<text x="101.5" y="199.79999999999998" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO21</text>
+<circle cx="12.0" cy="207.6" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="207.6" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="209.0" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO13</text>
+<text x="101.5" y="209.0" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO20</text>
+<circle cx="12.0" cy="216.79999999999998" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="216.79999999999998" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="218.2" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">IO14</text>
+<text x="101.5" y="218.2" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">IO19</text>
+<circle cx="12.0" cy="226.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="226.0" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="227.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">5V</text>
+<text x="101.5" y="227.4" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">GND</text>
+<circle cx="12.0" cy="235.2" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<circle cx="108.0" cy="235.2" r="4.4" fill="#d8b24a" stroke="#8a6f22" stroke-width="0.5"/>
+<text x="18.5" y="236.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="start">GND</text>
+<text x="101.5" y="236.6" font-family="Consolas, Menlo, monospace" font-size="4" fill="#e9e9ef" text-anchor="end">GND</text>
+</svg>
