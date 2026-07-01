@@ -1018,36 +1018,36 @@
 <text x="224.4" y="375.7" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">39</text>
 <circle cx="239.1" cy="374.2" r="4.5" fill="#00FF00" stroke="#333" stroke-width="0.5" opacity="0.95" />
 <text x="236.4" y="375.7" font-size="4.5" font-family="Arial, sans-serif" font-weight="bold" fill="#000000">40</text>
-<path d="M 239.10,170.20 C 254.20,99.03 334.59,155.51 440.00,182.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 239.10,170.20 C 254.20,99.03 334.59,155.51 440.00,182.20" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 239.10,170.20 C 254.20,99.03 372.00,182.20 440.00,182.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 239.10,170.20 C 254.20,99.03 372.00,182.20 440.00,182.20" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="239.1" cy="170.2" r="4.0" fill="white" />
 <circle cx="239.1" cy="170.2" r="3.0" fill="#000000" />
-<path d="M 239.10,146.20 C 251.80,43.44 328.99,129.66 440.00,168.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 239.10,146.20 C 251.80,43.44 328.99,129.66 440.00,168.20" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 239.10,146.20 C 251.80,43.44 372.00,168.20 440.00,168.20" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 239.10,146.20 C 251.80,43.44 372.00,168.20 440.00,168.20" stroke="#FF0000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="239.1" cy="146.2" r="4.0" fill="white" />
 <circle cx="239.1" cy="146.2" r="3.0" fill="#FF0000" />
-<path d="M 455.00,182.20 C 417.57,307.86 576.57,360.59 720.00,318.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 455.00,182.20 C 417.57,307.86 576.57,360.59 720.00,318.70" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 455.00,182.20 C 417.57,307.62 630.57,318.70 720.00,318.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 455.00,182.20 C 417.57,307.62 630.57,318.70 720.00,318.70" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="455.0" cy="182.2" r="4.0" fill="white" />
 <circle cx="455.0" cy="182.2" r="3.0" fill="#000000" />
-<path d="M 455.00,182.20 C 407.97,264.66 566.97,286.19 720.00,258.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 455.00,182.20 C 407.97,264.66 566.97,286.19 720.00,258.70" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 455.00,182.20 C 407.97,263.93 637.25,258.70 720.00,258.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 455.00,182.20 C 407.97,263.93 637.25,258.70 720.00,258.70" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="455.0" cy="182.2" r="4.0" fill="white" />
 <circle cx="455.0" cy="182.2" r="3.0" fill="#000000" />
-<path d="M 455.00,182.20 C 412.53,216.74 435.39,211.65 720.00,198.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 455.00,182.20 C 412.53,216.74 435.39,211.65 720.00,198.70" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 455.00,182.20 C 412.53,216.11 640.35,198.70 720.00,198.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 455.00,182.20 C 412.53,216.11 640.35,198.70 720.00,198.70" stroke="#000000" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="455.0" cy="182.2" r="4.0" fill="white" />
 <circle cx="455.0" cy="182.2" r="3.0" fill="#000000" />
-<path d="M 527.00,175.20 C 584.90,189.70 662.10,323.20 720.00,308.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 527.00,175.20 C 584.90,189.70 662.10,323.20 720.00,308.70" stroke="#FF8C00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 527.00,175.20 C 584.90,189.84 649.60,308.70 720.00,308.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 527.00,175.20 C 584.90,189.84 649.60,308.70 720.00,308.70" stroke="#FF8C00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="525.0" cy="175.2" r="4.0" fill="white" />
 <circle cx="525.0" cy="175.2" r="3.0" fill="#FF8C00" />
-<path d="M 527.00,175.20 C 584.90,165.70 662.10,239.20 720.00,248.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 527.00,175.20 C 584.90,165.70 662.10,239.20 720.00,248.70" stroke="#FF8C00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 527.00,175.20 C 584.90,166.11 652.00,248.70 720.00,248.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 527.00,175.20 C 584.90,166.11 652.00,248.70 720.00,248.70" stroke="#FF8C00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="525.0" cy="175.2" r="4.0" fill="white" />
 <circle cx="525.0" cy="175.2" r="3.0" fill="#FF8C00" />
-<path d="M 527.00,175.20 C 623.50,155.10 623.50,168.60 720.00,188.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
-<path d="M 527.00,175.20 C 623.50,155.10 623.50,168.60 720.00,188.70" stroke="#FF8C00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+<path d="M 527.00,175.20 C 623.50,155.34 652.00,188.70 720.00,188.70" stroke="white" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" />
+<path d="M 527.00,175.20 C 623.50,155.34 652.00,188.70 720.00,188.70" stroke="#FF8C00" stroke-width="3.0" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
 <circle cx="525.0" cy="175.2" r="4.0" fill="white" />
 <circle cx="525.0" cy="175.2" r="3.0" fill="#FF8C00" />
 <text x="490.0" y="153.2" font-size="12.0" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" fill="#333">Power Supply</text>
