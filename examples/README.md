@@ -169,6 +169,10 @@ Demonstrates safe control of high-voltage devices:
 - **pico_bme280.yaml** - BME280 sensor on Pico
 - **pico_leds_with_specs.yaml** - Multiple LEDs with specifications on Pico
 
+#### ESP32
+
+- **esp32_s3_can_transceiver.yaml** - SN65HVD230 CAN (TWAI) transceiver on ESP32-S3-DevKitC-1
+
 ## Python API Examples
 
 Some examples also include Python API equivalents:
