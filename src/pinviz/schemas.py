@@ -52,6 +52,14 @@ VALID_BOARD_NAMES = {
     "esp32",
     "esp32dev",
     "esp32_devkit",
+    "esp32_s3_devkitc1",
+    "esp32_s3_devkitc",
+    "esp32_s3_devkit",
+    "esp32s3",
+    "esp32_s3",
+    "esp32_s3_devkitc1_schematic",
+    "esp32s3_schematic",
+    "esp32_s3_schematic",
     "wemos_d1_mini",
     "d1mini",
     "d1_mini",
@@ -95,6 +103,7 @@ VALID_DEVICE_TYPES = {
     "relay_module",
     "sg90",
     "sim800l",
+    "sn65hvd230",
     "single_pin_each_side",
     "spi_device",
     "spi",  # Alias for spi_device
@@ -931,6 +940,17 @@ class BoardConfigSchema(BaseModel):
         float,
         Field(default=1.0, gt=0, le=10, description="Scale factor for SVG asset rendering"),
     ] = 1.0
+    show_pin_names: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=(
+                "Render each header pin's short name (GPIO number / power rail) on the "
+                "pin instead of its physical index. Useful for boards like the ESP32-S3 "
+                "where the physical pin position carries no meaning."
+            ),
+        ),
+    ] = False
     pins: Annotated[
         list[BoardPinConfigSchema],
         Field(min_length=1, description="List of GPIO header pins"),

@@ -452,3 +452,44 @@ def test_render_handles_io_error(sample_diagram, temp_output_dir):
     assert output_path.exists()
     content = output_path.read_text()
     assert sample_diagram.title in content
+
+
+def test_short_pin_label():
+    """_short_pin_label collapses on-bubble names for show_pin_names boards."""
+    from types import SimpleNamespace
+
+    from pinviz.render_svg import _short_pin_label
+
+    def pin(name):
+        return SimpleNamespace(name=name)
+
+    assert _short_pin_label(pin("GPIO43")) == "43"  # drop GPIO prefix
+    assert _short_pin_label(pin("GND")) == "G"  # single glyph
+    assert _short_pin_label(pin("3V3")) == "3V3"  # verbatim
+    assert _short_pin_label(pin("EN")) == "EN"
+    assert _short_pin_label(pin("GPIOX")) == "GPIOX"  # not all-digit -> verbatim
+
+
+def test_render_show_pin_names_labels(temp_output_dir):
+    """show_pin_names boards draw short names on the bubbles with font shrinking.
+
+    Covers the render-time branches: name lookup, the 3-char (>=3) and 4-char
+    (>=4) font-shrink cases. The 4-char case is forced with a renamed pin since
+    no real ESP32-S3 label is that long.
+    """
+    import dataclasses
+
+    board = boards.esp32_s3_devkitc1_schematic()
+    assert board.show_pin_names is True
+    pins = list(board.pins)
+    pins[4] = dataclasses.replace(pins[4], name="MTMS")  # 4-char verbatim label
+    board = dataclasses.replace(board, pins=pins)
+
+    diagram = Diagram(title="ESP32-S3 names", board=board, devices=[], connections=[])
+    output_path = temp_output_dir / "esp32_s3_names.svg"
+    SVGRenderer().render(diagram, output_path)
+
+    texts = [el.text for el in ET.parse(output_path).getroot().iter() if el.text]
+    assert "MTMS" in texts  # >=4 chars
+    assert "3V3" in texts  # 3 chars
+    assert "43" in texts  # GPIO43 -> "43"

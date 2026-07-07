@@ -43,14 +43,15 @@ PinViz makes it easy to create clear, professional wiring diagrams for your micr
 
 ## Supported Boards
 
-| Board              | Aliases                                      | GPIO Pins            | Description                                          |
-| ------------------ | -------------------------------------------- | -------------------- | ---------------------------------------------------- |
-| Raspberry Pi 5     | `raspberry_pi_5`, `rpi5`, `rpi`              | 40-pin               | Latest Raspberry Pi with improved GPIO capabilities  |
-| Raspberry Pi 4     | `raspberry_pi_4`, `rpi4`                     | 40-pin               | Popular Raspberry Pi model with full GPIO header     |
-| Raspberry Pi Pico  | `raspberry_pi_pico`, `pico`                  | 40-pin (dual-sided)  | RP2040-based microcontroller board                   |
-| ESP32 DevKit V1    | `esp32_devkit_v1`, `esp32`, `esp32_devkit`   | 30-pin (dual-sided)  | ESP32 development board with WiFi/Bluetooth          |
-| ESP8266 NodeMCU    | `esp8266_nodemcu`, `esp8266`, `nodemcu`      | 30-pin (dual-sided)  | ESP8266 WiFi development board                       |
-| Wemos D1 Mini      | `wemos_d1_mini`, `d1mini`, `wemos`           | 16-pin (dual-sided)  | Compact ESP8266 development board                    |
+| Board              | Aliases                                    | GPIO Pins           | Description                                                         |
+| ------------------ | ------------------------------------------ | ------------------- | ------------------------------------------------------------------ |
+| Raspberry Pi 5     | `raspberry_pi_5`, `rpi5`, `rpi`            | 40-pin              | Latest Raspberry Pi with improved GPIO capabilities                |
+| Raspberry Pi 4     | `raspberry_pi_4`, `rpi4`                   | 40-pin              | Popular Raspberry Pi model with full GPIO header                   |
+| Raspberry Pi Pico  | `raspberry_pi_pico`, `pico`                | 40-pin (dual-sided) | RP2040-based microcontroller board                                 |
+| ESP32 DevKit V1    | `esp32_devkit_v1`, `esp32`, `esp32_devkit` | 30-pin (dual-sided) | ESP32 development board with WiFi/Bluetooth                        |
+| ESP32-S3-DevKitC-1 | `esp32_s3_devkitc1`, `esp32s3`, `esp32_s3` | 44-pin (dual-sided) | ESP32-S3 board (realistic artwork; `_schematic` variant available) |
+| ESP8266 NodeMCU    | `esp8266_nodemcu`, `esp8266`, `nodemcu`    | 30-pin (dual-sided) | ESP8266 WiFi development board                                     |
+| Wemos D1 Mini      | `wemos_d1_mini`, `d1mini`, `wemos`         | 16-pin (dual-sided) | Compact ESP8266 development board                                  |
 
 All boards include full pin definitions with GPIO numbers, I2C, SPI, UART, and PWM support.
 

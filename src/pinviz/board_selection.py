@@ -22,6 +22,16 @@ BOARD_LOADERS = {
     "esp32": boards.esp32_devkit_v1,
     "esp32dev": boards.esp32_devkit_v1,
     "esp32_devkit": boards.esp32_devkit_v1,
+    # ESP32-S3-DevKitC-1 (realistic board artwork)
+    "esp32_s3_devkitc1": boards.esp32_s3_devkitc1,
+    "esp32_s3_devkitc": boards.esp32_s3_devkitc1,
+    "esp32_s3_devkit": boards.esp32_s3_devkitc1,
+    "esp32s3": boards.esp32_s3_devkitc1,
+    "esp32_s3": boards.esp32_s3_devkitc1,
+    # ESP32-S3-DevKitC-1 (schematic / artwork-free)
+    "esp32_s3_devkitc1_schematic": boards.esp32_s3_devkitc1_schematic,
+    "esp32s3_schematic": boards.esp32_s3_devkitc1_schematic,
+    "esp32_s3_schematic": boards.esp32_s3_devkitc1_schematic,
     # Wemos D1 Mini
     "wemos_d1_mini": boards.wemos_d1_mini,
     "d1mini": boards.wemos_d1_mini,

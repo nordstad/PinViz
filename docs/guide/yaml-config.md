@@ -30,6 +30,7 @@ show_legend: true
 ### ESP32/ESP8266 Boards
 
 - `esp32_devkit_v1` (aliases: `esp32`, `esp32_devkit`) - ESP32 DevKit V1 with 30-pin dual-sided header
+- `esp32_s3_devkitc1` (aliases: `esp32s3`, `esp32_s3`) - ESP32-S3-DevKitC-1 with realistic board artwork (44-pin). Use `esp32_s3_devkitc1_schematic` (aliases: `esp32s3_schematic`) for the artwork-free variant with GPIO names on the pin bubbles
 - `esp8266_nodemcu` (aliases: `esp8266`, `nodemcu`) - ESP8266 NodeMCU with 30-pin dual-sided header
 - `wemos_d1_mini` (aliases: `d1mini`, `wemos`) - Wemos D1 Mini with 16-pin dual-sided header
 
