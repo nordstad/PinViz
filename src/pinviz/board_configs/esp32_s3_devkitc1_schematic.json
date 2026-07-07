@@ -1,0 +1,284 @@
+{
+  "name": "ESP32-S3-DevKitC-1 (schematic)",
+  "svg_asset": "esp32_s3_devkitc1_mod.svg",
+  "width": 210.0,
+  "height": 300.0,
+  "header_offset": {
+    "x": 0,
+    "y": 0
+  },
+  "render_mode": "programmatic",
+  "show_pin_names": true,
+  "layout": {
+    "left_col_x": 178.0,
+    "right_col_x": 196.0,
+    "start_y": 20.0,
+    "row_spacing": 12.0
+  },
+  "pins": [
+    {
+      "physical_pin": 1,
+      "name": "3V3",
+      "role": "3V3",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 2,
+      "name": "GND",
+      "role": "GND",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 3,
+      "name": "3V3",
+      "role": "3V3",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 4,
+      "name": "GPIO43",
+      "role": "UART_TX",
+      "gpio_bcm": 43
+    },
+    {
+      "physical_pin": 5,
+      "name": "EN",
+      "role": "GPIO",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 6,
+      "name": "GPIO44",
+      "role": "UART_RX",
+      "gpio_bcm": 44
+    },
+    {
+      "physical_pin": 7,
+      "name": "GPIO4",
+      "role": "GPIO",
+      "gpio_bcm": 4
+    },
+    {
+      "physical_pin": 8,
+      "name": "GPIO1",
+      "role": "GPIO",
+      "gpio_bcm": 1
+    },
+    {
+      "physical_pin": 9,
+      "name": "GPIO5",
+      "role": "GPIO",
+      "gpio_bcm": 5
+    },
+    {
+      "physical_pin": 10,
+      "name": "GPIO2",
+      "role": "GPIO",
+      "gpio_bcm": 2
+    },
+    {
+      "physical_pin": 11,
+      "name": "GPIO6",
+      "role": "GPIO",
+      "gpio_bcm": 6
+    },
+    {
+      "physical_pin": 12,
+      "name": "GPIO42",
+      "role": "GPIO",
+      "gpio_bcm": 42
+    },
+    {
+      "physical_pin": 13,
+      "name": "GPIO7",
+      "role": "GPIO",
+      "gpio_bcm": 7
+    },
+    {
+      "physical_pin": 14,
+      "name": "GPIO41",
+      "role": "GPIO",
+      "gpio_bcm": 41
+    },
+    {
+      "physical_pin": 15,
+      "name": "GPIO15",
+      "role": "GPIO",
+      "gpio_bcm": 15
+    },
+    {
+      "physical_pin": 16,
+      "name": "GPIO40",
+      "role": "GPIO",
+      "gpio_bcm": 40
+    },
+    {
+      "physical_pin": 17,
+      "name": "GPIO16",
+      "role": "GPIO",
+      "gpio_bcm": 16
+    },
+    {
+      "physical_pin": 18,
+      "name": "GPIO39",
+      "role": "GPIO",
+      "gpio_bcm": 39
+    },
+    {
+      "physical_pin": 19,
+      "name": "GPIO17",
+      "role": "GPIO",
+      "gpio_bcm": 17
+    },
+    {
+      "physical_pin": 20,
+      "name": "GPIO38",
+      "role": "GPIO",
+      "gpio_bcm": 38
+    },
+    {
+      "physical_pin": 21,
+      "name": "GPIO18",
+      "role": "GPIO",
+      "gpio_bcm": 18
+    },
+    {
+      "physical_pin": 22,
+      "name": "GPIO37",
+      "role": "GPIO",
+      "gpio_bcm": 37
+    },
+    {
+      "physical_pin": 23,
+      "name": "GPIO8",
+      "role": "GPIO",
+      "gpio_bcm": 8
+    },
+    {
+      "physical_pin": 24,
+      "name": "GPIO36",
+      "role": "GPIO",
+      "gpio_bcm": 36
+    },
+    {
+      "physical_pin": 25,
+      "name": "GPIO3",
+      "role": "GPIO",
+      "gpio_bcm": 3
+    },
+    {
+      "physical_pin": 26,
+      "name": "GPIO35",
+      "role": "GPIO",
+      "gpio_bcm": 35
+    },
+    {
+      "physical_pin": 27,
+      "name": "GPIO46",
+      "role": "GPIO",
+      "gpio_bcm": 46
+    },
+    {
+      "physical_pin": 28,
+      "name": "GPIO0",
+      "role": "GPIO",
+      "gpio_bcm": 0
+    },
+    {
+      "physical_pin": 29,
+      "name": "GPIO9",
+      "role": "GPIO",
+      "gpio_bcm": 9
+    },
+    {
+      "physical_pin": 30,
+      "name": "GPIO45",
+      "role": "GPIO",
+      "gpio_bcm": 45
+    },
+    {
+      "physical_pin": 31,
+      "name": "GPIO10",
+      "role": "GPIO",
+      "gpio_bcm": 10
+    },
+    {
+      "physical_pin": 32,
+      "name": "GPIO48",
+      "role": "GPIO",
+      "gpio_bcm": 48
+    },
+    {
+      "physical_pin": 33,
+      "name": "GPIO11",
+      "role": "GPIO",
+      "gpio_bcm": 11
+    },
+    {
+      "physical_pin": 34,
+      "name": "GPIO47",
+      "role": "GPIO",
+      "gpio_bcm": 47
+    },
+    {
+      "physical_pin": 35,
+      "name": "GPIO12",
+      "role": "GPIO",
+      "gpio_bcm": 12
+    },
+    {
+      "physical_pin": 36,
+      "name": "GPIO21",
+      "role": "GPIO",
+      "gpio_bcm": 21
+    },
+    {
+      "physical_pin": 37,
+      "name": "GPIO13",
+      "role": "GPIO",
+      "gpio_bcm": 13
+    },
+    {
+      "physical_pin": 38,
+      "name": "GPIO20",
+      "role": "GPIO",
+      "gpio_bcm": 20
+    },
+    {
+      "physical_pin": 39,
+      "name": "GPIO14",
+      "role": "GPIO",
+      "gpio_bcm": 14
+    },
+    {
+      "physical_pin": 40,
+      "name": "GPIO19",
+      "role": "GPIO",
+      "gpio_bcm": 19
+    },
+    {
+      "physical_pin": 41,
+      "name": "5V",
+      "role": "5V",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 42,
+      "name": "GND",
+      "role": "GND",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 43,
+      "name": "GND",
+      "role": "GND",
+      "gpio_bcm": null
+    },
+    {
+      "physical_pin": 44,
+      "name": "GND",
+      "role": "GND",
+      "gpio_bcm": null
+    }
+  ]
+}

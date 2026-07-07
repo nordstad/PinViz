@@ -18,6 +18,25 @@ from .wire_renderer import WireRenderer
 log = get_logger(__name__)
 
 
+def _short_pin_label(pin) -> str:
+    """
+    Compute a compact on-pin label for boards that render names instead of the
+    physical pin index (``Board.show_pin_names``).
+
+    - ``GPIO43`` -> ``43`` (drop the redundant GPIO prefix; the bubble colour
+      already encodes the role)
+    - ``GND`` -> ``G`` (kept to a single glyph so it fits the circle)
+    - everything else (``3V3``, ``5V``, ``EN``, ``RST`` ...) is used verbatim
+    """
+    name = (pin.name or "").strip()
+    upper = name.upper()
+    if upper.startswith("GPIO") and name[4:].isdigit():
+        return name[4:]
+    if upper == "GND":
+        return "G"
+    return name
+
+
 class SVGRenderer:
     """
     Render GPIO wiring diagrams to SVG format.
@@ -396,17 +415,28 @@ class SVGRenderer:
                 )
             )
 
-            # Draw pin number - scaled to fit in circle
-            font_size = pin_font_size  # Scaled to fit in circle
+            # Draw pin label - scaled to fit in circle.
+            # Boards with show_pin_names (e.g. ESP32-S3) show the pin's short name
+            # (GPIO number / power rail) instead of the meaningless physical index.
+            if getattr(board, "show_pin_names", False):
+                pin_text = _short_pin_label(pin)
+            else:
+                pin_text = str(pin.number)
+            # Shrink the font for longer labels (e.g. "3V3", "46") so they stay
+            # inside the pin circle; 1-2 chars keep the full size.
+            font_val = _parse_font_size(pin_font_size)
+            if len(pin_text) >= 4:
+                font_val *= 0.55
+            elif len(pin_text) == 3:
+                font_val *= 0.72
             # Use appropriate text color based on background for readability
             text_color = "#FFFFFF" if bg_color in ["#0000FF", "#FF00FF"] else "#000000"
             # Adjust x for text centering (compensate for renderer quirks)
-            pin_text = str(pin.number)
-            text_x_offset = -(_parse_font_size(font_size) * len(pin_text) * 0.3)
+            text_x_offset = -(font_val * len(pin_text) * 0.3)
             dwg.append(
                 draw.Text(
                     pin_text,
-                    _parse_font_size(font_size),
+                    font_val,
                     pin_x + text_x_offset,
                     pin_y + RENDER_CONSTANTS.PIN_TEXT_Y_OFFSET,
                     font_family="Arial, sans-serif",

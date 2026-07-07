@@ -1,0 +1,16 @@
+{
+  "id": "sn65hvd230",
+  "name": "SN65HVD230 CAN Transceiver",
+  "category": "io",
+  "description": "3.3 V CAN bus transceiver breakout (TI SN65HVD230 / VP230). Bridges an MCU TWAI/CAN controller to the differential CAN-H/CAN-L bus.",
+  "pins": [
+    {"name": "3V3",  "role": "3V3",  "side": "left"},
+    {"name": "GND",  "role": "GND",  "side": "left"},
+    {"name": "CTX",  "role": "UART_RX", "side": "left"},
+    {"name": "CRX",  "role": "UART_TX", "side": "left"},
+    {"name": "CANH", "role": "GPIO", "side": "right"},
+    {"name": "CANL", "role": "GPIO", "side": "right"}
+  ],
+  "datasheet_url": "https://www.ti.com/lit/ds/symlink/sn65hvd230.pdf",
+  "notes": "CTX = driver input (from MCU CAN_TX), CRX = receiver output (to MCU CAN_RX). Many cheap VP230 breakouts carry an onboard 120 Ohm terminator - remove it when tapping an already-terminated vehicle bus as a stub."
+}
