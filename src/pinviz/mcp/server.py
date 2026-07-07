@@ -16,6 +16,7 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+from pinviz.connection_graph import ConnectionGraph
 from pinviz.validation import DiagramValidator, ValidationLevel
 
 from .connection_builder import ConnectionBuilder
@@ -157,8 +158,10 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
         - DO NOT modify or reconstruct the YAML - use the 'yaml_content' field exactly as provided
         - The YAML includes full device pin definitions required by the pinviz CLI
     """
+    from pinviz.board_selection import AliasBoardSelectionStrategy
+    from pinviz.pin_assignment import PinAssigner
+
     from .parser import PromptParser
-    from .pin_assignment import PinAssigner
 
     try:
         # Step 1: Parse natural language prompt
@@ -175,6 +178,10 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
                 },
                 indent=2,
             )
+
+        # Step 1.5: Resolve board early so PinAssigner can use it
+        board_strategy = AliasBoardSelectionStrategy(fallback_board_name="raspberry_pi_5")
+        board = board_strategy.select_board(parsed.board)
 
         # Step 2: Look up devices in database
         devices_data = []
@@ -200,15 +207,15 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
             )
 
         # Step 3: Assign pins intelligently
-        pin_assigner = PinAssigner()
+        pin_assigner = PinAssigner(board)
         assignments, warnings = pin_assigner.assign_pins(devices_data)
 
         # Step 3.5: Build complete diagram and validate
-        builder = ConnectionBuilder()
+        builder = ConnectionBuilder(board_selection_strategy=board_strategy)
         diagram = builder.build_diagram(
             assignments=assignments,
             devices_data=devices_data,
-            board_name=parsed.board,
+            board=board,
             title=title
             or (
                 f"{', '.join([d['name'] for d in devices_data])} Wiring"
@@ -217,7 +224,17 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
             ),
         )
 
-        # Validate the diagram
+        # Validate the diagram — structural + electrical
+        # Structural: cycles, orphans
+        graph = ConnectionGraph(diagram.devices, diagram.connections)
+        cycles = graph.detect_cycles()
+        structural_issues = []
+        if cycles:
+            for cycle in cycles:
+                cycle_path = " → ".join(cycle)
+                structural_issues.append(f"Cycle detected: {cycle_path}")
+
+        # Electrical: voltage, pin compatibility, current limits
         validator = DiagramValidator()
         validation_issues = validator.validate(diagram)
 
@@ -225,6 +242,9 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
         validation_errors = [i for i in validation_issues if i.level == ValidationLevel.ERROR]
         validation_warnings = [i for i in validation_issues if i.level == ValidationLevel.WARNING]
         validation_infos = [i for i in validation_issues if i.level == ValidationLevel.INFO]
+
+        # Include structural issues as errors
+        all_error_strings = structural_issues + [str(e) for e in validation_errors]
 
         # Step 4: Generate diagram output
         diagram_title = diagram.title
@@ -258,20 +278,20 @@ def generate_diagram(prompt: str, output_format: str = "yaml", title: str | None
             result["not_found"] = not_found
 
         # Add validation results
-        if validation_issues:
+        if validation_issues or structural_issues:
             result["validation"] = {
-                "total_issues": len(validation_issues),
-                "errors": [str(e) for e in validation_errors],
+                "total_issues": len(validation_issues) + len(structural_issues),
+                "errors": all_error_strings,
                 "warnings": [str(w) for w in validation_warnings],
                 "info": [str(i) for i in validation_infos],
             }
 
             # Update status if there are errors
-            if validation_errors:
+            if all_error_strings:
                 result["status"] = "error"
                 result["validation_status"] = "failed"
                 result["validation_message"] = (
-                    f"Diagram has {len(validation_errors)} validation error(s). "
+                    f"Diagram has {len(all_error_strings)} validation error(s). "
                     "These issues could cause hardware damage or circuit malfunction. "
                     "Review the 'validation.errors' field for details."
                 )

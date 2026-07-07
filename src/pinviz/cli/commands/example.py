@@ -101,11 +101,41 @@ def create_i2c_spi_example() -> Diagram:
     )
 
 
+def create_esp32_weather_station_example() -> Diagram:
+    """Create ESP32 weather station example with BME280 and OLED."""
+    board = boards.load_board_from_config("esp32_devkit_v1")
+    registry = get_registry()
+
+    bme280 = registry.create("bme280")
+    oled = registry.create("ssd1306")
+
+    connections = [
+        # BME280 sensor (I2C address 0x76)
+        Connection(1, "BME280 Environmental Sensor", "VCC"),  # 3V3
+        Connection(3, "BME280 Environmental Sensor", "GND"),  # GND (left side)
+        Connection(21, "BME280 Environmental Sensor", "SDA"),  # GPIO21 (SDA)
+        Connection(27, "BME280 Environmental Sensor", "SCL"),  # GPIO22 (SCL)
+        # SSD1306 OLED (I2C address 0x3C)
+        Connection(1, "SSD1306 OLED Display", "VCC"),  # 3V3
+        Connection(4, "SSD1306 OLED Display", "GND"),  # GND (right side)
+        Connection(21, "SSD1306 OLED Display", "SDA"),  # GPIO21 (SDA)
+        Connection(27, "SSD1306 OLED Display", "SCL"),  # GPIO22 (SCL)
+    ]
+
+    return Diagram(
+        title="ESP32 Weather Station",
+        board=board,
+        devices=[bme280, oled],
+        connections=connections,
+    )
+
+
 # Example registry: maps example names to factory functions
 EXAMPLE_REGISTRY: dict[str, Callable[[], Diagram]] = {
     "bh1750": create_bh1750_example,
     "ir_led": create_ir_led_example,
     "i2c_spi": create_i2c_spi_example,
+    "esp32_weather": create_esp32_weather_station_example,
 }
 
 
@@ -122,7 +152,7 @@ def example_command(
     name: Annotated[
         str,
         typer.Argument(
-            help="Example name: bh1750, ir_led, i2c_spi",
+            help="Example name: bh1750, ir_led, i2c_spi, esp32_weather",
         ),
     ],
     output: OutputOption = None,
@@ -142,6 +172,8 @@ def example_command(
       pinviz example ir_led -o images/ir_led.svg --theme dark
 
       pinviz example i2c_spi --show-legend
+
+      pinviz example esp32_weather -o esp32.svg
     """
     ctx = AppContext()
     log = ctx.logger

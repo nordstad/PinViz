@@ -9,6 +9,9 @@ permissions:
   contents: read
   id-token: write  # Required for trusted publishing to PyPI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   build:
     name: Build and validate package
@@ -16,10 +19,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
 
       - name: Install Python 3.13
         run: uv python install 3.13
@@ -208,7 +211,7 @@ jobs:
           echo "=========================================="
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
@@ -226,13 +229,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
@@ -242,7 +245,7 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const tag = context.ref.replace('refs/tags/', '');
@@ -291,9 +294,13 @@ jobs:
           if git diff --quiet CHANGELOG.md; then
             echo "No changes to commit"
           else
+            cp CHANGELOG.md /tmp/CHANGELOG.md
+            git fetch origin main
+            git checkout main
+            cp /tmp/CHANGELOG.md CHANGELOG.md
             git add CHANGELOG.md
             git commit -m "Update CHANGELOG.md for release ${GITHUB_REF#refs/tags/}"
-            git push origin HEAD:main
+            git push origin main
           fi
 
   test-published:
@@ -302,11 +309,11 @@ jobs:
     needs: publish
     strategy:
       matrix:
-        python-version: ["3.12", "3.13"]
+        python-version: ["3.13"]
 
     steps:
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: false
 
@@ -362,7 +369,7 @@ jobs:
           echo "✓ CLI installation verified"
 
       - name: Checkout code for shared tests
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run post-publish integration tests
         run: |

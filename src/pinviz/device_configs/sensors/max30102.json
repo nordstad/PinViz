@@ -1,0 +1,18 @@
+{
+  "id": "max30102",
+  "name": "MAX30102 Pulse Oximeter",
+  "category": "sensors",
+  "description": "Heart rate and SpO2 sensor with integrated red and IR LEDs for pulse oximetry",
+
+  "pins": [
+    {"name": "VIN", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"},
+    {"name": "INT", "role": "GPIO", "optional": true}
+  ],
+
+  "i2c_address": "0x57",
+  "datasheet_url": "https://datasheets.maximintegrated.com/en/ds/MAX30102.pdf",
+  "notes": "Integrated pulse oximetry and heart rate monitor. Built-in red (660nm) and IR (880nm) LEDs with photodetector. Sample rates up to 3200 samples/second. INT pin provides interrupt for FIFO full/ready events. Low power: 600µA in SpO2 mode."
+}

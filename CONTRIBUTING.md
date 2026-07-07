@@ -203,7 +203,7 @@ PinViz uses a consistent test structure across the codebase. Follow these patter
 ```python
 """Tests for the PinAssigner class."""
 
-from pinviz.mcp.pin_assignment import PinAssigner, PinAssignment
+from pinviz.pin_assignment import PinAssigner, PinAssignment
 from pinviz.model import PinRole
 
 

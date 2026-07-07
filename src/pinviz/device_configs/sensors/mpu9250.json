@@ -1,0 +1,19 @@
+{
+  "id": "mpu9250",
+  "name": "MPU9250 9-Axis IMU",
+  "category": "sensors",
+  "description": "9-axis motion tracking device with 3-axis gyroscope, 3-axis accelerometer, and 3-axis magnetometer",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"},
+    {"name": "AD0", "role": "GPIO", "optional": true},
+    {"name": "INT", "role": "GPIO", "optional": true}
+  ],
+
+  "i2c_address": "0x68",
+  "datasheet_url": "https://invensense.tdk.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf",
+  "notes": "9-axis sensor: 3-axis gyro, 3-axis accelerometer, 3-axis magnetometer (AK8963). I2C address: 0x68 (AD0 low) or 0x69 (AD0 high). Built-in Digital Motion Processor (DMP). INT pin for motion detection and data ready interrupts."
+}

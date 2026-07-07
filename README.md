@@ -11,12 +11,13 @@
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.12+-blue.svg" alt="Python 3.12+"></a>
   <a href="https://pypi.org/project/pinviz/"><img src="https://img.shields.io/pypi/v/pinviz.svg" alt="PyPI version"></a>
+  <a href="https://github.com/nordstad/homebrew-pinviz"><img src="https://img.shields.io/badge/homebrew-tap-orange?logo=homebrew" alt="Homebrew"></a>
   <a href="https://pepy.tech/projects/pinviz"><img src="https://static.pepy.tech/personalized-badge/pinviz?period=total&units=international_system&left_color=black&right_color=green&left_text=downloads" alt="PyPI Downloads"></a>
 </p>
 
-**Programmatically generate beautiful Raspberry Pi GPIO connection diagrams in SVG format.**
+**Programmatically generate beautiful GPIO connection diagrams for Raspberry Pi and ESP32/ESP8266 boards in SVG format.**
 
-PinViz makes it easy to create clear, professional wiring diagrams for your Raspberry Pi projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
+PinViz makes it easy to create clear, professional wiring diagrams for your microcontroller projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
 
 ## Example Diagram
 
@@ -32,59 +33,13 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - 🎨 **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - 🎯 **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
 - ⚡ **Inline Components**: Add resistors, capacitors, and diodes directly on wires
-- 🔌 **Built-in Templates**: Pre-configured boards (Raspberry Pi 4, 5 & Pico) and common devices
+- 🔌 **Built-in Templates**: Pre-configured boards (Raspberry Pi, ESP32, ESP8266) and common devices
 - 🐍 **Python API**: Create diagrams programmatically with Python code
 - 🤖 **MCP Server**: Generate diagrams from natural language with AI assistants
 - 🌙 **Dark Mode**: Built-in light and dark themes for better visibility
 - 📦 **SVG Output**: Scalable, high-quality vector graphics
 - ✨ **Modern CLI**: Rich terminal output with progress indicators and colored messages
 - 🔧 **JSON Output**: Machine-readable output for CI/CD integration
-
-## Multi-Level Device Support ✨
-
-**New in v0.11.0**: PinViz now supports device-to-device connections, enabling complex multi-level wiring diagrams!
-
-### What's New
-
-- Connect devices to other devices (not just to the board)
-- Automatic horizontal tier layout based on connection depth
-- Supports power distribution chains, sensor chains, motor controllers, and more
-- Backward compatible with existing configurations
-
-### Example: Power Distribution Chain
-
-```yaml
-connections:
-  # Board to regulator
-  - from: {board_pin: 2}
-    to: {device: "Regulator", device_pin: "VIN"}
-
-  # Regulator to LED (device-to-device!)
-  - from: {device: "Regulator", device_pin: "VOUT"}
-    to: {device: "LED", device_pin: "VCC"}
-```
-
-See [examples/multi_level_simple.yaml](examples/multi_level_simple.yaml) for a complete example.
-
-## Dark Mode 🌙
-
-Generate diagrams optimized for dark backgrounds. Perfect for documentation displayed in dark themes.
-
-```yaml
-title: "My Diagram"
-board: "raspberry_pi_5"
-theme: "dark"  # or "light" (default)
-devices: [...]
-connections: [...]
-```
-
-Or use the CLI flag:
-
-```bash
-pinviz render diagram.yaml --theme dark -o output.svg
-```
-
-See [examples/bh1750_dark.yaml](examples/bh1750_dark.yaml) for a complete example.
 
 ## Supported Boards
 
@@ -93,29 +48,36 @@ See [examples/bh1750_dark.yaml](examples/bh1750_dark.yaml) for a complete exampl
 | Raspberry Pi 5     | `raspberry_pi_5`, `rpi5`, `rpi`            | 40-pin              | Latest Raspberry Pi with improved GPIO capabilities                |
 | Raspberry Pi 4     | `raspberry_pi_4`, `rpi4`                   | 40-pin              | Popular Raspberry Pi model with full GPIO header                   |
 | Raspberry Pi Pico  | `raspberry_pi_pico`, `pico`                | 40-pin (dual-sided) | RP2040-based microcontroller board                                 |
-| ESP32 DevKit V1    | `esp32_devkit_v1`, `esp32`, `esp32dev`     | 30-pin (dual-sided) | Common ESP32 development board                                     |
+| ESP32 DevKit V1    | `esp32_devkit_v1`, `esp32`, `esp32_devkit` | 30-pin (dual-sided) | ESP32 development board with WiFi/Bluetooth                        |
 | ESP32-S3-DevKitC-1 | `esp32_s3_devkitc1`, `esp32s3`, `esp32_s3` | 44-pin (dual-sided) | ESP32-S3 board (realistic artwork; `_schematic` variant available) |
-| Wemos D1 Mini      | `wemos_d1_mini`, `d1mini`, `wemos`         | 16-pin (dual-sided) | Compact ESP8266 board                                              |
-| ESP8266 NodeMCU    | `esp8266_nodemcu`, `esp8266`, `nodemcu`    | 30-pin (dual-sided) | ESP8266 development board                                          |
+| ESP8266 NodeMCU    | `esp8266_nodemcu`, `esp8266`, `nodemcu`    | 30-pin (dual-sided) | ESP8266 WiFi development board                                     |
+| Wemos D1 Mini      | `wemos_d1_mini`, `d1mini`, `wemos`         | 16-pin (dual-sided) | Compact ESP8266 development board                                  |
 
 All boards include full pin definitions with GPIO numbers, I2C, SPI, UART, and PWM support.
 
 ## Installation
 
-Install as a standalone tool with global CLI access:
+### Homebrew (macOS)
+
+```zsh
+brew tap nordstad/pinviz
+brew install pinviz
+```
+
+### pip / uv (cross-platform)
 
 ```bash
 uv tool install pinviz
 ```
 
+```bash
+pip install pinviz
+```
+
 Or as a project dependency:
 
 ```bash
-# Using uv
 uv add pinviz
-
-# Using pip
-pip install pinviz
 ```
 
 ## Quick Start
@@ -244,7 +206,7 @@ PinViz includes an **MCP (Model Context Protocol) server** that enables natural 
 
 Contributions are welcome! Please see our [Contributing Guide](https://nordstad.github.io/PinViz/development/contributing/) for details.
 
-**Adding new devices:** See [guides/DEVICE_CONFIG_GUIDE.md](guides/DEVICE_CONFIG_GUIDE.md) for device configuration details.
+**Adding new devices:** See [guides/adding-devices.md](guides/adding-devices.md) for device configuration details.
 
 ## License
 

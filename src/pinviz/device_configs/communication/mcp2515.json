@@ -1,0 +1,19 @@
+{
+  "id": "mcp2515",
+  "name": "MCP2515 CAN Bus Controller",
+  "category": "communication",
+  "description": "CAN bus controller with SPI interface and TJA1050 transceiver",
+
+  "pins": [
+    {"name": "VCC", "role": "5V"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCK", "role": "SPI_SCLK"},
+    {"name": "SI", "role": "SPI_MOSI"},
+    {"name": "SO", "role": "SPI_MISO"},
+    {"name": "CS", "role": "SPI_CE0"},
+    {"name": "INT", "role": "GPIO"}
+  ],
+
+  "datasheet_url": "https://www.microchip.com/en-us/product/MCP2515",
+  "notes": "CAN bus controller for automotive/industrial communication. INT indicates received messages or errors. Requires CAN-H and CAN-L external connections. Operates at up to 1Mbps."
+}

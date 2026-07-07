@@ -2,7 +2,36 @@
 
 PinViz requires Python 3.12 or later.
 
-## For CLI Usage (Recommended)
+## Choose Your Install Method
+
+| Method | Best for | Run pinviz as | Upgrade command |
+| --- | --- | --- | --- |
+| `brew install pinviz` | macOS, managed by Homebrew | `pinviz ...` | `brew upgrade pinviz` |
+| `uv tool install pinviz` | CLI-only use, global access | `pinviz ...` | `uv tool upgrade pinviz` |
+| `pipx install pinviz` | CLI-only use, no uv | `pinviz ...` | `pipx upgrade pinviz` |
+| `uv add pinviz` | Using PinViz as a library in a project | `uv run pinviz ...` | `uv add pinviz@latest` |
+| `pip install pinviz` | Simple library use, existing venv | `pinviz ...` (if venv active) | `pip install --upgrade pinviz` |
+
+**Not sure?** Use `uv tool install pinviz` — it gives you a global `pinviz` command without affecting any project environment.
+
+## Homebrew (macOS)
+
+The easiest way to install on macOS:
+
+```zsh
+brew tap nordstad/pinviz
+brew install pinviz
+```
+
+Shell completions for bash, zsh, and fish are installed automatically.
+
+To upgrade:
+
+```zsh
+brew upgrade pinviz
+```
+
+## For CLI Usage
 
 Install as a standalone tool with global access to the CLI using [uv](https://docs.astral.sh/uv/):
 
@@ -23,10 +52,10 @@ pipx install pinviz
 If you want to use PinViz as a library in your Python project:
 
 ```bash
-# Using uv
 uv add pinviz
+```
 
-# Using pip
+```bash
 pip install pinviz
 ```
 
@@ -66,8 +95,11 @@ uv run pinviz --help
 
 - Python 3.12 or later
 - Dependencies:
-    - `svgwrite>=1.4.3` - SVG generation
+    - `drawsvg~=2.4` - SVG generation
     - `pyyaml>=6.0.1` - YAML configuration parsing
+    - `typer>=0.12.0` - CLI framework
+    - `rich>=13.7.0` - Terminal output formatting
+    - `structlog>=24.1.0` - Structured logging
 
 All dependencies are installed automatically when you install PinViz.
 

@@ -372,7 +372,7 @@ class TestDiagramConfigSchema:
         )
         assert config.title == "GPIO Diagram"
         assert config.board == "raspberry_pi_5"
-        assert config.show_legend is True
+        assert config.show_legend is False
         assert config.show_gpio_diagram is False
 
     def test_multiple_devices_and_connections(self):

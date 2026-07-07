@@ -1,0 +1,23 @@
+{
+  "id": "ads1115",
+  "name": "ADS1115 ADC",
+  "category": "sensors",
+  "description": "16-bit precision analog-to-digital converter with programmable gain amplifier and I2C interface",
+
+  "pins": [
+    {"name": "VDD", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"},
+    {"name": "ADDR", "role": "GPIO", "optional": true},
+    {"name": "ALRT", "role": "GPIO", "optional": true},
+    {"name": "A0", "role": "GPIO"},
+    {"name": "A1", "role": "GPIO"},
+    {"name": "A2", "role": "GPIO"},
+    {"name": "A3", "role": "GPIO"}
+  ],
+
+  "i2c_address": "0x48",
+  "datasheet_url": "https://www.ti.com/lit/ds/symlink/ads1115.pdf",
+  "notes": "16-bit ADC with 4 single-ended or 2 differential inputs. Programmable gain amplifier (PGA) from ±256mV to ±6.144V. I2C address: 0x48-0x4B via ADDR pin. Sample rates: 8 to 860 SPS. ALRT pin for comparator/conversion ready interrupt."
+}

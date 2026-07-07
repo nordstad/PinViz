@@ -9,6 +9,34 @@ from pinviz.cli import app
 runner = CliRunner()
 
 
+def _create_invalid_cycle_config(temp_output_dir):
+    """Create an invalid cyclic config for CLI error-path tests."""
+    config_content = """title: "Invalid Cycle"
+board: "raspberry_pi_5"
+devices:
+  - type: "led"
+    name: "Device A"
+  - type: "led"
+    name: "Device B"
+connections:
+  - from:
+      device: "Device A"
+      device_pin: "+"
+    to:
+      device: "Device B"
+      device_pin: "+"
+  - from:
+      device: "Device B"
+      device_pin: "-"
+    to:
+      device: "Device A"
+      device_pin: "-"
+"""
+    config_path = temp_output_dir / "invalid_cycle.yaml"
+    config_path.write_text(config_content)
+    return config_path
+
+
 def test_main_with_no_args_shows_help():
     """Test that main with no arguments shows help (Typer default)."""
     result = runner.invoke(app, [])
@@ -330,6 +358,21 @@ def test_render_with_json_output(sample_yaml_config, temp_output_dir):
     assert output_file.exists()
 
 
+def test_render_json_output_is_machine_readable_on_error(temp_output_dir):
+    """Render --json should emit JSON only, even on config errors."""
+    import json
+
+    invalid_config = _create_invalid_cycle_config(temp_output_dir)
+    result = runner.invoke(app, ["render", str(invalid_config), "--json"])
+
+    assert result.exit_code == 1
+    output = result.stdout.strip()
+    assert output.startswith("{")
+    payload = json.loads(output)
+    assert payload["status"] == "error"
+    assert "Configuration Errors" not in output
+
+
 def test_validate_command(sample_yaml_config):
     """Test validate command."""
     result = runner.invoke(
@@ -535,6 +578,21 @@ def test_validate_command_json_with_graph_stats(sample_yaml_config):
     assert output_data["graph"]["devices"] > 0
     assert output_data["graph"]["connections"] > 0
     assert output_data["graph"]["levels"] >= 0
+
+
+def test_validate_json_output_is_machine_readable_on_error(temp_output_dir):
+    """Validate --json should emit JSON only, even on config errors."""
+    import json
+
+    invalid_config = _create_invalid_cycle_config(temp_output_dir)
+    result = runner.invoke(app, ["validate", str(invalid_config), "--json"])
+
+    assert result.exit_code == 1
+    output = result.stdout.strip()
+    assert output.startswith("{")
+    payload = json.loads(output)
+    assert payload["status"] == "error"
+    assert "Configuration Errors" not in output
 
 
 def test_render_command_with_theme_light(sample_yaml_config, temp_output_dir):

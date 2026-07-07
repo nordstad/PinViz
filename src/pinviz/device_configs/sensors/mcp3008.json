@@ -1,0 +1,28 @@
+{
+  "id": "mcp3008",
+  "name": "MCP3008 ADC",
+  "category": "sensors",
+  "description": "8-channel 10-bit analog-to-digital converter with SPI interface",
+
+  "pins": [
+    {"name": "VDD", "role": "3V3"},
+    {"name": "VREF", "role": "3V3"},
+    {"name": "AGND", "role": "GND"},
+    {"name": "CLK", "role": "SPI_SCLK"},
+    {"name": "DOUT", "role": "SPI_MISO"},
+    {"name": "DIN", "role": "SPI_MOSI"},
+    {"name": "CS", "role": "SPI_CE0"},
+    {"name": "DGND", "role": "GND"},
+    {"name": "CH0", "role": "GPIO"},
+    {"name": "CH1", "role": "GPIO"},
+    {"name": "CH2", "role": "GPIO"},
+    {"name": "CH3", "role": "GPIO"},
+    {"name": "CH4", "role": "GPIO"},
+    {"name": "CH5", "role": "GPIO"},
+    {"name": "CH6", "role": "GPIO"},
+    {"name": "CH7", "role": "GPIO"}
+  ],
+
+  "datasheet_url": "https://ww1.microchip.com/downloads/en/DeviceDoc/21295d.pdf",
+  "notes": "8 single-ended analog input channels (CH0-CH7), or 4 differential pairs. 10-bit resolution (0-1023). Sample rate up to 200 ksps. VREF sets the full-scale voltage range."
+}

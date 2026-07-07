@@ -1,0 +1,22 @@
+{
+  "id": "sx1278",
+  "name": "SX1278 LoRa Module",
+  "category": "communication",
+  "description": "Long range LoRa transceiver with SPI interface",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCK", "role": "SPI_SCLK"},
+    {"name": "MOSI", "role": "SPI_MOSI"},
+    {"name": "MISO", "role": "SPI_MISO"},
+    {"name": "NSS", "role": "SPI_CE0"},
+    {"name": "RESET", "role": "GPIO"},
+    {"name": "DIO0", "role": "GPIO"},
+    {"name": "DIO1", "role": "GPIO", "optional": true},
+    {"name": "DIO2", "role": "GPIO", "optional": true}
+  ],
+
+  "datasheet_url": "https://www.semtech.com/products/wireless-rf/lora-core/sx1278",
+  "notes": "LoRa transceiver for long range communication (up to 10km). NSS is chip select. RESET for module reset. DIO0 indicates RX/TX done. Operates on 433/868/915 MHz bands."
+}

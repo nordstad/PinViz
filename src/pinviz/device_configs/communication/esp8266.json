@@ -1,0 +1,20 @@
+{
+  "id": "esp8266",
+  "name": "ESP8266 WiFi Module",
+  "category": "communication",
+  "description": "WiFi module with UART AT command interface",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "TX", "role": "UART_TX"},
+    {"name": "RX", "role": "UART_RX"},
+    {"name": "CH_PD", "role": "3V3"},
+    {"name": "RST", "role": "GPIO", "optional": true},
+    {"name": "GPIO0", "role": "GPIO", "optional": true},
+    {"name": "GPIO2", "role": "GPIO", "optional": true}
+  ],
+
+  "datasheet_url": "https://www.espressif.com/sites/default/files/documentation/0a-esp8266ex_datasheet_en.pdf",
+  "notes": "WiFi module with AT commands. CH_PD (chip enable) must be high. GPIO0 low for firmware flash mode. RST for reset. Requires stable 3.3V supply with good current capability."
+}

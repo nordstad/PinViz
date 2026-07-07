@@ -1,0 +1,19 @@
+{
+  "id": "ds3231",
+  "name": "DS3231 RTC",
+  "category": "sensors",
+  "description": "Extremely accurate I2C real-time clock with temperature-compensated crystal oscillator",
+
+  "pins": [
+    {"name": "VCC", "role": "3V3"},
+    {"name": "GND", "role": "GND"},
+    {"name": "SCL", "role": "I2C_SCL"},
+    {"name": "SDA", "role": "I2C_SDA"},
+    {"name": "SQW", "role": "GPIO", "optional": true},
+    {"name": "32K", "role": "GPIO", "optional": true}
+  ],
+
+  "i2c_address": "0x68",
+  "datasheet_url": "https://www.analog.com/media/en/technical-documentation/data-sheets/DS3231.pdf",
+  "notes": "Battery-backed RTC with ±2ppm accuracy. Tracks seconds, minutes, hours, day, date, month, and year with leap-year compensation. SQW pin outputs programmable square wave or alarm interrupt. Includes internal temperature sensor."
+}

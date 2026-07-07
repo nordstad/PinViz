@@ -1,0 +1,39 @@
+title: "L298N Dual Motor Driver"
+board: "raspberry_pi_5"
+show_legend: true
+
+devices:
+  - type: "l298n"
+    name: "L298N"
+
+connections:
+  # Ground
+  - board_pin: 6  # Ground
+    device: "L298N"
+    device_pin: "GND"
+
+  # Motor A Control
+  - board_pin: 12  # GPIO 18 (PWM)
+    device: "L298N"
+    device_pin: "ENA"
+
+  - board_pin: 11  # GPIO 17
+    device: "L298N"
+    device_pin: "IN1"
+
+  - board_pin: 13  # GPIO 27
+    device: "L298N"
+    device_pin: "IN2"
+
+  # Motor B Control
+  - board_pin: 15  # GPIO 22
+    device: "L298N"
+    device_pin: "IN3"
+
+  - board_pin: 16  # GPIO 23
+    device: "L298N"
+    device_pin: "IN4"
+
+  - board_pin: 32  # GPIO 12 (PWM)
+    device: "L298N"
+    device_pin: "ENB"

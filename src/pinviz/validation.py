@@ -288,20 +288,45 @@ class DiagramValidator:
                                     location=f"Pin {pin_num}",
                                 )
                             )
-                        # For non-multi-tier diagrams, just warn
+                        # For non-multi-tier diagrams, check if devices are on shared bus
                         elif len(devices) > 1:
-                            issues.append(
-                                ValidationIssue(
-                                    level=ValidationLevel.WARNING,
-                                    message=(
-                                        f"Multiple devices share {board_pin.role.value} pin "
-                                        f"{pin_num}: {', '.join(devices)}. "
-                                        "Consider using a breadboard with power rails for "
-                                        "cleaner wiring."
-                                    ),
-                                    location=f"Pin {pin_num}",
+                            # Check if all these devices are on I2C or SPI bus
+                            # If so, power sharing is expected and normal
+                            devices_on_shared_bus = True
+                            for dev_pin_ref in devices:
+                                dev_name = dev_pin_ref.split(".")[0]
+                                # Check if this device has any I2C/SPI connections
+                                has_bus_connection = False
+                                for c in diagram.connections:
+                                    if c.device_name == dev_name and c.board_pin:
+                                        bp = diagram.board.get_pin_by_number(c.board_pin)
+                                        if bp and bp.role in (
+                                            PinRole.I2C_SDA,
+                                            PinRole.I2C_SCL,
+                                            PinRole.SPI_MOSI,
+                                            PinRole.SPI_MISO,
+                                            PinRole.SPI_SCLK,
+                                        ):
+                                            has_bus_connection = True
+                                            break
+                                if not has_bus_connection:
+                                    devices_on_shared_bus = False
+                                    break
+
+                            # Only warn if devices are NOT all on shared buses
+                            if not devices_on_shared_bus:
+                                issues.append(
+                                    ValidationIssue(
+                                        level=ValidationLevel.WARNING,
+                                        message=(
+                                            f"Multiple devices share {board_pin.role.value} pin "
+                                            f"{pin_num}: {', '.join(devices)}. "
+                                            "Consider using a breadboard with power rails for "
+                                            "cleaner wiring."
+                                        ),
+                                        location=f"Pin {pin_num}",
+                                    )
                                 )
-                            )
                         continue
 
                     # I2C pins can be shared (it's a bus)

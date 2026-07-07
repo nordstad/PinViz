@@ -65,6 +65,9 @@ pinviz add-device
 6. **SVG Renderer** (`render_svg.py`): Converts diagrams to SVG using `drawsvg`
 7. **CLI** (`cli/`): Modular Typer-based CLI with Rich output and JSON support
 8. **Connection Graph** (`connection_graph.py`): Multi-level device connection validation and analysis
+9. **Board Selection** (`board_selection.py`): `BoardSelectionStrategy` protocol + `AliasBoardSelectionStrategy` — shared board alias resolution for config and MCP flows
+10. **Diagram Builder** (`diagram_builder.py`): `DiagramBuilder` + `DiagramOptions` — step-by-step builder shared by all assembly paths
+11. **MCP Adapters** (`mcp/adapters.py`): `McpDeviceAdapter` — adapts MCP device records to typed `Device` model objects
 
 ### Multi-Level Device Support (v0.11.0+)
 
@@ -111,6 +114,8 @@ Device-to-device routing:
 4. **Two-phase wire routing**: Group by source pin, calculate offsets, then route
 5. **Color assignment**: Automatic based on pin role, overridable per connection
 6. **Configuration-based**: Board/device definitions in JSON with smart defaults
+7. **Strategy pattern**: `BoardSelectionStrategy` and `PinAssignmentStrategy` allow swappable behaviour without subclassing
+8. **Adapter pattern**: `McpDeviceAdapter` translates external MCP records into core model objects; use `dataclasses.replace()` — never mutate model instances directly
 
 ### Configuration File Structure
 
@@ -130,7 +135,7 @@ connections:
     device_pin: "Pin Name"
     color: "#FF0000"  # Optional
     style: "mixed"  # Optional: orthogonal, curved, mixed
-show_legend: true
+show_legend: false  # default is false
 ```
 
 ### Python API
@@ -220,6 +225,27 @@ Built with **Typer** (type-hint CLI) and **Rich** (terminal output).
 **Features:** JSON output (`--json`), structured logging
 **Testing:** Use `typer.testing.CliRunner` for command tests
 
+## Claude Code Automations
+
+The `.claude/` directory is committed and shared. `settings.local.json` is gitignored (user-specific permissions only).
+
+### Hooks (`.claude/settings.json`)
+
+| Event | Trigger | Action |
+| ----- | ------- | ------ |
+| PostToolUse | Edit/Write on `*.py` | Auto-runs `ruff format` + `ruff check --fix` |
+| PostToolUse | Edit/Write on `device_configs/**/*.json` | Runs `pinviz validate-devices --json` |
+| PreToolUse | Edit/Write on `uv.lock` | Blocks the edit; directs to `uv add`/`uv sync` |
+
+### Skills
+
+- **`/validate-examples`** — mirrors the CI `verify-examples` job: validates + renders all configs in `examples/`, executes all `*_python.py` scripts, runs example-tagged tests
+- **`/release-prep`** — guided release workflow: pre-publish checks (tests, post-publish compat, ruff, build), checks if Homebrew resource stanzas need updating, bumps version in `pyproject.toml`, updates `CHANGELOG.md`, then prints the git tag commands without running them. **After release:** pull main to get CI's CHANGELOG commit.
+
+### Subagents
+
+- **`diagram-config-reviewer`** — invoked automatically when a diagram config (YAML/JSON) or device template (JSON) is created or modified; runs CLI validation, manual checks, and a dry render; reports `[ERROR]`/`[WARNING]`/`[INFO]` with a `PASS`/`WARN`/`FAIL` verdict
+
 ## Important Implementation Notes
 
 - **Pin numbers**: Physical pin numbers (1-40), not BCM GPIO numbers
@@ -227,11 +253,13 @@ Built with **Typer** (type-hint CLI) and **Rich** (terminal output).
 - **Layout mutability**: Layout engine mutates device positions; connections reference by name
 - **Asset location**: Board SVG assets in `src/pinviz/assets/` (packaged with module)
 - **Measurements**: All in SVG units (typically pixels)
-- **Code quality**: Always run `ruff format .` and `ruff check .` before committing
+- **Code quality**: `ruff format .` and `ruff check .` run automatically via hook on every Python edit
 - **Documentation**: Update mkdocs (in `docs/` dir) after changes
 - **Planning**: Save dev plans to `plans/` dir (not committed to git)
 - **Project cleanliness**: Keep root dir clean, essential files only
 - **MCP support**: Check MCP compatibility for new features/updates
+- **Homebrew formula**: Lives in `nordstad/homebrew-pinviz` tap repo (not this repo). `brew-publish.yml` auto-updates it on release via `workflow_run` trigger. If runtime deps change, run `brew update-python-resources nordstad/pinviz/pinviz` and push to the tap repo before tagging.
+- **brew-publish trigger**: Uses `workflow_run`, NOT `release: published` — GitHub blocks `release: published` when a release is created via `GITHUB_TOKEN`. Guard with `startsWith(head_branch, 'v')` to skip non-tag runs.
 
 ## Detailed Guides
 
@@ -240,7 +268,7 @@ For step-by-step instructions, see the `guides/` directory:
 - **[guides/cli-development.md](guides/cli-development.md)** - Adding CLI commands, JSON schemas, testing
 - **[guides/adding-boards.md](guides/adding-boards.md)** - Adding new board types (standard and dual-sided)
 - **[guides/adding-devices.md](guides/adding-devices.md)** - Adding device templates with smart defaults
-- **[guides/publishing.md](guides/publishing.md)** - Publishing to PyPI (tag-only workflow)
+- **[guides/publishing.md](guides/publishing.md)** - Publishing to PyPI and Homebrew (tag-only workflow)
 
 ## Quick Reference
 

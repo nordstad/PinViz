@@ -13,9 +13,9 @@
   <a href="https://pepy.tech/projects/pinviz"><img src="https://static.pepy.tech/personalized-badge/pinviz?period=total&units=international_system&left_color=black&right_color=green&left_text=downloads" alt="PyPI Downloads"></a>
 </p>
 
-Programmatically generate beautiful Raspberry Pi GPIO connection diagrams in SVG format.
+Programmatically generate beautiful GPIO connection diagrams for Raspberry Pi and ESP32/ESP8266 boards in SVG format.
 
-PinViz makes it easy to create clear, professional wiring diagrams for your Raspberry Pi projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
+PinViz makes it easy to create clear, professional wiring diagrams for your microcontroller projects. Define your connections using simple YAML/JSON files or Python code, and automatically generate publication-ready SVG diagrams.
 
 ## See It In Action
 
@@ -32,7 +32,7 @@ PinViz makes it easy to create clear, professional wiring diagrams for your Rasp
 - **Automatic Wire Routing**: Smart wire routing with configurable styles (orthogonal, curved, mixed)
 - **Inline Components**: Add resistors, capacitors, and diodes directly on wires
 - **Color-Coded Wires**: Automatic color assignment based on pin function (I2C, SPI, power, ground, etc.)
-- **Built-in Templates**: Pre-configured boards (Raspberry Pi 4, 5, Pico) and common devices (BH1750, IR LED rings, etc.)
+- **Built-in Templates**: Pre-configured boards (Raspberry Pi 4, 5, Pico, ESP32, ESP8266) and common devices (BH1750, IR LED rings, etc.)
 - **Hardware Validation**: Catch wiring mistakes before building (pin conflicts, voltage mismatches, I2C address collisions)
 - **MCP Server**: Generate diagrams using natural language with Claude (via Model Context Protocol)
 - **Structured Logging**: Professional logging with contextual information using structlog
@@ -58,6 +58,16 @@ buses:
 
 **Key features:** Raspberry Pi 4 board, I2C and SPI protocols, multi-device
 setup
+
+### ESP32 DevKit V1 - Weather Station
+
+BME280 sensor and SSD1306 OLED display sharing the I2C bus, with smart pin
+assignment distributing ground connections automatically:
+
+![ESP32 Weather Station](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_weather_station.svg)
+
+**Key features:** ESP32 DevKit V1 board, dual I2C devices, smart GND pin
+distribution with `board_pin_role`
 
 ### Raspberry Pi Pico - LEDs with Specifications
 
@@ -128,6 +138,13 @@ Generate the diagram:
 ```bash
 pinviz render my-diagram.yaml -o output.svg
 ```
+
+!!! note "What changed recently"
+    **v0.16.0** — ESP32/ESP8266 board support (ESP32 DevKit V1, NodeMCU, Wemos D1 Mini) and fully functional inline components (resistors, capacitors, diodes). Smart pin assignment (`board_pin_role`) for automatic GND/VCC distribution.
+
+    **v0.16.1** — Bug fix: `communication` device category now passes validation; duplicate `mcp3008.json` removed.
+
+    See the full [Changelog](changelog.md) for details.
 
 ## Next Steps
 

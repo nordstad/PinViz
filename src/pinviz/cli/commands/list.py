@@ -71,6 +71,7 @@ def list_command(
         {"name": "bh1750", "description": "BH1750 light sensor connected via I2C"},
         {"name": "ir_led", "description": "IR LED ring connected to GPIO"},
         {"name": "i2c_spi", "description": "Multiple I2C and SPI devices"},
+        {"name": "esp32_weather", "description": "ESP32 weather station with BME280 and OLED"},
     ]
 
     # Output results

@@ -1,0 +1,54 @@
+{
+  "id": "st7735",
+  "name": "ST7735 TFT Display",
+  "category": "displays",
+  "description": "1.8 inch 128x160 color TFT LCD display with SPI interface",
+  "pins": [
+    {
+      "name": "VCC",
+      "role": "3V3",
+      "side": "left"
+    },
+    {
+      "name": "GND",
+      "role": "GND",
+      "side": "left"
+    },
+    {
+      "name": "CS",
+      "role": "SPI_CE0",
+      "side": "left"
+    },
+    {
+      "name": "RESET",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "DC",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "MOSI",
+      "role": "SPI_MOSI",
+      "side": "left"
+    },
+    {
+      "name": "SCLK",
+      "role": "SPI_SCLK",
+      "side": "left"
+    },
+    {
+      "name": "LED",
+      "role": "3V3",
+      "side": "left",
+      "optional": true
+    }
+  ],
+  "display": {
+    "width": 70.0
+  },
+  "datasheet_url": "https://www.crystalfontz.com/controllers/Sitronix/ST7735R/319",
+  "notes": "1.8\" 128x160 pixel color TFT display. SPI interface with DC (data/command) and RESET pins. LED pin for backlight control (can connect to 3.3V or PWM). Supports 65K colors (16-bit RGB565). Popular for small graphic displays and gauges."
+}

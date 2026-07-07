@@ -1,0 +1,34 @@
+title: "28BYJ-48 Stepper Motor with ULN2003 Driver"
+board: "raspberry_pi_5"
+show_legend: true
+
+devices:
+  - type: "uln2003"
+    name: "Stepper"
+
+connections:
+  # Power
+  - board_pin: 2  # 5V
+    device: "Stepper"
+    device_pin: "VCC"
+
+  - board_pin: 6  # Ground
+    device: "Stepper"
+    device_pin: "GND"
+
+  # Stepper Control (4-phase)
+  - board_pin: 11  # GPIO 17
+    device: "Stepper"
+    device_pin: "IN1"
+
+  - board_pin: 13  # GPIO 27
+    device: "Stepper"
+    device_pin: "IN2"
+
+  - board_pin: 15  # GPIO 22
+    device: "Stepper"
+    device_pin: "IN3"
+
+  - board_pin: 16  # GPIO 23
+    device: "Stepper"
+    device_pin: "IN4"

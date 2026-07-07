@@ -14,9 +14,6 @@ Hide
 Type "export PS1='$ '"
 Enter
 Sleep 500ms
-Type "cd /Users/sssenz/dev/slask/gpio-diagram-tool/pi-diagrammer/scripts/demos"
-Enter
-Sleep 500ms
 Type "rm -f bad_wiring.yaml fixed_wiring.yaml *.svg 2>/dev/null || true"
 Enter
 Sleep 500ms
@@ -94,13 +91,13 @@ Enter
 Sleep 1s
 
 # Validate - this will catch the errors
-Type "uv run pinviz validate bad_wiring.yaml"
+Type "pinviz validate bad_wiring.yaml"
 Sleep 1s
 Enter
 Sleep 3s
 
-# Show with detailed logging
-Type "uv run pinviz --log-level INFO validate bad_wiring.yaml"
+# Show with connection graph
+Type "pinviz validate bad_wiring.yaml --show-graph"
 Sleep 1s
 Enter
 Sleep 4s
@@ -165,13 +162,13 @@ Enter
 Sleep 1s
 
 # Validate the fixed version
-Type "uv run pinviz validate fixed_wiring.yaml"
+Type "pinviz validate fixed_wiring.yaml"
 Sleep 1s
 Enter
 Sleep 2s
 
 # Render successfully
-Type "uv run pinviz render fixed_wiring.yaml -o fixed.svg"
+Type "pinviz render fixed_wiring.yaml -o fixed.svg"
 Sleep 1s
 Enter
 Sleep 2s

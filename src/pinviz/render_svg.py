@@ -265,7 +265,7 @@ class SVGRenderer:
                 root = tree.getroot()
 
                 # Create a group for the board with proper positioning and scaling
-                svg_scale = getattr(board, 'svg_scale', 1.0)
+                svg_scale = getattr(board, "svg_scale", 1.0)
                 if svg_scale != 1.0:
                     board_group = draw.Group(transform=f"translate({x}, {y}) scale({svg_scale})")
                 else:
@@ -389,10 +389,10 @@ class SVGRenderer:
             PinRole.PCM_DOUT: "#00FF00",  # Green
         }
 
-        # Pin size configuration - scale with board's svg_scale
-        svg_scale = getattr(board, 'svg_scale', 1.0)
-        pin_radius = RENDER_CONSTANTS.PIN_RADIUS * svg_scale
-        pin_font_size_val = _parse_font_size(RENDER_CONSTANTS.PIN_FONT_SIZE) * svg_scale
+        # Pin size configuration - don't scale with svg_scale since positions are already scaled
+        # (svg_scale is used for board SVG transform but not for pin rendering)
+        pin_radius = RENDER_CONSTANTS.PIN_RADIUS  # Keep constant size
+        pin_font_size_val = _parse_font_size(RENDER_CONSTANTS.PIN_FONT_SIZE)
         pin_font_size = f"{pin_font_size_val}px"
 
         for pin in board.pins:
@@ -438,7 +438,7 @@ class SVGRenderer:
                     pin_text,
                     font_val,
                     pin_x + text_x_offset,
-                    pin_y + RENDER_CONSTANTS.PIN_TEXT_Y_OFFSET * svg_scale,
+                    pin_y + RENDER_CONSTANTS.PIN_TEXT_Y_OFFSET,
                     font_family="Arial, sans-serif",
                     font_weight="bold",
                     fill=text_color,
@@ -727,7 +727,12 @@ class SVGRenderer:
         header_height = TABLE_LAYOUT.HEADER_HEIGHT
         padding_left = TABLE_LAYOUT.PADDING_LEFT
         padding_right = TABLE_LAYOUT.PADDING_RIGHT
-        name_column_width = TABLE_LAYOUT.NAME_COLUMN_WIDTH
+
+        # Dynamic name column width: fit longest name, capped at 40% of table width
+        char_width = 9 * 0.55
+        max_name_px = max(len(d.name) * char_width for d in devices_with_specs) + padding_left
+        name_column_width = min(max_name_px, table_width * 0.4)
+
         desc_column_start = table_x + padding_left + name_column_width
 
         # Pre-calculate row heights for multi-line descriptions

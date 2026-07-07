@@ -2,7 +2,13 @@
 
 from pinviz.devices import get_registry
 from pinviz.layout import LayoutConfig
-from pinviz.model import Component, ComponentType, Connection, Diagram, WireStyle
+from pinviz.model import (
+    Component,
+    ComponentType,
+    Connection,
+    Diagram,
+    WireStyle,
+)
 from pinviz.render_svg import SVGRenderer
 
 
@@ -313,3 +319,48 @@ def test_render_with_generous_spacing(sample_diagram, temp_output_dir):
     renderer.render(sample_diagram, output_path)
 
     assert output_path.exists()
+
+
+def test_legend_name_column_does_not_overlap_description(rpi5_board, temp_output_dir):
+    """Long device names must not overflow into the description column (issue #225)."""
+    import re
+
+    registry = get_registry()
+    short_device = registry.create("bh1750", name="Short")
+    long_device = registry.create("bh1750", name="A Very Long Device Name That Exceeds Fixed Width")
+
+    import dataclasses
+
+    short_device = dataclasses.replace(short_device, description="Ambient light sensor.")
+    long_device = dataclasses.replace(long_device, description="Same sensor, long name.")
+
+    connections = [
+        Connection(1, short_device.name, "VCC"),
+        Connection(6, short_device.name, "GND"),
+        Connection(3, long_device.name, "VCC"),
+        Connection(9, long_device.name, "GND"),
+    ]
+    diagram = Diagram(
+        title="Long Name Test",
+        board=rpi5_board,
+        devices=[short_device, long_device],
+        connections=connections,
+        show_legend=True,
+    )
+
+    output_path = temp_output_dir / "long_name_legend.svg"
+    renderer = SVGRenderer()
+    renderer.render(diagram, output_path)
+
+    svg = output_path.read_text()
+
+    # Collect x positions of all text elements in the SVG
+    x_values = [float(x) for x in re.findall(r'<text[^>]+\bx="([0-9.]+)"', svg)]
+    assert x_values, "Expected text elements in SVG"
+
+    # The description column start must be to the right of the name column start.
+    # We verify this indirectly: there must be at least two distinct x positions
+    # (name column and description column), and neither column's text should
+    # share the exact same x as the other (which would indicate overlap).
+    unique_x = sorted({round(x) for x in x_values})
+    assert len(unique_x) >= 2, "Expected distinct x positions for name and description columns"

@@ -1,0 +1,32 @@
+title: "HC-05 Bluetooth Module"
+board: "raspberry_pi_5"
+
+devices:
+  - type: "hc05"
+    name: "HC-05"
+
+connections:
+  # Power connections (HC-05 needs 5V)
+  - board_pin: 2    # 5V
+    device: "HC-05"
+    device_pin: "VCC"
+
+  - board_pin: 6    # GND
+    device: "HC-05"
+    device_pin: "GND"
+
+  # UART connections (note: TXD->RX, RXD->TX crossover)
+  - board_pin: 8    # UART TX (GPIO14)
+    device: "HC-05"
+    device_pin: "RXD"
+
+  - board_pin: 10   # UART RX (GPIO15)
+    device: "HC-05"
+    device_pin: "TXD"
+
+  # Optional: KEY pin for AT command mode
+  - board_pin: 16   # GPIO23
+    device: "HC-05"
+    device_pin: "KEY"
+
+show_legend: true

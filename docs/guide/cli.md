@@ -18,6 +18,13 @@ Generate a diagram from a YAML or JSON configuration file:
 pinviz render CONFIG_FILE [OPTIONS]
 ```
 
+??? tip "`pinviz: command not found`?"
+    If you installed via `uv add` (library mode), prefix every command with `uv run`:
+    ```bash
+    uv run pinviz render my-diagram.yaml -o output.svg
+    ```
+    For a global `pinviz` command without the prefix, reinstall with `uv tool install pinviz`.
+
 **Arguments:**
 
 - `CONFIG_FILE` - Path to YAML or JSON configuration file
@@ -27,7 +34,7 @@ pinviz render CONFIG_FILE [OPTIONS]
 - `-o, --output OUTPUT_FILE` - Output SVG file path (default: `<config>.svg`)
 - `--no-title` - Hide diagram title
 - `--no-board-name` - Hide board name label
-- `--show-legend` - Show wire color legend
+- `--show-legend` - Show device specifications table below the diagram
 - `--theme {light|dark}` - Override theme (light or dark)
 - `--max-complexity INTEGER` - Maximum connections allowed (for CI/CD validation)
 - `--json` - Output machine-readable JSON status
@@ -72,6 +79,16 @@ pinviz example EXAMPLE_NAME [-o OUTPUT_FILE]
 - `bh1750` - BH1750 I2C light sensor
 - `ir_led` - IR LED ring module
 - `i2c_spi` - Multiple I2C and SPI devices
+- `esp32_weather` - ESP32 weather station with BME280 and OLED
+
+**Options:**
+
+- `-o, --output OUTPUT_FILE` - Output SVG file path (default: `<name>.svg`)
+- `--no-title` - Hide diagram title
+- `--no-board-name` - Hide board name label
+- `--show-legend` - Show device specifications table below the diagram
+- `--theme {light|dark}` - Override theme
+- `--json` - Output machine-readable JSON status
 
 **Examples:**
 
@@ -79,8 +96,11 @@ pinviz example EXAMPLE_NAME [-o OUTPUT_FILE]
 # Generate BH1750 example
 pinviz example bh1750 -o bh1750.svg
 
-# Generate IR LED example
-pinviz example ir_led -o ir_led.svg
+# Generate IR LED example in dark theme with legend
+pinviz example ir_led -o ir_led.svg --theme dark --show-legend
+
+# Machine-readable output
+pinviz example i2c_spi --json
 ```
 
 ### Validate a Configuration
@@ -98,7 +118,12 @@ pinviz validate CONFIG_FILE [--strict]
 **Arguments:**
 
 - `CONFIG_FILE` - Path to YAML or JSON configuration file
+
+**Options:**
+
+- `--show-graph` - Show connection graph visualization
 - `--strict` - Treat warnings as errors (exits with code 1)
+- `--json` - Output machine-readable JSON status
 
 **Examples:**
 
@@ -106,8 +131,14 @@ pinviz validate CONFIG_FILE [--strict]
 # Validate diagram configuration
 pinviz validate my-diagram.yaml
 
+# Show the connection graph alongside validation results
+pinviz validate my-diagram.yaml --show-graph
+
 # Strict mode - warnings cause failure
 pinviz validate my-diagram.yaml --strict
+
+# Machine-readable output for CI/CD
+pinviz validate my-diagram.yaml --json
 ```
 
 **Validation checks for:**
@@ -117,6 +148,18 @@ pinviz validate my-diagram.yaml --strict
 - Voltage mismatches (ERROR/WARNING)
 - GPIO current limits (WARNING)
 - Invalid pins or devices (ERROR)
+
+??? warning "Common: duplicate GPIO pin error"
+    If you see `GPIO pin X is already assigned`, two connections reference the same physical board pin.
+    Check your `connections:` list for repeated `board_pin` values. Each physical pin can only
+    be used once — except I2C/SPI bus pins, which can be shared if all devices on the bus
+    are properly configured.
+
+    ```bash
+    pinviz validate my-diagram.yaml --show-graph
+    ```
+
+    The `--show-graph` flag renders the full connection graph, making duplicate paths easy to spot.
 
 See the [Validation Guide](../validation.md) for detailed information.
 
@@ -130,7 +173,7 @@ pinviz list
 
 This displays:
 
-- Available board templates (Raspberry Pi 4, Raspberry Pi 5)
+- Available board templates (Raspberry Pi, ESP32, ESP8266)
 - Available device templates
 - Available example diagrams
 
@@ -138,16 +181,37 @@ This displays:
 
 - `raspberry_pi_5` (aliases: `rpi5`) - Raspberry Pi 5 with 40-pin GPIO header
 - `raspberry_pi_4` (aliases: `rpi4`, `pi4`) - Raspberry Pi 4 Model B with 40-pin GPIO header
-- `raspberry_pi` (aliases: `rpi`) - Default board (currently Raspberry Pi 5)
-- `raspberry_pi_pico` (aliases: `pico`) - RP2040 board with dual-sided 40-pin header
-- `esp32_devkit_v1` (aliases: `esp32`, `esp32dev`) - Common ESP32 development board
+- `raspberry_pi_pico` (aliases: `pico`) - Raspberry Pi Pico with dual-sided 40-pin header
+- `esp32_devkit_v1` (aliases: `esp32`, `esp32_devkit`) - ESP32 DevKit V1 with 30-pin dual-sided header
 - `esp32_s3_devkitc1` (aliases: `esp32s3`, `esp32_s3`) - ESP32-S3-DevKitC-1 with realistic board artwork (44-pin); `esp32_s3_devkitc1_schematic` for the artwork-free variant
-- `wemos_d1_mini` (aliases: `d1mini`, `wemos`) - Compact ESP8266 board
-- `esp8266_nodemcu` (aliases: `esp8266`, `nodemcu`) - ESP8266 development board
+- `esp8266_nodemcu` (aliases: `esp8266`, `nodemcu`) - ESP8266 NodeMCU with 30-pin dual-sided header
+- `wemos_d1_mini` (aliases: `d1mini`, `wemos`) - Wemos D1 Mini with 16-pin dual-sided header
+- `raspberry_pi` (aliases: `rpi`) - Default board (currently Raspberry Pi 5)
 
 ### Add Device (Interactive Wizard)
 
 Launch an interactive wizard to create a new device configuration:
+
+??? warning "Device files are lost on upgrade when installed with `uv tool install` or `pipx`"
+    The wizard saves the JSON file inside the tool's isolated environment. When you run
+    `uv tool upgrade pinviz` or `pipx upgrade pinviz`, that environment is replaced and the
+    file is gone.
+
+    **Before upgrading:** copy the saved JSON to a safe location, then restore it afterwards:
+
+    ```bash
+    # Find where it was saved (path printed by the wizard)
+    cp ~/.local/share/uv/tools/pinviz/.../pinviz/device_configs/sensors/dht22.json ~/my-devices/
+
+    # After upgrade: restore it
+    cp ~/my-devices/dht22.json $(python -c "import pinviz, pathlib; print(pathlib.Path(pinviz.__file__).parent / 'device_configs/sensors/')")
+    ```
+
+    The safest long-term option is to [contribute the device](../development/contributing.md) so it ships with PinViz.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/add_device_demo.gif" alt="PinViz Add Device Wizard Demo" width="800">
+</p>
 
 ```bash
 pinviz add-device
@@ -261,6 +325,22 @@ Suggestions work with:
 - `io` - Buttons, switches, relays (color: gray)
 - `other` - Custom devices
 
+**Where the file is saved:**
+
+The wizard saves the device JSON to PinViz's installed package directory, making
+it immediately available via `type: "<id>"` in your YAML configs. The exact path
+depends on how PinViz was installed:
+
+- **`uv tool install` / `pipx`**: saved inside the tool's isolated environment
+  (e.g., `~/.local/share/uv/tools/pinviz/.../pinviz/device_configs/`). The device
+  works immediately but will be lost if you upgrade or reinstall PinViz. Keep a
+  backup copy of the JSON file.
+- **Development install (`uv sync`)**: saved directly into
+  `src/pinviz/device_configs/` in the repo, where it can be committed.
+
+To share your device with all PinViz users, the wizard prints contribution steps
+at the end — or see the [Contributing Guide](../development/contributing.md).
+
 ### Validate Device Configurations
 
 Validate all device configuration files in the library:
@@ -269,9 +349,10 @@ Validate all device configuration files in the library:
 pinviz validate-devices [--strict]
 ```
 
-**Arguments:**
+**Options:**
 
 - `--strict` - Treat warnings as errors (exits with code 1)
+- `--json` - Output machine-readable JSON status
 
 **Examples:**
 
@@ -281,6 +362,9 @@ pinviz validate-devices
 
 # Strict mode - warnings cause failure (useful for CI/CD)
 pinviz validate-devices --strict
+
+# Machine-readable output
+pinviz validate-devices --json
 ```
 
 **Validation checks:**

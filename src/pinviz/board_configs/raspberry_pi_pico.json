@@ -300,5 +300,6 @@
       "gpio_bcm": null,
       "header": "bottom"
     }
-  ]
+  ],
+  "render_mode": "svg_asset"
 }

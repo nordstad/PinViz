@@ -1,0 +1,18 @@
+{
+  "id": "sim800l",
+  "name": "SIM800L GSM Module",
+  "category": "communication",
+  "description": "GSM/GPRS cellular module with UART interface",
+
+  "pins": [
+    {"name": "VCC", "role": "5V"},
+    {"name": "GND", "role": "GND"},
+    {"name": "TXD", "role": "UART_TX"},
+    {"name": "RXD", "role": "UART_RX"},
+    {"name": "RST", "role": "GPIO", "optional": true},
+    {"name": "DTR", "role": "GPIO", "optional": true}
+  ],
+
+  "datasheet_url": "https://www.simcom.com/product/SIM800L.html",
+  "notes": "GSM/GPRS module for cellular communication and SMS. Requires 3.4-4.4V stable supply with high current (2A burst). Use AT commands via UART. RST for reset. DTR for sleep control."
+}

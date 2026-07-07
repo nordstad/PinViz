@@ -7,11 +7,12 @@ from typing import Any
 import yaml
 from pydantic import ValidationError
 
-from . import boards
+from .board_selection import AliasBoardSelectionStrategy, BoardSelectionStrategy
 from .color_utils import resolve_color
 from .connection_graph import ConnectionGraph
 from .constants import DEVICE_LAYOUT
 from .devices import get_registry
+from .diagram_builder import DiagramBuilder, DiagramOptions
 from .errors import format_config_error
 from .logging_config import get_logger
 from .model import (
@@ -22,10 +23,11 @@ from .model import (
     PinRole,
     Point,
 )
+from .pin_assignment import PinAssigner
 from .schemas import ConnectionSchema, validate_config
 from .theme import Theme
 from .utils import is_output_pin
-from .validation import ValidationIssue, ValidationLevel
+from .validation import DiagramValidator, ValidationIssue, ValidationLevel
 
 log = get_logger(__name__)
 
@@ -47,6 +49,22 @@ class ConfigLoader:
         >>> print(diagram.title)
         My GPIO Diagram
     """
+
+    def __init__(
+        self,
+        *,
+        emit_validation_output: bool = True,
+        board_selection_strategy: BoardSelectionStrategy | None = None,
+    ) -> None:
+        """Initialize config loader behavior.
+
+        Args:
+            emit_validation_output: Whether to print graph validation messages
+                to stdout while loading configurations.
+            board_selection_strategy: Strategy used to resolve board aliases.
+        """
+        self.emit_validation_output = emit_validation_output
+        self._board_selection_strategy = board_selection_strategy or AliasBoardSelectionStrategy()
 
     def load_from_file(self, config_path: str | Path) -> Diagram:
         """
@@ -169,7 +187,7 @@ class ConfigLoader:
             ) from e
 
         # Load board
-        board_config = config.get("board", "raspberry_pi_5")
+        board_config = validated_config.board
         if isinstance(board_config, str):
             board = self._load_board_by_name(board_config)
             log.debug("board_loaded", board_name=board.name)
@@ -178,7 +196,7 @@ class ConfigLoader:
             raise ValueError("Custom board definitions not yet supported")
 
         # Load devices
-        device_configs = config.get("devices", [])
+        device_configs = validated_config.devices
         diagram_devices = []
 
         log.debug("loading_devices", device_count=len(device_configs))
@@ -192,13 +210,19 @@ class ConfigLoader:
                 device_type=dev_config.get("type", "custom"),
             )
 
-        # Load connections
-        connection_configs = config.get("connections", [])
+        # Load connections with smart pin assignment
+        connection_configs = [
+            connection.model_dump(by_alias=True, exclude_none=True)
+            for connection in validated_config.connections
+        ]
         connections = []
+
+        # Create pin assigner for automatic role-based pin distribution
+        pin_assigner = PinAssigner(board)
 
         log.debug("loading_connections", connection_count=len(connection_configs))
         for conn_config in connection_configs:
-            connection = self._load_connection(conn_config)
+            connection = self._load_connection(conn_config, pin_assigner)
             connections.append(connection)
 
         # Validate graph structure
@@ -211,33 +235,51 @@ class ConfigLoader:
         warnings = [issue for issue in validation_issues if issue.level == ValidationLevel.WARNING]
 
         if errors:
-            self._report_validation_errors(errors)
+            if self.emit_validation_output:
+                self._report_validation_errors(errors)
             log.error("config_validation_failed", error_count=len(errors))
             raise ValueError("Configuration has critical errors")
 
-        if warnings:
+        if warnings and self.emit_validation_output:
             self._report_validation_warnings(warnings)
 
         # Parse theme
-        theme_str = config.get("theme", "light")
+        theme_str = validated_config.theme
         try:
             theme = Theme(theme_str.lower())
         except ValueError:
             log.warning("invalid_theme", theme=theme_str, using_default="light")
             theme = Theme.LIGHT
 
-        # Create diagram
-        diagram = Diagram(
-            title=config.get("title", "GPIO Diagram"),
-            board=board,
-            devices=diagram_devices,
-            connections=connections,
-            show_legend=config.get("show_legend", False),
-            show_gpio_diagram=config.get("show_gpio_diagram", False),
-            show_title=config.get("show_title", True),
-            show_board_name=config.get("show_board_name", True),
+        # Create diagram via the shared builder so all entry points assemble the
+        # same core model and presentation options.
+        options = DiagramOptions(
+            show_legend=validated_config.show_legend,
+            show_gpio_diagram=validated_config.show_gpio_diagram,
+            show_title=validated_config.show_title,
+            show_board_name=validated_config.show_board_name,
             theme=theme,
         )
+        diagram = (
+            DiagramBuilder(self._board_selection_strategy)
+            .with_title(validated_config.title)
+            .with_board(board)
+            .with_devices(diagram_devices)
+            .with_connections(connections)
+            .with_options(options)
+            .build()
+        )
+
+        # Run electrical safety validation (voltage, pin compatibility, etc.)
+        electrical_issues = DiagramValidator().validate(diagram)
+        electrical_warnings = [
+            issue
+            for issue in electrical_issues
+            if issue.level in (ValidationLevel.WARNING, ValidationLevel.ERROR)
+        ]
+
+        if electrical_warnings and self.emit_validation_output:
+            self._report_validation_warnings(electrical_warnings)
 
         log.info(
             "diagram_config_loaded",
@@ -270,56 +312,15 @@ class ConfigLoader:
             - "raspberry_pi_pico", "pico": Raspberry Pi Pico
             - "raspberry_pi", "rpi": Latest Raspberry Pi (currently Pi 5)
         """
-        board_loaders = {
-            # Raspberry Pi 5
-            "raspberry_pi_5": boards.raspberry_pi_5,
-            "rpi5": boards.raspberry_pi_5,
-            # Raspberry Pi 4
-            "raspberry_pi_4": boards.raspberry_pi_4,
-            "rpi4": boards.raspberry_pi_4,
-            "pi4": boards.raspberry_pi_4,
-            # Raspberry Pi Pico
-            "raspberry_pi_pico": boards.raspberry_pi_pico,
-            "pico": boards.raspberry_pi_pico,
-            # ESP32 DevKit V1
-            "esp32_devkit_v1": boards.esp32_devkit_v1,
-            "esp32": boards.esp32_devkit_v1,
-            "esp32dev": boards.esp32_devkit_v1,
-            "esp32_devkit": boards.esp32_devkit_v1,
-            # ESP32-S3-DevKitC-1 (realistic board artwork)
-            "esp32_s3_devkitc1": boards.esp32_s3_devkitc1,
-            "esp32_s3_devkitc": boards.esp32_s3_devkitc1,
-            "esp32_s3_devkit": boards.esp32_s3_devkitc1,
-            "esp32s3": boards.esp32_s3_devkitc1,
-            "esp32_s3": boards.esp32_s3_devkitc1,
-            # ESP32-S3-DevKitC-1 (schematic / artwork-free)
-            "esp32_s3_devkitc1_schematic": boards.esp32_s3_devkitc1_schematic,
-            "esp32s3_schematic": boards.esp32_s3_devkitc1_schematic,
-            "esp32_s3_schematic": boards.esp32_s3_devkitc1_schematic,
-            # Wemos D1 Mini
-            "wemos_d1_mini": boards.wemos_d1_mini,
-            "d1mini": boards.wemos_d1_mini,
-            "d1_mini": boards.wemos_d1_mini,
-            "wemos": boards.wemos_d1_mini,
-            # ESP8266 NodeMCU
-            "esp8266_nodemcu": boards.esp8266_nodemcu,
-            "esp8266": boards.esp8266_nodemcu,
-            "nodemcu": boards.esp8266_nodemcu,
-            # Aliases
-            "raspberry_pi": boards.raspberry_pi,
-            "rpi": boards.raspberry_pi,
-        }
-
-        loader = board_loaders.get(name.lower())
-        if not loader:
+        try:
+            return self._board_selection_strategy.select_board(name)
+        except ValueError:
             raise ValueError(
                 format_config_error(
                     "board_not_found",
                     context={"board_name": name},
                 )
-            )
-
-        return loader()
+            ) from None
 
     def _load_device(self, config: dict[str, Any]) -> Device:
         """
@@ -612,10 +613,38 @@ class ConfigLoader:
                 )
                 log.warning("orphaned_device_detected", device_name=device.name)
 
+        # Check for multiple connections to the same board pin
+        board_pin_usage: dict[int, list[tuple[str, str]]] = {}
+        for conn in connections:
+            if conn.is_board_connection() and conn.board_pin is not None:
+                if conn.board_pin not in board_pin_usage:
+                    board_pin_usage[conn.board_pin] = []
+                board_pin_usage[conn.board_pin].append((conn.device_name, conn.device_pin_name))
+
+        for pin_num, connections_list in board_pin_usage.items():
+            if len(connections_list) > 1:
+                devices_str = ", ".join(f"{dev}:{pin}" for dev, pin in connections_list)
+                issues.append(
+                    ValidationIssue(
+                        level=ValidationLevel.WARNING,
+                        message=f"Multiple connections to board pin {pin_num}: {devices_str}",
+                        location=f"Board pin {pin_num}",
+                    )
+                )
+                log.warning(
+                    "multiple_connections_to_pin",
+                    board_pin=pin_num,
+                    connection_count=len(connections_list),
+                    connections=connections_list,
+                )
+
         log.debug(
             "graph_validation_completed",
             cycle_count=len([i for i in issues if "Cycle detected" in i.message]),
             orphaned_count=len([i for i in issues if "has no connections" in i.message]),
+            overloaded_pins=len(
+                [i for i in issues if "Multiple connections to board pin" in i.message]
+            ),
         )
 
         return issues
@@ -662,22 +691,35 @@ class ConfigLoader:
             # Add contextual suggestions based on warning type
             if "has no connections" in issue.message:
                 print("    💡 Suggestion: Connect device to board or remove it from configuration")
+            elif "Multiple connections to board pin" in issue.message:
+                print(
+                    "    💡 Suggestion: Use 'board_pin_role' instead of 'board_pin' to "
+                    "automatically distribute connections"
+                )
+                print("    Example: board_pin_role: 'GND' instead of board_pin: 14")
         print()
 
-    def _load_connection(self, config: dict[str, Any]) -> Connection:
+    def _load_connection(self, config: dict[str, Any], pin_assigner: PinAssigner) -> Connection:
         """
         Load a connection from configuration dictionary.
 
-        Supports both legacy and new connection formats:
+        Supports both legacy and new connection formats, with role-based pin assignment:
 
         Legacy format (board-to-device):
             {
-                "board_pin": 1,
+                "board_pin": 1,  # Explicit pin number
                 "device": "LED",
                 "device_pin": "VCC",
                 "color": "#FF0000",  # optional
                 "style": "mixed",  # optional
                 "components": [...]  # optional
+            }
+
+        Legacy format (board-to-device with role-based pin):
+            {
+                "board_pin_role": "GND",  # Automatic pin assignment
+                "device": "LED",
+                "device_pin": "Cathode",
             }
 
         New format (board-to-device):
@@ -687,6 +729,12 @@ class ConfigLoader:
                 "color": "#FF0000",  # optional
                 "style": "mixed",  # optional
                 "components": [...]  # optional
+            }
+
+        New format (board-to-device with role):
+            {
+                "from": {"board_pin_role": "GND"},
+                "to": {"device": "LED", "device_pin": "Cathode"},
             }
 
         New format (device-to-device):
@@ -700,44 +748,85 @@ class ConfigLoader:
 
         Args:
             config: Connection configuration dictionary
+            pin_assigner: PinAssigner for role-based pin resolution
 
         Returns:
             Connection object
 
         Examples:
-            >>> # Legacy format
+            >>> # Legacy format with explicit pin
             >>> config = {"board_pin": 11, "device": "LED", "device_pin": "Anode"}
-            >>> conn = loader._load_connection(config)
+            >>> conn = loader._load_connection(config, pin_assigner)
+            >>>
+            >>> # Legacy format with role-based pin
+            >>> config = {"board_pin_role": "GND", "device": "LED", "device_pin": "Cathode"}
+            >>> conn = loader._load_connection(config, pin_assigner)
             >>>
             >>> # New format (board source)
             >>> config = {
             ...     "from": {"board_pin": 1},
             ...     "to": {"device": "LED", "device_pin": "VCC"}
             ... }
-            >>> conn = loader._load_connection(config)
+            >>> conn = loader._load_connection(config, pin_assigner)
             >>>
             >>> # New format (device source)
             >>> config = {
             ...     "from": {"device": "Regulator", "device_pin": "VOUT"},
             ...     "to": {"device": "LED", "device_pin": "VCC"}
             ... }
-            >>> conn = loader._load_connection(config)
+            >>> conn = loader._load_connection(config, pin_assigner)
         """
         # Use ConnectionSchema to parse and validate the connection
         # This automatically supports both legacy and new formats
         schema = ConnectionSchema(**config)
-        return schema.to_connection()
+
+        # Resolve role-based pins to actual pin numbers
+        resolved_config = config.copy()
+
+        # Check legacy format
+        if schema.board_pin_role is not None:
+            assigned_pin = pin_assigner.assign_pin(schema.board_pin_role)
+            resolved_config["board_pin"] = assigned_pin
+            del resolved_config["board_pin_role"]
+            log.info(
+                "pin_role_resolved",
+                role=schema.board_pin_role,
+                assigned_pin=assigned_pin,
+                device=schema.device,
+                device_pin=schema.device_pin,
+            )
+
+        # Check new format
+        if schema.from_ is not None and schema.from_.board_pin_role is not None:
+            assigned_pin = pin_assigner.assign_pin(schema.from_.board_pin_role)
+            if "from" not in resolved_config:
+                resolved_config["from"] = {}
+            resolved_config["from"]["board_pin"] = assigned_pin
+            if "board_pin_role" in resolved_config["from"]:
+                del resolved_config["from"]["board_pin_role"]
+            log.info(
+                "pin_role_resolved",
+                role=schema.from_.board_pin_role,
+                assigned_pin=assigned_pin,
+                device=schema.to.device if schema.to else None,
+                device_pin=schema.to.device_pin if schema.to else None,
+            )
+
+        # Create new schema with resolved pins and convert to Connection
+        resolved_schema = ConnectionSchema(**resolved_config)
+        return resolved_schema.to_connection()
 
 
-def load_diagram(config_path: str | Path) -> Diagram:
+def load_diagram(config_path: str | Path, *, emit_validation_output: bool = True) -> Diagram:
     """
     Convenience function to load a diagram from a file.
 
     Args:
         config_path: Path to YAML or JSON configuration file
+        emit_validation_output: Whether to print graph validation details
 
     Returns:
         Diagram object
     """
-    loader = ConfigLoader()
+    loader = ConfigLoader(emit_validation_output=emit_validation_output)
     return loader.load_from_file(config_path)

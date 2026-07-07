@@ -1,0 +1,26 @@
+title: "LCD1602 16x2 Character Display"
+board: "raspberry_pi_5"
+show_legend: true
+
+devices:
+  - type: "lcd1602"
+    name: "LCD1602"
+
+connections:
+  # Power (5V for best backlight brightness)
+  - board_pin: 2  # 5V
+    device: "LCD1602"
+    device_pin: "VCC"
+
+  - board_pin: 6  # Ground
+    device: "LCD1602"
+    device_pin: "GND"
+
+  # I2C Communication (via PCF8574 backpack)
+  - board_pin: 3  # I2C SDA (GPIO 2)
+    device: "LCD1602"
+    device_pin: "SDA"
+
+  - board_pin: 5  # I2C SCL (GPIO 3)
+    device: "LCD1602"
+    device_pin: "SCL"
