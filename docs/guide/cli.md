@@ -139,6 +139,11 @@ This displays:
 - `raspberry_pi_5` (aliases: `rpi5`) - Raspberry Pi 5 with 40-pin GPIO header
 - `raspberry_pi_4` (aliases: `rpi4`, `pi4`) - Raspberry Pi 4 Model B with 40-pin GPIO header
 - `raspberry_pi` (aliases: `rpi`) - Default board (currently Raspberry Pi 5)
+- `raspberry_pi_pico` (aliases: `pico`) - RP2040 board with dual-sided 40-pin header
+- `esp32_devkit_v1` (aliases: `esp32`, `esp32dev`) - Common ESP32 development board
+- `esp32_s3_devkitc1` (aliases: `esp32s3`, `esp32_s3`) - ESP32-S3-DevKitC-1 with realistic board artwork (44-pin); `esp32_s3_devkitc1_schematic` for the artwork-free variant
+- `wemos_d1_mini` (aliases: `d1mini`, `wemos`) - Compact ESP8266 board
+- `esp8266_nodemcu` (aliases: `esp8266`, `nodemcu`) - ESP8266 development board
 
 ### Add Device (Interactive Wizard)
 
