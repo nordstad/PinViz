@@ -66,3 +66,6 @@ bad_wiring.yaml
 fixed_wiring.yaml
 fixed.svg
 /plans/
+
+# PR review comparison artifacts (local only)
+images/pr_review/
