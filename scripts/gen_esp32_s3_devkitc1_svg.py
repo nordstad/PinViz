@@ -7,11 +7,11 @@ pad coordinates match the board config (same layout constants, below).
 
 Output: ``src/pinviz/assets/esp32_s3_devkitc1_mod.svg``
 
-The layout constants below MUST stay in sync with
-``src/pinviz/board_configs/esp32_s3_devkitc1.json``:
-    left_col_x=12, right_col_x=108, start_y=42, row_spacing=9.2, width=120, height=262
-Pin bubbles (PIN_RADIUS=4.5 in viewBox units) are drawn by PinViz on top of the
-gold pads; the silkscreen labels sit inboard, clear of the bubbles.
+The layout geometry (width/height, column X's, start_y, row_spacing, pins per
+side) is read from ``src/pinviz/board_configs/esp32_s3_devkitc1.json`` so the
+config is the single source of truth and the pads always land under PinViz's
+pin bubbles. Pin bubbles (PIN_RADIUS=4.5 in viewBox units) are drawn by PinViz
+on top of the gold pads; the silkscreen labels sit inboard, clear of the bubbles.
 
 The silkscreen text (LEFT/RIGHT below) is the *board's* silkscreen from the
 official Espressif user guide (e.g. J3 pin 2 reads "TX", pin 3 "RX", J1 pin 3
@@ -25,12 +25,25 @@ Usage:
 
 # ruff: noqa: E501  (SVG element strings are intentionally kept on one line)
 
+import json
 from pathlib import Path
 
-W, H = 120.0, 262.0
-LEFT_X, RIGHT_X = 12.0, 108.0
-START_Y, ROW = 42.0, 9.2
-N = 22  # pins per side
+_CONFIG = json.loads(
+    (
+        Path(__file__).resolve().parents[1]
+        / "src"
+        / "pinviz"
+        / "board_configs"
+        / "esp32_s3_devkitc1.json"
+    ).read_text()
+)
+_LAYOUT = _CONFIG["layout"]
+
+# Geometry is the config's; the script owns only the artwork (see module docstring).
+W, H = _CONFIG["width"], _CONFIG["height"]
+LEFT_X, RIGHT_X = _LAYOUT["left_col_x"], _LAYOUT["right_col_x"]
+START_Y, ROW = _LAYOUT["start_y"], _LAYOUT["row_spacing"]
+N = len(_CONFIG["pins"]) // 2  # pins per side
 TOP = 8.0  # canvas headroom above the board edge so the USB-C can overhang it
 
 # Silkscreen text per row (top -> bottom). Left = J1 (odd pins), Right = J3 (even).
@@ -82,6 +95,9 @@ RIGHT = [
     "GND",
     "GND",
 ]
+
+# Silk is per-row; a pin-count change in the config must be matched here.
+assert len(LEFT) == len(RIGHT) == N, "silkscreen rows must match pins-per-side (N)"
 
 
 def build() -> str:
@@ -178,7 +194,7 @@ def build() -> str:
         )
 
     # --- pads + silkscreen labels ---
-    def label(x, y, txt, anchor, dx):
+    def label(x: float, y: float, txt: str, anchor: str, dx: float) -> None:
         s.append(
             f'<text x="{x + dx}" y="{y + 1.4}" font-family="Consolas, Menlo, monospace" '
             f'font-size="4" fill="#e9e9ef" text-anchor="{anchor}">{txt}</text>'
