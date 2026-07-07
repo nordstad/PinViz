@@ -566,6 +566,8 @@ def get_available_boards() -> list[dict[str, str | list[str]]]:
         "raspberry_pi_4": ["rpi4", "pi4"],
         "raspberry_pi_pico": ["pico"],
         "esp32_devkit_v1": ["esp32", "esp32dev", "esp32_devkit"],
+        "esp32_s3_devkitc1": ["esp32s3", "esp32_s3", "esp32_s3_devkit", "esp32_s3_devkitc"],
+        "esp32_s3_devkitc1_schematic": ["esp32s3_schematic", "esp32_s3_schematic"],
         "wemos_d1_mini": ["d1mini", "d1_mini", "wemos"],
         "esp8266_nodemcu": ["esp8266", "nodemcu"],
     }

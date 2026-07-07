@@ -3,7 +3,7 @@
 
 Unlike the other board assets (Fritzing-derived), the ESP32-S3-DevKitC-1 board
 image is generated from this script so the artwork stays reproducible and the pin
-pad coordinates provably match the board config.
+pad coordinates match the board config (same layout constants, below).
 
 Output: ``src/pinviz/assets/esp32_s3_devkitc1_mod.svg``
 
@@ -11,7 +11,13 @@ The layout constants below MUST stay in sync with
 ``src/pinviz/board_configs/esp32_s3_devkitc1.json``:
     left_col_x=12, right_col_x=108, start_y=42, row_spacing=9.2, width=120, height=262
 Pin bubbles (PIN_RADIUS=4.5 in viewBox units) are drawn by PinViz on top of the
-gold pads; silkscreen GPIO labels sit inboard, clear of the bubbles.
+gold pads; the silkscreen labels sit inboard, clear of the bubbles.
+
+The silkscreen text (LEFT/RIGHT below) is the *board's* silkscreen from the
+official Espressif user guide (e.g. J3 pin 2 reads "TX", pin 3 "RX", J1 pin 3
+"RST"). That is deliberately NOT the GPIO identity the config stores for those
+pads (GPIO43 / GPIO44 / EN) - silk = what's printed on the PCB, config = the
+electrical function. Keep the silk matching the real board, not the config.
 
 Usage:
     python scripts/gen_esp32_s3_devkitc1_svg.py

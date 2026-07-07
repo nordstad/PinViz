@@ -535,3 +535,31 @@ def test_raspberry_pi_pico_special_pins():
     assert adc_pin.name == "ADC_VREF"
     assert adc_pin.role == PinRole.GPIO
     assert adc_pin.gpio_bcm is None
+
+
+def test_esp32_s3_devkitc1_has_44_pins():
+    """ESP32-S3-DevKitC-1 exposes the full 2x22 (44-pin) J1/J3 header."""
+    board = boards.esp32_s3_devkitc1()
+    assert board.name == "ESP32-S3-DevKitC-1"
+    assert len(board.pins) == 44
+    assert {pin.number for pin in board.pins} == set(range(1, 45))
+
+
+def test_esp32_s3_devkitc1_show_pin_names_default():
+    """Realistic variant keeps physical-index bubbles (show_pin_names off)."""
+    assert boards.esp32_s3_devkitc1().show_pin_names is False
+
+
+def test_esp32_s3_devkitc1_schematic_show_pin_names():
+    """Schematic variant draws GPIO/rail names on the bubbles."""
+    board = boards.esp32_s3_devkitc1_schematic()
+    assert board.show_pin_names is True
+    assert len(board.pins) == 44
+
+
+def test_esp32_s3_devkitc1_key_pins():
+    """Spot-check the CAN/UART-relevant pins used by the example."""
+    board = boards.esp32_s3_devkitc1()
+    assert board.get_pin_by_number(4).name == "GPIO43"  # U0TXD (silk "TX")
+    assert board.get_pin_by_number(6).name == "GPIO44"  # U0RXD (silk "RX")
+    assert board.get_pin_by_number(5).name == "EN"  # silk "RST"

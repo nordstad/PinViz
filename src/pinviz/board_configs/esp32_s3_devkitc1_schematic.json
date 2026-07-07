@@ -1,6 +1,6 @@
 {
   "name": "ESP32-S3-DevKitC-1 (schematic)",
-  "svg_asset": "esp32_s3_devkitc1.svg",
+  "svg_asset": "esp32_s3_devkitc1_mod.svg",
   "width": 210.0,
   "height": 300.0,
   "header_offset": {
