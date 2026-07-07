@@ -1,6 +1,6 @@
 # ESP32 and ESP8266 Examples
 
-Examples for ESP32 DevKit V1, ESP8266 NodeMCU, and Wemos D1 Mini boards.
+Examples for ESP32 DevKit V1, ESP32-S3-DevKitC-1, ESP8266 NodeMCU, and Wemos D1 Mini boards.
 
 → [All examples index](examples.md) | [Raspberry Pi](examples-raspberry-pi.md) | [Components](examples-components.md) | [Pico](examples-pico.md) | [Multi-Tier](examples-multi-tier.md)
 
@@ -91,6 +91,61 @@ Single BME280 sensor on ESP32 DevKit V1.
 ![ESP32 I2C Sensor](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_example.svg)
 
 **Key Features:** I2C connection on GPIO21 (SDA) and GPIO22 (SCL), 3.3V power.
+
+---
+
+## ESP32-S3 CAN (TWAI) via SN65HVD230
+
+SN65HVD230 CAN transceiver on the ESP32-S3-DevKitC-1 (44-pin dual-sided). The
+ESP32-S3's TWAI controller drives the bus through the transceiver: CAN_TX
+(GPIO43) → `CTX` driver input, CAN_RX (GPIO44) ← `CRX` receiver output.
+
+**Configuration:** [`examples/esp32_s3_can_transceiver.yaml`](https://github.com/nordstad/PinViz/blob/main/examples/esp32_s3_can_transceiver.yaml)
+
+```yaml
+title: ESP32-S3 CAN (TWAI) via SN65HVD230
+board: esp32_s3_devkitc1
+theme: light
+
+devices:
+  - type: sn65hvd230
+    name: SN65HVD230 CAN Transceiver
+
+connections:
+  # 3V3 rail  (physical pin 1  -> GPIO/rail 3V3)
+  - board_pin: 1
+    device: SN65HVD230 CAN Transceiver
+    device_pin: "3V3"
+    color: red
+  # GND       (physical pin 2)
+  - board_pin: 2
+    device: SN65HVD230 CAN Transceiver
+    device_pin: "GND"
+    color: black
+  # CAN_TX = GPIO43 (physical pin 4) -> transceiver CTX (driver input)
+  - board_pin: 4
+    device: SN65HVD230 CAN Transceiver
+    device_pin: "CTX"
+    color: blue
+  # CAN_RX = GPIO44 (physical pin 6) -> transceiver CRX (receiver output)
+  - board_pin: 6
+    device: SN65HVD230 CAN Transceiver
+    device_pin: "CRX"
+    color: green
+```
+
+**Generate:**
+
+```bash
+pinviz render examples/esp32_s3_can_transceiver.yaml -o esp32_s3_can.svg
+```
+
+**Result:**
+
+![ESP32-S3 CAN Transceiver](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_s3_can_transceiver.svg)
+
+**Board aliases:** `esp32_s3_devkitc1`, `esp32s3`, `esp32_s3`
+(use `esp32_s3_devkitc1_schematic` for the artwork-free variant)
 
 ---
 

@@ -23,7 +23,7 @@ Explore example diagrams and configurations organised by board and feature.
 | [Raspberry Pi](examples-raspberry-pi.md) | Wire visibility, BH1750 I2C sensor, traffic light, multi-device, specs table, dark mode |
 | [Inline Components](examples-components.md) | LED + resistor, decoupling capacitor, flyback diode, all component types |
 | [Raspberry Pi Pico](examples-pico.md) | Pico LED, Pico BME280, multi-LED with specs, dark mode |
-| [ESP32 / ESP8266](examples-esp.md) | ESP32 weather station, NodeMCU LEDs, Wemos D1 Mini OLED |
+| [ESP32 / ESP8266](examples-esp.md) | ESP32 weather station, ESP32-S3 CAN transceiver, NodeMCU LEDs, Wemos D1 Mini OLED |
 | [Multi-Tier Connections](examples-multi-tier.md) | Motor control (L293D), relay control, Pico power chain |
 
 ---
