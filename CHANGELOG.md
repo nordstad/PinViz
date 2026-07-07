@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.19.0] - 2026-07-07
+
+### Added
+- Add ESP32-S3-DevKitC-1 board (realistic + schematic) and SN65HVD230 CAN transceiver (https://github.com/nordstad/PinViz/pull/282)
+- docs: add ESP32-S3 CAN transceiver example (https://github.com/nordstad/PinViz/pull/284)
+
+### Changed
+- chore(deps): bump typer from 0.25.1 to 0.26.5 (https://github.com/nordstad/PinViz/pull/256)
+- chore(deps-dev): bump platformdirs from 4.9.6 to 4.10.0 (https://github.com/nordstad/PinViz/pull/255)
+- chore(deps-dev): bump ruff from 0.15.14 to 0.15.15 (https://github.com/nordstad/PinViz/pull/254)
+- chore(deps-dev): bump hypothesis from 6.152.9 to 6.155.1 (https://github.com/nordstad/PinViz/pull/253)
+- chore(deps-dev): bump pytest-asyncio from 1.3.0 to 1.4.0 (https://github.com/nordstad/PinViz/pull/252)
+- chore(deps): bump starlette from 0.50.0 to 1.0.1 (https://github.com/nordstad/PinViz/pull/257)
+- chore(deps-dev): bump ruff from 0.15.15 to 0.15.16 (https://github.com/nordstad/PinViz/pull/262)
+- chore(deps-dev): bump zensical from 0.0.43 to 0.0.44 (https://github.com/nordstad/PinViz/pull/261)
+- chore(deps-dev): bump mkdocstrings-python from 2.0.3 to 2.0.4 (https://github.com/nordstad/PinViz/pull/260)
+- chore(deps): bump structlog from 25.5.0 to 26.1.0 (https://github.com/nordstad/PinViz/pull/259)
+- chore(deps): bump mcp from 1.27.1 to 1.27.2 (https://github.com/nordstad/PinViz/pull/258)
+- chore(deps-dev): bump zensical from 0.0.44 to 0.0.45 (https://github.com/nordstad/PinViz/pull/267)
+- chore(deps-dev): bump ruff from 0.15.16 to 0.15.17 (https://github.com/nordstad/PinViz/pull/266)
+- chore(deps): bump typer from 0.26.5 to 0.26.7 (https://github.com/nordstad/PinViz/pull/265)
+- chore(deps-dev): bump pytest from 9.0.3 to 9.1.0 (https://github.com/nordstad/PinViz/pull/264)
+- chore(deps): bump beautifulsoup4 from 4.14.3 to 4.15.0 (https://github.com/nordstad/PinViz/pull/263)
+- chore(deps): bump cryptography from 46.0.7 to 48.0.1 (https://github.com/nordstad/PinViz/pull/271)
+- chore(deps): bump starlette from 1.0.1 to 1.3.1 (https://github.com/nordstad/PinViz/pull/270)
+- chore(deps): bump python-multipart from 0.0.27 to 0.0.31 (https://github.com/nordstad/PinViz/pull/269)
+- chore(deps): bump pyjwt from 2.12.0 to 2.13.0 (https://github.com/nordstad/PinViz/pull/268)
+- chore(deps): bump mcp from 1.27.2 to 1.28.0 (https://github.com/nordstad/PinViz/pull/276)
+- chore(deps): bump pydantic-settings from 2.14.1 to 2.14.2 (https://github.com/nordstad/PinViz/pull/273)
+- chore(deps-dev): bump ruff from 0.15.17 to 0.15.18 (https://github.com/nordstad/PinViz/pull/275)
+- chore(deps-dev): bump mkdocstrings-python from 2.0.4 to 2.0.5 (https://github.com/nordstad/PinViz/pull/274)
+- chore(deps-dev): bump hypothesis from 6.155.1 to 6.155.7 (https://github.com/nordstad/PinViz/pull/272)
+- chore(deps-dev): bump ruff from 0.15.18 to 0.15.20 (https://github.com/nordstad/PinViz/pull/281)
+- chore(deps-dev): bump zensical from 0.0.45 to 0.0.46 (https://github.com/nordstad/PinViz/pull/280)
+- chore(deps): bump mcp from 1.28.0 to 1.28.1 (https://github.com/nordstad/PinViz/pull/279)
+- chore(deps): bump typer from 0.26.7 to 0.26.8 (https://github.com/nordstad/PinViz/pull/278)
+- chore(deps-dev): bump pytest from 9.1.0 to 9.1.1 (https://github.com/nordstad/PinViz/pull/277)
+- chore: gitignore local PR-review comparison artifacts (https://github.com/nordstad/PinViz/pull/285)
+
+### Fixed
+- fix: no kink where wires join device pins (align exit tangent) (https://github.com/nordstad/PinViz/pull/283)
+
 ## [0.19.0] - 2026-07-07
 
 ### Added
