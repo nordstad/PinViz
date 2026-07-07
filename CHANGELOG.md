@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-07-07
+
 ### Added
 - **ESP32-S3-DevKitC-1 board** - full 2×22 (44-pin) J1/J3 header, in two variants:
   - `esp32_s3_devkitc1` (default): realistic board artwork (black PCB, USB-C, ESP32-S3-WROOM module, BOOT/RST buttons, per-pin silkscreen GPIO labels) so the diagram maps onto the physical board at a glance. Aliases: `esp32s3`, `esp32_s3`, `esp32_s3_devkit`
@@ -15,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New `show_pin_names` board option: draws each pin's short name (GPIO number / power rail) on the bubble instead of the physical index. Backwards compatible (default `false`, existing boards unchanged)
 - **SN65HVD230 CAN transceiver** device (`io` category) with logic-side (3V3/GND/CTX/CRX) and bus-side (CANH/CANL) pins
   - 📝 New example: `examples/esp32_s3_can_transceiver.yaml` (ESP32-S3 TWAI → SN65HVD230)
+
+### Fixed
+- Wires no longer kink where they join device pins — the curve's exit tangent is now aligned collinear with the straight lead-in into the pin, so wire→pin joins are smooth (https://github.com/nordstad/PinViz/pull/283)
 
 
 
