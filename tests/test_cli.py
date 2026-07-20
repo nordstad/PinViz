@@ -328,7 +328,7 @@ def test_render_help():
     """Test render --help."""
     result = runner.invoke(app, ["render", "--help"])
     assert result.exit_code == 0
-    assert "CONFIG_FILE" in result.stdout
+    assert "config_file" in result.stdout
 
 
 def test_h_flag():
@@ -343,7 +343,7 @@ def test_render_h_flag():
     """Test render -h (shorthand for --help)."""
     result = runner.invoke(app, ["render", "-h"])
     assert result.exit_code == 0
-    assert "CONFIG_FILE" in result.stdout
+    assert "config_file" in result.stdout
 
 
 def test_render_with_json_output(sample_yaml_config, temp_output_dir):
