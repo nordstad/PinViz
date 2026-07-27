@@ -65,6 +65,10 @@ pinviz-mcp = "pinviz.mcp.server:main"
 target-version = "py313"
 line-length = 100
 
+[tool.ruff.format]
+# ruff 0.16 formats Markdown code blocks by default; opt out to avoid reformatting docs/guides
+exclude = ["*.md"]
+
 [tool.ruff.lint]
 select = [
     "E",      # pycodestyle errors
