@@ -14,7 +14,7 @@ Resources:
 import json
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 from pinviz.connection_graph import ConnectionGraph
 from pinviz.validation import DiagramValidator, ValidationLevel
@@ -22,8 +22,8 @@ from pinviz.validation import DiagramValidator, ValidationLevel
 from .connection_builder import ConnectionBuilder
 from .device_manager import Device, DeviceManager, DevicePin
 
-# Initialize FastMCP server
-mcp = FastMCP("PinViz Diagram Generator")
+# Initialize MCP server
+mcp = MCPServer("PinViz Diagram Generator")
 
 # Initialize device manager
 device_manager = DeviceManager()
