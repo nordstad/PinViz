@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-10-02
+
 ### Added
 - **Breadboard layout** (`layout: breadboard`) draws the board artwork beside an upright solderless breadboard with plug-in modules seated on its holes, and colored jumper wires. Schematic layout is unchanged. Contributed by @r2DoesInc (https://github.com/nordstad/PinViz/pull/350).
   - Modules stack top to bottom in YAML order, so listing them in header order keeps their wire ribbons from crossing.
