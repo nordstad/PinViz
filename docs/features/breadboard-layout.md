@@ -28,6 +28,15 @@ connections:
 
 See `examples/breadboard_stepstick.yaml` for a complete example.
 
+![TMC2209 on a breadboard](../assets/breadboard/stepstick.svg)
+
+A full build with three stepsticks, NEMA 17 motors, a 24 V supply and a smoothing capacitor
+(`examples/breadboard_three_motors.yaml`):
+
+![Three stepper motors on a breadboard](../assets/breadboard/three-motors.svg)
+
+Dark theme (`theme: dark`) is supported too: see `docs/assets/breadboard/three-motors-dark.svg`.
+
 ## Devices
 
 | Type | Default role | Notes |

@@ -1,0 +1,61 @@
+title: "Three stepper motors on a breadboard"
+board: raspberry_pi_5
+layout: breadboard
+show_board_name: false
+show_legend: true
+devices:
+  - {type: breadboard_rail, name: Rails, breadboard: {role: rail}}
+  - {type: tmc2209, name: "D2 m2", breadboard: {role: module}}
+  - {type: tmc2209, name: "D3 m3", breadboard: {role: module}}
+  - {type: tmc2209, name: "D1 m1", breadboard: {role: module}}
+  - {type: nema17, name: "M2", breadboard: {role: motor}}
+  - {type: nema17, name: "M3", breadboard: {role: motor}}
+  - {type: nema17, name: "M1", breadboard: {role: motor}}
+  - {type: psu_24v, name: LRS-75-24, breadboard: {role: supply}}
+  - {type: electrolytic, name: "100 uF", breadboard: {role: capacitor}}
+connections:
+  - {board_pin: 1, device: Rails, device_pin: "+3V3", color: "#F08C00"}
+  - {board_pin: 6, device: Rails, device_pin: GND, color: "#1A1A1A"}
+  - {board_pin: 12, device: "D2 m2", device_pin: STEP, color: "#E2B000"}
+  - {board_pin: 14, device: "D2 m2", device_pin: IOGND, color: "#1A1A1A"}
+  - {board_pin: 18, device: "D2 m2", device_pin: DIR, color: "#1F9D55"}
+  - {board_pin: 22, device: "D2 m2", device_pin: EN, color: "#7C3AED"}
+  - {board_pin: 29, device: "D3 m3", device_pin: STEP, color: "#E2B000"}
+  - {board_pin: 30, device: "D3 m3", device_pin: IOGND, color: "#1A1A1A"}
+  - {board_pin: 31, device: "D3 m3", device_pin: DIR, color: "#1F9D55"}
+  - {board_pin: 35, device: "D3 m3", device_pin: EN, color: "#7C3AED"}
+  - {board_pin: 36, device: "D1 m1", device_pin: STEP, color: "#E2B000"}
+  - {board_pin: 38, device: "D1 m1", device_pin: DIR, color: "#1F9D55"}
+  - {board_pin: 39, device: "D1 m1", device_pin: IOGND, color: "#1A1A1A"}
+  - {board_pin: 40, device: "D1 m1", device_pin: EN, color: "#7C3AED"}
+  - {from: {device: Rails, device_pin: "+3V3"}, to: {device: "D2 m2", device_pin: MS1}, color: "#F08C00"}
+  - {from: {device: Rails, device_pin: "+3V3"}, to: {device: "D2 m2", device_pin: MS2}, color: "#F08C00"}
+  - {from: {device: Rails, device_pin: "+3V3"}, to: {device: "D2 m2", device_pin: VDD}, color: "#F08C00"}
+  - {from: {device: Rails, device_pin: "+24V"}, to: {device: "D2 m2", device_pin: VM}, color: "#D31212"}
+  - {from: {device: Rails, device_pin: MGND}, to: {device: "D2 m2", device_pin: VMGND}, color: "#1A1A1A"}
+  - {from: {device: "D2 m2", device_pin: B2}, to: {device: "M2", device_pin: B2}, color: "#4A6FD8"}
+  - {from: {device: "D2 m2", device_pin: B1}, to: {device: "M2", device_pin: B1}, color: "#D31212"}
+  - {from: {device: "D2 m2", device_pin: A1}, to: {device: "M2", device_pin: A1}, color: "#1A1A1A"}
+  - {from: {device: "D2 m2", device_pin: A2}, to: {device: "M2", device_pin: A2}, color: "#1F9D55"}
+  - {from: {device: Rails, device_pin: "+3V3"}, to: {device: "D3 m3", device_pin: MS1}, color: "#F08C00"}
+  - {from: {device: Rails, device_pin: "+3V3"}, to: {device: "D3 m3", device_pin: MS2}, color: "#F08C00"}
+  - {from: {device: Rails, device_pin: "+3V3"}, to: {device: "D3 m3", device_pin: VDD}, color: "#F08C00"}
+  - {from: {device: Rails, device_pin: "+24V"}, to: {device: "D3 m3", device_pin: VM}, color: "#D31212"}
+  - {from: {device: Rails, device_pin: MGND}, to: {device: "D3 m3", device_pin: VMGND}, color: "#1A1A1A"}
+  - {from: {device: "D3 m3", device_pin: B2}, to: {device: "M3", device_pin: B2}, color: "#4A6FD8"}
+  - {from: {device: "D3 m3", device_pin: B1}, to: {device: "M3", device_pin: B1}, color: "#D31212"}
+  - {from: {device: "D3 m3", device_pin: A1}, to: {device: "M3", device_pin: A1}, color: "#1A1A1A"}
+  - {from: {device: "D3 m3", device_pin: A2}, to: {device: "M3", device_pin: A2}, color: "#1F9D55"}
+  - {from: {device: Rails, device_pin: "+3V3"}, to: {device: "D1 m1", device_pin: MS1}, color: "#F08C00"}
+  - {from: {device: Rails, device_pin: "+3V3"}, to: {device: "D1 m1", device_pin: MS2}, color: "#F08C00"}
+  - {from: {device: Rails, device_pin: "+3V3"}, to: {device: "D1 m1", device_pin: VDD}, color: "#F08C00"}
+  - {from: {device: Rails, device_pin: "+24V"}, to: {device: "D1 m1", device_pin: VM}, color: "#D31212"}
+  - {from: {device: Rails, device_pin: MGND}, to: {device: "D1 m1", device_pin: VMGND}, color: "#1A1A1A"}
+  - {from: {device: "D1 m1", device_pin: B2}, to: {device: "M1", device_pin: B2}, color: "#4A6FD8"}
+  - {from: {device: "D1 m1", device_pin: B1}, to: {device: "M1", device_pin: B1}, color: "#D31212"}
+  - {from: {device: "D1 m1", device_pin: A1}, to: {device: "M1", device_pin: A1}, color: "#1A1A1A"}
+  - {from: {device: "D1 m1", device_pin: A2}, to: {device: "M1", device_pin: A2}, color: "#1F9D55"}
+  - {from: {device: LRS-75-24, device_pin: "+V"}, to: {device: Rails, device_pin: "+24V"}, color: "#D31212"}
+  - {from: {device: LRS-75-24, device_pin: "-V"}, to: {device: Rails, device_pin: MGND}, color: "#1A1A1A"}
+  - {from: {device: "100 uF", device_pin: "+"}, to: {device: Rails, device_pin: "+24V"}, color: "#D31212"}
+  - {from: {device: "100 uF", device_pin: "-"}, to: {device: Rails, device_pin: MGND}, color: "#1A1A1A"}
