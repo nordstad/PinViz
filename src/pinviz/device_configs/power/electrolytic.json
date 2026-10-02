@@ -7,7 +7,7 @@
   "pins": [
     {
       "name": "+",
-      "role": "5V",
+      "role": "EXT_POWER",
       "side": "left"
     },
     {

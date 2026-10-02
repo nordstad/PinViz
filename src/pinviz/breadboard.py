@@ -7,7 +7,7 @@ between the actual pins. Schematic layout is unchanged.
 Layout rules, chosen so that different modules' wires never cross:
 
 - The breadboard stands upright. Rails run top to bottom: logic ground and
-  3.3 V on the left, motor ground and motor supply on the right.
+  3.3V on the left, motor ground and motor supply on the right.
 - A 16-pin stepstick straddles the trench, one 8-pin column on row ``b``
   and one on row ``f`` (0.6 inch apart), seated as the silkscreen reads
   from above: EN top left, DIR bottom left, VM top right, GND bottom
@@ -36,8 +36,14 @@ from pathlib import Path
 
 import drawsvg as draw
 
-from .model import Connection, Device, Diagram
+from .layout import LayoutConfig
+from .model import DEFAULT_COLORS, Board, Connection, Device, Diagram, PinRole
+from .render_constants import RENDER_CONSTANTS
+from .render_svg import SVGRenderer
+from .theme import get_color_scheme
+from .wire_renderer import get_halo_color
 
+# BIGTREETECH TMC2209 V1.3 silkscreen, seated with DIR at the top of the board.
 # BIGTREETECH TMC2209 V1.2/V1.3 silkscreen viewed from above, both columns top
 # to bottom: EN top left, DIR bottom left, VM top right, GND bottom right.
 STEPSTICK_LEFT = ("EN", "MS1", "MS2", "PDN", "PDN_ALT", "CLK", "STEP", "DIR")
@@ -47,20 +53,50 @@ STEPSTICK_PINS = STEPSTICK_LEFT + STEPSTICK_RIGHT
 # prints 2B/2A/1A/1B/VIO where the card (and these names) say A2/A1/B1/B2/VDD.
 STEPSTICK_LABELS = {"PDN_ALT": "PDN", "VMGND": "GND", "IOGND": "GND"}
 
-RAIL_PINS = ("GND", "+3V3", "MGND", "+24V")
+# Device types this layout can draw; each takes this role unless ``breadboard.role`` overrides it.
+DEFAULT_ROLES = {
+    "tmc2209": "module",
+    "nema17": "motor",
+    "psu_24v": "supply",
+    "electrolytic": "capacitor",
+    "breadboard_rail": "rail",
+}
+MODULE_TYPES = {"tmc2209"}
 
-PI_ORIGIN = (24.0, 78.0)
-PI_SCALE = 2.35
+RAIL_PINS = ("GND", "+3V3", "MGND", "+24V")
+# Rail colors follow the pin-role wire colors used everywhere else.
+RAIL_ROLES = {
+    "GND": PinRole.GROUND,
+    "+3V3": PinRole.POWER_3V3,
+    "MGND": PinRole.GROUND,
+    "+24V": PinRole.POWER_EXT,
+}
+
+MARGIN = LayoutConfig.canvas_padding
+PI_ORIGIN = (LayoutConfig.board_margin_left, 60.0)
+PI_SCALE = 1.4
 PITCH = 22.0
 MODULE_ROWS = 12
+MODULE_SPAN = 8
+MIN_MODULE_ROW = 3
 FIRST_MODULE_ROW = 4
+BREADBOARD_TOP = PI_ORIGIN[1]
+BOARD_TO_BREADBOARD = 250.0  # header right edge to breadboard left edge
+FAN_OFFSET = 60.0  # header right edge to where header wires start fanning out
+RIBBON_END_GAP = 48.0  # ribbon end to the left rail
+HOP_GAP = 31.0  # left rail to the column a hopping wire climbs
+MOTOR_OFFSET = 58.0  # right rail to the motor leads
+MOTOR_BODY_WIDTH = 150.0  # motor leads to the far edge of the motor body
+SUPPLY_TOP = 62.0  # last hole row to the supply box
+SUPPLY_WIDTH = 230.0
+SUPPLY_HEIGHT = 54.0
+SUPPLY_LEFT_OF_MGND = 104.0
+CAPACITOR_LABEL_WIDTH = 120.0  # right of the breadboard, room for the capacitor label
 RIBBON_SPACING = 9.0
 FONT = "Arial, sans-serif"
-LABEL_CHAR_WIDTH = 7.4
-
-GRAY = "#5C6570"
-RAIL_COLORS = {"GND": "#2C4A6E", "+3V3": "#F08C00", "MGND": "#2C4A6E", "+24V": "#D31212"}
-RAIL_TITLES = {"GND": "GND", "+3V3": "3.3 V", "MGND": "GND", "+24V": "+24 V"}
+# Same sizes as the schematic: device names and headings 12, labels and table text 9.
+NAME_FONT_SIZE = float(RENDER_CONSTANTS.LEGEND_TITLE_FONT_SIZE.removesuffix("px"))
+LABEL_FONT_SIZE = 9.0
 
 
 @dataclass
@@ -108,28 +144,34 @@ def stepstick_seat(device: Device, pin_name: str) -> tuple[str, int]:
 
 
 def _role(device: Device) -> str:
-    if device.type_id == "tmc2209":
-        return "module"
-    return (device.placement or {}).get("role", "module")
+    if device.placement and device.placement.role:
+        return device.placement.role
+    role = DEFAULT_ROLES.get(device.type_id or "")
+    if role is None:
+        raise ValueError(
+            f"Breadboard layout cannot draw {device.name} ({device.type_id or 'custom device'}). "
+            f"Supported types: {', '.join(sorted(DEFAULT_ROLES))}"
+        )
+    return role
 
 
-def _is_white(color: str) -> bool:
-    """True for a wire color that would vanish on the white page."""
-    text = color.strip().lower()
-    if text in {"#fff", "#ffffff", "white"}:
-        return True
-    if text.startswith("#") and len(text) in {4, 7}:
-        hexpart = text[1:]
-        if len(hexpart) == 3:
-            hexpart = "".join(char * 2 for char in hexpart)
-        try:
-            red = int(hexpart[0:2], 16)
-            green = int(hexpart[2:4], 16)
-            blue = int(hexpart[4:6], 16)
-        except ValueError:
-            return False
-        return red >= 250 and green >= 250 and blue >= 250
-    return False
+def check_board(board: Board) -> None:
+    """Fail unless the board is a Pi-style 40-pin header: two vertical columns, odd pins left."""
+    by_number = {pin.number: pin for pin in board.pins if pin.position}
+    first, second, third = by_number.get(1), by_number.get(2), by_number.get(3)
+    standard = (
+        len(board.pins) == 40
+        and first
+        and second
+        and third
+        and first.position.y == second.position.y
+        and first.position.x == third.position.x
+        and first.position.x < second.position.x
+    )
+    if not standard or not board.svg_asset_path or not Path(board.svg_asset_path).exists():
+        raise ValueError(
+            f"Breadboard layout supports Raspberry Pi 4 and 5 style boards, not {board.name}"
+        )
 
 
 def _rounded(points: list[tuple[float, float]], radius: float = 7.0) -> str:
@@ -173,67 +215,111 @@ class BreadboardRenderer:
 
     def render(self, diagram: Diagram, output_path: str | Path) -> None:
         check_connected(diagram)
+        check_board(diagram.board)
         self.diagram = diagram
+        scheme = get_color_scheme(diagram.theme)
+        self.bg, self.fg = scheme.canvas_background, scheme.text_primary
+        self.fg_secondary = scheme.text_secondary
         self.devices = {device.name: device for device in diagram.devices}
         self.modules = [device for device in diagram.devices if _role(device) == "module"]
+        for module in self.modules:
+            if module.type_id not in MODULE_TYPES:
+                raise ValueError(
+                    f"Breadboard layout can only seat {', '.join(sorted(MODULE_TYPES))} "
+                    f"as a module, not {module.name}"
+                )
         self.module_row: dict[str, int] = {}
         for index, module in enumerate(self.modules):
-            row = (module.placement or {}).get("row")
+            row = module.placement.row if module.placement else None
             self.module_row[module.name] = (
-                row if isinstance(row, int) else FIRST_MODULE_ROW + index * MODULE_ROWS
+                row if row is not None else FIRST_MODULE_ROW + index * MODULE_ROWS
             )
+        self._check_module_rows()
         last = max(self.module_row.values(), default=FIRST_MODULE_ROW)
         rows = last + MODULE_ROWS + 2
+        board = diagram.board
+        pins = {pin.number: pin.position for pin in board.pins}
+        self.pin_pitch = (pins[3].y - pins[1].y) * PI_SCALE
         header_right = (
-            PI_ORIGIN[0]
-            + max(pin.position.x for pin in diagram.board.pins if pin.position) * PI_SCALE
+            PI_ORIGIN[0] + max(pin.position.x for pin in board.pins if pin.position) * PI_SCALE
         )
         self.header_right = header_right
-        self.header_left = (
-            PI_ORIGIN[0]
-            + min(pin.position.x for pin in diagram.board.pins if pin.position) * PI_SCALE
-        )
-        self.geo = Geometry(left=header_right + 308, top=70, rows=rows)
-        self.x_fan = header_right + 60
-        self.x_ribbon_end = self.geo.x["GND"] - 48
-        self.x_hop = self.geo.x["GND"] - 31
-        self.motor_x = self.geo.x["+24V"] + 58
+        self.geo = Geometry(left=header_right + BOARD_TO_BREADBOARD, top=BREADBOARD_TOP, rows=rows)
+        self.x_fan = header_right + FAN_OFFSET
+        self.x_ribbon_end = self.geo.x["GND"] - RIBBON_END_GAP
+        self.x_hop = self.geo.x["GND"] - HOP_GAP
+        self.motor_x = self.geo.x["+24V"] + MOTOR_OFFSET
 
-        width = self.motor_x + 150
-        height = self.geo.bottom + 160
+        roles = {_role(device) for device in diagram.devices}
+        content_right = self.geo.right
+        content_bottom = max(self.geo.bottom, PI_ORIGIN[1] + board.height * PI_SCALE)
+        if "motor" in roles:
+            content_right = max(content_right, self.motor_x + MOTOR_BODY_WIDTH)
+        if "capacitor" in roles:
+            content_right = max(content_right, self.geo.right + CAPACITOR_LABEL_WIDTH)
+        if "supply" in roles:
+            supply_right = self.geo.x["MGND"] - SUPPLY_LEFT_OF_MGND + SUPPLY_WIDTH
+            supply_bottom = self.geo.y(self.geo.rows - 1) + SUPPLY_TOP + SUPPLY_HEIGHT
+            content_right = max(content_right, supply_right)
+            content_bottom = max(content_bottom, supply_bottom)
+        width = content_right + MARGIN
+        height = content_bottom + MARGIN
+
+        self.svg = SVGRenderer()
+        specs = [device for device in diagram.devices if device.description]
+        specs_table = None
+        if diagram.show_legend and specs:
+            table_x = LayoutConfig.board_margin_left
+            table_y = content_bottom + LayoutConfig.specs_table_top_margin
+            table_width = content_right - table_x
+            specs_table = (specs, table_x, table_y, table_width)
+            height = table_y + self.svg.specs_table_height(specs, table_width) + MARGIN
+
         canvas = draw.Drawing(width, height, origin=(0, 0))
-        canvas.append(draw.Rectangle(0, 0, width, height, fill="#FFFFFF"))
+        canvas.append(draw.Rectangle(0, 0, width, height, fill=self.bg))
         self.canvas = canvas
 
-        self._draw_title()
+        self._draw_title(width)
         self._draw_pi()
         self._draw_breadboard()
         for module in self.modules:
             self._draw_module(module)
         self._draw_wires()
-        self._draw_header_labels()
-        self._draw_key(height)
+        self._draw_pin_numbers(scheme)
+        if specs_table:
+            self.svg.draw_specs_table(canvas, *specs_table, scheme)
         canvas.save_svg(str(Path(output_path)))
+
+    def _check_module_rows(self) -> None:
+        ordered = sorted(self.modules, key=lambda module: self.module_row[module.name])
+        for module in ordered:
+            if self.module_row[module.name] < MIN_MODULE_ROW:
+                raise ValueError(f"{module.name}: breadboard row must be at least {MIN_MODULE_ROW}")
+        for upper, lower in zip(ordered, ordered[1:], strict=False):
+            if self.module_row[lower.name] - self.module_row[upper.name] < MODULE_SPAN:
+                raise ValueError(
+                    f"{upper.name} and {lower.name} overlap on the breadboard; "
+                    f"their rows must be at least {MODULE_SPAN} apart"
+                )
 
     # Parts -----------------------------------------------------------------
 
-    def _draw_title(self) -> None:
-        if self.diagram.show_title:
+    def _draw_title(self, width: float) -> None:
+        if self.diagram.title and self.diagram.show_title:
             self.canvas.append(
                 draw.Text(
                     self.diagram.title,
-                    22,
-                    24,
-                    44,
+                    RENDER_CONSTANTS.TITLE_FONT_SIZE,
+                    width / 2,
+                    RENDER_CONSTANTS.TITLE_Y_OFFSET,
+                    text_anchor="middle",
                     font_family=FONT,
                     font_weight="bold",
-                    fill="#1A1A1A",
+                    fill=self.fg,
                 )
             )
 
     def _draw_pi(self) -> None:
-        from .render_svg import SVGRenderer
-
         asset = self.diagram.board.svg_asset_path
         if not asset or not Path(asset).exists():
             raise ValueError(
@@ -241,7 +327,12 @@ class BreadboardRenderer:
             )
         root = ET.parse(asset).getroot()
         group = draw.Group(transform=f"translate({PI_ORIGIN[0]}, {PI_ORIGIN[1]}) scale({PI_SCALE})")
-        SVGRenderer()._inline_svg_elements(group, root, self.canvas, show_board_name=False)
+        SVGRenderer().inline_svg_elements(group, root, self.canvas, show_board_name=False)
+        self.canvas.append(group)
+
+    def _draw_pin_numbers(self, scheme) -> None:
+        group = draw.Group(transform=f"translate({PI_ORIGIN[0]}, {PI_ORIGIN[1]}) scale({PI_SCALE})")
+        self.svg.draw_gpio_pin_numbers(group, self.diagram.board, 0, 0, scheme)
         self.canvas.append(group)
 
     def _header_xy(self, pin_number: int) -> tuple[float, float]:
@@ -278,7 +369,7 @@ class BreadboardRenderer:
                     geo.y(0) - 10,
                     x,
                     geo.y(geo.rows - 1) + 10,
-                    stroke=RAIL_COLORS[rail],
+                    stroke=DEFAULT_COLORS[RAIL_ROLES[rail]],
                     stroke_width=3,
                     stroke_opacity=0.45,
                 )
@@ -296,16 +387,15 @@ class BreadboardRenderer:
                     )
                 )
         for rail in ("MGND", "+24V"):
-            x, y = geo.x[rail] + 4, geo.y(0) - 14
+            x, y = geo.x[rail] + 4, geo.y(0) - 20
             c.append(
                 draw.Text(
-                    RAIL_TITLES[rail],
-                    11,
+                    rail,
+                    LABEL_FONT_SIZE,
                     x,
                     y,
                     font_family=FONT,
-                    font_weight="bold",
-                    fill=RAIL_COLORS[rail],
+                    fill=self.fg,
                     transform=f"rotate(-90 {x} {y})",
                 )
             )
@@ -313,14 +403,13 @@ class BreadboardRenderer:
             x, y = geo.x[rail] + 4, geo.y(geo.rows - 1) + 32
             c.append(
                 draw.Text(
-                    RAIL_TITLES[rail],
-                    11,
+                    rail,
+                    LABEL_FONT_SIZE,
                     x,
                     y,
                     text_anchor="end",
                     font_family=FONT,
-                    font_weight="bold",
-                    fill=RAIL_COLORS[rail],
+                    fill=self.fg,
                     transform=f"rotate(-90 {x} {y})",
                 )
             )
@@ -335,7 +424,6 @@ class BreadboardRenderer:
                 x0, y0, x1 - x0, y1 - y0, rx=4, fill="#2B241C", stroke="#1A140F", stroke_width=1
             )
         )
-        shown = STEPSTICK_LABELS
         for index in range(8):
             y = geo.y(top + index)
             c.append(
@@ -347,25 +435,23 @@ class BreadboardRenderer:
             left = STEPSTICK_LEFT[index]
             c.append(
                 draw.Text(
-                    shown.get(left, left),
-                    10.5,
+                    STEPSTICK_LABELS.get(left, left),
+                    LABEL_FONT_SIZE,
                     geo.x["b"] + 8,
                     y + 4,
                     font_family=FONT,
-                    font_weight="bold",
                     fill="#F4EFE4",
                 )
             )
             right = STEPSTICK_RIGHT[index]
             c.append(
                 draw.Text(
-                    shown.get(right, right),
-                    10.5,
+                    STEPSTICK_LABELS.get(right, right),
+                    LABEL_FONT_SIZE,
                     geo.x["f"] - 8,
                     y + 4,
                     text_anchor="end",
                     font_family=FONT,
-                    font_weight="bold",
                     fill="#F4EFE4",
                 )
             )
@@ -373,7 +459,7 @@ class BreadboardRenderer:
         c.append(
             draw.Text(
                 module.name,
-                13,
+                NAME_FONT_SIZE,
                 cx,
                 cy - 2,
                 text_anchor="middle",
@@ -384,7 +470,13 @@ class BreadboardRenderer:
         )
         c.append(
             draw.Text(
-                "TMC2209", 9, cx, cy + 12, text_anchor="middle", font_family=FONT, fill="#CFC6B6"
+                (module.type_id or "").upper(),
+                LABEL_FONT_SIZE,
+                cx,
+                cy + 12,
+                text_anchor="middle",
+                font_family=FONT,
+                fill="#CFC6B6",
             )
         )
 
@@ -413,7 +505,7 @@ class BreadboardRenderer:
         c.append(
             draw.Text(
                 motor.name,
-                13,
+                NAME_FONT_SIZE,
                 box_x + size / 2,
                 bottom - 10,
                 text_anchor="middle",
@@ -427,23 +519,37 @@ class BreadboardRenderer:
                 draw.Circle(self.motor_x, y, 4, fill="#F4F1EA", stroke="#333333", stroke_width=1)
             )
             c.append(
-                draw.Text(pin, 10.5, self.motor_x + 8, y + 4, font_family=FONT, fill="#1A1A1A")
+                draw.Text(
+                    pin,
+                    LABEL_FONT_SIZE,
+                    self.motor_x + 8,
+                    y + 4,
+                    font_family=FONT,
+                    fill=self.fg,
+                )
             )
 
     def _draw_supply(self, supply: Device) -> tuple[float, float, float]:
         geo, c = self.geo, self.canvas
-        top = geo.y(geo.rows - 1) + 62
-        left = geo.x["MGND"] - 104
+        top = geo.y(geo.rows - 1) + SUPPLY_TOP
+        left = geo.x["MGND"] - SUPPLY_LEFT_OF_MGND
         c.append(
             draw.Rectangle(
-                left, top, 230, 54, rx=4, fill="#F4F6F8", stroke="#5C6770", stroke_width=1.5
+                left,
+                top,
+                SUPPLY_WIDTH,
+                SUPPLY_HEIGHT,
+                rx=4,
+                fill="#F4F6F8",
+                stroke="#5C6770",
+                stroke_width=1.5,
             )
         )
         c.append(
             draw.Text(
                 supply.name,
-                13,
-                left + 115,
+                NAME_FONT_SIZE,
+                left + SUPPLY_WIDTH / 2,
                 top + 22,
                 text_anchor="middle",
                 font_family=FONT,
@@ -451,28 +557,18 @@ class BreadboardRenderer:
                 fill="#1A1A1A",
             )
         )
-        c.append(
-            draw.Text(
-                "-V  GND",
-                11,
-                geo.x["MGND"] - 44,
-                top + 42,
-                text_anchor="middle",
-                font_family=FONT,
-                fill="#1A1A1A",
+        for label, x in (("-V", geo.x["MGND"] - 44), ("+V", geo.x["+24V"] + 44)):
+            c.append(
+                draw.Text(
+                    label,
+                    LABEL_FONT_SIZE,
+                    x,
+                    top + 42,
+                    text_anchor="middle",
+                    font_family=FONT,
+                    fill="#1A1A1A",
+                )
             )
-        )
-        c.append(
-            draw.Text(
-                "+V  24 V",
-                11,
-                geo.x["+24V"] + 44,
-                top + 42,
-                text_anchor="middle",
-                font_family=FONT,
-                fill="#D31212",
-            )
-        )
         return top, geo.x["MGND"] - 44, geo.x["+24V"] + 44
 
     def _draw_capacitor(self, capacitor: Device, minus_rail: str, plus_rail: str, row: int) -> None:
@@ -527,74 +623,68 @@ class BreadboardRenderer:
                 fill="#FFFFFF",
             )
         )
-        label_x = max(xm, xp) + 16
+        trench = (geo.x["e"] + geo.x["f"]) / 2
+        on_left = max(xm, xp) < trench
+        label_x = geo.left - 8 if on_left else geo.right + 8
+        anchor = "end" if on_left else "start"
         c.append(
             draw.Text(
                 capacitor.name,
-                11,
+                NAME_FONT_SIZE,
                 label_x,
                 body_top + 18,
+                text_anchor=anchor,
                 font_family=FONT,
                 font_weight="bold",
-                fill="#1A1A1A",
+                fill=self.fg,
             )
         )
-        c.append(
-            draw.Text("stripe (-) on GND", 10, label_x, body_top + 32, font_family=FONT, fill=GRAY)
-        )
-        c.append(draw.Text("+ on +24 V", 10, label_x, body_top + 45, font_family=FONT, fill=GRAY))
+        for offset, note in ((32, f"stripe (-) on {minus_rail}"), (45, f"+ on {plus_rail}")):
+            c.append(
+                draw.Text(
+                    note,
+                    LABEL_FONT_SIZE,
+                    label_x,
+                    body_top + offset,
+                    text_anchor=anchor,
+                    font_family=FONT,
+                    fill=self.fg_secondary,
+                )
+            )
 
     # Wires -----------------------------------------------------------------
 
     def _wire(self, path: str, color: str) -> None:
-        # A white jumper sits on a white page, so it gets a thin dark edge
-        # instead of the usual white halo.
-        if _is_white(color):
+        # Same halo and core widths, opacities and halo colour rule as the schematic wires.
+        for stroke, width, opacity in (
+            (
+                get_halo_color(color),
+                RENDER_CONSTANTS.WIRE_MAIN_STROKE_WIDTH,
+                RENDER_CONSTANTS.WIRE_MAIN_OPACITY,
+            ),
+            (
+                color,
+                RENDER_CONSTANTS.WIRE_CORE_STROKE_WIDTH,
+                RENDER_CONSTANTS.WIRE_CORE_OPACITY,
+            ),
+        ):
             self.canvas.append(
                 draw.Path(
                     path,
-                    stroke="#1A1A1A",
-                    stroke_width=4.4,
+                    stroke=stroke,
+                    stroke_width=width,
+                    opacity=opacity,
                     fill="none",
                     stroke_linecap="round",
                     stroke_linejoin="round",
                 )
             )
-            self.canvas.append(
-                draw.Path(
-                    path,
-                    stroke="#FFFFFF",
-                    stroke_width=2.4,
-                    fill="none",
-                    stroke_linecap="round",
-                    stroke_linejoin="round",
-                )
-            )
-            return
-        self.canvas.append(
-            draw.Path(
-                path,
-                stroke="#FFFFFF",
-                stroke_width=6.5,
-                fill="none",
-                stroke_linecap="round",
-                stroke_linejoin="round",
-            )
-        )
-        self.canvas.append(
-            draw.Path(
-                path,
-                stroke=color,
-                stroke_width=2.8,
-                fill="none",
-                stroke_linecap="round",
-                stroke_linejoin="round",
-            )
-        )
 
     def _dot(self, x: float, y: float, color: str) -> None:
-        stroke = "#1A1A1A" if _is_white(color) else "#FFFFFF"
-        self.canvas.append(draw.Circle(x, y, 3.6, fill=color, stroke=stroke, stroke_width=1))
+        self.canvas.append(
+            draw.Circle(x, y, RENDER_CONSTANTS.PIN_MARKER_OUTER_RADIUS, fill=get_halo_color(color))
+        )
+        self.canvas.append(draw.Circle(x, y, RENDER_CONSTANTS.PIN_MARKER_INNER_RADIUS, fill=color))
 
     def _module_pin_xy(self, module: Device, pin: str) -> tuple[float, float, int]:
         column, offset = stepstick_seat(module, pin)
@@ -635,7 +725,7 @@ class BreadboardRenderer:
 
         for connection in self.diagram.connections:
             kind, source, source_pin, target, target_pin = self._classify(connection)
-            color = connection.color or "#1A1A1A"
+            color = self._wire_color(connection)
             if kind == "board":
                 px, py = self._header_xy(int(source_pin))
                 if _role(target) == "module":
@@ -671,7 +761,8 @@ class BreadboardRenderer:
                 ties.append((source_pin, target_pin, color))
             else:
                 raise ValueError(
-                    f"Breadboard layout cannot wire {source.name}.{source_pin} to {target.name}.{target_pin}"
+                    "Breadboard layout cannot wire "
+                    f"{source.name}.{source_pin} to {target.name}.{target_pin}"
                 )
 
         self._draw_feeds(feeds)
@@ -731,8 +822,10 @@ class BreadboardRenderer:
             apex = geo.y(0) - 20 - 18 * (count - 1 - index)
             lead, sx, sy = self._fan_start(px, py, apex)
             path = (
-                f"{lead} C {sx + 30:.1f} {sy:.1f}, {rail_x - 90:.1f} {apex:.1f}, {rail_x - 12:.1f} {apex:.1f} "
-                f"Q {rail_x:.1f} {apex:.1f} {rail_x:.1f} {apex + 12:.1f} L {rail_x:.1f} {geo.y(0):.1f}"
+                f"{lead} C {sx + 30:.1f} {sy:.1f}, "
+                f"{rail_x - 90:.1f} {apex:.1f}, {rail_x - 12:.1f} {apex:.1f} "
+                f"Q {rail_x:.1f} {apex:.1f} {rail_x:.1f} {apex + 12:.1f} "
+                f"L {rail_x:.1f} {geo.y(0):.1f}"
             )
             self._wire(path, color)
             self._dot(rail_x, geo.y(0), color)
@@ -746,10 +839,10 @@ class BreadboardRenderer:
         column before curving. ``over`` sends it above the right-column pin of its
         row, used when that pin belongs to the same bundle and takes the next lane.
         """
-        if px < self.header_right - 4:
-            step = 14.0
+        if px < self.header_right - self.pin_pitch / 4:
+            step = self.pin_pitch / 2
             dy = -step if over or toward_y < py else step if toward_y > py else 0.0
-            clear_x = self.header_right + 12
+            clear_x = self.header_right + step
             path = (
                 f"M {px:.1f} {py:.1f} L {px + step:.1f} {py + dy:.1f} L {clear_x:.1f} {py + dy:.1f}"
             )
@@ -788,8 +881,11 @@ class BreadboardRenderer:
             shares_row = any(abs(other[2] - py) < 1 and other[1] > px for other in wires)
             lead, sx, sy = self._fan_start(px, py, lane, over=shares_row)
             head = (
-                f"{lead} C {sx + 18:.1f} {sy:.1f}, {self.x_fan - 30:.1f} {lane:.1f}, {self.x_fan:.1f} {lane:.1f} "
-                f"C {self.x_fan + k:.1f} {lane:.1f}, {self.x_ribbon_end - k:.1f} {land:.1f}, {self.x_ribbon_end:.1f} {land:.1f}"
+                f"{lead} C {sx + 18:.1f} {sy:.1f}, "
+                f"{self.x_fan - 30:.1f} {lane:.1f}, {self.x_fan:.1f} {lane:.1f} "
+                f"C {self.x_fan + k:.1f} {lane:.1f}, "
+                f"{self.x_ribbon_end - k:.1f} {land:.1f}, "
+                f"{self.x_ribbon_end:.1f} {land:.1f}"
             )
             pin = connection.device_pin_name or ""
             if pin == "IOGND":
@@ -815,14 +911,14 @@ class BreadboardRenderer:
         _x, y, _row = self._module_pin_xy(module, pin)
         if pin in ("MS1", "MS2"):
             if rail != "+3V3":
-                raise ValueError(f"{module.name}.{pin} should tie to the 3.3 V rail")
+                raise ValueError(f"{module.name}.{pin} should tie to the +3V3 rail")
             points = [(geo.x["+3V3"], y), (geo.x["a"], y)]
             end = points[-1]
         elif pin == "VDD":
             if rail != "+3V3":
-                raise ValueError(f"{module.name}.VDD should tie to the 3.3 V rail")
+                raise ValueError(f"{module.name}.VDD should tie to the +3V3 rail")
             # VDD is the second pin from the bottom on the right. The lane runs
-            # under the module from the 3.3 V rail and climbs between holes g
+            # under the module from the 3V3 rail and climbs between holes g
             # and h, clear of the GND stub leaving column j on the bottom row.
             lane_y = geo.y(top + 7) + 1.5 * p
             lane_x = geo.x["g"] + 0.5 * p
@@ -862,76 +958,17 @@ class BreadboardRenderer:
         self._dot(*points[0], color)
         self._dot(*points[-1], color)
 
-    # Labels ----------------------------------------------------------------
+    # Colors ----------------------------------------------------------------
 
-    def _pin_text(self, connection: Connection) -> str:
-        target = self.devices[connection.device_name or ""]
-        pin = connection.device_pin_name or ""
-        if _role(target) == "rail":
-            return {"GND": "GND bond", "+3V3": "3V3"}.get(pin, pin)
-        short = target.name.split()[-1]
-        return f"{ {'IOGND': 'GND'}.get(pin, pin) } {short}".strip()
-
-    def _draw_header_labels(self) -> None:
-        labels: dict[int, str] = {}
-        colors: dict[int, str] = {}
-        for connection in self.diagram.connections:
-            if connection.board_pin:
-                labels[connection.board_pin] = (
-                    f"{connection.board_pin} {self._pin_text(connection)}"
-                )
-                colors[connection.board_pin] = connection.color or "#1A1A1A"
-        for pin in (2, 4):
-            if pin not in labels:
-                labels[pin] = f"{pin} 5V open"
-                colors[pin] = GRAY
-        rows: dict[int, list[int]] = {}
-        for pin in sorted(labels):
-            rows.setdefault((pin - 1) // 2, []).append(pin)
-        edge = self.header_left - 14
-        for pins in rows.values():
-            x = edge
-            for pin in sorted(pins, reverse=True):
-                _px, py = self._header_xy(pin)
-                self.canvas.append(
-                    draw.Text(
-                        labels[pin],
-                        11.5,
-                        x,
-                        py + 4,
-                        text_anchor="end",
-                        font_family=FONT,
-                        font_weight="bold",
-                        fill=colors[pin],
-                        stroke="#1A1A1A" if _is_white(colors[pin]) else "#FFFFFF",
-                        stroke_width=3.5,
-                        paint_order="stroke",
-                    )
-                )
-                x -= len(labels[pin]) * LABEL_CHAR_WIDTH + 14
-
-    def _draw_key(self, height: float) -> None:
-        items = (
-            ("#E2B000", "STEP"),
-            ("#FFFFFF", "DIR"),
-            ("#7C3AED", "EN"),
-            ("#1A1A1A", "GND"),
-            ("#F08C00", "3.3 V"),
-            ("#D31212", "+24 V"),
-        )
-        x, y = 24.0, height - 30
-        for color, name in items:
-            if _is_white(color):
-                self.canvas.append(
-                    draw.Line(
-                        x, y, x + 22, y, stroke="#1A1A1A", stroke_width=6, stroke_linecap="round"
-                    )
-                )
-            self.canvas.append(
-                draw.Line(x, y, x + 22, y, stroke=color, stroke_width=4, stroke_linecap="round")
-            )
-            self.canvas.append(draw.Text(name, 12, x + 28, y + 4, font_family=FONT, fill="#1A1A1A"))
-            x += 40 + len(name) * 8
+    def _wire_color(self, connection: Connection) -> str:
+        if connection.color:
+            return connection.color
+        if connection.board_pin:
+            pin = self.diagram.board.get_pin_by_number(connection.board_pin)
+        else:
+            source = self.devices[connection.source_device or ""]
+            pin = source.get_pin_by_name(connection.source_pin or "")
+        return DEFAULT_COLORS.get(pin.role, "#808080") if pin else "#808080"
 
 
 def module_row_offset(device: Device, pin_name: str) -> int:

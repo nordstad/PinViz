@@ -1,13 +1,13 @@
 {
   "id": "psu_24v",
-  "name": "24 V supply",
+  "name": "24V supply",
   "category": "power",
   "description": "Two-terminal motor supply, such as a Mean Well LRS-75-24.",
   "datasheet_url": "https://www.meanwell.com/Upload/PDF/LRS-75/LRS-75-SPEC.PDF",
   "pins": [
     {
       "name": "+V",
-      "role": "5V",
+      "role": "EXT_POWER",
       "side": "right"
     },
     {
@@ -16,5 +16,5 @@
       "side": "right"
     }
   ],
-  "notes": "Motor power only. PinViz has no 24 V pin role, so +V uses the 5V role and diagrams should label the wire 24 V. Do not feed this into a Pi 5 V pin."
+  "notes": "Motor power only. +V uses the EXT_POWER role, which validation refuses to connect to a board 3V3/5V pin. Do not feed this into a Pi power pin."
 }

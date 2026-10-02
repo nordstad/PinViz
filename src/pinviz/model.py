@@ -24,6 +24,7 @@ class PinRole(StrEnum):
     Attributes:
         POWER_3V3: 3.3V power supply pin
         POWER_5V: 5V power supply pin
+        POWER_EXT: External supply (e.g. 12/24 V motor power), never a board power pin
         GROUND: Ground (GND) pin
         GPIO: General Purpose Input/Output pin
         I2C_SDA: I2C Serial Data line
@@ -45,6 +46,7 @@ class PinRole(StrEnum):
 
     POWER_3V3 = "3V3"
     POWER_5V = "5V"
+    POWER_EXT = "EXT_POWER"
     GROUND = "GND"
     GPIO = "GPIO"
     I2C_SDA = "I2C_SDA"
@@ -132,6 +134,7 @@ Color assignments:
 DEFAULT_COLORS: dict[PinRole, str] = {
     PinRole.POWER_3V3: "#FF8C00",  # Orange
     PinRole.POWER_5V: "#FF0000",  # Red
+    PinRole.POWER_EXT: "#8B0000",  # Dark red
     PinRole.GROUND: "#000000",  # Black
     PinRole.I2C_SDA: "#00FF00",  # Green
     PinRole.I2C_SCL: "#0000FF",  # Blue
@@ -306,6 +309,21 @@ class DevicePin:
     position: Point = field(default_factory=lambda: Point(0, 0))  # Position relative to device
 
 
+class LayoutMode(StrEnum):
+    """How a diagram is drawn."""
+
+    SCHEMATIC = "schematic"
+    BREADBOARD = "breadboard"
+
+
+@dataclass(frozen=True)
+class BreadboardPlacement:
+    """Where a device sits in the breadboard layout; ``None`` fields are inferred."""
+
+    role: str | None = None
+    row: int | None = None
+
+
 @dataclass
 class Device:
     """
@@ -342,7 +360,7 @@ class Device:
     url: str | None = None
     category: str | None = None
     i2c_address: int | None = None
-    placement: dict | None = None  # Breadboard seat, set from YAML ``breadboard``
+    placement: BreadboardPlacement | None = None  # Only used by the breadboard layout
 
     def get_pin_by_name(self, name: str) -> DevicePin | None:
         """
@@ -710,4 +728,4 @@ class Diagram:
     theme: Theme = Theme.LIGHT
     canvas_width: float = 800.0
     canvas_height: float = 600.0
-    layout_mode: str = "schematic"
+    layout_mode: LayoutMode = LayoutMode.SCHEMATIC

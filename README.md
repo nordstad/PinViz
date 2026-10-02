@@ -33,6 +33,7 @@ PinViz makes it easy to create clear, professional wiring diagrams for your micr
 - 🐍 **Python API**: Create diagrams programmatically with Python code
 - 🤖 **MCP Server**: Generate diagrams from natural language with AI assistants
 - 🌙 **Dark Mode**: Built-in light and dark themes for better visibility
+- 🍞 **Breadboard Layout** (experimental): Draw a TMC2209 stepper driver on a solderless breadboard next to the Pi
 - 📦 **SVG Output**: Scalable, high-quality vector graphics
 - ✨ **Modern CLI**: Rich terminal output with progress indicators and colored messages
 - 🔧 **JSON Output**: Machine-readable output for CI/CD integration

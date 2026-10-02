@@ -136,6 +136,7 @@ connections:
     color: "#FF0000"  # Optional
     style: "mixed"  # Optional: orthogonal, curved, mixed
 show_legend: false  # default is false
+layout: schematic  # or "breadboard" (experimental, see docs/features/breadboard-layout.md)
 ```
 
 ### Python API
@@ -274,7 +275,7 @@ For step-by-step instructions, see the `guides/` directory:
 
 **Supported boards:** `raspberry_pi_5`, `raspberry_pi_4`, `raspberry_pi_pico`, `rpi5`, `rpi4`, `pico`, `rpi`
 
-**Pin roles:** `GPIO`, `3V3`, `5V`, `GND`, `I2C_SDA`, `I2C_SCL`, `SPI_MOSI`, `SPI_MISO`, `SPI_SCLK`, `SPI_CE0`, `SPI_CE1`, `UART_TX`, `UART_RX`, `PWM`
+**Pin roles:** `GPIO`, `3V3`, `5V`, `GND`, `I2C_SDA`, `I2C_SCL`, `SPI_MOSI`, `SPI_MISO`, `SPI_SCLK`, `SPI_CE0`, `SPI_CE1`, `UART_TX`, `UART_RX`, `PWM`, `EXT_POWER` (external/motor supply, never wired to a board power pin)
 
 **Wire styles:** `orthogonal` (default), `curved`, `mixed`
 

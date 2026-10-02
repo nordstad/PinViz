@@ -1,9 +1,10 @@
 # Pictorial breadboard: one TMC2209, STEP on physical pin 36 (BCM 16).
-# Pins 2 and 4 stay open. MS1 and MS2 both tie to the 3.3 V rail (1/16).
+# Pins 2 and 4 stay open. MS1 and MS2 both tie to the 3.3V rail (1/16).
 title: "TMC2209 on a breadboard"
 board: raspberry_pi_4
 layout: breadboard
 show_board_name: false
+show_legend: true
 devices:
   - type: breadboard_rail
     name: Rails

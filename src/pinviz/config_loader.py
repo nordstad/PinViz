@@ -16,10 +16,12 @@ from .diagram_builder import DiagramBuilder, DiagramOptions
 from .errors import format_config_error
 from .logging_config import get_logger
 from .model import (
+    BreadboardPlacement,
     Connection,
     Device,
     DevicePin,
     Diagram,
+    LayoutMode,
     PinRole,
     Point,
 )
@@ -259,6 +261,7 @@ class ConfigLoader:
             show_title=validated_config.show_title,
             show_board_name=validated_config.show_board_name,
             theme=theme,
+            layout=LayoutMode(validated_config.layout),
         )
         diagram = (
             DiagramBuilder(self._board_selection_strategy)
@@ -269,7 +272,6 @@ class ConfigLoader:
             .with_options(options)
             .build()
         )
-        diagram.layout_mode = validated_config.layout
 
         # Run electrical safety validation (voltage, pin compatibility, etc.)
         electrical_issues = DiagramValidator().validate(diagram)
@@ -402,8 +404,7 @@ class ConfigLoader:
                     device.description = config["description"]
 
                 if "breadboard" in config:
-                    seat = config["breadboard"]
-                    device.placement = seat if isinstance(seat, dict) else dict(seat)
+                    device.placement = self._placement(config)
 
                 return device
             else:
@@ -553,7 +554,15 @@ class ConfigLoader:
             height=height,
             color=resolve_color(config.get("color"), DEVICE_LAYOUT.DEFAULT_DEVICE_COLOR),
             description=config.get("description"),
+            placement=self._placement(config),
         )
+
+    @staticmethod
+    def _placement(config: dict[str, Any]) -> BreadboardPlacement | None:
+        seat = config.get("breadboard")
+        if seat is None:
+            return None
+        return BreadboardPlacement(role=seat.get("role"), row=seat.get("row"))
 
     def _validate_graph(
         self,

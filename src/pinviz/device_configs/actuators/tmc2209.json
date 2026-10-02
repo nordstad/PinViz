@@ -47,7 +47,7 @@
     },
     {
       "name": "VM",
-      "role": "5V",
+      "role": "EXT_POWER",
       "side": "right"
     },
     {
@@ -86,5 +86,5 @@
       "side": "right"
     }
   ],
-  "notes": "Breadboard footprint is a 2x8 header, 0.1 inch along the length and 0.6 inch between the two rows, so it straddles a solderless breadboard from row b to row f. Pin names must be unique, so the two PDN pins are PDN (header pin 4, the factory UART pin) and PDN_ALT (pin 5), and the two GND pins are VMGND (beside VM) and IOGND (beside VDD). The breadboard renderer prints PDN and GND for all four, which is what the BIGTREETECH pinout card shows. The board silkscreen prints 2B, 2A, 1A, 1B, and VIO for the pins the card calls A2, A1, B1, B2, and VDD. MS1 and MS2 both at VDD is 1/16. VM is the motor supply (the 5V role is the nearest PinViz power role; label it 24 V in the diagram)."
+  "notes": "Breadboard footprint is a 2x8 header, 0.1 inch along the length and 0.6 inch between the two rows, so it straddles a solderless breadboard from row b to row f. Pin names must be unique, so the two PDN pins are PDN (header pin 4, the factory UART pin) and PDN_ALT (pin 5), and the two GND pins are VMGND (beside VM) and IOGND (beside VDD). The breadboard renderer prints PDN and GND for all four, which is what the BIGTREETECH pinout card shows. The board silkscreen prints 2B, 2A, 1A, 1B, and VIO for the pins the card calls A2, A1, B1, B2, and VDD. MS1 and MS2 both at VDD is 1/16. VM is the motor supply (EXT_POWER role, e.g. 24V); never connect it to a board pin."
 }

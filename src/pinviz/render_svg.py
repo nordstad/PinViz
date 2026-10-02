@@ -10,7 +10,7 @@ from .component_renderer import ComponentRenderer
 from .constants import TABLE_LAYOUT
 from .layout import LayoutConfig, LayoutEngine
 from .logging_config import get_logger
-from .model import Board, Diagram, PinRole
+from .model import Board, Device, Diagram, LayoutMode, PinRole
 from .render_constants import RENDER_CONSTANTS, _parse_font_size, _parse_numeric_value
 from .theme import get_color_scheme
 from .wire_renderer import WireRenderer
@@ -112,7 +112,8 @@ class SVGRenderer:
             connection_count=len(diagram.connections),
         )
 
-        if diagram.layout_mode == "breadboard":
+        if diagram.layout_mode == LayoutMode.BREADBOARD:
+            # Lazy: breadboard.py imports this module for inline_svg_elements.
             from .breadboard import BreadboardRenderer
 
             BreadboardRenderer().render(diagram, output_path)
@@ -179,7 +180,7 @@ class SVGRenderer:
         # Draw GPIO pin numbers on the header
         x = self.layout_config.board_margin_left
         y = board_margin_top
-        self._draw_gpio_pin_numbers(dwg, diagram.board, x, y, color_scheme)
+        self.draw_gpio_pin_numbers(dwg, diagram.board, x, y, color_scheme)
 
         # Draw wires first so they appear behind devices
         # Sort wires for proper z-order to prevent overlapping/hiding
@@ -265,7 +266,11 @@ class SVGRenderer:
 
         # LEGACY: Fall back to SVG asset embedding
         elif Path(board.svg_asset_path).exists():
-            log.debug("using_legacy_svg_asset", board_name=board.name, path=board.svg_asset_path)
+            log.debug(
+                "using_legacy_svg_asset",
+                board_name=board.name,
+                path=board.svg_asset_path,
+            )
             try:
                 # Parse the SVG file
                 tree = ET.parse(board.svg_asset_path)
@@ -279,7 +284,7 @@ class SVGRenderer:
                     board_group = draw.Group(transform=f"translate({x}, {y})")
 
                 # Inline the SVG content by parsing and recreating elements
-                self._inline_svg_elements(board_group, root, dwg, show_board_name)
+                self.inline_svg_elements(board_group, root, dwg, show_board_name)
 
                 dwg.append(board_group)
 
@@ -356,7 +361,7 @@ class SVGRenderer:
                 )
             )
 
-    def _draw_gpio_pin_numbers(
+    def draw_gpio_pin_numbers(
         self, dwg: draw.Drawing, board: Board, x: float, y: float, color_scheme
     ) -> None:
         """
@@ -377,6 +382,7 @@ class SVGRenderer:
         role_colors = {
             PinRole.POWER_3V3: "#FFA500",  # Orange
             PinRole.POWER_5V: "#FF0000",  # Red
+            PinRole.POWER_EXT: "#8B0000",  # Dark red
             PinRole.GROUND: "#D3D3D3",  # Light gray
             PinRole.I2C_SDA: "#FF00FF",  # Magenta
             PinRole.I2C_SCL: "#FF00FF",  # Magenta
@@ -452,7 +458,7 @@ class SVGRenderer:
                 )
             )
 
-    def _inline_svg_elements(
+    def inline_svg_elements(
         self, parent_group, svg_root, dwg: draw.Drawing, show_board_name: bool = True
     ) -> None:
         """
@@ -513,7 +519,12 @@ class SVGRenderer:
                 self._add_svg_element(parent_group, child, dwg, svg_ns, show_board_name)
 
     def _add_svg_element(
-        self, parent, element, dwg: draw.Drawing, svg_ns: str, show_board_name: bool = True
+        self,
+        parent,
+        element,
+        dwg: draw.Drawing,
+        svg_ns: str,
+        show_board_name: bool = True,
     ) -> None:
         """Add a single SVG element to parent."""
         tag = element.tag.replace(svg_ns, "") if svg_ns in element.tag else element.tag
@@ -728,10 +739,21 @@ class SVGRenderer:
         max_device_x = max(d.position.x + d.width for d in diagram.devices)
         table_width = max_device_x - table_x
 
-        # Table styling parameters
+        self.draw_specs_table(dwg, devices_with_specs, table_x, table_y, table_width, color_scheme)
+
+    def specs_table_height(self, devices_with_specs: list[Device], table_width: float) -> float:
+        """Height of the specifications table for these devices at this width."""
+        _name_width, _desc_width, row_heights = self._specs_table_metrics(
+            devices_with_specs, table_width
+        )
+        return TABLE_LAYOUT.HEADER_HEIGHT + sum(row_heights)
+
+    def _specs_table_metrics(
+        self, devices_with_specs: list[Device], table_width: float
+    ) -> tuple[float, float, list[float]]:
+        """Return (name column width, description max width, row heights)."""
         base_row_height = TABLE_LAYOUT.BASE_ROW_HEIGHT
         line_spacing = TABLE_LAYOUT.LINE_SPACING
-        header_height = TABLE_LAYOUT.HEADER_HEIGHT
         padding_left = TABLE_LAYOUT.PADDING_LEFT
         padding_right = TABLE_LAYOUT.PADDING_RIGHT
 
@@ -740,8 +762,6 @@ class SVGRenderer:
         max_name_px = max(len(d.name) * char_width for d in devices_with_specs) + padding_left
         name_column_width = min(max_name_px, table_width * 0.4)
 
-        desc_column_start = table_x + padding_left + name_column_width
-
         # Pre-calculate row heights for multi-line descriptions
         desc_max_width = table_width - name_column_width - padding_left - padding_right
         row_heights = []
@@ -749,10 +769,26 @@ class SVGRenderer:
             desc_lines = self._wrap_text(device.description, desc_max_width, 9)
             # Row height = base height + extra space for additional lines
             extra_lines = max(0, len(desc_lines) - 1)
-            row_height = base_row_height + (extra_lines * line_spacing)
-            row_heights.append(row_height)
+            row_heights.append(base_row_height + (extra_lines * line_spacing))
+        return name_column_width, desc_max_width, row_heights
 
-        # Calculate total table height
+    def draw_specs_table(
+        self,
+        dwg: draw.Drawing,
+        devices_with_specs: list[Device],
+        table_x: float,
+        table_y: float,
+        table_width: float,
+        color_scheme,
+    ) -> None:
+        """Draw the "Device Specifications" table at a given position and width."""
+        line_spacing = TABLE_LAYOUT.LINE_SPACING
+        header_height = TABLE_LAYOUT.HEADER_HEIGHT
+        padding_left = TABLE_LAYOUT.PADDING_LEFT
+        name_column_width, desc_max_width, row_heights = self._specs_table_metrics(
+            devices_with_specs, table_width
+        )
+        desc_column_start = table_x + padding_left + name_column_width
         total_table_height = header_height + sum(row_heights)
 
         # Draw table background
