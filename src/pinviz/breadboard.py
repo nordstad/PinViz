@@ -324,11 +324,7 @@ class BreadboardRenderer:
             )
 
     def _draw_pi(self) -> None:
-        asset = self.diagram.board.svg_asset_path
-        if not asset or not Path(asset).exists():
-            raise ValueError(
-                f"Board {self.diagram.board.name} has no SVG asset for a pictorial layout"
-            )
+        asset = self.diagram.board.svg_asset_path  # existence checked by check_board
         root = ET.parse(asset).getroot()
         group = draw.Group(transform=f"translate({PI_ORIGIN[0]}, {PI_ORIGIN[1]}) scale({PI_SCALE})")
         SVGRenderer().inline_svg_elements(group, root, self.canvas, show_board_name=False)
@@ -814,6 +810,10 @@ class BreadboardRenderer:
                     pair["rail"][1]
                 )
             elif _role(source) == "rail" and _role(target) == "rail":
+                if {source_pin, target_pin} != {"GND", "MGND"}:
+                    raise ValueError(
+                        f"Rail tie must join GND and MGND, not {sorted({source_pin, target_pin})}"
+                    )
                 ties.append((source_pin, target_pin, color))
             else:
                 raise ValueError(
@@ -857,7 +857,7 @@ class BreadboardRenderer:
             rail == "MGND" for *_rest, rail, _color in supply_feeds
         )
         if ties or uses_motor_ground:
-            self._draw_tie("GND", "MGND", "#1A1A1A")
+            self._draw_tie("#1A1A1A")
         for name, legs in capacitor_legs.items():
             minus_rail = legs.get("-")
             plus_rail = legs.get("+")
@@ -998,11 +998,8 @@ class BreadboardRenderer:
         self._dot(end[0], end[1], color)
         self._dot(points[-1][0], points[-1][1], color)
 
-    def _draw_tie(self, source_pin: str, target_pin: str, color: str) -> None:
+    def _draw_tie(self, color: str) -> None:
         geo, p = self.geo, self.geo.pitch
-        pins = {source_pin, target_pin}
-        if pins != {"GND", "MGND"}:
-            raise ValueError(f"Rail tie must join GND and MGND, not {sorted(pins)}")
         bottom = geo.y(geo.rows - 1)
         riser = geo.x["MGND"] - 0.55 * p
         points = [

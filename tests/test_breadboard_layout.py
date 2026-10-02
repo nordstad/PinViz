@@ -11,12 +11,13 @@ from pinviz.breadboard import (
     STEPSTICK_LEFT,
     STEPSTICK_RIGHT,
     BreadboardRenderer,
+    _rounded,
     module_row_offset,
     stepstick_seat,
 )
 from pinviz.config_loader import ConfigLoader
 from pinviz.devices import get_registry
-from pinviz.model import Device, LayoutMode
+from pinviz.model import Connection, Device, LayoutMode
 from pinviz.render_svg import SVGRenderer
 
 ONE_DRIVER = """
@@ -329,3 +330,111 @@ def test_logic_gnd_must_use_the_right_hand_rail(tmp_path):
     to: {device: D1, device_pin: IOGND}
     color: "#1A1A1A\"""",
         )
+
+
+def _link(source, source_pin, target, target_pin):
+    return (
+        f'  - {{from: {{device: {source}, device_pin: "{source_pin}"}}, '
+        f'to: {{device: {target}, device_pin: "{target_pin}"}}}}'
+    )
+
+
+def _extra(tmp_path, devices="", connections=""):
+    return _render(tmp_path, extra_devices=devices, extra_connections=connections)
+
+
+def test_a_wire_needs_two_points():
+    with pytest.raises(ValueError, match="two points"):
+        _rounded([(0.0, 0.0)])
+
+
+def _tie(tmp_path, source_pin, target_pin):
+    # Config validation rejects a rail wired to itself, so build the connection directly.
+    diagram, _text = _render(tmp_path)
+    diagram.connections.append(
+        Connection(
+            source_device="Rails",
+            source_pin=source_pin,
+            device_name="Rails",
+            device_pin_name=target_pin,
+        )
+    )
+    output = tmp_path / "tie.svg"
+    BreadboardRenderer().render(diagram, output)
+    return output.read_text(encoding="utf-8")
+
+
+def test_rail_tie_joins_gnd_and_mgnd(tmp_path):
+    assert "<svg" in _tie(tmp_path, "GND", "MGND")
+
+
+def test_rail_tie_must_join_gnd_and_mgnd(tmp_path):
+    with pytest.raises(ValueError, match="Rail tie must join"):
+        _tie(tmp_path, "+3V3", "+24V")
+
+
+def test_unsupported_part_pairing_is_rejected(tmp_path):
+    with pytest.raises(ValueError, match="cannot wire Rails"):
+        _extra(
+            tmp_path,
+            devices="  - {type: nema17, name: M1}",
+            connections=_link("Rails", "+3V3", "M1", "A1"),
+        )
+
+
+def test_header_pin_must_land_on_a_left_rail(tmp_path):
+    with pytest.raises(ValueError, match="left rails"):
+        _extra(tmp_path, connections='  - {board_pin: 2, device: Rails, device_pin: "+24V"}')
+
+
+@pytest.mark.parametrize(
+    ("pin", "rail", "message"),
+    [
+        ("MS2", "GND", "MS2 should tie to the \\+3V3 rail"),
+        ("VDD", "GND", "VDD should tie to the \\+3V3 rail"),
+        ("VM", "+3V3", "VM should tie to the \\+24V rail"),
+        ("CLK", "+3V3", "no rail stub for D1.CLK"),
+    ],
+)
+def test_module_stub_must_use_the_right_rail(tmp_path, pin, rail, message):
+    with pytest.raises(ValueError, match=message):
+        _extra(
+            tmp_path,
+            connections=_link("Rails", rail, "D1", pin),
+        )
+
+
+def test_capacitor_legs_cannot_share_a_rail(tmp_path):
+    with pytest.raises(ValueError, match="both legs on"):
+        _extra(
+            tmp_path,
+            devices="  - {type: electrolytic, name: C1, breadboard: {role: capacitor}}",
+            connections=_link("C1", "+", "Rails", "+24V")
+            + "\n"
+            + _link("C1", "-", "Rails", "+24V"),
+        )
+
+
+def test_non_stepstick_cannot_be_a_module(tmp_path):
+    with pytest.raises(ValueError, match="can only seat"):
+        _extra(
+            tmp_path,
+            devices="  - {type: bh1750, name: L, breadboard: {role: module}}",
+            connections="  - {board_pin: 1, device: L, device_pin: VCC}",
+        )
+
+
+def test_supply_with_one_terminal_leaves_the_other_blank(tmp_path):
+    lines = [line for line in FULL_BUILD.splitlines() if "PSU" not in line or '"-V"' not in line]
+    _diagram, text = _render_yaml(tmp_path, "\n".join(lines))
+    assert ">+V 24V</text>" in text
+    assert ">-V GND</text>" not in text
+
+
+def test_header_pin_without_a_position_is_rejected(tmp_path):
+    diagram, _text = _render(tmp_path)
+    for pin in diagram.board.pins:
+        if pin.number == 36:
+            pin.position = None
+    with pytest.raises(ValueError, match="Board pin 36 has no position"):
+        BreadboardRenderer().render(diagram, tmp_path / "out.svg")
