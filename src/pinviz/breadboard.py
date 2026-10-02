@@ -97,6 +97,9 @@ FONT = "Arial, sans-serif"
 # Same sizes as the schematic: device names and headings 12, labels and table text 9.
 NAME_FONT_SIZE = float(RENDER_CONSTANTS.LEGEND_TITLE_FONT_SIZE.removesuffix("px"))
 LABEL_FONT_SIZE = 9.0
+LABEL_CHAR_WIDTH = 5.2  # average advance of the 9 px label font
+LABEL_PADDING = 4.0
+LABEL_HEIGHT = 12.0
 
 
 @dataclass
@@ -285,6 +288,7 @@ class BreadboardRenderer:
         for module in self.modules:
             self._draw_module(module)
         self._draw_wires()
+        self._draw_pin_labels(scheme)
         self._draw_pin_numbers(scheme)
         if specs_table:
             self.svg.draw_specs_table(canvas, *specs_table, scheme)
@@ -334,6 +338,51 @@ class BreadboardRenderer:
         group = draw.Group(transform=f"translate({PI_ORIGIN[0]}, {PI_ORIGIN[1]}) scale({PI_SCALE})")
         self.svg.draw_gpio_pin_numbers(group, self.diagram.board, 0, 0, scheme)
         self.canvas.append(group)
+
+    def _pin_text(self, connection: Connection) -> str:
+        target = self.devices[connection.device_name or ""]
+        pin = connection.device_pin_name or ""
+        if _role(target) == "rail":
+            return pin
+        return f"{STEPSTICK_LABELS.get(pin, pin)} {target.name.split()[-1]}"
+
+    def _draw_pin_labels(self, scheme) -> None:
+        """Tag each wired header pin with its net, in the schematic's pin-label style.
+
+        The label sits against its own pin: left of the left column, right of the
+        right column, so wires leave from under the tag.
+        """
+        radius = RENDER_CONSTANTS.PIN_RADIUS * PI_SCALE
+        for connection in self.diagram.connections:
+            if not connection.board_pin:
+                continue
+            text = self._pin_text(connection)
+            px, py = self._header_xy(connection.board_pin)
+            width = len(text) * LABEL_CHAR_WIDTH + 2 * LABEL_PADDING
+            on_right = px >= self.header_right - self.pin_pitch / 4
+            x = px + radius + 2 if on_right else px - radius - 2 - width
+            self.canvas.append(
+                draw.Rectangle(
+                    x,
+                    py - LABEL_HEIGHT / 2,
+                    width,
+                    LABEL_HEIGHT,
+                    rx=2,
+                    ry=2,
+                    fill=scheme.pin_label_background,
+                    opacity=0.8,
+                )
+            )
+            self.canvas.append(
+                draw.Text(
+                    text,
+                    LABEL_FONT_SIZE,
+                    x + LABEL_PADDING,
+                    py + LABEL_FONT_SIZE * 0.35,
+                    font_family=FONT,
+                    fill=scheme.pin_label_text,
+                )
+            )
 
     def _header_xy(self, pin_number: int) -> tuple[float, float]:
         pin = next((item for item in self.diagram.board.pins if item.number == pin_number), None)
@@ -529,7 +578,7 @@ class BreadboardRenderer:
                 )
             )
 
-    def _draw_supply(self, supply: Device) -> tuple[float, float, float]:
+    def _draw_supply(self, supply: Device, rails: dict[str, str]) -> tuple[float, float, float]:
         geo, c = self.geo, self.canvas
         top = geo.y(geo.rows - 1) + SUPPLY_TOP
         left = geo.x["MGND"] - SUPPLY_LEFT_OF_MGND
@@ -557,10 +606,17 @@ class BreadboardRenderer:
                 fill="#1A1A1A",
             )
         )
-        for label, x in (("-V", geo.x["MGND"] - 44), ("+V", geo.x["+24V"] + 44)):
+        for pin, x in (("-V", geo.x["MGND"] - 44), ("+V", geo.x["+24V"] + 44)):
+            rail = rails.get(pin)
+            if rail is None:
+                value = ""
+            elif RAIL_ROLES[rail] == PinRole.GROUND:
+                value = "GND"
+            else:
+                value = rail.lstrip("+")
             c.append(
                 draw.Text(
-                    label,
+                    f"{pin} {value}".strip(),
                     LABEL_FONT_SIZE,
                     x,
                     top + 42,
@@ -778,7 +834,9 @@ class BreadboardRenderer:
                 self._dot(x, y, color)
         supply_top = None
         if supply_feeds:
-            supply_top, minus_x, plus_x = self._draw_supply(supply_feeds[0][0])
+            supply_top, minus_x, plus_x = self._draw_supply(
+                supply_feeds[0][0], {pin: rail for _s, pin, rail, _c in supply_feeds}
+            )
             bottom = geo.y(geo.rows - 1)
             for _supply, pin, rail, color in supply_feeds:
                 start_x = minus_x if pin.startswith("-") else plus_x

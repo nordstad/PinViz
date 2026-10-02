@@ -96,6 +96,7 @@ def test_breadboard_yaml_renders(tmp_path):
     assert diagram.layout_mode == LayoutMode.BREADBOARD
     assert "D1" in text
     assert ">36</text>" in text  # header pin numbers are drawn like the schematic
+    assert ">STEP D1</text>" in text  # the tag next to header pin 36
     assert "5V open" not in text
 
 
@@ -191,6 +192,8 @@ def test_full_build_renders_motor_supply_and_ground_tie(tmp_path):
     _diagram, text = _render_yaml(tmp_path, FULL_BUILD)
     assert "M1" in text
     assert "PSU" in text
+    assert ">-V GND</text>" in text
+    assert ">+V 24V</text>" in text
     assert "stripe (-) on MGND" in text
 
 

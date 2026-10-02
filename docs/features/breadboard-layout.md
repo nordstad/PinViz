@@ -62,6 +62,7 @@ pin names; `supply` expects pins `+V`/`-V` and `capacitor` expects `+`/`-`:
 - Modules stack top to bottom in YAML order. List them in header order to keep wire ribbons from crossing.
 - `theme` and `show_legend` are honored. `show_legend` draws the same "Device Specifications" table as the schematic layout.
 - The title, header pin-number circles, wire styling and font sizes match the schematic layout. Labels use pin names as written in the device configs (`+3V3`, `MGND`, `+24V`).
+- Each header pin that carries a wire gets a small tag with its net (`STEP m2`, `GND`, `+3V3`), in the schematic's pin-label style, next to its own pin. The supply box shows the rail each terminal feeds (`-V GND`, `+V 24V`).
 - A wire without `color` takes the default color for its pin role.
 - Logic ground and motor ground rails are tied at the bottom of the board when motor ground is used.
 
