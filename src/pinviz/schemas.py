@@ -21,7 +21,7 @@ Examples:
     My Diagram
 """
 
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from pydantic import (
     BaseModel,
@@ -114,6 +114,11 @@ VALID_DEVICE_TYPES = {
     "tsl2561",
     "uln2003",
     "vl53l0x",
+    "tmc2209",
+    "nema17",
+    "psu_24v",
+    "electrolytic",
+    "breadboard_rail",
 }
 
 # Valid pin roles
@@ -135,6 +140,7 @@ VALID_PIN_ROLES = {
     "PCM_DOUT",
     "3V3",
     "5V",
+    "EXT_POWER",
     "GND",
 }
 
@@ -199,6 +205,22 @@ class DevicePinSchema(BaseModel):
         return v
 
 
+class BreadboardPlacementSchema(BaseModel):
+    """Where a device sits when ``layout`` is ``breadboard``.
+
+    ``row`` is the 0-based breadboard row of the module's first pin. When it
+    is omitted, modules stack top to bottom in YAML order.
+    ``role`` selects the pictorial: a plug-in module, a motor beside the
+    board, the supply, the capacitor, or the power rails themselves. When it
+    is omitted it is inferred from the device type.
+    """
+
+    row: Annotated[int, Field(ge=0, le=62)] | None = None
+    role: Literal["module", "motor", "supply", "capacitor", "rail"] | None = None
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class CustomDeviceSchema(BaseModel):
     """Schema for custom device definition.
 
@@ -209,6 +231,7 @@ class CustomDeviceSchema(BaseModel):
         height: Device height in SVG units
         color: Device color as hex code
         description: Optional device description/specifications
+        breadboard: Optional breadboard-layout seat (a custom device needs a ``role``)
     """
 
     name: Annotated[str, Field(min_length=1, max_length=100, description="Device name")]
@@ -219,6 +242,7 @@ class CustomDeviceSchema(BaseModel):
         str, Field(description="Color name (e.g., 'red') or hex code (e.g., '#FF0000')")
     ] = "#4A90E2"
     description: Annotated[str, Field(max_length=200)] | None = None
+    breadboard: BreadboardPlacementSchema | None = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -264,6 +288,7 @@ class PredefinedDeviceSchema(BaseModel):
     has_int_pin: bool | None = None  # alias for has_interrupt
     color: Annotated[str, Field(max_length=50)] | None = None  # for led
     pull_up: bool | None = None  # for button
+    breadboard: BreadboardPlacementSchema | None = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -585,7 +610,9 @@ class ConnectionSchema(BaseModel):
                 comp_type = ComponentType(comp_schema.type)
                 components_list.append(
                     Component(
-                        type=comp_type, value=comp_schema.value, position=comp_schema.position
+                        type=comp_type,
+                        value=comp_schema.value,
+                        position=comp_schema.position,
                     )
                 )
 
@@ -656,6 +683,7 @@ class DiagramConfigSchema(BaseModel):
     show_title: bool = True
     show_board_name: bool = True
     theme: Annotated[str, Field(description="Theme: light or dark")] = "light"
+    layout: Literal["schematic", "breadboard"] = "schematic"
 
     model_config = ConfigDict(extra="forbid")
 
@@ -837,10 +865,12 @@ class BoardLayoutConfigSchema(BaseModel):
 
     # Single-header vertical layout (Raspberry Pi)
     left_col_x: Annotated[
-        float | None, Field(None, gt=0, description="X position for left column (odd pins)")
+        float | None,
+        Field(None, gt=0, description="X position for left column (odd pins)"),
     ]
     right_col_x: Annotated[
-        float | None, Field(None, gt=0, description="X position for right column (even pins)")
+        float | None,
+        Field(None, gt=0, description="X position for right column (even pins)"),
     ]
     start_y: Annotated[
         float | None, Field(None, gt=0, description="Starting Y position for first row")
@@ -934,7 +964,10 @@ class BoardConfigSchema(BaseModel):
     layout: BoardLayoutConfigSchema
     render_mode: Annotated[
         str,
-        Field(default="programmatic", description="Render mode: 'programmatic' or 'svg_asset'"),
+        Field(
+            default="programmatic",
+            description="Render mode: 'programmatic' or 'svg_asset'",
+        ),
     ] = "programmatic"
     svg_scale: Annotated[
         float,
@@ -1026,6 +1059,7 @@ VALID_DEVICE_CATEGORIES = {
     "io",
     "generic",
     "communication",
+    "power",
 }
 
 

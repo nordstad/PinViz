@@ -35,9 +35,16 @@ PIN_COMPATIBILITY_MATRIX: dict[tuple[PinRole, PinRole], tuple[bool, str | None]]
     # Power connections - same voltage OK
     (PinRole.POWER_3V3, PinRole.POWER_3V3): (True, None),
     (PinRole.POWER_5V, PinRole.POWER_5V): (True, None),
+    (PinRole.POWER_EXT, PinRole.POWER_EXT): (True, None),
+    # External supply must never meet the board's own rails
+    (PinRole.POWER_EXT, PinRole.POWER_3V3): (False, "error"),
+    (PinRole.POWER_3V3, PinRole.POWER_EXT): (False, "error"),
+    (PinRole.POWER_EXT, PinRole.POWER_5V): (False, "error"),
+    (PinRole.POWER_5V, PinRole.POWER_EXT): (False, "error"),
     # Power to ground - DANGEROUS short circuit
     (PinRole.POWER_3V3, PinRole.GROUND): (False, "error"),
     (PinRole.POWER_5V, PinRole.GROUND): (False, "error"),
+    (PinRole.POWER_EXT, PinRole.GROUND): (False, "error"),
     # Ground connections always OK
     (PinRole.GROUND, PinRole.GROUND): (True, None),
     # Cross-voltage power connections - handled separately in voltage checks
@@ -104,7 +111,7 @@ def check_pin_compatibility(source_role: PinRole, target_role: PinRole) -> tuple
     # - GPIO to specialized pins: warning (might be bit-banging)
     # - Different protocol pins: error (likely a mistake)
 
-    power_roles = {PinRole.POWER_3V3, PinRole.POWER_5V}
+    power_roles = {PinRole.POWER_3V3, PinRole.POWER_5V, PinRole.POWER_EXT}
     protocol_roles = {
         PinRole.I2C_SDA,
         PinRole.I2C_SCL,

@@ -269,6 +269,7 @@ Available pin roles:
 
 - `GPIO` - General purpose I/O
 - `3V3` / `5V` - Power supply
+- `EXT_POWER` - External supply such as a 24 V motor supply (validation rejects connecting it to a board `3V3`/`5V` pin)
 - `GND` - Ground
 - `I2C_SDA` / `I2C_SCL` - I2C communication
 - `SPI_MOSI` / `SPI_MISO` / `SPI_SCLK` / `SPI_CE0` / `SPI_CE1` - SPI communication

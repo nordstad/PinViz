@@ -22,6 +22,7 @@ nav = [
         {"Validation" = "validation.md"},
         {"Multi-Level Connections" = "multi-level-connections.md"},
         {"Smart Pin Assignment" = "features/smart-pin-assignment.md"},
+        {"Breadboard Layout" = "features/breadboard-layout.md"},
         {"Examples" = [
             {"Index" = "guide/examples.md"},
             {"Raspberry Pi" = "guide/examples-raspberry-pi.md"},

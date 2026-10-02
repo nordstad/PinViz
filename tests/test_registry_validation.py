@@ -1,5 +1,6 @@
 """Tests for DeviceRegistry fail-fast validation and health status."""
 
+from pinviz.device_validator import validate_devices
 from pinviz.devices import get_registry
 
 
@@ -130,3 +131,10 @@ class TestRegistryValidation:
             assert template.type_id == "bh1750"
             assert template.name
             assert template.category
+
+
+def test_all_device_configs_validate():
+    """Mirrors `pinviz validate-devices`, which CI also runs."""
+    result = validate_devices()
+
+    assert not result.has_errors, [str(error) for error in result.errors]

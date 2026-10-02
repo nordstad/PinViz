@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Self
 
 from .board_selection import AliasBoardSelectionStrategy, BoardSelectionStrategy
-from .model import Board, Connection, Device, Diagram
+from .model import Board, Connection, Device, Diagram, LayoutMode
 from .theme import Theme
 
 
@@ -19,6 +19,7 @@ class DiagramOptions:
     show_title: bool = True
     show_board_name: bool = True
     theme: Theme = Theme.LIGHT
+    layout: LayoutMode = LayoutMode.SCHEMATIC
 
 
 class DiagramBuilder:
@@ -73,6 +74,7 @@ class DiagramBuilder:
             show_title=self._options.show_title,
             show_board_name=self._options.show_board_name,
             theme=self._options.theme,
+            layout_mode=self._options.layout,
         )
         self._reset()
         return diagram

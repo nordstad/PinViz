@@ -173,6 +173,10 @@ Demonstrates safe control of high-voltage devices:
 
 - **esp32_s3_can_transceiver.yaml** - SN65HVD230 CAN (TWAI) transceiver on ESP32-S3-DevKitC-1
 
+#### Breadboard layout (experimental)
+
+- **breadboard_stepstick.yaml** - TMC2209 stepstick on a solderless breadboard, wired to a Raspberry Pi 4 (`layout: breadboard`)
+
 ## Python API Examples
 
 Some examples also include Python API equivalents:

@@ -1,0 +1,20 @@
+{
+  "id": "electrolytic",
+  "name": "Electrolytic capacitor",
+  "category": "power",
+  "description": "Polarized electrolytic capacitor, two leads.",
+  "datasheet_url": "https://en.wikipedia.org/wiki/Electrolytic_capacitor",
+  "pins": [
+    {
+      "name": "+",
+      "role": "EXT_POWER",
+      "side": "left"
+    },
+    {
+      "name": "-",
+      "role": "GND",
+      "side": "left"
+    }
+  ],
+  "notes": "The stripe marks the negative lead. Place it across the motor supply at the drivers."
+}

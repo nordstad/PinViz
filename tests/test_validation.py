@@ -751,3 +751,29 @@ class TestPinRoleCompatibilityValidation:
         errors = [i for i in issues if i.level == ValidationLevel.ERROR]
         assert len(errors) >= 1
         assert any("5V" in e.message and "3V3" in e.message for e in errors)
+
+
+class TestExternalPower:
+    """EXT_POWER (motor supply) must never meet the board's own power pins."""
+
+    def test_supply_to_board_5v_pin_is_an_error(self):
+        psu = get_registry().create("psu_24v")
+        diagram = Diagram(
+            title="Test",
+            board=boards.raspberry_pi_5(),
+            devices=[psu],
+            connections=[Connection(2, psu.name, "+V")],
+        )
+
+        issues = DiagramValidator().validate(diagram)
+
+        errors = [i for i in issues if i.level == ValidationLevel.ERROR]
+        assert any("5V" in e.message and "EXT_POWER" in e.message for e in errors)
+
+    def test_supply_to_board_3v3_pin_is_an_error(self):
+        compatible, severity = check_pin_compatibility(PinRole.POWER_3V3, PinRole.POWER_EXT)
+        assert not compatible
+        assert severity == "error"
+
+    def test_supply_to_supply_is_compatible(self):
+        assert check_pin_compatibility(PinRole.POWER_EXT, PinRole.POWER_EXT) == (True, None)

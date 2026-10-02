@@ -98,6 +98,9 @@ jobs:
       - name: Create output directory
         run: mkdir -p out
 
+      - name: Validate device configs
+        run: uv run pinviz validate-devices
+
       - name: Run examples
         run: |
           for file in examples/*_python.py; do

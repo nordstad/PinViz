@@ -1,0 +1,30 @@
+{
+  "id": "nema17",
+  "name": "NEMA 17",
+  "category": "actuators",
+  "description": "NEMA 17 bipolar stepper with four leads, two coils.",
+  "datasheet_url": "https://reprap.org/wiki/NEMA_17_Stepper_motor",
+  "pins": [
+    {
+      "name": "A1",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "A2",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "B1",
+      "role": "GPIO",
+      "side": "left"
+    },
+    {
+      "name": "B2",
+      "role": "GPIO",
+      "side": "left"
+    }
+  ],
+  "notes": "Meter the coils. A1/A2 is one coil and B1/B2 is the other. Lead colors on a drawing are not the motor's color code."
+}

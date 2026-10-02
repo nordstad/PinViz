@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Breadboard layout** (`layout: breadboard`) draws the board artwork beside an upright solderless breadboard with plug-in modules seated on its holes, and colored jumper wires. Schematic layout is unchanged. Contributed by @r2DoesInc (https://github.com/nordstad/PinViz/pull/350).
+  - Modules stack top to bottom in YAML order, so listing them in header order keeps their wire ribbons from crossing.
+  - Each module's header wires travel as one parallel ribbon, with a white halo and a fixed lane spacing. A wire whose pin sits above pins that leave the header before it (the stepstick's EN) lands below the ribbon and climbs the left edge of the board, so the only crossing is that one visible hop. A white wire is drawn with a thin dark edge so it stays visible on the white page.
+  - Rail power is drawn as short stubs (MS1, MS2, VM, both GNDs) or a lane under the module (VDD); motors sit beside their own module with straight coil leads; a polarized capacitor plugs into two rails with its stripe marked.
+  - Logic and motor ground rails are tied at the bottom of the board when motor ground is used.
+  - Rendering fails when any device has no connection, so a floating part cannot be drawn.
+  - Experimental: supports a TMC2209 on a Raspberry Pi 4 or 5; other boards and module types fail with a clear error. `theme` and `show_legend` are honored.
+- `EXT_POWER` pin role for external/motor supplies. Validation reports an error when it is connected to a board `3V3` or `5V` pin.
+- `power` device category.
+- CI runs `pinviz validate-devices`.
+- Devices: `tmc2209` (16-pin stepstick seated as the BIGTREETECH pinout card reads from above: EN, MS1, MS2, PDN, PDN, CLK, STEP, DIR down the left and VM, GND, A2, A1, B1, B2, VDD, GND down the right), `nema17` (four leads), `psu_24v` (two-terminal motor supply), `electrolytic` (polarized capacitor), and `breadboard_rail` (GND, +3V3, MGND, and +24V strips). A device opts in with a `breadboard` seat (`role`: module, motor, supply, capacitor, or rail, plus an optional first `row`).
+
 
 ## [0.19.0] - 2026-07-07
 

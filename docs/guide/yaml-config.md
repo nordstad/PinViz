@@ -132,6 +132,7 @@ pinviz list
 | `show_gpio_diagram` | boolean | `false` | Show GPIO pin reference diagram |
 | `show_title` | boolean | `true` | Display the diagram title |
 | `show_board_name` | boolean | `true` | Display the board name |
+| `layout` | string | `"schematic"` | `"schematic"` or `"breadboard"` (experimental, see [Breadboard Layout](../features/breadboard-layout.md)) |
 
 ### Themes
 

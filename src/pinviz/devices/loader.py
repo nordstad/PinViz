@@ -232,6 +232,7 @@ def load_device_from_config(config_name: str, **parameters) -> Device:
     category = config_dict.get("category", "")
     category_colors = {
         "sensors": "#50E3C2",  # Turquoise
+        "power": "#4CAF50",
         "displays": "#4A90E2",  # Blue
         "leds": "#E74C3C",  # Red
         "actuators": "#F5A623",  # Orange
