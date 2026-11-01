@@ -178,5 +178,5 @@ connections:
 - [Validation](../validation.md) — catch wiring mistakes before you build
 - [Multi-Level Connections](../multi-level-connections.md) — wire devices to other devices
 - [Smart Pin Assignment](../features/smart-pin-assignment.md) — auto-distribute GND and power pins
-- [Examples](../guide/examples.md) — complete examples by board and feature
+- [All examples](../guide/examples.md) — browse diagrams by board, layout, and feature
 - [Troubleshooting](../troubleshooting.md) — fix common errors

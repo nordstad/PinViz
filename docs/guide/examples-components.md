@@ -2,7 +2,7 @@
 
 Examples showing resistors, capacitors, and diodes placed directly on wires.
 
-→ [All examples index](examples.md) | [Raspberry Pi](examples-raspberry-pi.md) | [Pico](examples-pico.md) | [ESP32/ESP8266](examples-esp.md) | [Multi-Tier](examples-multi-tier.md)
+→ [All examples](examples.md) | [Raspberry Pi](examples-raspberry-pi.md) | [Pico](examples-pico.md) | [ESP32/ESP8266](examples-esp.md) | [Multi-Tier](examples-multi-tier.md)
 
 Add inline components to any connection using the `components` key:
 
@@ -18,6 +18,30 @@ connections:
 ```
 
 ---
+
+## In this collection
+
+<div class="grid cards" markdown>
+
+-   [![LED with resistor wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/led_with_resistor.svg){ loading=lazy }](#led-with-resistor)
+
+    ### [LED with resistor](#led-with-resistor)
+
+    Current limiting · simple LED circuit
+
+-   [![LED with capacitor wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/components/led_with_capacitor.svg){ loading=lazy }](#led-with-decoupling-capacitor)
+
+    ### [Capacitor rendering](#led-with-decoupling-capacitor)
+
+    Inline component visualisation
+
+-   [![Relay with diode wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/components/relay_with_diode.svg){ loading=lazy }](#relay-with-flyback-diode)
+
+    ### [Relay with diode](#relay-with-flyback-diode)
+
+    5V relay · diode symbol rendering
+
+</div>
 
 ## LED with Resistor
 

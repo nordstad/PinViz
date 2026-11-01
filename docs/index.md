@@ -40,52 +40,32 @@ PinViz makes it easy to create clear, professional wiring diagrams for your micr
 
 ## Example Diagrams
 
-### Raspberry Pi 5 - Multi-LED with Specifications
+Browse complete, runnable configurations by board, layout, and capability in the
+[diagram gallery](guide/examples.md).
 
-Three LEDs with inline resistors and detailed component specifications:
+<div class="grid cards" markdown>
 
-![Multi-LED with Specifications](https://raw.githubusercontent.com/nordstad/PinViz/main/images/leds_with_specs.svg)
+-   [![BH1750 light sensor wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750.svg){ loading=lazy }](guide/examples-raspberry-pi.md#bh1750-light-sensor)
 
-**Key features:** Raspberry Pi 5 board, inline resistors, specification table
-with part numbers
+    ### [I²C light sensor](guide/examples-raspberry-pi.md#bh1750-light-sensor)
 
-### Raspberry Pi 4 - I2C + SPI Combo
+    Raspberry Pi 5 · BH1750 · I²C wiring
 
-OLED display (I2C) and accelerometer (SPI) demonstrating multiple protocol
-buses:
+-   [![ESP32 weather station wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_weather_station.svg){ loading=lazy }](guide/examples-esp.md#esp32-weather-station)
 
-![Pi 4 I2C + SPI](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pi4_i2c_spi_combo.svg)
+    ### [ESP32 weather station](guide/examples-esp.md#esp32-weather-station)
 
-**Key features:** Raspberry Pi 4 board, I2C and SPI protocols, multi-device
-setup
+    ESP32 DevKit V1 · BME280 · OLED · shared I²C
 
-### ESP32 DevKit V1 - Weather Station
+-   [![TMC2209 breadboard layout](assets/breadboard/stepstick.svg){ loading=lazy }](features/breadboard-layout.md)
 
-BME280 sensor and SSD1306 OLED display sharing the I2C bus, with smart pin
-assignment distributing ground connections automatically:
+    ### [Breadboard layout](features/breadboard-layout.md)
 
-![ESP32 Weather Station](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_weather_station.svg)
+    Raspberry Pi 4 or 5 · TMC2209 · experimental
 
-**Key features:** ESP32 DevKit V1 board, dual I2C devices, smart GND pin
-distribution with `board_pin_role`
+</div>
 
-### Raspberry Pi Pico - LEDs with Specifications
-
-Three LEDs on Pico's dual-sided header with component specifications:
-
-![Pico Multi-LED with Specs](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pico_leds_with_specs.svg)
-
-**Key features:** Raspberry Pi Pico board, horizontal pin layout,
-specification table
-
-### Minimal Diagram - No Headers
-
-Clean diagram without title and board name labels:
-
-![Simple LED Minimal](https://raw.githubusercontent.com/nordstad/PinViz/main/images/simple_led_minimal.svg)
-
-**Key features:** Minimal layout with `show_title: false` and
-`show_board_name: false`
+**[Browse all diagram examples →](guide/examples.md)**
 
 ## Quick Start
 

@@ -2,7 +2,7 @@
 
 Examples for the Raspberry Pi Pico's dual-sided GPIO header layout.
 
-→ [All examples index](examples.md) | [Raspberry Pi](examples-raspberry-pi.md) | [Components](examples-components.md) | [ESP32/ESP8266](examples-esp.md) | [Multi-Tier](examples-multi-tier.md)
+→ [All examples](examples.md) | [Raspberry Pi](examples-raspberry-pi.md) | [Components](examples-components.md) | [ESP32/ESP8266](examples-esp.md) | [Multi-Tier](examples-multi-tier.md)
 
 The Pico has a horizontal pin layout with pins on both the top and bottom edges.
 Physical pin numbers run right-to-left on the top header (pin 1 = GP0, rightmost top)
@@ -11,6 +11,30 @@ and left-to-right on the bottom header. Use `pinviz list` to see the full pinout
 **Board aliases:** `raspberry_pi_pico`, `pico`
 
 ---
+
+## In this collection
+
+<div class="grid cards" markdown>
+
+-   [![Pico LED wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pico_led.svg){ loading=lazy }](#pico-led-circuit)
+
+    ### [Pico LED](#pico-led-circuit)
+
+    GPIO · inline resistor · dual-sided header
+
+-   [![Pico BME280 wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pico_bme280.svg){ loading=lazy }](#pico-bme280-sensor)
+
+    ### [Pico BME280](#pico-bme280-sensor)
+
+    I²C sensor · power and data on separate headers
+
+-   [![Dark-mode Pico LED wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pico_led_dark.svg){ loading=lazy }](#pico-led-dark-mode)
+
+    ### [Dark-mode Pico](#pico-led-dark-mode)
+
+    Dark canvas · hardware-accurate colours
+
+</div>
 
 ## Pico LED Circuit
 

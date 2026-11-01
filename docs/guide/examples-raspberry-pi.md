@@ -2,9 +2,39 @@
 
 Examples for Raspberry Pi 5 and Raspberry Pi 4 boards.
 
-→ [All examples index](examples.md) | [Components](examples-components.md) | [Pico](examples-pico.md) | [ESP32/ESP8266](examples-esp.md) | [Multi-Tier](examples-multi-tier.md)
+→ [All examples](examples.md) | [Components](examples-components.md) | [Pico](examples-pico.md) | [ESP32/ESP8266](examples-esp.md) | [Multi-Tier](examples-multi-tier.md)
 
 ---
+
+## In this collection
+
+<div class="grid cards" markdown>
+
+-   [![BH1750 light sensor wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750.svg){ loading=lazy }](#bh1750-light-sensor)
+
+    ### [I²C light sensor](#bh1750-light-sensor)
+
+    BH1750 · automatic I²C colours
+
+-   [![Traffic light wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/traffic_light.svg){ loading=lazy }](#traffic-light)
+
+    ### [Traffic light](#traffic-light)
+
+    Three LEDs · inline resistors
+
+-   [![Smart sensor station wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/smart_sensor_station.svg){ loading=lazy }](#multi-device-setup)
+
+    ### [Multi-device setup](#multi-device-setup)
+
+    Shared bus · custom wire colours
+
+-   [![Dark-mode BH1750 wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750_dark.svg){ loading=lazy }](#bh1750-sensor-dark-mode)
+
+    ### [Dark-mode output](#bh1750-sensor-dark-mode)
+
+    Presentation-ready · dark canvas
+
+</div>
 
 ## Wire Visibility - Light & Dark Colors
 

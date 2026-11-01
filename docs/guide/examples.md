@@ -1,67 +1,143 @@
 # Examples
 
-Explore example diagrams and configurations organised by board and feature.
+Start with a diagram that resembles your project, then open its full example for
+the YAML configuration and command to generate it.
 
-## Demo - ESP32 Weather Station
+## Diagram gallery
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/esp32_demo.gif" alt="PinViz ESP32 Demo" width="800">
-</p>
+<div class="grid cards" markdown>
 
-## Demo - Custom Device Creation
+-   [![BH1750 light sensor wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750.svg){ loading=lazy }](examples-raspberry-pi.md#bh1750-light-sensor)
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/custom_device_demo.gif" alt="PinViz Custom Device Demo" width="800">
-</p>
+    ### [I²C light sensor](examples-raspberry-pi.md#bh1750-light-sensor)
 
----
+    Raspberry Pi 5 · BH1750 · I²C wiring
 
-## Browse by Board or Feature
+-   [![Smart sensor station wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/smart_sensor_station.svg){ loading=lazy }](examples-raspberry-pi.md#multi-device-setup)
 
-| Section | Examples |
-|---------|---------|
-| [Raspberry Pi](examples-raspberry-pi.md) | Wire visibility, BH1750 I2C sensor, traffic light, multi-device, specs table, dark mode |
-| [Inline Components](examples-components.md) | LED + resistor, decoupling capacitor, flyback diode, all component types |
-| [Raspberry Pi Pico](examples-pico.md) | Pico LED, Pico BME280, multi-LED with specs, dark mode |
-| [ESP32 / ESP8266](examples-esp.md) | ESP32 weather station, ESP32-S3 CAN transceiver, NodeMCU LEDs, Wemos D1 Mini OLED |
-| [Multi-Tier Connections](examples-multi-tier.md) | Motor control (L293D), relay control, Pico power chain |
+    ### [Multi-device sensor station](examples-raspberry-pi.md#multi-device-setup)
 
----
+    Raspberry Pi 5 · shared buses · multiple devices
 
-## Feature Showcase
+-   [![Relay with diode wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/components/relay_with_diode.svg){ loading=lazy }](examples-components.md#relay-with-flyback-diode)
 
-| Feature | Where to find it |
-|---------|-----------------|
-| Wire visibility (light & dark halos) | [Raspberry Pi → Wire Visibility](examples-raspberry-pi.md#wire-visibility-light-dark-colors) |
-| Dark mode | [Raspberry Pi → BH1750 Dark Mode](examples-raspberry-pi.md#bh1750-sensor-dark-mode) • [Pico → Dark Mode](examples-pico.md#pico-led-dark-mode) |
-| I2C sensor | [Raspberry Pi → BH1750](examples-raspberry-pi.md#bh1750-light-sensor) |
-| Inline resistor / capacitor / diode | [Components](examples-components.md) |
-| Multiple devices | [Raspberry Pi → Traffic Light](examples-raspberry-pi.md#traffic-light) |
-| Device-to-device (multi-tier) | [Multi-Tier](examples-multi-tier.md) |
-| Smart GND / power pin distribution | [ESP8266 → NodeMCU LED Example](examples-esp.md#esp8266-nodemcu-led-example) |
-| Specifications table (`--show-legend`) | [Raspberry Pi → Specs Table](examples-raspberry-pi.md#device-specifications-table) • [Pico → Multi-LED with Specs](examples-pico.md#pico-multi-led-circuit-with-specifications) |
+    ### [Inline components](examples-components.md#relay-with-flyback-diode)
 
----
+    Raspberry Pi 5 · resistor · capacitor · diode
 
-## Quick Start with Built-in Examples
+-   [![ESP32 weather station wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_weather_station.svg){ loading=lazy }](examples-esp.md#esp32-weather-station)
+
+    ### [ESP32 weather station](examples-esp.md#esp32-weather-station)
+
+    ESP32 DevKit V1 · BME280 · OLED · shared I²C
+
+-   [![ESP32-S3 CAN transceiver wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_s3_can_transceiver.svg){ loading=lazy }](examples-esp.md#esp32-s3-can-twai-via-sn65hvd230)
+
+    ### [ESP32-S3 CAN bus](examples-esp.md#esp32-s3-can-twai-via-sn65hvd230)
+
+    ESP32-S3 · TWAI · CAN transceiver
+
+-   [![Raspberry Pi Pico BME280 wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pico_bme280.svg){ loading=lazy }](examples-pico.md#pico-bme280-sensor)
+
+    ### [Pico sensor](examples-pico.md#pico-bme280-sensor)
+
+    Raspberry Pi Pico · dual-sided header · I²C
+
+-   [![Motor control wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/motor_control.svg){ loading=lazy }](examples-multi-tier.md#motor-control-with-l293d)
+
+    ### [Motor control chain](examples-multi-tier.md#motor-control-with-l293d)
+
+    Raspberry Pi 5 · driver · device-to-device wiring
+
+-   [![TMC2209 breadboard layout](../assets/breadboard/stepstick.svg){ loading=lazy }](../features/breadboard-layout.md)
+
+    ### [Breadboard layout](../features/breadboard-layout.md)
+
+    Raspberry Pi 4 or 5 · TMC2209 · experimental
+
+-   [![Dark-mode BH1750 wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750_dark.svg){ loading=lazy }](examples-raspberry-pi.md#bh1750-sensor-dark-mode)
+
+    ### [Dark-mode output](examples-raspberry-pi.md#bh1750-sensor-dark-mode)
+
+    Raspberry Pi 5 · dark theme · presentation-ready
+
+</div>
+
+## Browse by board or layout
+
+<div class="grid cards" markdown>
+
+-   ### [Raspberry Pi](examples-raspberry-pi.md)
+
+    Sensors, LEDs, shared buses, specifications, and dark mode.
+
+-   ### [Inline components](examples-components.md)
+
+    Resistors, capacitors, and diodes rendered directly on wires.
+
+-   ### [Raspberry Pi Pico](examples-pico.md)
+
+    Pico's dual-sided header with sensors, LEDs, and specifications.
+
+-   ### [ESP32 / ESP8266](examples-esp.md)
+
+    ESP32, ESP32-S3, NodeMCU, and Wemos D1 Mini projects.
+
+-   ### [Multi-tier connections](examples-multi-tier.md)
+
+    Drivers, relays, motors, and device-to-device power chains.
+
+-   ### [Breadboard layout](../features/breadboard-layout.md)
+
+    A physical TMC2209 stepstick layout on a solderless breadboard.
+
+</div>
+
+## Find an example by capability
+
+| Need | Start with |
+| ---- | ---------- |
+| I²C sensor | [BH1750 light sensor](examples-raspberry-pi.md#bh1750-light-sensor) or [Pico BME280](examples-pico.md#pico-bme280-sensor) |
+| Shared I²C bus | [ESP32 weather station](examples-esp.md#esp32-weather-station) |
+| Inline resistor, capacitor, or diode | [Inline components](examples-components.md) |
+| Multiple devices | [Multi-device setup](examples-raspberry-pi.md#multi-device-setup) |
+| Device-to-device wiring | [Motor control chain](examples-multi-tier.md#motor-control-with-l293d) |
+| Smart GND or power distribution | [ESP8266 LEDs](examples-esp.md#esp8266-nodemcu-led-example) |
+| Specifications table | [Raspberry Pi specifications](examples-raspberry-pi.md#device-specifications-table) |
+| Dark output | [BH1750 dark mode](examples-raspberry-pi.md#bh1750-sensor-dark-mode) |
+
+??? example "Watch PinViz generate diagrams"
+
+    ### ESP32 weather station
+
+    <p align="center">
+      <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/esp32_demo.gif" alt="PinViz generating an ESP32 weather station diagram" width="800" loading="lazy">
+    </p>
+
+    ### Custom device creation
+
+    <p align="center">
+      <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/scripts/demos/output/custom_device_demo.gif" alt="PinViz creating a custom device diagram" width="800" loading="lazy">
+    </p>
+
+## Try a built-in example
 
 ```bash
-# List all available examples
+# List all available built-in examples
 pinviz list
 
-# Generate built-in examples
+# Generate a BH1750 light-sensor diagram
 pinviz example bh1750 -o bh1750.svg
-pinviz example ir_led -o ir_led.svg
-pinviz example i2c_spi -o i2c_spi.svg
+
+# Generate an ESP32 weather-station diagram
 pinviz example esp32_weather -o esp32_weather.svg
 ```
 
-All YAML example files are in the [`examples/`](https://github.com/nordstad/PinViz/tree/main/examples) directory.
-Generated SVGs are in [`images/`](https://github.com/nordstad/PinViz/tree/main/images).
+All YAML example files are in the [`examples/`](https://github.com/nordstad/PinViz/tree/main/examples)
+directory. Generated SVGs are in the [`images/`](https://github.com/nordstad/PinViz/tree/main/images)
+directory.
 
----
-
-## Contributing Examples
+## Contributing examples
 
 Have a useful diagram to share? Submit a pull request to the
 [`examples/`](https://github.com/nordstad/PinViz/tree/main/examples) directory with:
@@ -70,11 +146,9 @@ Have a useful diagram to share? Submit a pull request to the
 2. A description of what the example demonstrates
 3. The rendered SVG diagram
 
----
+## Next steps
 
-## Next Steps
-
-- [YAML Configuration Guide](yaml-config.md) — all config options
-- [CLI Usage](cli.md) — all commands and flags
+- [YAML configuration guide](yaml-config.md) — all config options
+- [CLI usage](cli.md) — all commands and flags
 - [Validation](../validation.md) — catch wiring errors
-- [Multi-Level Connections](../multi-level-connections.md) — device-to-device wiring guide
+- [Multi-level connections](../multi-level-connections.md) — device-to-device wiring guide

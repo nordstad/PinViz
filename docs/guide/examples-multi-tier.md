@@ -2,11 +2,35 @@
 
 Examples showing device-to-device connections (board → driver → motor, board → relay → load, etc.)
 
-→ [All examples index](examples.md) | [Raspberry Pi](examples-raspberry-pi.md) | [Components](examples-components.md) | [Pico](examples-pico.md) | [ESP32/ESP8266](examples-esp.md)
+→ [All examples](examples.md) | [Raspberry Pi](examples-raspberry-pi.md) | [Components](examples-components.md) | [Pico](examples-pico.md) | [ESP32/ESP8266](examples-esp.md)
 
 Multi-tier diagrams require the `from`/`to` connection syntax for device-to-device
 links. See the [Multi-Level Connections guide](../multi-level-connections.md) for
 the full feature reference.
+
+## In this collection
+
+<div class="grid cards" markdown>
+
+-   [![Motor control wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/motor_control.svg){ loading=lazy }](#motor-control-with-l293d)
+
+    ### [Motor control](#motor-control-with-l293d)
+
+    Raspberry Pi → driver → motor
+
+-   [![Relay control wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/relay_control.svg){ loading=lazy }](#relay-control-for-high-voltage-devices)
+
+    ### [Relay control](#relay-control-for-high-voltage-devices)
+
+    Raspberry Pi → relay → load
+
+-   [![Pico power-chain wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/pico_power_chain.svg){ loading=lazy }](#pico-power-distribution-chain)
+
+    ### [Pico power chain](#pico-power-distribution-chain)
+
+    Pico → regulator → LED
+
+</div>
 
 ## Connection Syntax
 

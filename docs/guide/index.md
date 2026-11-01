@@ -26,7 +26,7 @@ Everything you need to use PinViz day-to-day. Choose a path based on what you wa
 → [Smart Pin Assignment](../features/smart-pin-assignment.md) — `board_pin_role`, automatic distribution
 
 **See complete working examples**
-→ [Examples](examples.md) — examples by board, protocol, and feature
+→ [All examples](examples.md) — browse diagrams by board, layout, and feature
 
 **Fix an error I'm seeing**
 → [Troubleshooting](../troubleshooting.md) — common errors and solutions
@@ -44,5 +44,5 @@ Everything you need to use PinViz day-to-day. Choose a path based on what you wa
 | [Validation](../validation.md) | Validation checks and safety |
 | [Multi-Level Connections](../multi-level-connections.md) | Device-to-device wiring |
 | [Smart Pin Assignment](../features/smart-pin-assignment.md) | Automatic pin distribution |
-| [Examples](examples.md) | Full working examples |
+| [All examples](examples.md) | Browseable diagram gallery and full working examples |
 | [Troubleshooting](../troubleshooting.md) | Error reference |

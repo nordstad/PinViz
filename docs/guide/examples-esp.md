@@ -2,10 +2,40 @@
 
 Examples for ESP32 DevKit V1, ESP32-S3-DevKitC-1, ESP8266 NodeMCU, and Wemos D1 Mini boards.
 
-→ [All examples index](examples.md) | [Raspberry Pi](examples-raspberry-pi.md) | [Components](examples-components.md) | [Pico](examples-pico.md) | [Multi-Tier](examples-multi-tier.md)
+→ [All examples](examples.md) | [Raspberry Pi](examples-raspberry-pi.md) | [Components](examples-components.md) | [Pico](examples-pico.md) | [Multi-Tier](examples-multi-tier.md)
 
 All ESP boards use a dual-sided header layout. Physical pin numbers are used in
 `board_pin` (not GPIO numbers). Use `pinviz list` to see each board's full pinout.
+
+## In this collection
+
+<div class="grid cards" markdown>
+
+-   [![ESP32 weather station wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_weather_station.svg){ loading=lazy }](#esp32-weather-station)
+
+    ### [ESP32 weather station](#esp32-weather-station)
+
+    BME280 · OLED · shared I²C
+
+-   [![ESP32-S3 CAN transceiver wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp32_s3_can_transceiver.svg){ loading=lazy }](#esp32-s3-can-twai-via-sn65hvd230)
+
+    ### [ESP32-S3 CAN bus](#esp32-s3-can-twai-via-sn65hvd230)
+
+    TWAI · SN65HVD230 transceiver
+
+-   [![ESP8266 NodeMCU LED wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/esp8266_nodemcu_example.svg){ loading=lazy }](#esp8266-nodemcu-led-example)
+
+    ### [ESP8266 LEDs](#esp8266-nodemcu-led-example)
+
+    Smart GND distribution · multiple LEDs
+
+-   [![Wemos D1 Mini OLED wiring diagram](https://raw.githubusercontent.com/nordstad/PinViz/main/images/wemos_d1_mini_example.svg){ loading=lazy }](#wemos-d1-mini-oled-display)
+
+    ### [Wemos OLED](#wemos-d1-mini-oled-display)
+
+    Compact board · I²C display
+
+</div>
 
 ## Pin Reference
 
