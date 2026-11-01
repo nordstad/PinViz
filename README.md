@@ -13,6 +13,7 @@
   <a href="https://pypi.org/project/pinviz/"><img src="https://img.shields.io/pypi/v/pinviz.svg" alt="PyPI version"></a>
   <a href="https://github.com/nordstad/homebrew-pinviz"><img src="https://img.shields.io/badge/homebrew-tap-orange?logo=homebrew" alt="Homebrew"></a>
   <a href="https://pepy.tech/projects/pinviz"><img src="https://static.pepy.tech/personalized-badge/pinviz?period=total&units=international_system&left_color=black&right_color=green&left_text=downloads" alt="PyPI Downloads"></a>
+  <a href="https://hub.xerj.org/contributors/nordstad"><img src="https://hub.xerj.org/contributors/nordstad/badge.svg" alt="XERJ Corpus Hub contributor"></a>
 </p>
 
 **Programmatically generate beautiful GPIO connection diagrams for Raspberry Pi and ESP32/ESP8266 boards in SVG format.**
@@ -43,6 +44,16 @@ PinViz makes it easy to create clear, professional wiring diagrams for your micr
 <p align="center">
   <img src="https://raw.githubusercontent.com/nordstad/PinViz/main/images/bh1750.svg" alt="BH1750 Light Sensor Wiring Diagram" width="600">
 </p>
+
+<table>
+<tr>
+<td width="20%"><a href="images/bh1750.svg"><img src="images/bh1750.svg" alt="BH1750 I²C sensor wiring diagram"></a><br><sub>I²C sensor</sub></td>
+<td width="20%"><a href="images/smart_sensor_station.svg"><img src="images/smart_sensor_station.svg" alt="Smart sensor station wiring diagram"></a><br><sub>Multi-device</sub></td>
+<td width="20%"><a href="images/components/relay_with_diode.svg"><img src="images/components/relay_with_diode.svg" alt="Relay with flyback diode wiring diagram"></a><br><sub>Inline components</sub></td>
+<td width="20%"><a href="images/esp32_s3_can_transceiver.svg"><img src="images/esp32_s3_can_transceiver.svg" alt="ESP32-S3 CAN transceiver wiring diagram"></a><br><sub>ESP32 CAN</sub></td>
+<td width="20%"><a href="docs/assets/breadboard/stepstick.svg"><img src="docs/assets/breadboard/stepstick.svg" alt="TMC2209 breadboard layout"></a><br><sub>Breadboard layout</sub></td>
+</tr>
+</table>
 
 **[→ See more examples](https://nordstad.github.io/PinViz/guide/examples/)**
 
@@ -226,6 +237,10 @@ PinViz includes an **MCP (Model Context Protocol) server** that enables natural 
 - [Python API](https://nordstad.github.io/PinViz/guide/python-api/) - Programmatic API reference
 - [Examples Gallery](https://nordstad.github.io/PinViz/guide/examples/) - More example diagrams and configurations
 - [API Reference](https://nordstad.github.io/PinViz/api/) - Complete API documentation
+
+## In the wild
+
+PinViz is a contributor to the [XERJ Corpus Hub](https://hub.xerj.org/contributors/nordstad), helping make AI systems more predictable.
 
 ## Contributing
 
